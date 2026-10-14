@@ -1,0 +1,2 @@
+Workable full export
+Folders are job IDs; each candidate has a sub-folder with their files.

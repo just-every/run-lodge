@@ -1,0 +1,75 @@
+// LDG-013: agent-native workflows through the same API a person uses. The
+// "agent" here is a test client signed in as an agent member: Lodge runs no
+// model, so there is nothing to fake; these requests are what any coding agent sends.
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { BUSINESS, harness } from './harness.mjs'
+
+test('LDG-013 agents propose typed changes from versioned sources; a person approves; stale or unsupported proposals fail', async () => {
+  const h = await harness()
+  try {
+    const { command: cmd, send, state, owner } = h
+    await cmd('business', BUSINESS)
+    const morgan = await h.member('morgan@example.test', ['manager'], 'Morgan Lee')
+    const ivy = await h.member('ivy@example.test', ['interviewer'], 'Ivy Chen')
+    const agent = await h.member('agent@example.test', [], 'Morgan’s coding agent', { agent: true, actsFor: 'morgan@example.test' })
+    const ivyAgent = await h.member('ivy-agent@example.test', [], 'Ivy’s coding agent', { agent: true, actsFor: 'ivy@example.test' })
+
+    // An agent member cannot change anything directly.
+    assert.equal((await send('/api/lodge/command/vacancy', { title: 'Direct', manager: 'agent@example.test' }, agent)).status, 403)
+
+    // Prepare the vacancy from the owner's intake: pay was not stated, so it is flagged, not invented.
+    const intake = 'We need a second estimator in Brooklyn, start in January. Morgan runs it.'
+    const proposal = await cmd('propose', {
+      workflow: 'prepare-vacancy', approver: 'morgan@example.test', intake, summary: 'Estimator vacancy from the owner’s intake',
+      changes: [
+        { op: 'vacancy', input: { title: 'Estimator', location: 'Brooklyn, NY', headcount: 1, manager: 'morgan@example.test', description: 'Prepare bids for residential work.' } },
+        { op: 'rubric', input: { id: { $result: 0 }, criteria: [{ name: 'Takeoffs', description: 'Walks through a takeoff they produced' }] } },
+        { op: 'interview-plan', input: { id: { $result: 0 }, plan: [{ name: 'Bid review', stageName: 'Interview', durationMinutes: 60 }] } },
+      ],
+    }, agent)
+    assert.deepEqual(proposal.missing, ['compensation range'])
+    assert.equal(proposal.model, null, 'no model result is claimed')
+    assert.equal((await state()).vacancies.length, 0, 'nothing changes before approval')
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: proposal.id, decision: 'approved', reason: 'ok' }, ivy)).status, 404, 'a hidden proposal does not reveal its approver or status')
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: proposal.id, decision: 'approved', reason: 'mine' }, agent)).status, 403)
+    await cmd('decide-proposal', { id: proposal.id, decision: 'approved', reason: 'Matches what we discussed' }, morgan)
+    const vacancy = (await state(morgan)).vacancies[0]
+    assert.equal(vacancy.compensation, null)
+    assert.equal(vacancy.plan[0].stage, vacancy.stages.find(st => st.name === 'Interview').id)
+    assert.equal(vacancy.createdBy, 'morgan@example.test', 'changes run as the approver')
+
+    // A proposal prepared from a record that later changes cannot be applied.
+    const stale = await cmd('propose', { workflow: 'prepare-vacancy', approver: 'morgan@example.test', summary: 'Tighten the description', sources: [{ kind: 'vacancy', id: vacancy.id }], changes: [{ op: 'vacancy', input: { ...vacancy, description: 'Agent wording' } }] }, agent)
+    await cmd('vacancy', { ...vacancy, compensation: { currency: 'USD', min: 7000000, max: 8500000, period: 'year' } }, morgan)
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: stale.id, decision: 'approved', reason: 'ok' }, morgan)).status, 409)
+    assert.equal((await state(morgan)).vacancies[0].description, 'Prepare bids for residential work.')
+
+    // Feedback packet: an interviewer's own agent drafts a scorecard citing her notes word for word.
+    await cmd('request-vacancy-approval', { id: vacancy.id, approver: (await state()).members.find(m => m.owner).email }, morgan)
+    const approval = (await state()).approvals.find(x => x.status === 'pending')
+    await cmd('decide-approval', { id: approval.id, decision: 'approved', reason: 'Budgeted', version: approval.currentVersion })
+    await cmd('publish', { id: vacancy.id }, morgan)
+    const { application } = await cmd('candidate', { name: 'Riley Park', email: 'riley@example.test', source: 'Referral', consentBasis: 'referral', talentPool: true, skills: 'Residential takeoffs, Bluebeam, concrete estimating', vacancy: vacancy.id }, morgan)
+    await cmd('assign-reviewers', { application: application.id, reviewers: ['ivy@example.test'] }, morgan)
+    const note = await cmd('note', { application: application.id, text: 'Showed a full takeoff for a 6-unit walk-up and explained each quantity.' }, ivy)
+    const takeoffs = vacancy.rubrics[0].criteria[0].id
+    const draft = (ratings, citations) => send('/api/lodge/command/propose', { workflow: 'feedback-packet', summary: 'Draft from notes', sources: [{ kind: 'interview-note', id: note.id }, { kind: 'application', id: application.id }], changes: [{ op: 'scorecard', input: { application: application.id, ratings, evidence: { [takeoffs]: 'Full takeoff for a 6-unit walk-up' } } }], citations }, ivyAgent)
+    assert.equal((await draft({ [takeoffs]: 4 }, [])).status, 400, 'a rating without a cited passage is refused')
+    assert.equal((await draft({ [takeoffs]: 4 }, [{ criterion: takeoffs, note: note.id, quote: 'an excellent estimator' }])).status, 400, 'a quote must be exact')
+    const packet = await draft({ [takeoffs]: 4 }, [{ criterion: takeoffs, note: note.id, quote: 'full takeoff for a 6-unit walk-up' }])
+    assert.equal(packet.status, 200, JSON.stringify(packet.value))
+    assert.equal((await send('/api/lodge/command/propose', { workflow: 'feedback-packet', summary: 'x', sources: [{ kind: 'interview-note', id: note.id }], changes: [{ op: 'scorecard', input: { application: application.id, ratings: {}, evidence: {} } }] }, morgan)).status, 404, 'notes are private to their author')
+    await cmd('decide-proposal', { id: packet.value.id, decision: 'approved', reason: 'Accurate' }, ivy)
+    const card = (await state(ivy)).scorecards[0]
+    assert.deepEqual([card.status, card.ratings[takeoffs], card.author], ['draft', 4, 'ivy@example.test'], 'a draft she still edits and submits')
+
+    // Talent-pool rediscovery: factual matches with permission shown, no score; the person chooses.
+    const matches = (await send('/api/lodge/talent?q=bluebeam', undefined, owner)).value.matches
+    assert.deepEqual(matches.map(m => [m.name, m.matchedFields]), [['Riley Park', ['skills']]])
+    assert.equal(matches[0].score, undefined)
+    assert.equal((await send('/api/lodge/talent?q=bluebeam', undefined, morgan)).status, 403)
+    const quiet = await cmd('candidate', { name: 'Jo Quiet', source: 'Job fair', consentBasis: 'application', skills: 'Bluebeam' })
+    assert.equal((await send('/api/lodge/command/propose', { workflow: 'rediscovery', approver: 'morgan@example.test', summary: 'x', sources: [{ kind: 'candidate', id: quiet.candidate.id }], changes: [{ op: 'apply', input: { candidate: quiet.candidate.id, vacancy: vacancy.id, source: 'Talent pool' } }] }, owner)).status, 409, 'no permission to contact, no proposal')
+  } finally { await h.close() }
+})

@@ -1,0 +1,91 @@
+import { useState } from 'react'
+import type { PageProps } from './app'
+import { EMPLOYMENT_TYPES, vacancyFacts } from '../lodge/core/labels'
+import { person } from './names'
+import { cents, Field, Form, memberOptions, pay, Status, Table, type D } from './shared'
+
+function statusOf(v: D) {
+  if (v.imported) return <Status>imported history</Status>
+  if (v.status === 'open') return <Status tone="good">published</Status>
+  if (v.status === 'closed') return <Status>closed</Status>
+  if (v.approvedNow) return <Status tone="good">approved, not published</Status>
+  if (v.approval?.status === 'pending' && v.approval.version === v.version) return <Status tone="warn">awaiting approval</Status>
+  return <Status>draft</Status>
+}
+
+function Terms({ v, w, mutate, onSaved }: { v?: D; w: D; mutate: PageProps['mutate']; onSaved?: (id: string) => void }) {
+  const c = v?.compensation
+  return <Form label={v ? 'Save terms' : 'Create vacancy'} onSubmit={async x => {
+    const compensation = x.min || x.max ? { currency: x.currency.toUpperCase(), min: cents(x.min), max: cents(x.max), period: x.period } : null
+    const saved = await mutate('vacancy', { id: v?.id, title: x.title, department: x.department, location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation })
+    onSaved?.(saved.id)
+  }}>
+    <Field label="Job title" name="title" defaultValue={v?.title} />
+    <Field label="Department" name="department" required={false} defaultValue={v?.department} />
+    <Field label="Location" name="location" required={false} defaultValue={v?.location} />
+    <Field label="Work mode" name="workMode" defaultValue={v?.workMode ?? 'onsite'} options={[{ value: 'onsite', label: 'On site' }, { value: 'hybrid', label: 'Hybrid' }, { value: 'remote', label: 'Remote' }]} />
+    <Field label="Employment type" name="employmentType" defaultValue={v?.employmentType ?? 'full-time'} options={Object.entries(EMPLOYMENT_TYPES).map(([value, label]) => ({ value, label }))} />
+    <Field label="Headcount" name="headcount" type="number" required={false} defaultValue={v?.headcount ?? ''} />
+    <Field label="Pay currency" name="currency" required={false} defaultValue={c?.currency ?? 'USD'} />
+    <Field label="Pay period" name="period" defaultValue={c?.period ?? 'year'} options={[{ value: 'year', label: 'per year' }, { value: 'month', label: 'per month' }, { value: 'hour', label: 'per hour' }]} />
+    <Field label="Minimum pay" name="min" type="number" required={false} defaultValue={c ? c.min / 100 : ''} />
+    <Field label="Maximum pay" name="max" type="number" required={false} defaultValue={c ? c.max / 100 : ''} />
+    <Field label="Hiring manager" name="manager" defaultValue={v?.manager ?? w.actor.email} options={memberOptions(w.members, 'manager')} />
+    <Field label="Description applicants will read" name="description" type="textarea" wide required={false} defaultValue={v?.description} />
+  </Form>
+}
+
+function Setup({ v, w, mutate }: { v: D; w: D; mutate: PageProps['mutate'] }) {
+  const rubric = v.rubrics.at(-1)
+  const stageName = (id: string) => v.stages.find((s: D) => s.id === id)?.name ?? id
+  const critName = (id: string) => rubric?.criteria.find((c: D) => c.id === id)?.name ?? id
+  const locked = v.status !== 'draft' || v.imported
+  return <div className="columns">
+    <div><h3>Stages</h3>
+    {locked ? <ol className="stages">{v.stages.map((s: D) => <li key={s.id}>{s.name}</li>)}</ol> : <Form label="Save stages" onSubmit={x => mutate('vacancy-stages', { id: v.id, stages: x.stages.split('\n').map((n: string) => n.trim()).filter(Boolean).map((name: string) => ({ id: v.stages.find((s: D) => s.name === name)?.id, name })) })}>
+      <Field label="Stages, one per line, in order" name="stages" type="textarea" wide defaultValue={v.stages.map((s: D) => s.name).join('\n')} />
+    </Form>}</div>
+    <div><h3>Rubric {rubric ? `(version ${rubric.version})` : ''}</h3>
+    {rubric && <ul>{rubric.criteria.map((c: D) => <li key={c.id}><strong>{c.name}</strong>: {c.description}</li>)}</ul>}
+    {!locked && <Form label="Save rubric version" onSubmit={x => mutate('rubric', { id: v.id, criteria: x.criteria.split('\n').map((l: string) => l.trim()).filter(Boolean).map((l: string) => { const [name, ...rest] = l.split(':'); return { id: rubric?.criteria.find((c: D) => c.name === name.trim())?.id, name: name.trim(), description: rest.join(':').trim() } }) })}>
+      <Field label="Criteria, one per line as “Name: the job-related evidence it looks for”" name="criteria" type="textarea" wide defaultValue={rubric?.criteria.map((c: D) => `${c.name}: ${c.description}`).join('\n')} />
+    </Form>}</div>
+    <div><h3>Interview plan</h3>
+    {v.plan.length > 0 && <ul>{v.plan.map((p: D) => <li key={p.id}>{p.name}{stageName(p.stage) !== p.name && ` · ${stageName(p.stage)}`} · {p.durationMinutes} min · {p.criteria.map(critName).join(', ') || 'all criteria'}</li>)}</ul>}
+    {!locked && rubric && <Form label="Save interview plan" onSubmit={x => mutate('interview-plan', { id: v.id, plan: x.plan.split('\n').map((l: string) => l.trim()).filter(Boolean).map((l: string) => { const [name, stage, minutes, focus = ''] = l.split('|').map(p => p.trim()); return { id: v.plan.find((p: D) => p.name === name)?.id, name, stage: v.stages.find((s: D) => s.name === stage)?.id, durationMinutes: Number(minutes || 45), criteria: focus.split(',').map(f => f.trim()).filter(Boolean).map(f => rubric.criteria.find((c: D) => c.name === f)?.id ?? f) } }) })}>
+      <Field label="Interviews, one per line as “Name | Stage | minutes | criterion, criterion”" name="plan" type="textarea" wide defaultValue={v.plan.map((p: D) => `${p.name} | ${stageName(p.stage)} | ${p.durationMinutes} | ${p.criteria.map(critName).join(', ')}`).join('\n')} />
+    </Form>}</div>
+  </div>
+}
+
+function Detail({ v, w, mutate }: { v: D; w: D; mutate: PageProps['mutate'] }) {
+  const apps = w.applications.filter((a: D) => a.vacancy === v.id)
+  return <section className="record" aria-label={v.title}>
+    <h2>{v.title} {statusOf(v)}</h2>
+    <p className="meta">{[...vacancyFacts(v), pay(v.compensation), `headcount ${v.headcount ?? 'not set'}`, `hires ${v.hires ?? 0}`, `manager ${person(w, v.manager) || 'none'}`].join(' · ')}</p>
+    {v.imported && <p className="hint">Imported from Workable ({v.sourceState || 'unknown state'}). Kept as history; it cannot be reopened.</p>}
+    {v.status === 'open' && <p>Application page: <a href={`/jobs/${v.slug}`}>/jobs/{v.slug}</a> · {apps.length} applications</p>}
+    {v.missing?.length > 0 && !v.imported && <p className="warn">Before approval, add: {v.missing.join(', ')}.</p>}
+    {v.status === 'draft' && !v.imported && <details><summary>Edit terms</summary><Terms v={v} w={w} mutate={mutate} /></details>}
+    {!v.imported && <Setup v={v} w={w} mutate={mutate} />}
+    {v.status === 'draft' && !v.imported && <>
+      <h3>Approval</h3>
+      {v.approval && <p>Latest request: {v.approval.status} by {person(w, v.approval.approver)}{v.approval.reason ? ` (“${v.approval.reason}”)` : ''}{v.approval.version !== v.version ? ' · the terms changed since, so it no longer applies' : ''}</p>}
+      {v.approvedNow ? <button className="primary" onClick={() => mutate('publish', { id: v.id })}>Publish application page</button>
+        : <Form label="Request approval" onSubmit={x => mutate('request-vacancy-approval', { id: v.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} /></Form>}
+    </>}
+    {v.status === 'open' && <Form label="Unpublish" compact onSubmit={x => mutate('unpublish', { id: v.id, reason: x.reason })}><Field label="Reason for unpublishing" name="reason" /></Form>}
+    {v.status !== 'closed' && !v.imported && <Form label="Close vacancy" compact onSubmit={x => mutate('close-vacancy', { id: v.id, reason: x.reason })}><Field label="Reason for closing" name="reason" /></Form>}
+    <p><a href={`/api/lodge/download/vacancy/${v.id}`}>Export this vacancy’s whole history (JSON)</a></p>
+  </section>
+}
+
+export function Vacancies({ w, mutate }: PageProps) {
+  const [selected, setSelected] = useState<string | null>(null)
+  const v = w.vacancies.find((x: D) => x.id === selected)
+  return <>
+    <h1>Vacancies</h1>
+    <Table heads={['Title', 'Status', 'Pay', 'Applications', '']} empty="No vacancies yet.">{w.vacancies.filter((x: D) => x.manages).map((x: D) => <tr key={x.id}><td>{x.title}</td><td>{statusOf(x)}</td><td>{pay(x.compensation)}</td><td>{w.applications.filter((a: D) => a.vacancy === x.id).length}</td><td><button aria-label={'Open ' + x.title} onClick={() => setSelected(x.id)}>Open</button></td></tr>)}</Table>
+    {v ? <Detail v={v} w={w} mutate={mutate} /> : <details><summary>New vacancy</summary><Terms w={w} mutate={mutate} onSaved={setSelected} /></details>}
+  </>
+}

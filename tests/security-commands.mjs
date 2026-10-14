@@ -1,0 +1,28 @@
+// Public command inputs used to prove signed-out, stale, out-of-scope and agent refusals.
+export function commandBodies(h) {
+  const { vacancy, candidate, app, interview, offer } = h
+  return {
+    business: { name: 'Forbidden' }, member: { email: 'new@example.test', name: 'New', roles: ['admin'] },
+    vacancy: { title: 'Forbidden', manager: 'outside@example.test' }, 'vacancy-stages': { id: vacancy.id, stages: vacancy.stages },
+    rubric: { id: vacancy.id, criteria: [{ name: 'Criterion', description: 'Evidence' }] }, 'interview-plan': { id: vacancy.id, plan: vacancy.plan },
+    'request-vacancy-approval': { id: h.pendingVacancy.id, approver: 'approve@example.test' }, publish: { id: h.pendingVacancy.id },
+    unpublish: { id: vacancy.id, reason: 'Forbidden' }, 'close-vacancy': { id: vacancy.id, reason: 'Forbidden' },
+    'decide-approval': { id: h.pending.id, decision: 'approved', reason: 'Forbidden', version: h.pending.version },
+    candidate: { name: 'Forbidden', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id },
+    'correct-candidate': { id: candidate.id, name: 'Forbidden', reason: 'Forbidden' },
+    apply: { candidate: candidate.id, vacancy: vacancy.id, source: 'Forbidden' }, 'review-duplicate': { keep: candidate.id, other: candidate.id, decision: 'merge', reason: 'Forbidden' },
+    document: { application: app.id, name: 'x', base64: 'eA==' }, 'assign-reviewers': { application: app.id, reviewers: ['outside@example.test'] },
+    move: { application: app.id, to: 'withdrawn', reason: 'Forbidden' },
+    interview: { application: app.id, planItem: vacancy.plan[0].id, participants: ['outside@example.test'], slots: interview.slots },
+    availability: { interview: interview.id, slots: [0] }, schedule: { interview: interview.id, slot: 0 }, 'cancel-interview': { interview: interview.id, reason: 'Forbidden' },
+    scorecard: { application: app.id, ratings: {}, evidence: {}, recommendation: 'yes', submit: true },
+    'release-feedback': { application: app.id, reason: 'Forbidden' }, note: { application: app.id, text: 'Forbidden' },
+    message: { application: app.id, purpose: 'other', subject: 'Forbidden', body: 'Forbidden' }, 'request-message-approval': { id: h.message.id, approver: 'owner@example.test' },
+    offer: { application: app.id, salary: { currency: 'USD', amount: 100, period: 'year' }, startDate: '2026-12-10' },
+    'request-offer-approval': { id: offer.id, approver: 'approve@example.test' }, 'offer-outcome': { id: offer.id, outcome: 'accepted', reason: 'Forbidden' },
+    hold: { candidate: candidate.id, reason: 'Forbidden' }, 'release-hold': { id: h.hold.id, reason: 'Forbidden' }, 'extend-retention': { candidate: candidate.id, until: '2026-12-31', reason: 'Forbidden' },
+    'data-request': { candidate: candidate.id, type: 'access', channel: 'email' }, 'complete-data-request': { id: h.request.id, outcome: 'Forbidden' },
+    propose: { workflow: 'prepare-vacancy', approver: 'm1@example.test', summary: 'Forbidden source', sources: [{ kind: 'vacancy', id: vacancy.id }], changes: [{ op: 'vacancy', input: { ...vacancy, description: 'Forbidden' } }] },
+    'decide-proposal': { id: h.proposal.id, decision: 'approved', reason: 'Forbidden' },
+  }
+}

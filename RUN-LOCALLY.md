@@ -1,0 +1,9 @@
+# Run Lodge locally
+
+Install the shared CLI with `npx -y @runeditrun/rer cli install`, or `curl -fsSL https://runeditrun.com/install.sh | sh`. Lodge uses the exact published package pinned in package.json, with no checkout-local CLI copy.
+
+Run `rer install`, `rer setup --owner-email you@example.com`, then `rer dev`. Open the printed private sign-in URL on this computer, finish owner setup at `/setup`, and the hiring workspace opens at `/app`. `/` is the Base Lobby, `/signin` the sign-in page and `/jobs` the public application pages. To sign in again later, run `rer outbox`: ordinary one-use links from `/signin` arrive there. No mail or provider account is needed locally. `rer dev --stop` stops the server.
+
+Node 22.20.0 and pnpm 10.12.4 are pinned. Local D1 data persists under `.wrangler/state`. Private settings, native sessions, the dev key and installer state stay out of Git. A setup rerun keeps the saved owner and data. Missing non-interactive answers are reported by manifest field name; pass a private mode-0600 JSON answers file with `rer setup --answers PATH --non-interactive`.
+
+`rer describe`, `rer doctor` and `rer check` report command effects, environment problems and structure. `rer build` emits the production Worker; `rer verify` runs the full local wall. Stop dev or preview before export, import or reset. `rer export --output exports/lodge.rer` captures the whole installation; `rer import --input exports/lodge.rer --yes` restores it into an empty checkout running the same Lodge release; run `rer setup` after the import, as Base's restore order requires, and the restored owner is the same person. To restore over local data, `rer reset --yes` first. `rer reset --yes` removes the declared local data and settings; export first. `rer deploy --dry-run` validates a deployment without contacting Cloudflare.

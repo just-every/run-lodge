@@ -1,0 +1,114 @@
+// LDG-015 and LDG-017, plus the human journeys at 1440 and 390: a fresh clone of
+// the committed HEAD run only through the pinned `rer` verbs, the whole hiring
+// loop clicked by each role, every workspace screen at both widths, the Workable
+// kit through its page, preview, deploy dry run, and a whole-installation
+// archive restored into a second clone.
+import { queuedEntrypoint } from '@runeditrun/rer/queued-entry'
+const queued = await queuedEntrypoint(import.meta.url, 'test:lodge-browser'); if (queued !== null) process.exit(queued)
+import assert from 'node:assert/strict'
+import { chromium } from '@playwright/test'
+import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
+import { command, freePort, fresh, report, start } from './browser-runtime.mjs'
+import { api, current, journey, screens, session } from './browser-journey.mjs'
+import { folderEntries, zip } from './zip.mjs'
+
+const evidence = resolve(process.env.LODGE_EVIDENCE ?? '.cache/lodge-browser-proof')
+await mkdir(evidence, { recursive: true })
+const first = await fresh()
+let second, server, browser
+const result = { head: first.head, journeys: [] }
+const PERSONAS = [['manager', ['manager'], 'Morgan Lee'], ['approver', ['approver'], 'Parker Jones'], ['interviewer', ['interviewer'], 'Ivy Chen']]
+const sortById = rows => [...rows].sort((a, b) => a.id.localeCompare(b.id))
+
+try {
+  const root = first.root
+  await command(root, ['install'])
+  const port = await freePort()
+  await command(root, ['setup', '--owner-email', 'owner@example.test', '--port', String(port), '--non-interactive'])
+  await command(root, ['check', '--profile', 'first-party'])
+  await command(root, ['describe'])
+  server = await start(root, port)
+  browser = await chromium.launch({ headless: true })
+
+  // The owner starts from the empty-state onboarding page.
+  const owner = await session(browser, root, server.origin, 'owner', 1440)
+  await owner.page.getByRole('heading', { name: 'Welcome to Lodge' }).waitFor()
+  await owner.page.getByLabel('Business name').fill('Example Builders')
+  await owner.page.getByLabel('Accommodation contact', { exact: false }).fill('adjustments@example.test')
+  await owner.page.getByLabel('Applicant privacy notice', { exact: false }).fill('We use your application only to assess you for this role and keep it for one year.')
+  await owner.page.getByRole('button', { name: 'Save business settings' }).click()
+  await owner.page.getByRole('heading', { name: 'Example Builders' }).waitFor()
+  await owner.page.screenshot({ path: join(evidence, 'owner-overview-1440.png'), fullPage: true })
+  for (const [as, roles, name] of PERSONAS) await api(owner.context, server.origin, 'member', { email: `${as}@dev.localhost`, name, roles })
+
+  for (const width of [1440, 390]) result.journeys.push(await journey(browser, root, server.origin, width, evidence))
+
+  // The Workable kit through its own page: preview, then commit that exact preview.
+  const pkg = join(evidence, 'workable-sample.zip')
+  await writeFile(pkg, zip(await folderEntries(join(root, 'fixtures/workable-full-export'))))
+  await owner.page.reload()
+  await owner.page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Move in', exact: true }).click()
+  await owner.page.getByLabel('Workable export ZIP').setInputFiles(pkg)
+  await owner.page.getByRole('button', { name: 'Preview package' }).click()
+  await owner.page.getByText('Files that match no candidate').waitFor()
+  await owner.page.screenshot({ path: join(evidence, 'move-in-preview-1440.png'), fullPage: true })
+  await owner.page.getByRole('button', { name: 'Commit this exact preview' }).click()
+  await owner.page.getByText(/Import completed/).waitFor()
+
+  // Every main screen the owner uses, the Lobby, sign-in and the public job list, at both widths.
+  for (const width of [1440, 390]) await screens(browser, root, server.origin, width, evidence)
+
+  const before = await current(owner.context, server.origin)
+  await owner.context.close(); await browser.close(); browser = undefined
+  await server.close(); server = undefined
+
+  // Setup again keeps everything; the production build serves with the same boundary.
+  await command(root, ['setup', '--owner-email', 'owner@example.test', '--port', String(port), '--non-interactive'])
+  await command(root, ['build'])
+  server = await start(root, port, 'preview')
+  assert.equal((await fetch(server.origin + '/health')).status, 200)
+  assert.equal((await fetch(server.origin + '/api/lodge/state')).status, 401, 'preview keeps private routes private')
+  assert.equal((await fetch(server.origin + '/jobs')).status, 200, 'preview serves the application pages')
+  await server.close(); server = undefined
+  await command(root, ['deploy', '--dry-run'])
+
+  // Whole-installation archive: refused into a non-empty checkout, restored into a fresh one.
+  await rm(join(root, 'exports'), { recursive: true, force: true })
+  await command(root, ['export', '--output', 'exports/lodge.rer'])
+  await command(root, ['import', '--input', 'exports/lodge.rer', '--yes'], { expected: 4 })
+  second = await fresh()
+  // Base's restore order: import into the empty checkout, then setup establishes the owner.
+  await command(second.root, ['install'])
+  const secondPort = await freePort()
+  await mkdir(join(second.root, 'exports'), { recursive: true })
+  const bytes = await readFile(join(root, 'exports/lodge.rer'))
+  await writeFile(join(second.root, 'exports/damaged.rer'), Buffer.concat([bytes.subarray(0, Math.floor(bytes.length / 2)), Buffer.from('\ndamaged\n')]), { mode: 0o600 })
+  await command(second.root, ['import', '--input', 'exports/damaged.rer', '--yes'], { expected: 2 })
+  await copyFile(join(root, 'exports/lodge.rer'), join(second.root, 'exports/lodge.rer'))
+  await command(second.root, ['import', '--input', 'exports/lodge.rer', '--yes'])
+  await command(second.root, ['setup', '--owner-email', 'owner@example.test', '--port', String(secondPort), '--non-interactive'])
+  server = await start(second.root, secondPort)
+  browser = await chromium.launch({ headless: true })
+  const restored = await session(browser, second.root, server.origin, 'owner', 1440)
+  const after = await current(restored.context, server.origin)
+  for (const key of ['vacancies', 'applications', 'candidates', 'documents', 'scorecards', 'offers', 'approvals'])
+    assert.deepEqual(sortById(after[key]), sortById(before[key]), `${key} survive the archive restore`)
+  // Import batches and their journal survive, still bound to the same restored owner who ran them.
+  assert.deepEqual(sortById(after.importJobs), sortById(before.importJobs), 'import batches survive the archive restore')
+  assert.ok(after.importJobs.length > 0 && after.importJobs.every(job => job.mine))
+  const doc = after.documents.find(d => d.name === 'resume.txt')
+  const download = await restored.context.request.get(`${server.origin}/api/lodge/download/document/${doc.id}`)
+  assert.match(await download.text(), /Site supervisor 2018-2026/, 'document bytes survive the restore')
+  await restored.context.close()
+  result.restore = { records: Object.fromEntries(['vacancies', 'applications', 'candidates', 'documents', 'importJobs'].map(k => [k, after[k].length])) }
+  await server.close(); server = undefined
+  await command(second.root, ['reset', '--yes'])
+  result.passed = true
+  await report(evidence, result)
+  console.log(`Browser and CLI proof passed on ${first.head}; screenshots in ${evidence}`)
+} finally {
+  await browser?.close()
+  await server?.close()
+  for (const clone of [first, second]) if (clone) await rm(clone.root, { recursive: true, force: true })
+}

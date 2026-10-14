@@ -1,0 +1,2 @@
+sender_id,subject,body_html,created_at,type,recipient_id,cc_recipients
+m1,Interview invitation,<p>Hi Dana</p>,2026-03-08T12:00:00Z,email,5001,

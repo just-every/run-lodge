@@ -1,0 +1,14 @@
+/* Applicant pages: Base's themed frame (the sign-in card treatment, rer-theme.css) at reading width. */
+html.rer-themed main.lodge-public{max-width:720px}
+html.rer-themed main.lodge-public > h1,html.rer-themed main.lodge-public > h1 + p{text-align:left}
+.lodge-public .meta{color:var(--rer-muted)}
+.lodge-public textarea,.lodge-public select{box-sizing:border-box;width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--rer-border);border-radius:8px;background:var(--rer-surface);color:var(--rer-text);font:inherit}
+.lodge-public fieldset{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
+.lodge-public details{margin:0}.lodge-public summary{cursor:pointer;font-weight:500}
+.lodge-public .roles{list-style:none;padding:0;display:grid;gap:0}
+.lodge-public .roles li{display:grid;gap:2px;padding:16px 0;border-top:1px solid var(--rule)}
+.lodge-public .roles li:first-child{border-top:0}
+.lodge-public .roles a{font-size:19px;font-weight:600}
+.lodge-public .roles span{color:var(--rer-muted);font-size:15px}
+.lodge-public .error{color:#9a2626}
+.lodge-public h2{margin:28px 0 8px;font-family:var(--rer-font-body);font-size:22px;font-weight:600}

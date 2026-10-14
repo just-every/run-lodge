@@ -1,0 +1,52 @@
+/* The run site's shell and its birch material. Tokens come from /rer-theme.css. */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--rer-page);color:var(--rer-text);font:400 17px/1.55 var(--rer-font-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--rer-focus);outline-offset:3px;border-radius:4px}
+.site{min-height:100vh;display:flex;flex-direction:column}
+.site > main{flex:1}
+.site-bar,.site-foot,.site > main{width:100%;max-width:1376px;margin:0 auto;padding-left:48px;padding-right:48px}
+
+/* Bar: lockup at left, Docs and Source at right, a rule inset to the content. */
+.site-bar{display:flex;align-items:center;justify-content:space-between;gap:24px;height:88px;position:relative}
+.site-bar::after{content:"";position:absolute;left:48px;right:48px;bottom:0;border-bottom:1px solid var(--rule)}
+.lockup{display:inline-flex;align-items:center;gap:14px;color:var(--rer-text);text-decoration:none;font-size:26px;font-weight:600;letter-spacing:-.01em}
+.lockup img{width:30px;height:30px}
+.site-bar nav,.site-foot nav{display:flex;gap:40px}
+.site-bar nav a,.site-foot nav a{font-size:18px;text-decoration:none}
+.site-bar nav a:hover,.site-foot nav a:hover{text-decoration:underline;text-underline-offset:5px}
+.site-bar nav a[aria-current=page]{text-decoration:underline;text-decoration-color:var(--walnut);text-underline-offset:5px;text-decoration-thickness:2px}
+.site-foot{display:flex;align-items:center;gap:40px;padding-top:40px;padding-bottom:48px;margin-top:96px;position:relative}
+.site-foot::before{content:"";position:absolute;left:48px;right:48px;top:0;border-top:1px solid var(--rule)}
+.site-foot .lockup{margin-right:auto;font-size:24px}
+.site-foot .licence{color:var(--rer-muted);font-size:15px}
+.site-foot nav a{font-size:16px;color:var(--rer-muted)}
+
+/* Actions */
+.actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:16px 36px;margin:0}
+.pill{display:inline-flex;align-items:center;gap:12px;min-height:58px;padding:0 34px;border-radius:999px;background:var(--pill);color:#fff;font-size:20px;font-weight:500;text-decoration:none}
+.pill:hover{background:#000}
+.pill .arrow{width:20px;height:20px}
+.text-link{font-size:20px;text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1px}
+.text-link:hover{text-decoration-thickness:2px}
+
+/* Birch: boards (the landing's big panels) and planks (engraved cards, tiles, code panels). */
+.board{background:var(--birch-board) var(--grain);background-blend-mode:multiply;border-radius:14px;box-shadow:var(--shadow-board),inset 0 1px 0 rgb(255 255 255 / .35)}
+.plank{background:var(--birch) var(--grain);background-blend-mode:multiply;border-radius:10px;box-shadow:var(--shadow-tile),inset 0 1px 0 rgb(255 255 255 / .4),inset 0 0 0 1px rgb(106 63 28 / .12);color:var(--walnut-ink)}
+.icon{width:30px;height:30px;flex:none;color:var(--walnut-ink)}
+@media (prefers-reduced-motion:no-preference){.pill,.site-bar a{transition:background-color 150ms,color 150ms}}
+
+@media (max-width:640px){
+ .site-bar,.site-foot,.site > main{padding-left:20px;padding-right:20px}
+ .site-bar::after,.site-foot::before{left:20px;right:20px}
+ .site-bar{height:64px}
+ .lockup{font-size:22px;gap:10px}.lockup img{width:26px;height:26px}
+ .site-bar .wide-only{display:none}
+ .site-bar nav a{font-size:17px}
+ .site-foot{flex-wrap:wrap;gap:12px 24px;margin-top:64px;padding-top:28px}
+ .site-foot .lockup{font-size:20px;flex-basis:100%}
+ .site-foot nav{gap:24px}
+ .pill{min-height:52px;padding:0 28px;font-size:18px}
+ .text-link{font-size:18px}
+}

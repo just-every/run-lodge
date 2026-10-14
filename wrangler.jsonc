@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hiring-lodge",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-09-08",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lodge",
+      "database_id": "local-lodge-only",
+      "migrations_dir": "migrations/core"
+    }
+  ]
+}

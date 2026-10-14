@@ -1,0 +1,35 @@
+name: Verify
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reclaim unused hosted-runner SDKs
+        if: runner.os == 'Linux' && runner.environment == 'github-hosted'
+        shell: bash
+        run: |
+          # rer dev and preview refuse to start below 15 GiB free. Lodge uses Node and
+          # Chromium, not the image's Android, .NET or Haskell SDKs.
+          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP" /tmp
+          sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /usr/local/.ghcup
+          df -h "$GITHUB_WORKSPACE" "$RUNNER_TEMP" /tmp
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile && pnpm exec rer install
+      - run: pnpm exec rer check --profile first-party
+      - run: pnpm exec rer verify
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: node tests/browser.mjs
+        env:
+          LODGE_EVIDENCE: ${{ runner.temp }}/lodge-proof
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lodge-browser-proof
+          path: ${{ runner.temp }}/lodge-proof

@@ -1,0 +1,9 @@
+id,download,name,email,headline,type,phone,address,summary,disqualified_at,disqualification_reason,social_profiles,created_at,stage,job,job_id,Talent Pool,cover_letter,education,experience,answers,source,tags,disqualified,keyword_matches,skills
+5001,dana-resume.txt,Dana Whitfield,dana@example.test,Site supervisor,sourced,+1 555 0100,"Brooklyn, NY",Ran two sites,,,,2026-03-05T12:00:00Z,Interview,Site supervisor,7001,true,"I would like to apply.
+Thank you.",,8 years,,Referral,construction,false,,"OSHA 30, scheduling"
+5002,sam-resume.pdf,Sam Okafor,sam@example.test,Foreman,applied,+1 555 0101,"Queens, NY",Foreman,2026-05-01T09:00:00Z,Not enough site experience,,2026-03-07T12:00:00Z,Applied,Site supervisor,7001,false,,,3 years,,Job board,,true,,Framing
+5003,lee-cv.txt,Lee Moreno,lee@example.test,Estimator,applied,,"Queens, NY",Bids,,,,2026-04-12T12:00:00Z,Phone screen,Estimator,7002,true,,,5 years,,Careers page,,false,,"Bluebeam, takeoffs"
+5003,lee-cv.txt,Lee Moreno,lee@example.test,Estimator,applied,,"Queens, NY",Bids,,,,2026-03-20T12:00:00Z,Applied,Site supervisor,7001,true,,,5 years,,Careers page,,false,,"Bluebeam, takeoffs"
+5004,,Robin Hale,robin(at)example.test,Laborer,applied,,,,,,,2026-04-13T12:00:00Z,Applied,Estimator,7002,false,,,,,Careers page,,false,,
+5005,missing.pdf,Kai Ito,kai@example.test,Estimator,applied,,,,,,,2026-04-14T12:00:00Z,Applied,Estimator,7002,false,,,,,Careers page,,false,,
+5006,,Avery Stone,avery@example.test,Estimator,applied

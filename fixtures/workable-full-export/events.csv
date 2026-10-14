@@ -1,0 +1,2 @@
+candidate_id,job,type,starts_at,ends_at,title,time_zone,location,candidate_attendance,cancelled,created_at,member_id,stage
+5001,Site supervisor,interview,2026-03-12T14:00:00Z,2026-03-12T15:00:00Z,Site walk,America/New_York,Pier St,attended,false,2026-03-08T12:00:00Z,m1,Interview

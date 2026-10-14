@@ -1,0 +1,20 @@
+{
+  "sections": [
+    { "title": "Start here", "eyebrow": "START HERE", "pages": [
+      { "slug": "getting-started", "file": "getting-started.md" },
+      { "slug": "first-vacancy", "file": "first-vacancy.md" }
+    ] },
+    { "title": "Hiring", "eyebrow": "HIRING", "pages": [
+      { "slug": "applications", "file": "applications.md" },
+      { "slug": "interviews-and-scorecards", "file": "interviews-and-scorecards.md" },
+      { "slug": "offers", "file": "offers.md" },
+      { "slug": "coding-agents", "file": "coding-agents.md" }
+    ] },
+    { "title": "Your records", "eyebrow": "YOUR RECORDS", "pages": [
+      { "slug": "people-and-roles", "file": "people-and-roles.md" },
+      { "slug": "retention", "file": "retention.md" },
+      { "slug": "move-in", "file": "move-in.md" },
+      { "slug": "backup-and-restore", "file": "backup-and-restore.md" }
+    ] }
+  ]
+}

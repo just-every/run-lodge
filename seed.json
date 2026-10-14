@@ -1,0 +1,132 @@
+{
+  "id": "lodge",
+  "name": "Lodge",
+  "version": "0.1.0",
+  "maturity": "first-release-local",
+  "category": "hiring",
+  "spine": {
+    "id": "application",
+    "record": "Application: one candidate for one vacancy, with its stage history, interviews, scorecards and decisions"
+  },
+  "description": "Hiring and applicant tracking for one business: approved vacancies, an accessible application page, scoped review, independent scorecards, approved messages and offers, retention and a Workable move-in kit, with no provider account.",
+  "capabilities": [
+    {
+      "id": "vacancies",
+      "clauses": [
+        "LDG-001",
+        "LDG-002"
+      ]
+    },
+    {
+      "id": "intake",
+      "clauses": [
+        "LDG-003",
+        "LDG-004",
+        "LDG-005"
+      ]
+    },
+    {
+      "id": "review",
+      "clauses": [
+        "LDG-006",
+        "LDG-007",
+        "LDG-008",
+        "LDG-009"
+      ]
+    },
+    {
+      "id": "decisions",
+      "clauses": [
+        "LDG-010",
+        "LDG-011"
+      ]
+    },
+    {
+      "id": "records",
+      "clauses": [
+        "LDG-012",
+        "LDG-015",
+        "LDG-016"
+      ]
+    },
+    {
+      "id": "agent-proposals",
+      "clauses": [
+        "LDG-013"
+      ]
+    },
+    {
+      "id": "workable-move-in",
+      "clauses": [
+        "LDG-014"
+      ]
+    },
+    {
+      "id": "seed-contract",
+      "clauses": [
+        "LDG-017"
+      ]
+    }
+  ],
+  "nonGoals": [
+    "Sending email or syncing calendars in phase 1",
+    "Automated rejection, ranking or suitability scores",
+    "Recorded or AI-run interviews",
+    "Payroll, employee records, background checks and e-signature",
+    "Job-board syndication and external sourcing"
+  ],
+  "externals": [
+    {
+      "id": "cloudflare",
+      "required": true,
+      "why": "Worker hosting",
+      "data": [
+        "HTTP requests"
+      ],
+      "adapters": []
+    }
+  ],
+  "env": [],
+  "deploy": {
+    "healthPath": "/health",
+    "publicPaths": [
+      "/",
+      "/health",
+      "/signin",
+      "/jobs",
+      "/jobs/*",
+      "/availability/*"
+    ],
+    "notes": "Native owner sessions guard /app and /api/lodge; /jobs and /availability are the public applicant pages; the development outbox is local-only."
+  },
+  "extensionPoints": {
+    "contributions": [],
+    "policies": [],
+    "events": [],
+    "slots": [],
+    "adapters": []
+  },
+  "limits": {
+    "status": "unmeasured"
+  },
+  "accessibility": {
+    "level": "WCAG 2.2 AA",
+    "status": "target; unaudited"
+  },
+  "operatingCost": {
+    "status": "unmeasured"
+  },
+  "composition": {
+    "base": "base",
+    "family": "hiring",
+    "edition": "lodge",
+    "modules": [
+      "job-queue",
+      "release",
+      "deploy-kit",
+      "mail",
+      "operator-auth",
+      "portability"
+    ]
+  }
+}
