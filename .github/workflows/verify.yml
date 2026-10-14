@@ -23,8 +23,9 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile && pnpm exec rer install
       - run: pnpm exec rer check --profile first-party
-      - run: pnpm exec rer verify
+      # rer verify's hydration check launches the Chromium the seed's Playwright pins.
       - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec rer verify
       - run: node tests/browser.mjs
         env:
           LODGE_EVIDENCE: ${{ runner.temp }}/lodge-proof
