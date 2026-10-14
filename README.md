@@ -1,7 +1,9 @@
 # Run it locally
 
 Lodge is a hiring workspace for one business: from an approved vacancy to a
-recorded offer decision. From this checkout root:
+recorded offer decision. Its website is at https://run-lodge.com.
+
+From this checkout root:
 
 ```sh
 rer install
