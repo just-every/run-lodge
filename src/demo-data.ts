@@ -1,12 +1,12 @@
 import { State, type Row } from './lodge/core/state'
 import { terms, versionOf, type Subject } from './lodge/records/approvals'
 import type { Data } from './lodge/core/types'
-import { DELETED } from './demo-activity'
+import { DELETED, demoAt } from './demo-activity'
 
 /** A small, connected hiring workspace; all addresses are reserved example domains. */
 export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]> {
   const rows: Row[] = []
-  const at = (days: number) => new Date(now.getTime() + days * 86400000).toISOString()
+  const at = (days: number) => demoAt(now, days)
   const put = (kind: string, id: string, value: Data): Data => {
     const record = { ...value, id }
     rows.push({ kind, id, revision: 'demo-v1', value: record })

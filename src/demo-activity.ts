@@ -8,6 +8,16 @@ export const DELETED = '7d41c2e8-5b9a-4f03-9e6d-2a8b1c4f6e90'
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g
 const ISO = /^\d{4}-\d\d-\d\dT/
 
+/**
+ * The sample time `days` from now. Earlier days fall at a different time of day each,
+ * not all at the visitor's start minute; later days fall on the hour.
+ */
+export function demoAt(now: Date, days: number): string {
+  const time = now.getTime() + days * 86400000
+  if (days > 0) return new Date(Math.ceil(time / 3600000) * 3600000).toISOString()
+  return new Date(days <= -1 ? time - (37 + (Math.round(-days * 53) % 9) * 31) * 60000 : time).toISOString()
+}
+
 function rewrite(value: unknown, change: (s: string) => string): unknown {
   if (typeof value === 'string') return change(value)
   if (Array.isArray(value)) return value.map(v => rewrite(v, change))
@@ -23,7 +33,7 @@ function rewrite(value: unknown, change: (s: string) => string): unknown {
  */
 export async function demoActivity(rows: Row[], ownerEmail: string, now: Date): Promise<Row[]> {
   const s = new State(rows)
-  const at = (days: number) => new Date(now.getTime() + days * 86400000).toISOString()
+  const at = (days: number) => demoAt(now, days)
   const manager = 'maya@northline.example', agentEmail = 'maya-agent@northline.example'
   const owner: Actor = { id: 'demo-owner', email: ownerEmail, name: 'Alex Morgan', session: '', version: 0, owner: true, roles: [...ROLES], agent: false }
   const agent: Actor = { id: 'demo-agent', email: agentEmail, name: 'Maya’s scheduling agent', session: '', version: 0, owner: false, roles: ['manager', 'interviewer'], agent: true, scopeAs: manager }
