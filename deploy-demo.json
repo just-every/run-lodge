@@ -3,8 +3,9 @@
   "domain": "run-lodge.com",
   "name": "Lodge",
   "instanceType": "basic",
+  "ownerEmail": "alex@northline.example",
   "settings": {
     "MAIL_PROVIDER": "development",
-    "MAIL_FROM": "Lodge <hiring@demo.invalid>"
+    "MAIL_FROM": "Lodge <hiring@northline.example>"
   }
 }
