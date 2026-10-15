@@ -74,6 +74,7 @@ try {
   // Production plans require a real sign-in method; local automatic sign-in
   // never supplies one. The configured plan stays entirely offline.
   const deployEnv = '.cache/browser-deploy.env'
+  await mkdir(join(root, '.cache'), { recursive: true })
   await writeFile(join(root, deployEnv), 'MAIL_API_KEY=\n', { mode: 0o600 })
   await command(root, ['deploy', '--dry-run', '--env-file', deployEnv], { expected: 4 })
   await writeFile(join(root, deployEnv), 'MAIL_API_KEY=test-only-offline-plan\n', { mode: 0o600 })

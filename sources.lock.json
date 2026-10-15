@@ -2257,7 +2257,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "fefc8681b75fcb322f9750d051601e3f94ef9511e7bb918abdef2ffce321f256",
+      "sha256": "26586cd2794aef5de8063cc6048d0620eb0e04c009625b8cddce398983b0ff59",
       "executable": false
     },
     "tests/harness.mjs": {
