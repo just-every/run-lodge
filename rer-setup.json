@@ -32,7 +32,7 @@
     {
       "name": "OWNER_EMAIL",
       "label": "Owner email",
-      "help": "Sign-in links for this address appear in the local development outbox; no email is sent.",
+      "help": "Local development opens signed in as this owner; local mail is silently suppressed.",
       "kind": "email",
       "required": true,
       "prefill": "account-email",

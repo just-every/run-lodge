@@ -7,7 +7,7 @@ import { introCss, introGuardScript } from '../base/hydration/intro-guard'
 // root chrome sits in a HydrationUnit. Never set shellComponent, wrapInSuspense
 // or pendingComponent on this root route.
 export const Route = createRootRoute({
-  head: () => ({ meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }], title: 'Lodge' }),
+  head: () => ({ meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'Lodge' }] }),
   notFoundComponent: () => <h1>Not found</h1>,
   component: () => <html lang="en"><head>
     {fontLinks.map(link => <link key={link.href} {...link} />)}

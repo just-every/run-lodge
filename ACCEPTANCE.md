@@ -32,8 +32,7 @@ Verify workflow.
 
 `rer verify` runs `pnpm run verify:app` (build, typecheck, the five Lodge flow
 suites, `tests/runtime.mjs` for health, documents and real 404s on the emitted
-Worker, and `tests/email-link.mjs` for the ordinary emailed sign-in through the
-key-gated outbox), then Base's hosted-output and hydration checks.
+Worker; invitation and confirmation flows use a test-only provider network edge), then Base's hosted-output and hydration checks.
 
 ## Boundaries
 

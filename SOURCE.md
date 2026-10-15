@@ -41,3 +41,16 @@ installer adapter and policy under `scripts/installer`, the fixtures and tests
 and these documents. Operator-auth stays byte-identical: Lodge adds
 membership guards around its invitation batch in
 `src/lodge/core/invitation.ts`. Base and Lodge are MIT; see LICENSE.
+
+**Demo adoption (15 October 2026).** `src/modules/demo`, operator-auth and mail
+are refreshed from Base's v2 demo runtime. `base-copies.json` records their exact
+revision and hashes, together with the adoption guide, workflow and additive
+owner-signin migration. Lodge owns `src/demo.ts` and `src/demo-data.ts`; they
+insert real hiring records with fixed IDs and finish the sample owner's first run.
+The existing owner-claim route accepts Base's signed per-container claim.
+
+`edition.json` retains the existing `hiring/lodge` identity and names Lodge's
+locally owned product source. Refresh `sources.lock.json` with Base's supported
+`edition-authoring/cli.mjs lock` at the revision recorded in `base-copies.json`,
+after staging intentional edits. It inventories all tracked edition files;
+Base's byte copies remain recorded separately in `base-copies.json`.

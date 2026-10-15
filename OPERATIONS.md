@@ -33,9 +33,10 @@ provider.
 ## Local data and recovery
 
 Setup and development use explicit owner identity and real local migrations.
-Dev and preview use the same owner and canonical `.wrangler/state`; the local
-development outbox is available only on loopback. Any process with access to
-the machine can read that outbox and sign in as the owner. Private settings are
+Dev and preview use the same owner and canonical `.wrangler/state`. Demo mode
+uses fresh state under `.rer/demo/` and deletes it on stop. Local mail is
+silently suppressed. Treat the private dev key and `RER_OPEN` link as owner
+credentials. Private settings are
 kept in `.dev.vars` with mode 0600 and are not copied into build output.
 
 Local export creates a private archive with an integrity receipt and explicit

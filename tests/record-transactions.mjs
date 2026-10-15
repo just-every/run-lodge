@@ -10,7 +10,11 @@ export const recordSnapshot = async h => (await h.db.prepare('SELECT kind,id,rev
 /** Include transient copies and archive bytes when proving erasure rollback. */
 export async function transferSnapshot(h) {
  const tables=(await h.db.prepare("SELECT name,sql FROM sqlite_master WHERE type='table' AND name GLOB 'rer_portability_*' ORDER BY name").all()).results
- return Promise.all(tables.map(async table => ({...table,rows:(await h.db.prepare('SELECT * FROM "'+table.name.replaceAll('"','""')+'"').all()).results.sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))})))
+ const snapshot=[]
+ // Hundreds of simultaneous D1 proxy requests exhaust workerd's local bridge.
+ // Read the identical snapshot in order; every rollback assertion stays intact.
+ for(const table of tables) snapshot.push({...table,rows:(await h.db.prepare('SELECT * FROM "'+table.name.replaceAll('"','""')+'"').all()).results.sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))})
+ return snapshot
 }
 
 /** Prepare with a real native session, pause, then use the actual D1 commit.

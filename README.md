@@ -17,8 +17,10 @@ matching installed runtime or a checksum-verified copy under `~/.rer/node`; set
 
 After `RER_READY`, `dev` prints `RER_SIGNED_IN EMAIL` and `RER_OPEN URL`. Open
 that URL on this computer: Lodge opens signed in as the owner (finish first-run
-setup at `/setup`, then `/app`; the Lobby at `/` links to sign-in). Treat the line as a credential. `dev --login`
-uses the local outbox instead; no email ever leaves this computer.
+setup at `/setup`, then `/app`; the Lobby at `/` links to sign-in). Treat the line as a credential. Local mail is silently suppressed.
+
+For a signed-in workspace with sample hiring records, run `rer demo`; its
+throwaway data is deleted when it stops. See [DEMO.md](DEMO.md).
 
 Then, in the app: save your business settings and privacy notice, add your
 hiring team under **People**, create a vacancy with its pay range and

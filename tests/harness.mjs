@@ -1,7 +1,7 @@
 // Runs Lodge's Worker in real workerd with a persistent local D1 holding every
 // migration. People sign in through operator-auth's real invitation and
-// confirmation links, read from the development outbox table. No application
-// code is faked; there is no provider in phase 1 to fake.
+// confirmation links, read from the test mail edge. No application
+// code is faked; only the mail provider network edge is faked.
 import assert from 'node:assert/strict'
 import { createServer } from 'node:net'
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
@@ -25,7 +25,7 @@ async function freePort() {
 export async function harness({ claim = true } = {}) {
   const port = await freePort(), origin = `http://127.0.0.1:${port}`
   const dir = await mkdtemp(join(tmpdir(), 'lodge-test-'))
-  const bundle = await build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], external: ['node:*'], target: 'es2023', logLevel: 'error' })
+  const bundle = await build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(process.cwd(), 'tests/mail-edge.mjs') })) } }], external: ['node:*'], target: 'es2023', logLevel: 'error' })
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'],
@@ -72,7 +72,7 @@ export async function harness({ claim = true } = {}) {
       assert.equal((await send('/api/lodge/invite', { email }, owner)).status, 200)
       const rows = await db.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY sequence DESC').all()
       const message = rows.results.map(r => JSON.parse(r.message)).find(m => m.to.includes(email))
-      assert.ok(message, 'invitation reached the outbox')
+      assert.ok(message, 'invitation reached the test mail edge')
       const token = new URL(message.text.match(/http:\/\/\S+\/auth\/confirm\?token=\S+/)[0]).searchParams.get('token')
       const confirmed = await send('/auth/confirm', { token })
       assert.equal(confirmed.status, 303, JSON.stringify(confirmed.value))

@@ -20,8 +20,10 @@ Under **Add or change a member**, enter the **Email** and **Name**, tick their
 **Roles** and press **Save member**. Ticking **Deactivate (keeps their history,
 removes access)** stops their access at once and keeps everything they did.
 
-**Invite to sign in** (owner only) sends a sign-in link. On your own computer
-it arrives in the local outbox: run `rer outbox`.
+**Invite to sign in** (owner only) requests a sign-in link through your configured
+mail provider. Local and demo runs accept the invitation without sending mail.
+To explore another role locally, use `rer dev --as interviewer` after adding
+the matching dev persona as a member.
 
 ## What interviewers see
 

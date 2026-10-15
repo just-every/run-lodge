@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "domain": "run-lodge.com",
+  "name": "Lodge",
+  "instanceType": "basic",
+  "settings": {
+    "MAIL_PROVIDER": "development",
+    "MAIL_FROM": "Lodge <hiring@demo.invalid>"
+  }
+}

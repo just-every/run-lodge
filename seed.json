@@ -97,7 +97,7 @@
       "/jobs/*",
       "/availability/*"
     ],
-    "notes": "Native owner sessions guard /app and /api/lodge; /jobs and /availability are the public applicant pages; the development outbox is local-only."
+    "notes": "Native owner sessions guard /app and /api/lodge; /jobs and /availability are the public applicant pages; local and demo mail is silently suppressed."
   },
   "extensionPoints": {
     "contributions": [],
