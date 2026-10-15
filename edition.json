@@ -16,7 +16,8 @@
           "src/lodge",
           "src/ui",
           "src/demo.ts",
-          "src/demo-data.ts"
+          "src/demo-data.ts",
+          "src/demo-activity.ts"
         ]
       }
     }

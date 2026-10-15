@@ -1,6 +1,7 @@
 import { State, type Row } from './lodge/core/state'
 import { terms, versionOf, type Subject } from './lodge/records/approvals'
 import type { Data } from './lodge/core/types'
+import { DELETED } from './demo-activity'
 
 /** A small, connected hiring workspace; all addresses are reserved example domains. */
 export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]> {
@@ -50,6 +51,12 @@ export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]>
     const [name, key, headline, skills] = candidates[i]
     put('candidate', 'demo-candidate-' + i, { name, email: key + '@example.com', phone: '', location: 'Portland, OR', headline, skills, source: 'Referral', consent: { basis: 'talent-pool', talentPool: true, at: at(-8), recordedBy: manager }, retainUntil: at(357).slice(0, 10), createdAt: at(-8) })
   }
+  // Marcus later withdrew and asked to be deleted; Ben is a past talent-pool contact now past the retention date.
+  const marcus = put('candidate', DELETED, { name: 'Marcus Lee', email: 'marcus.lee@example.com', phone: '', location: 'Seattle, WA', headline: 'Product designer · 8 years', skills: 'Brand systems, illustration', source: 'Application page', consent: { basis: 'application', talentPool: false, noticeVersion: 1, at: at(-18), recordedBy: 'applicant' }, retainUntil: at(347).slice(0, 10), createdAt: at(-18) })
+  const withdrawn = put('application', 'demo-application-6', { candidate: marcus.id, vacancy: vacancies[0].id, stage: vacancies[0].stages[0].id, status: 'active', source: marcus.source, rubricVersion: 1, reviewers: [ownerEmail, reviewer], feedbackReleased: false, submittedAt: at(-18), coverNote: 'I would love to bring brand and illustration craft to Northline’s product work.' })
+  put('stage-event', withdrawn.id + '-received', { application: withdrawn.id, from: null, to: vacancies[0].stages[0].id, reason: 'Application received (Application page)', actor: 'applicant', at: withdrawn.submittedAt })
+  put('audit', withdrawn.id + '-audit', { actor: manager, email: manager, action: 'application-received', record: 'application:' + withdrawn.id, at: withdrawn.submittedAt })
+  put('candidate', 'demo-candidate-9', { name: 'Ben Carter', email: 'ben.carter@example.com', phone: '', location: 'Portland, OR', headline: 'Office manager · 6 years', skills: 'Facilities, purchasing, events', source: 'Application page', consent: { basis: 'talent-pool', talentPool: true, at: at(-368), recordedBy: manager }, retainUntil: at(-3).slice(0, 10), createdAt: at(-368) })
   for (let i = 0; i < 3; i++) {
     const app = applications[i], v = vacancies[0], start = at(i === 0 ? -1 : 2 + i)
     const iv = put('interview', 'demo-interview-' + i, { application: app.id, vacancy: v.id, planItem: v.plan[0].id, title: 'Working conversation: Product Designer', durationMinutes: 45, participants: [ownerEmail, reviewer], slots: [start, at(4 + i)], availability: { [ownerEmail]: [0], [reviewer]: [0], candidate: [0, 1] }, candidateToken: String(i + 1).repeat(48), location: 'Northline Studio · meeting room 2', timezone: 'America/Los_Angeles', status: i === 2 ? 'proposed' : 'scheduled', start: i === 2 ? undefined : start, createdBy: manager, createdAt: at(-4), scheduledBy: manager, scheduledAt: at(-3) })

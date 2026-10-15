@@ -35,6 +35,6 @@ export function Retention({ w, mutate, reload, setNotice }: PageProps) {
     </Form></details>
     <h2>Deletion receipts</h2>
     {!w.deletionReceipts.length && <p className="empty">No deletion receipts yet.</p>}
-    <ul>{w.deletionReceipts.map((r: D) => <li key={r.id}>{when(r.at)} · record {r.candidate.slice(0, 8)} · {r.reason} · {Object.entries(r.counts).filter(([, n]) => (n as number) > 0).map(([k, n]) => `${n} ${k}`).join(', ')}</li>)}</ul>
+    <ul>{w.deletionReceipts.map((r: D) => <li key={r.id}>{when(r.at)} · record {r.candidate.slice(0, 8)} · {Object.entries(r.counts).filter(([, n]) => (n as number) > 0).map(([k, n]) => `${n} ${k}`).join(', ')}</li>)}</ul>
   </>
 }
