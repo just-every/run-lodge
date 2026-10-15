@@ -44,7 +44,7 @@ export function Landing() {
 }
 
 function Actions() {
-  return <p className="actions"><a className="pill" href={links.run}>{copy.hero.run} <Arrow /></a><a className="text-link" href={links.docs}>{copy.hero.docs}</a></p>
+  return <p className="actions"><a className="pill" href={links.run}>{copy.hero.run} <Arrow /></a><a className="pill" href="https://demo.run-lodge.com/">Try the demo <Arrow /></a><a className="text-link" href={links.docs}>{copy.hero.docs}</a></p>
 }
 
 function Feature({ id, side, eyebrow, title, body, children }: { id: string; side: 'left' | 'right'; eyebrow: string; title: string; body: string; children: ReactNode }) {
