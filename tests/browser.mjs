@@ -71,7 +71,13 @@ try {
   assert.equal((await fetch(server.origin + '/api/lodge/state')).status, 401, 'preview keeps private routes private')
   assert.equal((await fetch(server.origin + '/jobs')).status, 200, 'preview serves the application pages')
   await server.close(); server = undefined
-  await command(root, ['deploy', '--dry-run'])
+  // Production plans require a real sign-in method; local automatic sign-in
+  // never supplies one. The configured plan stays entirely offline.
+  const deployEnv = '.cache/browser-deploy.env'
+  await writeFile(join(root, deployEnv), 'MAIL_API_KEY=\n', { mode: 0o600 })
+  await command(root, ['deploy', '--dry-run', '--env-file', deployEnv], { expected: 4 })
+  await writeFile(join(root, deployEnv), 'MAIL_API_KEY=test-only-offline-plan\n', { mode: 0o600 })
+  await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
 
   // Whole-installation archive: refused into a non-empty checkout, restored into a fresh one.
   await rm(join(root, 'exports'), { recursive: true, force: true })
