@@ -61,7 +61,7 @@
       "executable": false
     },
     "base-copies.json": {
-      "sha256": "fe47a70e9d44dc0338d29bd8be255c3700b8da08bb1466c6c8c6e88a254508f6",
+      "sha256": "3f616fc94dad5ba2e2733b069a5c02a213131182ce7c309486c7fa42b555e81a",
       "executable": false
     },
     "CLAUDE.md": {
@@ -2053,7 +2053,7 @@
       "executable": false
     },
     "src/modules/owner-claim/README.md": {
-      "sha256": "400d900fbe0981f9e6e27ff40b7913ebb140680bd045167cfb9ddb2a45a4c890",
+      "sha256": "ab3ead07f6a21347c4f084c48acbdd5d62ee9abc711982cc09ffb1c53f239459",
       "executable": false
     },
     "src/modules/owner-claim/schema/idp.sql": {
@@ -2065,7 +2065,7 @@
       "executable": false
     },
     "src/modules/owner-claim/transaction.mjs": {
-      "sha256": "ca36db33042d7778d518b407bd9b403dd4bac82d4b89d81beeb78ed47421cca2",
+      "sha256": "56f9cf605a5a4afae2be22012e84035e661fb38c07612ec7d4f8cdc39526aa54",
       "executable": false
     },
     "src/modules/owner-claim/verify.mjs": {
