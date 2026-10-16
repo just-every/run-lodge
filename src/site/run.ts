@@ -4,8 +4,8 @@ import type { RunData } from '../base/run-site'
 export const run: RunData = {
   name: 'Lodge',
   repository: 'https://github.com/just-every/run-lodge',
-  clone: 'git clone https://github.com/just-every/run-lodge.git lodge',
-  folder: 'lodge',
+  clone: 'npx -y @runeditrun/rer dev just-every/run-lodge',
+  folder: 'run-lodge',
   requirements: 'Needs Node 22 or later and pnpm 10.12.4, on macOS, Linux or Windows with WSL2.',
   licence: 'MIT',
   docs: true,

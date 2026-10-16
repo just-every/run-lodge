@@ -3,7 +3,13 @@
 Lodge is a hiring workspace for one business: from an approved vacancy to a
 recorded offer decision. Its website is at https://run-lodge.com.
 
-From this checkout root:
+Start it from nothing with one line:
+
+```sh
+npx -y @runeditrun/rer dev just-every/run-lodge
+```
+
+To start it again later, run `cd run-lodge && rer dev`. From a checkout, to choose the owner mailbox yourself:
 
 ```sh
 rer install

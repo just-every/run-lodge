@@ -6,25 +6,13 @@ Lodge is free and open source under the MIT licence. It runs on your computer
 with the `rer` command, keeps every record in a local database you own, and
 needs no account with anyone.
 
-## 1. Install rer
-
-The Run Edit Run command. Once per computer.
+## 1. Get Lodge and start it
 
 ```sh
-curl -fsSL https://runeditrun.com/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
+npx -y @runeditrun/rer dev just-every/run-lodge
 ```
 
-Or install it with npm: `npm install -g @runeditrun/rer`.
-
-## 2. Get Lodge and start it
-
-```sh
-git clone https://github.com/just-every/run-lodge.git lodge
-cd lodge && rer dev
-```
-
-`rer dev` installs everything, makes you the owner and prints a link that opens
+That one line installs `rer`, the Run Edit Run command, clones Lodge and starts it; to start it again later, run `cd run-lodge && rer dev`. `rer dev` installs everything, makes you the owner and prints a link that opens
 Lodge signed in as you. The first start can take a few minutes. Lodge needs
 Node 22 or later and pnpm 10.12.4, on macOS, Linux or Windows with WSL2; `rer`
 fetches the exact Node version Lodge pins when your computer does not have it.
@@ -32,7 +20,7 @@ fetches the exact Node version Lodge pins when your computer does not have it.
 > Treat the link `rer dev` prints as a password: anyone who opens it is signed
 > in as you.
 
-## 3. Finish setup
+## 2. Finish setup
 
 The link opens **Finish setup**. Check that the name and email are yours, tick
 **I confirm this owner account is ready to use.** and press **Finish setup**.
