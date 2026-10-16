@@ -2,7 +2,6 @@
   "version": 1,
   "domain": "run-lodge.com",
   "name": "Lodge",
-  "instanceType": "basic",
   "ownerEmail": "alex@northline.example",
   "settings": {
     "MAIL_PROVIDER": "development",

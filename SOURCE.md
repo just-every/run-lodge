@@ -47,7 +47,14 @@ are refreshed from Base's v2 demo runtime. `base-copies.json` records their exac
 revision and hashes, together with the adoption guide, workflow and additive
 owner-signin migration. Lodge owns `src/demo.ts` and `src/demo-data.ts`; they
 insert real hiring records with fixed IDs and finish the sample owner's first run.
-The existing owner-claim route accepts Base's signed per-container claim.
+The existing owner-claim route accepts Base's signed per-visitor claim.
+
+**Native hosted demo (16 October 2026).** Lodge pins rer 0.2.30, whose hosted
+demo runs each visitor in a native Worker Loader isolate. Every recorded copy,
+the workflow and the adoption guide were refreshed together from Base tag
+rer-v0.2.30. `src/modules/dependencies/logout.mjs` is left out of the record:
+Lodge keeps its exact-match fence check (same behaviour as Base's
+`includes`, written so code scanning reads it as exact).
 
 `edition.json` retains the existing `hiring/lodge` identity and names Lodge's
 locally owned product source. Refresh `sources.lock.json` with Base's supported
