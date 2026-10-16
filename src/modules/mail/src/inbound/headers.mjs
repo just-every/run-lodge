@@ -19,11 +19,11 @@ export function parseHeaders(value) {
       if (!previous) fail('invalid_inbound_headers');
       map.set(previous, `${map.get(previous)} ${headerText(line.trim())}`); continue;
     }
-    const match = /^([!#$%&'*+.^_`|~0-9A-Za-z-]+):[ \t]*(.*)$/.exec(line);
-    if (!match) fail('invalid_inbound_headers');
-    previous = match[1].toLowerCase();
+    const colon = line.indexOf(':');
+    if (colon < 1 || !/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(line.slice(0, colon)) || /[\n\r\u2028\u2029]/.test(line)) fail('invalid_inbound_headers');
+    previous = line.slice(0, colon).toLowerCase();
     if (map.has(previous) && singleton.has(previous)) fail('duplicate_inbound_header');
-    const text = headerText(match[2].trim());
+    const text = headerText(line.slice(colon + 1).trim());
     map.set(previous, map.has(previous) ? `${map.get(previous)}, ${text}` : text);
   }
   return map;
