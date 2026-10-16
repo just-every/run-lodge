@@ -4,12 +4,10 @@ import { runPageHtml, siteNotFoundHtml, type SiteBuild, type SiteContext } from 
 import { identity } from '../identity'
 import { DocsArticle } from './docs/DocsArticle'
 import { DocsIndex } from './docs/DocsIndex'
-import { docsPages } from './docs/content'
+import { docsPages, plainText } from './docs/content'
 import { copy } from './landing/copy'
 import { Landing } from './landing/Landing'
 import { run } from './run'
-
-const text = (html: string) => html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, '’').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
 
 /**
  * The run site (run-lodge.com), written by `rer build --site`: the landing at `/`, whose Run Lodge opens the Run page
@@ -39,7 +37,7 @@ export function sitePages({ styles }: SiteContext): SiteBuild {
       { path: '/', html: document(copy.meta.title, copy.meta.description, <Landing />) },
       { path: '/run', html: runPageHtml(identity, run) },
       { path: '/docs', html: document('Docs · Lodge', 'How to run Lodge, hire with it and keep your records.', <DocsIndex />) },
-      ...docsPages.map(page => ({ path: `/docs/${page.slug}`, html: document(`${text(page.title)} · Lodge docs`, text(page.lead), <DocsArticle slug={page.slug} />) })),
+      ...docsPages.map(page => ({ path: `/docs/${page.slug}`, html: document(`${plainText(page.title)} · Lodge docs`, plainText(page.lead), <DocsArticle slug={page.slug} />) })),
       { path: '/404', html: siteNotFoundHtml(identity, run) },
     ],
     assets: ['rer-theme.css', 'fonts', 'brand', 'favicon.svg'],

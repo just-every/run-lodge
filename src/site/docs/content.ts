@@ -15,7 +15,20 @@ const source = (file: string) => {
 const slugs = new Set(site.sections.flatMap(section => section.pages.map(page => page.slug)))
 const fileSlug = new Map(site.sections.flatMap(section => section.pages.map(page => [page.file, page.slug] as const)))
 const escape = (text: string) => text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
-const anchor = (text: string) => text.toLowerCase().replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+// Drops every tag in one scan: each `<` is consumed up to its `>`, so no tag can be rebuilt from what is left.
+const stripTags = (html: string) => {
+  let out = '', i = 0
+  while (i < html.length) {
+    const close = html[i] === '<' ? html.indexOf('>', i) : -1
+    if (close === -1) out += html[i++]
+    else i = close + 1
+  }
+  return out
+}
+const entities: Record<string, string> = { '&amp;': '&', '&#39;': '’', '&quot;': '"', '&lt;': '<', '&gt;': '>' }
+/** The plain text of rendered inline HTML, for `<title>` and meta descriptions. */
+export const plainText = (html: string) => stripTags(html).replace(/&(?:amp|#39|quot|lt|gt);/g, entity => entities[entity])
+const anchor = (text: string) => stripTags(text.toLowerCase()).replace(/&[a-z]+;/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
 function render(file: string) {
   const toc: DocsPage['toc'] = []
