@@ -19,7 +19,7 @@ Restore into an empty Lodge running the same release, then run setup as the
 same owner:
 
 ```sh
-git clone https://github.com/just-every/run-lodge.git lodge-restored
+npx -y @runeditrun/rer install just-every/run-lodge --dir lodge-restored
 cd lodge-restored
 rer import --input ../lodge/exports/lodge.rer --yes
 rer setup --owner-email you@example.com

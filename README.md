@@ -9,10 +9,9 @@ Start it from nothing with one line:
 npx -y @runeditrun/rer dev just-every/run-lodge
 ```
 
-To start it again later, run `cd run-lodge && rer dev`. From a checkout, to choose the owner mailbox yourself:
+Without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-lodge` does the same. To start it again later, run `cd run-lodge && rer dev`. To choose the owner mailbox yourself, run `npx -y @runeditrun/rer install just-every/run-lodge`, then from the checkout:
 
 ```sh
-rer install
 rer setup --owner-email you@example.com
 rer dev
 ```

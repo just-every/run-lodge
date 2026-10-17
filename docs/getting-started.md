@@ -12,10 +12,10 @@ needs no account with anyone.
 npx -y @runeditrun/rer dev just-every/run-lodge
 ```
 
-That one line installs `rer`, the Run Edit Run command, clones Lodge and starts it; to start it again later, run `cd run-lodge && rer dev`. `rer dev` installs everything, makes you the owner and prints a link that opens
-Lodge signed in as you. The first start can take a few minutes. Lodge needs
-Node 22 or later and pnpm 10.12.4, on macOS, Linux or Windows with WSL2; `rer`
-fetches the exact Node version Lodge pins when your computer does not have it.
+That one line installs `rer`, the Run Edit Run command, clones Lodge and starts it. Without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-lodge` does the same. To start it again later, run `cd run-lodge && rer dev`. `rer dev` installs everything, makes you the owner and prints a link that opens
+Lodge signed in as you. The first start can take a few minutes. Lodge runs
+on macOS, Linux or Windows with WSL2; `rer` fetches the exact Node version
+Lodge pins when your computer does not have it.
 
 > Treat the link `rer dev` prints as a password: anyone who opens it is signed
 > in as you.
