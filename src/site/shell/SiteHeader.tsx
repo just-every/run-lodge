@@ -6,6 +6,7 @@ export function SiteHeader({ current }: { current?: 'docs' }) {
     <Lockup />
     <nav aria-label="Site">
       <a href={links.docs} aria-current={current === 'docs' ? 'page' : undefined}>Docs</a>
+      <a href={links.contract}>Contract</a>
       <a className="wide-only" href={links.source}>Source</a>
     </nav>
   </header>
