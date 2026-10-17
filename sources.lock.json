@@ -2338,7 +2338,7 @@
       "executable": false
     },
     "tests/harness.mjs": {
-      "sha256": "e99334acf61dfab530666083b801db8808af335352ba177e4d42f492ff255c85",
+      "sha256": "4e50c0cd768cb27157474d05d8f9bf9d2637a85ca1a83daf8b0f266f4f1ea692",
       "executable": false
     },
     "tests/hiring.test.mjs": {

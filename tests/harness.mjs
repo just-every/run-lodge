@@ -11,7 +11,7 @@ import { build } from 'esbuild'
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
 import { unstable_splitSqlQuery } from 'wrangler'
 
-const SETUP_TOKEN = 'local-test-setup-token-0123456789abcdef'
+const SETUP_TOKEN = 'synthetic-local-test-setup-token-0123456789abcdef'
 
 async function freePort() {
   const socket = createServer()
