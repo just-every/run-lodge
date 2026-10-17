@@ -71,12 +71,13 @@ try {
   assert.equal((await fetch(server.origin + '/api/lodge/state')).status, 401, 'preview keeps private routes private')
   assert.equal((await fetch(server.origin + '/jobs')).status, 200, 'preview serves the application pages')
   await server.close(); server = undefined
-  // Production plans require a real sign-in method; local automatic sign-in
-  // never supplies one. The configured plan stays entirely offline.
+  // A real production deploy requires a sign-in method and local automatic sign-in
+  // never supplies one: the dry run lists it as still needed. The configured plan stays entirely offline.
   const deployEnv = '.cache/browser-deploy.env'
   await mkdir(join(root, '.cache'), { recursive: true })
   await writeFile(join(root, deployEnv), 'MAIL_API_KEY=\n', { mode: 0o600 })
-  await command(root, ['deploy', '--dry-run', '--env-file', deployEnv], { expected: 4 })
+  const missing = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
+  assert.match(missing, /production sign-in mail: MAIL_API_KEY/, 'the dry run names the sign-in method a real deploy still needs')
   await writeFile(join(root, deployEnv), 'MAIL_API_KEY=test-only-offline-plan\n', { mode: 0o600 })
   await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
 
