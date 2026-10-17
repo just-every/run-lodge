@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "projectId": "hiring/lodge",
+  "name": "Lodge",
+  "sourceRepository": "https://github.com/just-every/run-lodge",
+  "license": "MIT"
+}
