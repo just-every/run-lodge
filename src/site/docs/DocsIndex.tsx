@@ -2,10 +2,10 @@ import '../styles/site.css'
 import '../styles/docs.css'
 import { SiteFooter } from '../shell/SiteFooter'
 import { SiteHeader } from '../shell/SiteHeader'
-import { docsSections } from './content'
+import { docsSections, plainText } from './content'
 import { DocsNav } from './DocsNav'
 
-/** /docs: every guide by section, each with its first line. */
+/** /docs: every guide by section, each with its first line as plain text (a card is one link, so no inline markup or nested links). */
 export function DocsIndex() {
   return <div className="site docs">
     <SiteHeader current="docs" />
@@ -21,7 +21,7 @@ export function DocsIndex() {
       <article className="docs-article" aria-labelledby="docs-title">
         {docsSections.map(section => <section key={section.title} className="docs-index-group" aria-label={section.title}>
           <h2>{section.title}</h2>
-          <ul className="docs-cards">{section.pages.map(page => <li key={page.slug}><a href={`/docs/${page.slug}`}><strong dangerouslySetInnerHTML={{ __html: page.title }} /><span dangerouslySetInnerHTML={{ __html: page.lead }} /></a></li>)}</ul>
+          <ul className="docs-cards">{section.pages.map(page => <li key={page.slug}><a href={`/docs/${page.slug}`}><strong className="docs-card-title">{plainText(page.title)}</strong><span className="docs-card-lead">{plainText(page.lead)}</span></a></li>)}</ul>
         </section>)}
       </article>
     </main>

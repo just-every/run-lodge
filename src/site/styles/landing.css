@@ -8,7 +8,7 @@
 .copy .sub { margin-top: 18px; font-size: 22px; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
 .copy + * { margin-top: 56px; }
 
-/* Copy beside the drawing (04, 08, 09, 11, 12), so the page does not run one arrangement for 6,000 px. */
+/* Copy beside the drawing (08, 11, 12), so the page does not run one arrangement for 6,000 px. */
 .split > .site-wrap { display: grid; gap: 48px; align-items: start; }
 .split-copy-left > .site-wrap { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
 .split-copy-right > .site-wrap { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
@@ -59,7 +59,12 @@
 .refusal .icon-stop { width: 28px; height: 28px; flex: none; color: var(--red); }
 
 /* 04 · the review queue */
-.queue-cards { display: grid; gap: 24px; }
+.queue { display: grid; grid-template-columns: minmax(0, 1.78fr) minmax(0, 1fr); gap: 24px; }
+.queue-side { display: flex; flex-direction: column; gap: 24px; }
+.queue-side .mail { flex: 1; }
+.review { display: flex; flex-direction: column; }
+.review .screening { margin-bottom: 26px; }
+.review .decide { margin-top: auto; }
 .review-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
 .review-top .card-title { font-size: 27px; }
 .meta { font-size: 16px; color: var(--muted); }
@@ -210,20 +215,12 @@
 .timeline li.last time { color: var(--ink); }
 
 /* 09 · handed to HR, exactly once */
-.handoff-band.split-copy-left > .site-wrap { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 40px; }
-#handoff .copy h2 { font-size: 54px; }
-.handoff { display: grid; grid-template-columns: minmax(0, 300px) 48px minmax(0, 1fr); grid-template-rows: auto 1fr auto; gap: 18px 6px; align-items: center; }
-.checkr { grid-area: 1 / 1; }
+.handoff { display: grid; grid-template-columns: minmax(0, 4.2fr) 52px minmax(0, 5fr) 52px minmax(0, 3.1fr); align-items: center; }
 .flow-arrow { display: grid; place-items: center; color: var(--red); }
 .flow-arrow svg { width: 40px; }
-.flow-arrow.a1 { grid-area: 1 / 2; }
-.flow-arrow.a2 { grid-area: 3 / 2; }
-.flow-arrow.a2 svg { transform: rotate(180deg); }
-.bamboo { grid-area: 1 / 3 / 4 / 4; }
-.created { grid-area: 3 / 1; }
 .checkr .pairs > div { grid-template-columns: 76px 1fr; }
 .checkr .pairs > div:last-child { grid-template-columns: 1fr; gap: 8px; }
-.status-ok { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; padding: 8px 12px; border-radius: 10px; background: var(--green-tint); font-size: 15px; }
+.status-ok { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; background: var(--green-tint); font-size: 15px; white-space: nowrap; }
 .status-ok .check { width: 22px; height: 22px; }
 .fields { margin-top: 12px; border-top: 1px solid var(--line); }
 .fields li { display: grid; grid-template-columns: 112px 1fr 24px; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 16.5px; }
@@ -232,7 +229,7 @@
 .exception { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 10px; margin-top: 4px; padding: 10px 12px; border-radius: 10px; background: var(--amber-tint); color: var(--amber-ink); font-size: 14px; line-height: 1.4; }
 .excl { display: grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--amber); color: #fff; font-weight: 800; font-size: 14px; }
 .bamboo .card-foot { margin-top: 10px; border-top: 0; padding-top: 6px; }
-.created { text-align: center; background: var(--green-tint); border-color: #cbe9d6; }
+.created { padding-inline: 20px; text-align: center; background: var(--green-tint); border-color: #cbe9d6; }
 .big-check { display: grid; place-items: center; }
 .big-check .check { width: 72px; height: 72px; }
 .created .card-title { margin-top: 14px; font-size: 23px; }
@@ -298,24 +295,28 @@
 /* 13 · the closing */
 .closing { position: relative; background: var(--sky); }
 .closing-plate img { display: block; width: 100%; height: 66.667vw; object-fit: cover; object-position: center bottom; }
+/* The plate sits down on the sky (its top row is the sky colour) so the actions clear the roofline by about 40 px, as on the desk;
+   the pill keeps its height as the plate narrows, so narrower desktops get a little more sky. */
+.closing-plate { display: block; padding-top: max(44px, calc(104px - 4vw)); }
 .closing-copy { position: absolute; left: 0; right: 0; top: 0; padding-top: 5.6vw; text-align: center; }
 .closing h2 { font: 900 clamp(52px, 6.1vw, 92px)/1 var(--font-head); letter-spacing: -.028em; color: var(--ink); }
 .closing-actions { justify-content: center; margin-top: clamp(18px, 1.8vw, 28px); }
 
-/* Narrower desktops: the HR handoff puts its copy above its three cards, and the debrief moves under the scorecards. */
+/* Narrower desktops: the debrief moves under the scorecards. */
 @media (max-width: 1280px) {
-  .handoff-band.split-copy-left > .site-wrap { grid-template-columns: minmax(0, 1fr); }
   .scores { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* Tablets: the side-by-side sections stack, copy first. */
 @media (max-width: 1100px) {
-  .split > .site-wrap, .split-copy-left > .site-wrap, .split-copy-right > .site-wrap, .handoff-band.split-copy-left > .site-wrap, #report.split-copy-right > .site-wrap, #move-in.split-copy-left > .site-wrap, #offer.split-copy-right > .site-wrap { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .split > .site-wrap, .split-copy-left > .site-wrap, .split-copy-right > .site-wrap, #report.split-copy-right > .site-wrap, #move-in.split-copy-left > .site-wrap, #offer.split-copy-right > .site-wrap { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .split .split-copy { order: -1; align-self: start; }
-  #queue .split-copy, #queue .queue-cards { display: contents; }
-  #queue .copy { order: -2; }
-  #queue .review { order: -1; }
-  .copy h2, .split .copy h2 { font-size: 52px; }
+  .queue { grid-template-columns: minmax(0, 1fr); }
+  .queue-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* The HR handoff runs as one column flowing down. */
+  .handoff { grid-template-columns: minmax(0, 1fr); gap: 10px; max-width: 640px; margin-inline: auto; }
+  .flow-arrow svg { width: 34px; transform: rotate(90deg); }
+  .copy h2, .split .copy h2, #report .copy h2 { font-size: 52px; }
   .story { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .story-arrow { right: auto; left: 50%; top: auto; bottom: -34px; transform: translateX(-50%) rotate(90deg); }
   .posted { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -331,6 +332,7 @@
   /* The closing copy sits on its own sky block above the whole painting. */
   .closing { display: flex; flex-direction: column-reverse; }
   .closing-copy { position: relative; padding: 72px var(--gutter) 32px; background: #a1d2fc; }
+  .closing-plate { padding-top: 0; }
   .closing-plate img { height: auto; }
 }
 
@@ -339,7 +341,7 @@
   .band { padding: 64px 0; }
   .band + .band { padding-top: 8px; }
   .eyebrow { font-size: 13px; letter-spacing: .14em; }
-  .copy h2, .split .copy h2 { margin-top: 10px; font-size: 38px; line-height: 1.05; }
+  .copy h2, .split .copy h2, #report .copy h2 { margin-top: 10px; font-size: 38px; line-height: 1.05; }
   .copy .sub { margin-top: 14px; font-size: 17px; }
   .copy + *, .split .split-copy .copy + * { margin-top: 32px; }
   .split > .site-wrap, .split-copy-left > .site-wrap, .split-copy-right > .site-wrap { gap: 28px; }
@@ -414,10 +416,7 @@
   .timeline li { grid-template-columns: 18px 1fr; gap: 2px 12px; padding: 9px 8px; font-size: 14.5px; }
   .timeline li::before { left: 17px; }
   .timeline li > span:last-child { grid-column: 2; }
-  .handoff { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 10px; }
-  .checkr, .bamboo, .created, .flow-arrow.a1, .flow-arrow.a2 { grid-area: auto; }
-  .flow-arrow.a1 svg, .flow-arrow.a2 svg { transform: rotate(90deg); }
-  .flow-arrow svg { width: 34px; }
+  .queue-side { grid-template-columns: minmax(0, 1fr); }
   .fields li { grid-template-columns: 100px 1fr 22px; font-size: 15px; }
   .interlude-tag { font-size: 13px; padding: 8px 12px; border-radius: 10px; left: auto; right: 4%; top: 6%; }
   .days strong { font-size: 52px; }

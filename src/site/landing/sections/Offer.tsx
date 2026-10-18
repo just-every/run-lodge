@@ -22,7 +22,7 @@ export function Offer() {
         <p className="letter-who">Jordan Ellis · Product Designer</p>
         <dl className="pairs plain">
           <div><dt>Base salary</dt><dd>$114,000 a year</dd></div>
-          <div><dt>Approved range</dt><dd>$102,000 – $124,000</dd></div>
+          <div><dt>Approved range</dt><dd><span className="nowrap">$102,000–$124,000</span></dd></div>
           <div><dt>Start date</dt><dd><s>Mon Nov 9</s> · <strong className="nowrap">Mon Nov 16</strong></dd></div>
           <div><dt>Schedule</dt><dd>Full-time · hybrid · Columbus, OH</dd></div>
         </dl>
