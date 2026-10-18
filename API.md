@@ -69,8 +69,11 @@ returns 403. Locally, `rer dev --as agent` signs in as the
   acts for; every rating needs a citation quoting that interviewer's notes
   exactly. Leave anything unsupported unrated. The interviewer accepts the draft
   and still edits and submits it.
-- `coordination` allows `message`, `interview` and `schedule` (reminders and
-  proposed times from the coordination facts in state).
+- `coordination` allows `message`, `interview`, `schedule` and `cancel-interview`
+  (reminders, proposed times from the coordination facts in state, and a rebook:
+  cancel the booked interview, book the new time). Several proposals that read
+  the same interview are alternatives: once one applies, the others are stale.
+  The workspace shows an application's open proposals as one choice.
 - `rediscovery` allows `apply` for candidates with current talent-pool
   permission (owner or hiring-admin scope).
 
