@@ -1,6 +1,6 @@
 import type { PageProps } from './app'
 import { EMPLOYMENT_TYPES, vacancyFacts } from '../lodge/core/labels'
-import { daysSince, pay, payShort } from './format'
+import { pay, payShort, since } from './format'
 import { Icon } from './icons'
 import { person } from './names'
 import { cents, Empty, Field, Form, memberOptions, Status, Table, type D } from './shared'
@@ -94,7 +94,7 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
       : <Table heads={['Title', 'Status', 'Pay', 'By stage', 'Applications', '']}>{mine.map((x: D) => {
         const apps = w.applications.filter((a: D) => a.vacancy === x.id), stages = columns(x, apps).filter(c => c.id !== 'closed')
         return <tr key={x.id} className={x.id === nav.vacancy ? 'current' : undefined}><td><strong>{x.title}</strong><small>{vacancyFacts(x).join(' · ')}</small></td>
-          <td><span className="stage-cell"><VacancyStatus v={x} />{x.status === 'open' && x.publishedAt && <small>open {daysSince(x.publishedAt)} days</small>}</span></td><td>{payShort(x.compensation)}</td>
+          <td><span className="stage-cell"><VacancyStatus v={x} />{x.status === 'open' && x.publishedAt && <small>open {since(x.publishedAt)}</small>}</span></td><td>{payShort(x.compensation)}</td>
           <td>{apps.length ? <span className="split" title={stages.map(c => `${c.name} ${c.apps.length}`).join(', ')}>{stages.map(c => c.apps.length).join(' · ')}</span> : <small>{x.status === 'open' ? 'None yet' : '—'}</small>}</td>
           <td>{apps.length}{apps.some((a: D) => a.status !== 'active') && <small>{apps.filter((a: D) => a.status !== 'active').length} closed</small>}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>
       })}</Table>}

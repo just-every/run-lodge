@@ -17,7 +17,7 @@ export function Rail({ w, tabs, nav, go }: { w: D; tabs: Tab[]; nav: Nav; go: (t
     {jobs.length > 0 && <section className="jobs" aria-labelledby="open-jobs">
       <h2 id="open-jobs">Open jobs</h2>
       <ul>{jobs.map((v: D) => <li key={v.id}><button aria-current={nav.tab === 'Applications' && nav.job === v.id ? 'true' : undefined} onClick={() => go('Applications', { job: v.id, app: null })}>
-        <span>{v.title}</span><span className="job-count">{active(v)}<span className="visually-hidden"> active</span></span></button></li>)}</ul>
+        <span title={v.title}>{v.title}</span><span className="job-count">{active(v)}<span className="visually-hidden"> active</span></span></button></li>)}</ul>
     </section>}
     <nav aria-label="Workspace">
       {tabs.map(t => <button key={t.name} aria-current={nav.tab === t.name ? 'page' : undefined} aria-describedby={t.count ? 'count-' + t.icon : undefined} onClick={() => go(t.name)}>

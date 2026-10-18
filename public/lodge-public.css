@@ -2,7 +2,10 @@
 html.rer-themed main.lodge-public{max-width:720px}
 html.rer-themed main.lodge-public > h1,html.rer-themed main.lodge-public > h1 + p{text-align:left}
 .lodge-public .meta{color:var(--rer-muted)}
-.lodge-public textarea,.lodge-public select{box-sizing:border-box;width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--rer-border);border-radius:8px;background:var(--rer-surface);color:var(--rer-text);font:inherit}
+.lodge-public textarea,.lodge-public select{box-sizing:border-box;width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--field-border);border-radius:var(--radius-control);background:var(--rer-surface);color:var(--rer-text);font:inherit}
+/* The app's quiet field on every control the applicant touches: the hairline, and on focus the blue border with its soft ring (no thick outline). */
+html.rer-themed .lodge-public :is(input:not([type=checkbox]):not([type=hidden]),textarea,select):hover{border-color:var(--rer-border)}
+html.rer-themed .lodge-public :is(input,textarea,select):focus{border-color:var(--rer-focus);box-shadow:0 0 0 3px var(--focus-ring);outline:0}
 /* every single-choice select; multiple and size>1 lists keep their native look (Base #247 foundation/runtime/select-style.ts) */
 .lodge-public select:not([multiple],[size]:not([size="1"])) {
   --rer-select-ink: var(--rer-muted);
@@ -25,10 +28,9 @@ html.rer-themed main.lodge-public > h1,html.rer-themed main.lodge-public > h1 + 
 /* A floated legend sits inside the card as its heading instead of breaking the border. */
 .lodge-public legend{float:left;width:100%;margin:0;padding:0;color:var(--rer-text);font-weight:600}
 .lodge-public fieldset p{margin:0;color:var(--rer-muted)}
-.lodge-public input[type=file]{box-sizing:border-box;width:100%;min-height:48px;padding:7px 8px;border:1px solid var(--rer-border);border-radius:8px;background:var(--rer-surface);color:var(--rer-muted);font:inherit;font-size:15px}
-.lodge-public input[type=file]::file-selector-button{margin-right:12px;min-height:32px;padding:5px 14px;border:1px solid var(--rer-border);border-radius:999px;background:var(--rer-surface);color:var(--rer-text);font:inherit;font-weight:500;cursor:pointer}
+.lodge-public input[type=file]{box-sizing:border-box;width:100%;min-height:48px;padding:7px 8px;border:1px solid var(--field-border);border-radius:var(--radius-control);background:var(--rer-surface);color:var(--rer-muted);font:inherit;font-size:15px}
+.lodge-public input[type=file]::file-selector-button{margin-right:12px;min-height:32px;padding:5px 14px;border:1px solid var(--field-border);border-radius:999px;background:var(--rer-surface);color:var(--rer-text);font:inherit;font-weight:500;cursor:pointer}
 .lodge-public input[type=file]::file-selector-button:hover{background:var(--row)}
-.lodge-public input[type=file]:focus-visible{outline:0;border-color:var(--rer-focus);box-shadow:0 0 0 3px var(--focus-ring)}
 .lodge-public details{margin:0}.lodge-public summary{cursor:pointer;font-weight:500}
 .lodge-public .roles{list-style:none;padding:0;display:grid;gap:0}
 .lodge-public .roles li{display:grid;gap:2px;padding:16px 0;border-top:1px solid var(--line)}

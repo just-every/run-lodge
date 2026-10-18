@@ -1,7 +1,7 @@
 import { State, type Row } from './lodge/core/state'
 import { terms, versionOf, type Subject } from './lodge/records/approvals'
 import type { Data } from './lodge/core/types'
-import { DELETED, demoAt, easternWeek, pastPanel, storyMorning, workAt, ZONE } from './demo-activity'
+import { DELETED, demoAt, easternWeek, pastPanel, storyMorning, workAt, ZONE, type Spread } from './demo-activity'
 
 /** Fernway's people: Maya Torres runs hiring alone for a 60-person Columbus business; all addresses are reserved example domains. */
 export const TEAM = {
@@ -26,12 +26,13 @@ const CLOSED: [name: string, source: string, reason: string, withdrew?: boolean]
 const PLACES = ['Columbus, OH', 'Dublin, OH', 'Westerville, OH', 'Grandview Heights, OH', 'Worthington, OH', 'Cincinnati, OH', 'Cleveland, OH', 'Pittsburgh, PA']
 
 /** Fernway's hiring workspace on a Monday in October: four open jobs, one awaiting approval, and Thursday's panel to rebook. */
-export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]> {
+export async function demoRecords(ownerEmail: string, now: Date, spread: Spread): Promise<Row[]> {
   const rows: Row[] = []
-  // `done` for the hiring story (arrivals, moves, scorecards, approvals), on working days and in order; `ago` for the rest.
+  // `done` for the hiring story (arrivals, moves, scorecards, approvals), on working days and in order, at a time of day
+  // of its own for each record (`key`), so one day's unrelated events do not share a minute; `ago` for the rest.
   // Days count back from the morning of Thursday's exception, so that morning is the newest history whenever the demo opens.
   const anchor = new Date(storyMorning(now)(8, 0))
-  const ago = (days: number) => demoAt(anchor, -days), done = (days: number) => workAt(anchor, -days)
+  const ago = (days: number) => demoAt(anchor, -days), done = (days: number, key = '') => key ? spread(workAt(anchor, -days), key) : workAt(anchor, -days)
   const week = easternWeek(now)
   const put = (kind: string, id: string, value: Data): Data => {
     const record = { ...value, id }
@@ -54,9 +55,9 @@ export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]>
     return put('vacancy', id, {
       employmentType: 'full-time', headcount: 1, ...v, status, slug: status === 'open' ? key : undefined,
       stages: stages.map((name, i) => ({ id: `${id}-stage-${i}`, name })),
-      rubrics: [{ version: 1, by: v.manager, at: done(createdDaysAgo - 1), criteria: criteria.map(([name, description], i) => ({ id: `${id}-criterion-${i}`, name, description })) }],
+      rubrics: [{ version: 1, by: v.manager, at: done(createdDaysAgo - 1, id), criteria: criteria.map(([name, description], i) => ({ id: `${id}-criterion-${i}`, name, description })) }],
       plan: plan.map(([name, minutes, focus], i) => ({ id: `${id}-plan-${i}`, name, stage: `${id}-stage-2`, durationMinutes: minutes, criteria: focus.map(c => `${id}-criterion-${c}`) })),
-      createdBy: v.manager, createdAt: done(createdDaysAgo), publishedAt: status === 'open' ? done(createdDaysAgo - 3) : undefined, noticeVersion: 1, hires: 0,
+      createdBy: v.manager, createdAt: done(createdDaysAgo, id), publishedAt: status === 'open' ? done(createdDaysAgo - 3, id) : undefined, noticeVersion: 1, hires: 0,
     })
   }
   const designer = vacancy('product-designer', { title: 'Product Designer', department: 'Design', location: 'Columbus, OH', workMode: 'hybrid', manager: dev, compensation: { currency: 'USD', min: 10200000, max: 12400000, period: 'year' }, description: 'Design the tools our customers and warehouse team use every day. Work with Dev Kapoor, two engineers and the people who use what you make.' },
@@ -74,21 +75,22 @@ export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]>
   let n = 0
   const person = (name: string, source: string, sinceDays: number, headline = 'Product designer', basis = source === R ? 'referral' : 'application') => {
     const key = name.toLowerCase().replace(/[^a-z]+/g, '.')
-    return put('candidate', 'demo-candidate-' + n, { name, email: key + '@example.com', phone: '', location: PLACES[n++ % PLACES.length], headline, skills: 'Product design, prototyping, usability testing', source, consent: { basis, talentPool: n % 3 === 0, noticeVersion: 1, at: ago(sinceDays), recordedBy: source === A ? 'applicant' : maya }, retainUntil: ago(sinceDays - 365).slice(0, 10), createdAt: ago(sinceDays) })
+    return put('candidate', 'demo-candidate-' + n, { name, email: key + '@example.com', phone: '', location: PLACES[n++ % PLACES.length], headline, skills: 'Product design, prototyping, usability testing', source, consent: { basis, talentPool: n % 3 === 0, noticeVersion: 1, at: ago(sinceDays), recordedBy: source === R ? maya : 'applicant' }, retainUntil: ago(sinceDays - 365).slice(0, 10), createdAt: ago(sinceDays) })
   }
   /** An application with its received event and, when it moved, the move that brought it to `stage` `days` ago. */
   const apply = (v: Data, c: Data, stage: number, days: number, extra: Data = {}) => {
     const received = days + (stage ? (stage - 1) * 4 + 2 + (n % 3) : 0), id = 'demo-application-' + c.id.slice(15)
-    const app = put('application', id, { candidate: c.id, vacancy: v.id, stage: v.stages[stage].id, status: 'active', source: c.source, rubricVersion: 1, reviewers: [], feedbackReleased: false, submittedAt: done(received), coverNote: c.source === R ? 'Priya Nair suggested I apply; I would love to design for the people who use Fernway’s tools every day.' : '', ...extra })
-    put('stage-event', id + '-received', { application: id, from: null, to: v.stages[0].id, reason: `Application received (${c.source})`, actor: c.source === A ? 'applicant' : maya, at: app.submittedAt })
-    put('audit', id + '-audit', { actor: maya, email: maya, action: 'application-received', record: 'application:' + id, at: app.submittedAt })
-    for (let s = 1; s <= stage; s++) put('stage-event', `${id}-moved-${s}`, { application: id, from: v.stages[s - 1].id, to: v.stages[s].id, reason: s === 1 ? 'Relevant product work; moving to the recruiter screen.' : s === 2 ? 'Screen went well; booking the panel.' : 'Panel agreed; preparing the offer.', actor: s === 1 ? maya : dev, at: done(days + (stage - s) * 4) })
+    const app = put('application', id, { candidate: c.id, vacancy: v.id, stage: v.stages[stage].id, status: 'active', source: c.source, rubricVersion: 1, reviewers: [], feedbackReleased: false, submittedAt: done(received, id), coverNote: c.source === R ? 'Priya Nair suggested I apply; I would love to design for the people who use Fernway’s tools every day.' : '', ...extra })
+    // Applicants send their own applications (from a job board or the application page); Maya enters a referral.
+    put('stage-event', id + '-received', { application: id, from: null, to: v.stages[0].id, reason: `Application received (${c.source})`, actor: c.source === R ? maya : 'applicant', at: app.submittedAt })
+    put('audit', id + '-audit', { actor: c.source === R ? maya : 'public', email: c.source === R ? maya : 'public', action: 'application-received', record: 'application:' + id, at: app.submittedAt })
+    for (let s = 1; s <= stage; s++) put('stage-event', `${id}-moved-${s}`, { application: id, from: v.stages[s - 1].id, to: v.stages[s].id, reason: s === 1 ? 'Relevant product work; moving to the recruiter screen.' : s === 2 ? 'Screen went well; booking the panel.' : 'Panel agreed; preparing the offer.', actor: s === 1 ? maya : dev, at: done(days + (stage - s) * 4, id) })
     return app
   }
   const crit = (v: Data, i: number) => `${v.id}-criterion-${i}`
   /** A submitted scorecard on criteria `on`, each with its written evidence: `daysAgo` for a screen, or the afternoon after its panel. */
   const card = (app: Data, author: string, interview: Data | null, on: [number, number, string][], recommendation: string, daysAgo: number) => {
-    const at = interview ? new Date(Date.parse(interview.start) + (interview.durationMinutes + 30 + 25 * (author.length % 5)) * 60000).toISOString() : done(daysAgo)
+    const at = interview ? new Date(Date.parse(interview.start) + (interview.durationMinutes + 30 + 25 * (author.length % 5)) * 60000).toISOString() : done(daysAgo, app.id)
     const v = rows.find(r => r.kind === 'vacancy' && r.id === app.vacancy)!.value as Data
     put('scorecard', `${app.id}:${interview?.id ?? 'review'}:${author}`, { application: app.id, interview: interview?.id ?? null, author, rubricVersion: 1, ratings: Object.fromEntries(on.map(([c, r]) => [crit(v, c), r])), evidence: Object.fromEntries(on.map(([c, , e]) => [crit(v, c), e])), recommendation, notes: '', status: 'submitted', updatedAt: at, submittedAt: at })
   }
@@ -105,8 +107,8 @@ export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]>
   })
   CLOSED.forEach(([name, source, reason, withdrew], i) => {
     const days = 6 + (i % 9), c = person(name, source, days + 5)
-    const app = apply(designer, c, 0, days + 5, { status: withdrew ? 'withdrawn' : 'rejected', closedAt: done(days) })
-    put('stage-event', app.id + '-closed', { application: app.id, from: app.stage, to: withdrew ? 'withdrawn' : 'rejected', reason, actor: maya, at: done(days) })
+    const app = apply(designer, c, 0, days + 5, { status: withdrew ? 'withdrawn' : 'rejected', closedAt: done(days, 'demo-application-' + c.id.slice(15)) })
+    put('stage-event', app.id + '-closed', { application: app.id, from: app.stage, to: withdrew ? 'withdrawn' : 'rejected', reason, actor: maya, at: app.closedAt })
   })
 
   // The four panels. Jordan's Panel 1 is done with all three scorecards; Panel 2 is Thursday at 10:00 in Juniper,
@@ -116,7 +118,7 @@ export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]>
   const interview = (app: Data, key: string, plan: number, participants: string[], slots: string[], status: 'scheduled' | 'proposed', availability: Data = {}) => put('interview', 'demo-interview-' + key, {
     application: app.id, vacancy: designer.id, planItem: pd[plan].id, title: `${pd[plan].name}: Product Designer`, durationMinutes: pd[plan].durationMinutes, participants, slots, availability,
     candidateToken: (++tokens).toString(16).repeat(48), location: 'Juniper room · 1150 Goodale Blvd', timezone: week.zone, status, start: status === 'scheduled' ? slots[0] : undefined,
-    createdBy: maya, createdAt: done(9), ...(status === 'scheduled' ? { scheduledBy: maya, scheduledAt: done(8) } : {}),
+    createdBy: maya, createdAt: done(9, app.id), ...(status === 'scheduled' ? { scheduledBy: maya, scheduledAt: done(8, app.id) } : {}),
   })
   const jordan = apply(designer, person('Jordan Ellis', R, 13, 'Senior designer · Lakeshore Health'), 2, 8)
   const panel1 = interview(jordan, 'jordan-1', 0, [dev, ana, maya], [pastPanel(anchor, 5, 10)], 'scheduled')
@@ -140,7 +142,7 @@ export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]>
   const naomi1 = interview(naomi, 'naomi-1', 0, [dev, ana, maya], [pastPanel(anchor, 4, 10)], 'scheduled')
   const naomi2 = interview(naomi, 'naomi-2', 1, [dev, chris, maya], [pastPanel(anchor, 4, 14)], 'scheduled')
   for (const [author, iv] of [[dev, naomi1], [ana, naomi1], [maya, naomi1], [dev, naomi2], [chris, naomi2], [maya, naomi2]] as const) card(naomi, author, iv, [[iv === naomi1 ? 0 : 2, 4, iv === naomi1 ? 'Led a design system used by four product teams; showed the adoption numbers.' : 'Paired with engineering on the exercise and adjusted the plan when constraints changed.']], 'strong-yes', 5)
-  put('offer', 'demo-offer', { application: naomi.id, title: 'Product Designer', salary: { amount: 11200000, currency: 'USD', period: 'year' }, startDate: week.date(21), terms: 'Full-time, hybrid in Columbus. Fifteen days paid leave plus holidays. Final terms subject to the signed employment agreement.', status: 'draft', createdBy: maya, createdAt: done(1) })
+  put('offer', 'demo-offer', { application: naomi.id, title: 'Product Designer', salary: { amount: 11200000, currency: 'USD', period: 'year' }, startDate: week.date(21), terms: 'Full-time, hybrid in Columbus. Fifteen days paid leave plus holidays. Final terms subject to the signed employment agreement.', status: 'draft', createdBy: maya, createdAt: done(1, naomi.id) })
 
   // Customer Success Lead and Warehouse Associate have smaller pipelines; Marketing Coordinator was published this week and has none yet.
   const smaller: [Data, Seed, number][] = [
@@ -155,12 +157,12 @@ export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]>
   put('stage-event', withdrawn.id + '-received', { application: withdrawn.id, from: null, to: success.stages[0].id, reason: 'Application received (Application page)', actor: 'applicant', at: withdrawn.submittedAt })
   put('candidate', 'demo-candidate-ben', { name: 'Ben Carter', email: 'ben.carter@example.com', phone: '', location: 'Columbus, OH', headline: 'Office manager · 6 years', skills: 'Facilities, purchasing, events', source: A, consent: { basis: 'talent-pool', talentPool: true, at: ago(368), recordedBy: maya }, retainUntil: ago(3).slice(0, 10), createdAt: ago(368) })
 
-  put('message', 'demo-message', { application: jordan.id, purpose: 'interview-invitation', to: 'jordan.ellis@example.com', subject: 'Your Panel 2 design exercise at Fernway', body: 'Hi Jordan,\nThank you for Panel 1. We would love to invite you to the design exercise with Lena, Dev and me in the Juniper room.\nBest,\nMaya Torres\nHead of Operations, Fernway', draftedBy: maya, draftedAt: done(7), downloads: [] })
+  put('message', 'demo-message', { application: jordan.id, purpose: 'interview-invitation', to: 'jordan.ellis@example.com', subject: 'Your Panel 2 design exercise at Fernway', body: 'Hi Jordan,\nThank you for Panel 1. We would love to invite you to the design exercise with Lena, Dev and me in the Juniper room.\nBest,\nMaya Torres\nHead of Operations, Fernway', draftedBy: maya, draftedAt: done(7, jordan.id), downloads: [] })
   const state = new State(rows)
   for (const [kind, id, status, by] of [['vacancy', designer.id, 'approved', sam], ['vacancy', success.id, 'approved', sam], ['vacancy', warehouse.id, 'approved', sam], ['vacancy', 'demo-marketing-coordinator', 'approved', sam], ['vacancy', accountant.id, 'pending', sam], ['offer', 'demo-offer', 'pending', sam], ['message', 'demo-message', 'approved', maya]] as const) {
-    const record = state.get(kind, id)
+    const record = state.get(kind, id), key = kind === 'vacancy' ? id : record.application
     const decided = kind === 'vacancy' ? (record.createdAt < done(10) ? 17 : 4) : 6
-    put('approval', id + '-approval', { subjectKind: kind as Subject, subjectId: id, version: await versionOf(state, kind, record), terms: terms(state, kind, record), requestedBy: kind === 'vacancy' ? record.manager : maya, approver: by, status, requestedAt: done(status === 'approved' ? decided + 1 : 1), ...(status === 'approved' ? { decidedBy: by, decidedAt: done(decided), reason: kind === 'message' ? 'Clear and kind; sending from my mailbox.' : 'Within this year’s hiring budget.' } : {}) })
+    put('approval', id + '-approval', { subjectKind: kind as Subject, subjectId: id, version: await versionOf(state, kind, record), terms: terms(state, kind, record), requestedBy: kind === 'vacancy' ? record.manager : maya, approver: by, status, requestedAt: done(status === 'approved' ? decided + 1 : 1, key), ...(status === 'approved' ? { decidedBy: by, decidedAt: done(decided, key), reason: kind === 'message' ? 'Clear and kind; sending from my mailbox.' : 'Within this year’s hiring budget.' } : {}) })
   }
   return rows
 }

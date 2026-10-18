@@ -39,6 +39,28 @@ export function workAt(now: Date, days: number): string {
   return fromWall(friday + 8 * hour + place * 10 * hour, ZONE)
 }
 
+/**
+ * Times of day for the sample history. `spread(iso, key)` moves `iso` to a minute of its own on the same working day
+ * in Columbus, chosen by the record it belongs to (`key`), so one day's unrelated events never share a minute: the
+ * day's ten working hours are halved and each key starts at its own minute of the first five, so a record's own
+ * events keep their order; a minute another record already holds moves on to the next free one.
+ */
+export function spreader() {
+  const held = new Map<string, string>()
+  return (iso: string, key: string): string => {
+    let hash = 2166136261
+    for (const ch of key) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619)
+    hash = Math.imul(hash ^ (hash >>> 15), 2246822507) >>> 0
+    const wall = toWall(Date.parse(iso), ZONE), start = wall - (wall % 86400000) + 8 * 3600000, minutes = (wall - start) / 60000
+    if (minutes < 0 || minutes > 600) return iso
+    let minute = Math.round((hash % 300) + minutes / 2)
+    while (minute < 599 && (held.get(start + ':' + minute) ?? key) !== key) minute++
+    held.set(start + ':' + minute, key)
+    return fromWall(start + minute * 60000, ZONE)
+  }
+}
+export type Spread = ReturnType<typeof spreader>
+
 /** A panel that already took place: on the working day of `workAt(days)`, on the hour. */
 export function pastPanel(now: Date, days: number, hour: number): string {
   const wall = toWall(Date.parse(workAt(now, -days)), ZONE)
@@ -86,49 +108,50 @@ function rewrite(value: unknown, change: (s: string) => string): unknown {
  * Each step's timestamps move to the day it happened, and new ids become fixed ids,
  * so seeding stays idempotent.
  */
-export async function demoActivity(rows: Row[], ownerEmail: string, now: Date): Promise<Row[]> {
+export async function demoActivity(rows: Row[], ownerEmail: string, now: Date, spread: Spread): Promise<Row[]> {
   const s = new State(rows)
   const week = easternWeek(now), morning = storyMorning(now)
   // Earlier history counts back from that morning's start, so the morning's own story is the newest thing recorded.
-  const at = (days: number) => workAt(new Date(morning(8, 0)), days)
+  const at = (days: number, key: string) => spread(workAt(new Date(morning(8, 0)), days), key)
   const agentEmail = 'maya-agent@fernway.example', lena = 'lena@fernway.example', ana = 'ana@fernway.example', dev = 'dev@fernway.example'
   const owner: Actor = { id: 'demo-owner', email: ownerEmail, name: 'Maya Torres', session: '', version: 0, owner: true, roles: [...ROLES], agent: false }
   const agent: Actor = { id: 'demo-agent', email: agentEmail, name: 'Maya’s coordinator agent', session: '', version: 0, owner: false, roles: [...ROLES], agent: true, scopeAs: ownerEmail }
   const panellist = (email: string, name: string): Actor => ({ id: 'demo-' + email.split('@')[0], email, name, session: '', version: 0, owner: false, roles: ['interviewer'], agent: false })
-  /** Runs one step and moves the times it wrote to when it happened: `days` ago on a working day, or an exact moment. */
-  const step = async (when: number | string, action: () => unknown) => {
+  /** Runs one step and moves the times it wrote to when it happened: `days` ago on a working day (at the time of day of
+   * its story, `key`), or an exact moment. */
+  const step = async (when: number | string, action: () => unknown, key = '') => {
     const started = new Date().toISOString()
     await action()
     const finished = new Date(Date.now() + 1000).toISOString()
-    const moment = typeof when === 'string' ? when : at(when)
+    const moment = typeof when === 'string' ? when : at(when, key)
     for (const write of s.pending().writes) if (write.value) s.put(write.kind, write.id, rewrite(write.value, v => ISO.test(v) && v >= started && v <= finished ? moment : v) as Data)
   }
   const draft = (application: string, purpose: string, subject: string, body: string) => ({ op: 'message', input: { application, purpose, subject, body } })
   const applicationOf = (name: string) => { const c = s.all('candidate').find(x => x.name === name)!; return s.all('application').find(x => x.candidate === c.id)! }
   const sign = '\nBest,\nMaya Torres\nHead of Operations, Fernway'
 
-  await step(-17, () => run(s, owner, 'move', { application: 'demo-application-owen', to: 'withdrawn', reason: 'Accepted another offer before the screen.' }))
-  await step(-16, () => deleteCandidate(s, owner, { candidate: DELETED, confirm: 'Owen Hart', reason: 'Asked us to delete his application' }))
-  await step(-10, () => run(s, owner, 'member', { email: agentEmail, name: 'Maya’s coordinator agent', agent: true, actsFor: ownerEmail }))
-  const ben = 'demo-candidate-ben', grace = applicationOf('Grace Liu').candidate
-  await step(-9, () => run(s, owner, 'data-request', { candidate: grace, type: 'access', receivedAt: T.dateOf(at(-9)), channel: 'email', note: 'Asked what we hold about her.' }))
+  await step(-17, () => run(s, owner, 'move', { application: 'demo-application-owen', to: 'withdrawn', reason: 'Accepted another offer before the screen.' }), 'demo-application-owen')
+  await step(-16, () => deleteCandidate(s, owner, { candidate: DELETED, confirm: 'Owen Hart', reason: 'Asked us to delete his application' }), 'demo-application-owen')
+  await step(-10, () => run(s, owner, 'member', { email: agentEmail, name: 'Maya’s coordinator agent', agent: true, actsFor: ownerEmail }), 'agent')
+  const ben = 'demo-candidate-ben', graceApp = applicationOf('Grace Liu'), grace = graceApp.candidate
+  await step(-9, () => run(s, owner, 'data-request', { candidate: grace, type: 'access', receivedAt: T.dateOf(at(-9, graceApp.id)), channel: 'email', note: 'Asked what we hold about her.' }), graceApp.id)
   const access = s.all('data-request').find(r => r.candidate === grace)!
-  await step(-7, () => run(s, owner, 'complete-data-request', { id: access.id, outcome: 'Sent her candidate export from hiring@fernway.example' }))
-  await step(-1, () => run(s, owner, 'data-request', { candidate: ben, type: 'correction', receivedAt: T.dateOf(at(-1)), channel: 'phone', note: 'New phone number to follow by email.' }))
+  await step(-7, () => run(s, owner, 'complete-data-request', { id: access.id, outcome: 'Sent her candidate export from hiring@fernway.example' }), graceApp.id)
+  await step(-1, () => run(s, owner, 'data-request', { candidate: ben, type: 'correction', receivedAt: T.dateOf(at(-1, 'ben')), channel: 'phone', note: 'New phone number to follow by email.' }), 'ben')
 
   const liam = applicationOf('Liam O’Connor'), avery = applicationOf('Avery Chen')
   await step(-3, () => run(s, agent, 'propose', {
     workflow: 'coordination', approver: ownerEmail, sources: [{ kind: 'application', id: liam.id }, { kind: 'interview', id: 'demo-interview-liam-1' }],
     summary: 'Ask Liam O’Connor which of the proposed times suit him', rationale: 'Dev and Ana have answered for Liam’s Panel 1; Liam has not chosen a time yet.',
     changes: [draft(liam.id, 'availability-request', 'Times for your Fernway panel', `Hi Liam,\nThank you for your time so far. Please choose the times that work for your portfolio review with Dev, Ana and me from the link in this email.${sign}`)],
-  }))
-  await step(-2.8, () => run(s, owner, 'decide-proposal', { id: s.all('proposal')[0].id, decision: 'approved', reason: 'Good; I will send it with the link.' }))
-  await step(-1, () => run(s, agent, 'propose', {
+  }), liam.id)
+  await step(-2.8, () => run(s, owner, 'decide-proposal', { id: s.all('proposal')[0].id, decision: 'approved', reason: 'Good; I will send it with the link.' }), liam.id)
+  await step(-0.95, () => run(s, agent, 'propose', {
     workflow: 'coordination', approver: ownerEmail, sources: [{ kind: 'application', id: avery.id }],
     summary: 'Acknowledge Avery Chen’s application', rationale: 'Avery applied recently and has not heard from us.',
     changes: [draft(avery.id, 'acknowledgement', 'Thanks for applying to Fernway', `Hi Avery,\nThank you for applying for the Product Designer role. I will review your application this week and let you know about next steps.${sign}`)],
-  }))
-  await step(-0.9, () => run(s, owner, 'decide-proposal', { id: s.all('proposal')[1].id, decision: 'approved', reason: 'Clear and kind.' }))
+  }), avery.id)
+  await step(-0.9, () => run(s, owner, 'decide-proposal', { id: s.all('proposal')[1].id, decision: 'approved', reason: 'Clear and kind.' }), avery.id)
 
   // Thursday's exception, as it arrived that morning: Lena Brooks tells the team she is out sick for Jordan's Panel 2,
   // Ana Ruiz offers to cover, and the agent reads both replies and offers three ways through, each one

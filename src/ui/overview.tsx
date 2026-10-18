@@ -1,5 +1,5 @@
 import type { PageProps } from './app'
-import { daysSince, recent, weekday } from './format'
+import { daysSince, recent, since, weekday } from './format'
 import { Icon, type IconName } from './icons'
 import { count, person } from './names'
 import { Avatar, Status, type D } from './shared'
@@ -61,11 +61,11 @@ export function Overview({ w, mutate, go }: PageProps) {
         })}</ul></section>}
         {open.length > 0 && <section className="card"><h2>Open jobs</h2><ul className="list rich">{open.map((v: D) => {
           const apps = w.applications.filter((a: D) => a.vacancy === v.id), split = columns(v, apps).filter(c => c.id !== 'closed').map(c => c.apps.length)
-          return <li key={v.id}><button onClick={() => go('Applications', { job: v.id, app: null })}><span><strong>{v.title}</strong><small>{count(apps.length, 'application')} · by stage {split.join(' · ')}{v.publishedAt ? ` · open ${daysSince(v.publishedAt)} days` : ''}</small></span></button></li>
+          return <li key={v.id}><button onClick={() => go('Applications', { job: v.id, app: null })}><span><strong>{v.title}</strong><small>{count(apps.length, 'application')} · by stage {split.join(' · ')}{v.publishedAt ? ` · open ${since(v.publishedAt)}` : ''}</small></span></button></li>
         })}</ul></section>}
         {(w.coordination.missingScorecards.length > 0 || w.coordination.awaitingTimes.length > 0) && <section className="card">
           <h2>Coordination</h2>
-          <ul className="list rich">{w.coordination.missingScorecards.map((m: D) => <li key={m.interview + m.interviewer}><button onClick={() => go('Applications', { app: m.application, job: undefined })}><Icon name="clock" /><span><strong>{person(w, m.interviewer)}: scorecard not submitted</strong><small>{m.title.split(':')[0]} with {w.applications.find((a: D) => a.id === m.application)?.candidateName} · {weekday(m.since)} · {count(daysSince(m.since), 'day')} ago</small></span></button></li>)}
+          <ul className="list rich">{w.coordination.missingScorecards.map((m: D) => <li key={m.interview + m.interviewer}><button onClick={() => go('Applications', { app: m.application, job: undefined })}><Icon name="clock" /><span><strong>{person(w, m.interviewer)}: scorecard not submitted</strong><small>{m.title.split(':')[0]} with {w.applications.find((a: D) => a.id === m.application)?.candidateName} · {weekday(m.since)} · {daysSince(m.since) ? `${count(daysSince(m.since), 'day')} ago` : 'today'}</small></span></button></li>)}
             {w.coordination.awaitingTimes.map((t: D) => <li key={t.interview}><button onClick={() => go('Applications', { app: t.application, job: undefined })}><Icon name="calendar" /><span><strong>{w.applications.find((a: D) => a.id === t.application)?.candidateName}: times proposed</strong><small>{t.title.split(':')[0]} · {t.responded.length} of {t.best[0]?.of ?? t.responded.length} on the panel and the candidate have answered</small></span></button></li>)}</ul>
         </section>}
       </div>

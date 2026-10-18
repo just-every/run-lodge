@@ -19,13 +19,17 @@ function Reply({ iv, w, mutate }: { iv: D; w: D; mutate: PageProps['mutate'] }) 
 export function Interviews({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: PageProps['mutate'] }) {
   const list = w.interviews.filter((i: D) => i.application === app.id)
   const me = w.actor.email
+  /** A booked interview whose time has passed: "awaiting scorecards" while a panellist's is missing, then "held". */
+  const status = (iv: D) => iv.status !== 'scheduled' || Date.parse(iv.start) + iv.durationMinutes * 60000 > Date.now() ? iv.status
+    : w.coordination.missingScorecards.some((m: D) => m.interview === iv.id) ? 'awaiting scorecards' : 'held'
   return <section className="card">
     <h3>Interviews</h3>
     {!list.length && <p className="empty">No interviews planned.</p>}
     {list.map((iv: D) => <article key={iv.id} className="card">
-      <h4>{iv.title} <Status tone={iv.status === 'scheduled' ? 'good' : 'neutral'}>{iv.status}</Status></h4>
+      <h4>{iv.title} <Status tone={status(iv) === 'scheduled' ? 'good' : 'neutral'}>{status(iv)}</Status></h4>
       <p>{iv.durationMinutes} min · {people(w, iv.participants)}{iv.location ? ' · ' + iv.location : ''}</p>
-      {iv.status === 'scheduled' && <p>{when(iv.start)} · <a href={`/api/lodge/download/calendar/${iv.id}`}>Download calendar invitation (.ics)</a></p>}
+      {status(iv) === 'scheduled' && <p>{when(iv.start)} · <a href={`/api/lodge/download/calendar/${iv.id}`}>Download calendar invitation (.ics)</a></p>}
+      {iv.status === 'scheduled' && status(iv) !== 'scheduled' && <p>{when(iv.start)}</p>}
       {iv.replies?.length > 0 && <ul className="replies">{iv.replies.map((r: D, i: number) => <li key={i} className={r.answer}><strong>{person(w, r.by)} {r.answer === 'cannot-attend' ? 'cannot attend' : `can cover${r.freeAt ? ', free ' + slot(r.freeAt) : ''}`}</strong>{r.note && <span>“{r.note}”</span>}<small>{when(r.at)}</small></li>)}</ul>}
       {iv.status === 'proposed' && <>
         <ul>{iv.slots.map((s: string, i: number) => <li key={s}>{when(s)} · available: {Object.entries(iv.availability).filter(([, picks]) => (picks as number[]).includes(i)).map(([who]) => who === 'candidate' ? 'the candidate' : people(w, [who])).join(', ') || 'no answers yet'}</li>)}</ul>

@@ -53,7 +53,7 @@ export function times(zone: string) {
     /** "Thursday, October 22 at 2:30 p.m.": the long form an email uses. */
     spoken: (iso: string) => `${part(iso, { weekday: 'long', month: 'long', day: 'numeric' })} at ${clock(iso)}`,
     /** "Eastern Time" */
-    name: () => part(new Date().toISOString(), { timeZoneName: 'longGeneric' }).split(', ').at(-1) ?? zone,
+    name: () => /^(Etc\/)?(UTC|GMT)$/.test(zone) ? 'UTC' : part(new Date().toISOString(), { timeZoneName: 'longGeneric' }).split(', ').at(-1) ?? zone,
     /** "Thu Oct 22, 2026, 10:00 a.m. EDT": a time stated on its own, with the zone it is in. */
     stamped: (iso: string) => {
       const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: zone, timeZoneName: 'short' }).formatToParts(new Date(iso)).map(x => [x.type, x.value]))

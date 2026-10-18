@@ -1,7 +1,11 @@
 import type { PageProps } from './app'
 import { day, when } from './format'
-import { sentence } from './names'
+import { count, sentence } from './names'
 import { call, Field, Form, Status, Table, type D } from './shared'
+
+/** What each kind of erased record is called on a receipt: the singular, and the plural when it is not just an added s. */
+const RECORD: Record<string, [string, string?]> = { 'stage-event': ['stage event'], 'interview-note': ['interview note'], receipt: ['application receipt'], monitoring: ['equal-opportunity answer'], candidate: ['merged record'], 'data-request': ['candidate request'], hold: ['legal hold'], 'deletion-receipt': ['earlier deletion receipt'], 'duplicate-review': ['duplicate review'], 'imported-note': ['imported note'], 'imported-rating': ['imported rating'], 'imported-message': ['imported message'], audit: ['audit entry', 'audit entries'] }
+const erased = (counts: Record<string, number>) => Object.entries(counts).filter(([, n]) => n > 0).map(([kind, n]) => count(n, ...(RECORD[kind] ?? [kind.replace(/-/g, ' ')]) as [string, string?])).join(', ')
 
 const BASIS: D = { application: 'They applied', referral: 'Referral with their agreement', 'talent-pool': 'Talent pool', manual: 'Other' }
 
@@ -39,6 +43,6 @@ export function Retention({ w, mutate, reload, setNotice }: PageProps) {
     </Form></details>
     <h2>Deletion receipts</h2>
     {!w.deletionReceipts.length && <p className="empty">No deletion receipts yet.</p>}
-    <ul>{w.deletionReceipts.map((r: D) => <li key={r.id}>{when(r.at)} · record {r.candidate.slice(0, 8)} · {Object.entries(r.counts).filter(([, n]) => (n as number) > 0).map(([k, n]) => `${n} ${k.replace(/-/g, ' ')}`).join(', ')}</li>)}</ul>
+    <ul>{w.deletionReceipts.map((r: D) => <li key={r.id}>{when(r.at)} · record {r.candidate.slice(0, 8)} · {erased(r.counts)}</li>)}</ul>
   </div>
 }

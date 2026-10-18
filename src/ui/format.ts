@@ -1,4 +1,5 @@
 import { instantOf, times, type Times } from '../lodge/core/time'
+import { count } from './names'
 export { amount, money, pay, payShort } from '../lodge/core/labels'
 
 // How times read in the workspace: the house date style ("Thu Oct 22, 2026, 10:00 a.m.") in the business's own
@@ -37,11 +38,11 @@ export const recent = (iso: string) => {
   const label = dayLabel(iso)
   return label === 'Today' ? clock(iso) : label === 'Yesterday' ? `Yesterday, ${clock(iso)}` : label
 }
-/** "1 day", "6 days", "today": how long since `iso`. */
+/** Calendar days from `iso`'s day to today in the business's zone (0 today, 1 yesterday); negative when it is still ahead. */
+export const daysSince = (iso: string) => (Date.parse(dateOf(new Date().toISOString())) - Date.parse(dateOf(iso))) / 86400000
+/** "today", "1 day", "6 days": how many calendar days since `iso`, as a recruiter counts them. */
 export const since = (iso?: string) => {
   if (!iso) return ''
-  const days = Math.floor((Date.now() - Date.parse(iso)) / 86400000)
-  return days < 1 ? 'today' : days === 1 ? '1 day' : `${days} days`
+  const days = daysSince(iso)
+  return days < 1 ? 'today' : count(days, 'day')
 }
-/** Days from `iso` until now, whole; negative when it is still ahead. */
-export const daysSince = (iso: string) => Math.floor((Date.now() - Date.parse(iso)) / 86400000)
