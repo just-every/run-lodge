@@ -20,6 +20,35 @@
           "src/demo-activity.ts"
         ]
       }
+    },
+    {
+      "id": "hiring/lodge-fonts",
+      "role": "module",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "public/fonts/fonts.css",
+          "public/fonts/README.md"
+        ],
+        "origin": {
+          "repository": "https://github.com/runeditrun/base.git",
+          "revision": "33d0982c6f6dbf5fd41d2d37ca21855e36eb1045",
+          "paths": [
+            "default-seed/public/fonts/fonts.css",
+            "default-seed/public/fonts/README.md"
+          ]
+        },
+        "mappings": [
+          {
+            "path": "public/fonts/fonts.css",
+            "originPath": "default-seed/public/fonts/fonts.css"
+          },
+          {
+            "path": "public/fonts/README.md",
+            "originPath": "default-seed/public/fonts/README.md"
+          }
+        ]
+      }
     }
   ],
   "identityKind": "project"
