@@ -1,7 +1,7 @@
 import type { PageProps } from './app'
 import { person, sentence, tone } from './names'
 import { when } from './format'
-import { Field, Form, Status, type D } from './shared'
+import { Empty, Field, Form, Status, type D } from './shared'
 
 export function Proposals({ w, mutate }: PageProps) {
   const open = w.proposals.filter((p: D) => p.status === 'proposed')
@@ -9,7 +9,7 @@ export function Proposals({ w, mutate }: PageProps) {
   return <div className="page">
     <h1>Agent proposals</h1>
     <p className="hint">A coding agent signed in as its own Lodge member reads the same records you can and proposes exact changes through the API (see API.md). Nothing changes until a person approves; approval re-checks that every record it read is unchanged and runs the changes with the approver’s own permissions. No model runs inside Lodge.</p>
-    {!open.length && <p className="empty">No proposals waiting.</p>}
+    {!open.length && <Empty icon="proposals" title="No proposals waiting.">When an agent member proposes changes for you, they wait here until you approve or reject them.</Empty>}
     {open.map((p: D) => <article key={p.id} className="card">
       <p className="eyebrow">{sentence(p.workflow.replace(/-/g, ' '))}</p>
       <h2>{p.summary}</h2>

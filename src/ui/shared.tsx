@@ -1,4 +1,5 @@
 import { Children, cloneElement, isValidElement, useState, type ReactElement, type ReactNode } from 'react'
+import { Icon, type IconName } from './icons'
 
 export type D = Record<string, any>
 export type Mutate = (op: string, body: D) => Promise<D>
@@ -62,6 +63,11 @@ export const memberOptions = (members: D[], role?: string) => members.filter(m =
 
 export function Status({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'good' | 'warn' | 'alert' }) {
   return <span className={'status ' + tone}>{children}</span>
+}
+
+/** A screen with nothing on it yet: its icon, the real line, and what fills it. */
+export function Empty({ icon, title, children }: { icon: IconName; title: string; children?: ReactNode }) {
+  return <p className="empty"><Icon name={icon} size={28} /><strong>{title}</strong>{children && <span>{children}</span>}</p>
 }
 
 const TONES = ['sky', 'rose', 'violet', 'green', 'amber']

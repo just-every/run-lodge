@@ -3,7 +3,7 @@ import { EMPLOYMENT_TYPES, vacancyFacts } from '../lodge/core/labels'
 import { pay, payShort } from './format'
 import { Icon } from './icons'
 import { person } from './names'
-import { cents, Field, Form, memberOptions, Status, Table, type D } from './shared'
+import { cents, Empty, Field, Form, memberOptions, Status, Table, type D } from './shared'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -89,7 +89,7 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
     <h1>Vacancies</h1>
     {nav.vacancy === 'new' && <section className="card"><h2>Terms of the new vacancy</h2><p className="hint">An approver sees these terms with the stages, rubric and interview plan as one set; changing any of them later needs a new approval.</p><Terms w={w} mutate={mutate} onSaved={select} /></section>}
     {v && <Detail v={v} w={w} mutate={mutate} go={go} />}
-    {!mine.length && nav.vacancy !== 'new' ? <p className="empty"><Icon name="vacancies" size={28} /><strong>No vacancies yet.</strong><span>Use New vacancy to write the first one: its pay range, headcount and the description applicants will read.</span></p>
+    {!mine.length && nav.vacancy !== 'new' ? <Empty icon="vacancies" title="No vacancies yet.">Use New vacancy to write the first one: its pay range, headcount and the description applicants will read.</Empty>
       : <Table heads={['Title', 'Status', 'Pay', 'Applications', '']}>{mine.map((x: D) => <tr key={x.id} className={x.id === nav.vacancy ? 'current' : undefined}><td><strong>{x.title}</strong><small>{vacancyFacts(x).join(' · ')}</small></td><td><VacancyStatus v={x} /></td><td>{payShort(x.compensation)}</td><td>{w.applications.filter((a: D) => a.vacancy === x.id).length}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>)}</Table>}
   </div>
 }

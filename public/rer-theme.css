@@ -76,13 +76,18 @@
   --gutter: 48px;
 
   /* The workspace (lodge*.css): quiet field borders and their focus ring, the stage board's columns and the
-     scorecard bars' track. */
+     scorecard bars' track, and the glass the board and the panel sit on. */
   --field-border: #cbd5e1;
   --focus-ring: rgb(29 111 209 / .18);
-  --column: #e4f0fc;
-  --column-end: #f4f9fe;
-  --column-line: #d8e8f7;
-  --track: #dbe3ec;
+  --column: #dff1fd;
+  --column-end: #f2faff;
+  --column-line: #dff0fc;
+  --track: #d6e1ea;
+  --workspace-glass: rgb(255 255 255 / .48);
+  --panel-glass: rgb(255 255 255 / .82);
+  --selected-card: #f5fbff;
+  --radius-control: 10px;
+  --radius-stage: 13px;
 }
 
 /* Base's no-JavaScript frames (sign-in, /setup): the lockup above one white card on the pale page,
@@ -105,6 +110,9 @@ html.rer-themed .action { min-height: 56px; border: 0; border-radius: 999px; bac
 html.rer-themed button:hover,
 html.rer-themed .action:hover { background: #c8241b; box-shadow: none; }
 html.rer-themed button.secondary { background: transparent; color: var(--rer-text); border: 1px solid var(--field-border); }
+/* Sign-in's one-click list: the first person (the owner) keeps the red pill; the others are quiet pills. */
+html.rer-themed .stack .action + .action { border: 1px solid var(--field-border); background: var(--rer-surface); color: var(--rer-text); }
+html.rer-themed .stack .action + .action:hover { background: var(--row); }
 html.rer-themed :focus-visible { outline: 3px solid var(--rer-focus); outline-offset: 3px; }
 /* /setup: the owner's name and email as a quiet list. */
 html.rer-themed main > dl { gap: 0; margin: 28px 0 24px; padding: 6px 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--row); }
@@ -120,6 +128,7 @@ html.rer-themed main > dl dd:not(:last-of-type) { border-bottom: 1px solid var(-
   html.rer-themed .rer-brand,
   html.rer-themed .brand { margin: -112px 0 64px; font-size: 28px; }
   html.rer-themed h1 { font-size: 34px; }
+  html.rer-themed .stack .action { font-size: 16px; }
   html.rer-themed main > dl { padding: 4px 18px; }
   /* Under rer dev, Base's identity badge sits at the top and the lockup clears it. */
   html.rer-themed body:has(#rer-dev-badge) { padding-top: 16px; }

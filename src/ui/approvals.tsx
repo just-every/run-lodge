@@ -1,7 +1,7 @@
 import type { PageProps } from './app'
 import { day, money, pay, when } from './format'
 import { KINDS, person, tone } from './names'
-import { Field, Form, Status, type D } from './shared'
+import { Empty, Field, Form, Status, type D } from './shared'
 
 function Terms({ x, w }: { x: D; w: D }) {
   const t = x.terms
@@ -17,7 +17,7 @@ export function Approvals({ w, mutate }: PageProps) {
   const rest = w.approvals.filter((x: D) => !waiting.includes(x))
   return <div className="page">
     <h1>Approvals</h1>
-    {!waiting.length && <p className="empty">Nothing is waiting for you.</p>}
+    {!waiting.length && <Empty icon="approvals" title="Nothing is waiting for you.">Vacancies, offers and messages sent to you for approval appear here with their exact terms.</Empty>}
     {waiting.map((x: D) => <article key={x.id} className="card"><h2>{KINDS[x.subjectKind]} approval requested by {person(w, x.requestedBy)}</h2><p>{when(x.requestedAt)}</p>
       <Terms x={x} w={w} />
       {x.currentVersion !== x.version ? <p className="warn">This changed after approval was requested. It needs a new request.</p>
