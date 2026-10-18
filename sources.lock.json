@@ -2783,7 +2783,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "a614f9381a339efb4f32dedf3f7cbe7133628b88d67c3c25e36acd44a84c1e5f",
+      "sha256": "f8eeb0c4902aab481175c09c08d3c9356e820995bfdee68c0ee6a336a158d18a",
       "executable": false
     },
     "tests/harness.mjs": {

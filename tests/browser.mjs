@@ -1,7 +1,7 @@
 // LDG-015 and LDG-017, plus the human journeys at 1440 and 390: a fresh clone of
 // the committed HEAD run only through the pinned `rer` verbs, the whole hiring
 // loop clicked by each role, every workspace screen at both widths, the Workable
-// kit through its page, preview, deploy dry run, and a whole-installation
+// kit through its page, preview, deploy preflight, and a whole-installation
 // archive restored into a second clone.
 import { queuedEntrypoint } from '@runeditrun/rer/queued-entry'
 const queued = await queuedEntrypoint(import.meta.url, 'test:lodge-browser'); if (queued !== null) process.exit(queued)
@@ -71,15 +71,20 @@ try {
   assert.equal((await fetch(server.origin + '/api/lodge/state')).status, 401, 'preview keeps private routes private')
   assert.equal((await fetch(server.origin + '/jobs')).status, 200, 'preview serves the application pages')
   await server.close(); server = undefined
-  // A real production deploy requires a sign-in method and local automatic sign-in
-  // never supplies one: the dry run lists it as still needed. The configured plan stays entirely offline.
+  // The credential-free build and preview above prove the production artifact.
+  // Base #275 requires target-secret reads for dry runs, including with mail configured.
   const deployEnv = '.cache/browser-deploy.env'
   await mkdir(join(root, '.cache'), { recursive: true })
-  await writeFile(join(root, deployEnv), 'MAIL_API_KEY=\n', { mode: 0o600 })
-  const missing = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
+  const noCredentials = 'CLOUDFLARE_ACCOUNT_ID=\nCLOUDFLARE_API_TOKEN=\n'
+  await writeFile(join(root, deployEnv), noCredentials + 'MAIL_API_KEY=\n', { mode: 0o600 })
+  const missing = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv], { expected: 3 })
   assert.match(missing, /production sign-in mail: MAIL_API_KEY/, 'the dry run names the sign-in method a real deploy still needs')
-  await writeFile(join(root, deployEnv), 'MAIL_API_KEY=test-only-offline-plan\n', { mode: 0o600 })
-  await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
+  for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN']) assert.ok(missing.includes(name), missing)
+  await writeFile(join(root, deployEnv), noCredentials + 'MAIL_API_KEY=test-only-offline-plan\n', { mode: 0o600 })
+  const configured = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv], { expected: 3 })
+  for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN']) assert.ok(configured.includes(name), configured)
+  assert.doesNotMatch(configured, /production sign-in mail: MAIL_API_KEY/, 'the configured mail input satisfies the sign-in prerequisite')
+  await assert.rejects(readFile(join(root, '.rer/deploy/production.json')), { code: 'ENOENT' })
 
   // Whole-installation archive: refused into a non-empty checkout, restored into a fresh one.
   await rm(join(root, 'exports'), { recursive: true, force: true })
