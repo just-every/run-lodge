@@ -41,19 +41,23 @@ export function workAt(now: Date, days: number): string {
 
 /**
  * Times of day for the sample history. `spread(iso, key)` moves `iso` to a minute of its own on the same working day
- * in Columbus, chosen by the record it belongs to (`key`), so one day's unrelated events never share a minute: the
- * day's ten working hours are halved and each key starts at its own minute of the first five, so a record's own
- * events keep their order; a minute another record already holds moves on to the next free one.
+ * in Columbus, chosen by the record it belongs to (`key`), so one day's unrelated events never share a minute. The
+ * day's ten working hours are halved and each record starts at its own minute of the first five: the first record
+ * seen on a day starts latest, so lists written newest first (the board's columns) keep their order, and one
+ * record's own events keep theirs. A minute another record already holds moves on to the next free one.
  */
 export function spreader() {
-  const held = new Map<string, string>()
+  const lanes = new Map<string, number>(), seen = new Map<number, number>(), held = new Map<string, string>()
   return (iso: string, key: string): string => {
-    let hash = 2166136261
-    for (const ch of key) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619)
-    hash = Math.imul(hash ^ (hash >>> 15), 2246822507) >>> 0
     const wall = toWall(Date.parse(iso), ZONE), start = wall - (wall % 86400000) + 8 * 3600000, minutes = (wall - start) / 60000
     if (minutes < 0 || minutes > 600) return iso
-    let minute = Math.round((hash % 300) + minutes / 2)
+    let lane = lanes.get(start + key)
+    if (lane === undefined) {
+      const k = seen.get(start) ?? 0
+      seen.set(start, k + 1)
+      lanes.set(start + key, lane = Math.max(0, 290 - 19 * k))
+    }
+    let minute = Math.round(lane + minutes / 2)
     while (minute < 599 && (held.get(start + ':' + minute) ?? key) !== key) minute++
     held.set(start + ':' + minute, key)
     return fromWall(start + minute * 60000, ZONE)
