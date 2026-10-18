@@ -212,6 +212,7 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
  .metrics{gap:10px}
  .metrics article{grid-template-columns:1fr;padding:12px 14px}
  .metric-icon{grid-row:auto;width:34px;height:34px;border-radius:10px}
+ .metric-note{grid-column:auto}
  .metrics strong{font-size:26px}
  .pair{grid-template-columns:1fr}
  .actions .primary{width:100%}

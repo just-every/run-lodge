@@ -51,7 +51,7 @@ export function Overview({ w, mutate, go }: PageProps) {
     <section className="metrics">{tiles.map(([label, n, icon, note]) => <article key={label}><span className="metric-icon"><Icon name={icon} /></span><small>{label}</small><strong>{n}</strong><span className="metric-note">{note}</span></article>)}</section>
     {(mine.length > 0 || retention > 0) && <p className="actions">
       {mine.length > 0 && <button className="primary" onClick={() => go('Approvals')}>Review {count(mine.length, 'approval')}</button>}
-      {retention > 0 && <button onClick={() => go('Retention')}>{retention === 1 ? '1 candidate record is' : `${retention} candidate records are`} past their retention date</button>}
+      {retention > 0 && <button onClick={() => go('Retention')}>{retention === 1 ? '1 candidate record is past its' : `${retention} candidate records are past their`} retention date</button>}
     </p>}
     <div className="pair">
       <div>
