@@ -9,7 +9,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px;pa
 .shell-head{position:relative}
 .shell-head::before{content:"";position:absolute;left:24px;right:24px;bottom:0;border-bottom:1px solid var(--rule)}
 .brand{display:flex;align-items:center;gap:14px;color:var(--rer-text);text-decoration:none}
-.brand img{flex:none;width:52px;height:34px}
+.brand img{flex:none;width:36px;height:36px}
 .brand strong{display:block;font-size:24px;font-weight:600;line-height:1.15}
 .brand small{display:block;font-size:16px;color:var(--rer-muted);line-height:1.3}
 .who{font-size:16px;font-weight:500;text-align:right;white-space:nowrap}
@@ -28,7 +28,7 @@ footer{padding-top:20px;padding-bottom:32px;color:var(--rer-muted);font-size:14p
 
 /* Type */
 h1{margin:8px 0 24px;font-family:var(--rer-font-heading);font-size:56px;font-weight:800;line-height:1.05;letter-spacing:-.02em;text-wrap:balance}
-/* Base's page style sets h2 in the heading face; in the app only h1 and record titles use it. */
+/* Base's page style sets h2 in the heading face; in the app only h1 and record titles are Bitter. */
 main h2,main h3,main h4{font-family:var(--rer-font-body)}
 h2{margin:40px 0 14px;font-size:28px;font-weight:600;line-height:1.2}
 h3{margin:28px 0 10px;font-size:20px;font-weight:600;line-height:1.3}
@@ -66,8 +66,23 @@ label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:500}
 label.check{flex-direction:row;align-items:flex-start;gap:10px;font-size:16px;font-weight:400}
 label.check input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:none;accent-color:var(--rer-text)}
 input,select,textarea{width:100%;min-width:0;min-height:44px;padding:10px 14px;border:1px solid var(--rer-border);border-radius:8px;background:var(--rer-surface);color:inherit;font:inherit;font-size:16px}
-/* Every dropdown: its chevron 14px inside the right border, with 40px end padding. */
-select{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23556170' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:12px 8px}
+/* every single-choice select; multiple and size>1 lists keep their native look (Base #247 foundation/runtime/select-style.ts) */
+select:not([multiple],[size]:not([size="1"])) {
+  --rer-select-ink: var(--rer-muted);
+  -webkit-appearance: none;
+  appearance: none;
+  padding-inline-end: 40px;
+  line-height: normal;
+  text-overflow: ellipsis;
+  background-image:
+    linear-gradient(to top right, transparent calc(50% - 1.1px), var(--rer-select-ink) calc(50% - .55px), var(--rer-select-ink) calc(50% + .55px), transparent calc(50% + 1.1px)),
+    linear-gradient(to top left, transparent calc(50% - 1.1px), var(--rer-select-ink) calc(50% - .55px), var(--rer-select-ink) calc(50% + .55px), transparent calc(50% + 1.1px));
+  background-repeat: no-repeat;
+  background-position: right 20px center, right 14px center;
+  background-size: 6px 6px;
+}
+select:not([multiple],[size]:not([size="1"])):focus-visible { --rer-select-ink: var(--rer-text); }
+select:not([multiple],[size]:not([size="1"])):disabled { --rer-select-ink: color-mix(in srgb, var(--rer-muted) 55%, transparent); }
 input[type=file]{padding:8px;font-size:15px}
 input[type=file]::file-selector-button{margin-right:12px;min-height:34px;padding:6px 16px;border:1px solid var(--rer-text);border-radius:999px;background:var(--rer-surface);color:var(--rer-text);font:inherit;font-weight:500;cursor:pointer}
 input[type=file]::file-selector-button:hover{background:var(--paper-tint)}
@@ -173,7 +188,7 @@ main > .empty,main > section > .empty{margin:16px 0;padding:96px 24px;background
  header,nav[aria-label=Workspace],main,footer{padding-left:20px;padding-right:20px}
  .shell-head::before,.shell-foot::before{left:20px;right:20px}
  header{align-items:flex-start;padding-top:16px}
- .brand{gap:10px}.brand img{width:44px;height:29px}
+ .brand{gap:10px}.brand img{width:30px;height:30px}
  .brand strong{font-size:21px}.brand small{font-size:13px}
  .who{font-size:14px;padding-top:4px}
  nav[aria-label=Workspace]{gap:4px;margin-right:0}
