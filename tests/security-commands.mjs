@@ -14,6 +14,7 @@ export function commandBodies(h) {
     document: { application: app.id, name: 'x', base64: 'eA==' }, 'assign-reviewers': { application: app.id, reviewers: ['outside@example.test'] },
     move: { application: app.id, to: 'withdrawn', reason: 'Forbidden' },
     reopen: { application: app.id, to: vacancy.stages[0].id, reason: 'Forbidden' }, transfer: { application: app.id, vacancy: h.otherVacancy.id, reason: 'Forbidden' },
+    'mark-spam': { application: app.id, reason: 'Forbidden' }, 'unmark-spam': { application: app.id, reason: 'Forbidden' }, 'clear-spam-flag': { application: app.id, reason: 'Forbidden' },
     interview: { application: app.id, planItem: vacancy.plan[0].id, participants: ['outside@example.test'], slots: interview.slots },
     availability: { interview: interview.id, slots: [0] }, schedule: { interview: interview.id, slot: 0 }, 'cancel-interview': { interview: interview.id, reason: 'Forbidden' },
     scorecard: { application: app.id, ratings: {}, evidence: {}, recommendation: 'yes', takeaways: 'Forbidden', submit: true },

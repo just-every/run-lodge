@@ -17,6 +17,24 @@ export function openVacancy(s: State, slug: string) {
   return vacancy ? s.get('vacancy', vacancy.id) : null
 }
 
+/**
+ * A repeat submission is flagged for a person to review, never removed: the same
+ * email or the same submission (name, phone, cover note and resume) already
+ * applied to this job, or was once marked as spam anywhere.
+ */
+function likelySpamReasons(s: State, vacancy: Data, address: string, fingerprint: string) {
+  const reasons = new Set<string>()
+  for (const app of s.scan('application')) {
+    const person = s.find('candidate', app.candidate)
+    const sameEmail = !!person?.email && person.email === address, sameSubmission = app.fingerprint === fingerprint
+    if (!sameEmail && !sameSubmission) continue
+    const what = sameEmail ? 'the same email' : 'an identical submission'
+    if (app.status === 'spam' || app.unmarkedSpam?.length) reasons.add(`${what} was marked as spam before`)
+    if (app.vacancy === vacancy.id) reasons.add(`${what} already applied to this job`)
+  }
+  return [...reasons]
+}
+
 export async function submit(s: State, vacancy: Data, input: Submission) {
   const business = s.get('business', 'main')
   const notice = business.notices.at(-1)
@@ -29,7 +47,10 @@ export async function submit(s: State, vacancy: Data, input: Submission) {
     ...fields, source: 'Application page', createdAt: now(), retainUntil: retentionUntil(s),
     consent: { basis: 'application', noticeVersion: notice.version, talentPool, at: now(), recordedBy: 'applicant' },
   })
-  const application = startApplication(s, null, candidate, vacancy, 'Application page', { coverNote: optionalText(input.coverNote, 'Cover note', 8000) })
+  const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
+  const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
+  const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
+  const application = startApplication(s, null, candidate, vacancy, 'Application page', { coverNote, fingerprint, ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume.name, mediaType: input.resume.mediaType, base64: input.resume.base64, kind: 'resume', source: 'Application page' })
   const accommodation = optionalText(input.accommodation, 'Accommodation request', 4000)
   const monitoring = typeof input.monitoring === 'string' && MONITORING_OPTIONS.includes(input.monitoring) && input.monitoring !== 'Prefer not to say' ? input.monitoring : ''

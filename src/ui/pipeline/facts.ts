@@ -4,7 +4,7 @@ import type { D } from '../shared'
 // What the board reads off the workspace: each application's stage, its time there, its next interview and the
 // agent proposals that wait on the signed-in person. All derived from records; nothing here is a score.
 
-const CLOSED: D = { hired: 'Hired', rejected: 'Not progressing', withdrawn: 'Withdrew', transferred: 'Transferred' }
+const CLOSED: D = { hired: 'Hired', rejected: 'Not progressing', withdrawn: 'Withdrew', transferred: 'Transferred', spam: 'Spam' }
 
 export const stageName = (v: D | undefined, id: string) => CLOSED[id] ?? v?.stages.find((s: D) => s.id === id)?.name ?? (id ? sentence(id) : 'Received')
 export const closedLabel = (app: D) => CLOSED[app.status] ?? sentence(app.status)
@@ -35,13 +35,16 @@ export const proposalApplication = (p: D): string | undefined =>
 /** Proposals still open that the signed-in person may decide. */
 export const openProposals = (w: D) => w.proposals.filter((p: D) => p.status === 'proposed' && (p.approver === w.actor.email || (w.actor.owner && p.proposedBy !== w.actor.email)))
 
-/** Applications on this vacancy, by column: each stage in order, then everything closed. */
+/** Applications that count as applicants: everything but spam. */
+export const applicants = (apps: D[]) => apps.filter(a => a.status !== 'spam')
+
+/** Applications on this vacancy, by column: each stage in order, then everything closed. Spam stays off the board. */
 export function columns(v: D, apps: D[]): { id: string; name: string; apps: D[] }[] {
   const active = apps.filter(a => a.status === 'active')
   const byRecent = (x: D, y: D) => lastMove(y).localeCompare(lastMove(x))
   return [
     ...v.stages.map((s: D) => ({ id: s.id, name: s.name, apps: active.filter(a => a.stage === s.id).sort(byRecent) })),
-    { id: 'closed', name: 'Closed', apps: apps.filter(a => a.status !== 'active').sort(byRecent) },
+    { id: 'closed', name: 'Closed', apps: applicants(apps).filter(a => a.status !== 'active').sort(byRecent) },
   ]
 }
 

@@ -5,7 +5,7 @@ import { day, payShort, weekday } from '../format'
 import { Icon } from '../icons'
 import type { D } from '../shared'
 import { VacancyStatus } from '../vacancies'
-import { sources } from './facts'
+import { applicants, sources } from './facts'
 
 /** The job's title and terms as chips, then how many applied and from where. */
 export function JobHeader({ v, apps, w, go }: { v: D; apps: D[] } & Pick<PageProps, 'w' | 'go'>) {
@@ -24,6 +24,6 @@ export function JobHeader({ v, apps, w, go }: { v: D; apps: D[] } & Pick<PagePro
       {v.publishedAt && v.status === 'open' && <li className="chip" title={'Published ' + day(v.publishedAt)}><Icon name="calendar" size={17} />Posted {weekday(v.publishedAt).replace(/^\w+ /, '')}</li>}
       {v.status === 'open' && <li className="chip"><a href={`/jobs/${v.slug}`}><Icon name="external" size={17} />Application page</a></li>}
     </ul>
-    <p className="sources"><strong>{apps.length} applied</strong>{sources(apps).map(([name, n]) => <Fragment key={name}> · <span>{name} {n}</span></Fragment>)}</p>
+    <p className="sources"><strong>{applicants(apps).length} applied</strong>{sources(applicants(apps)).map(([name, n]) => <Fragment key={name}> · <span>{name} {n}</span></Fragment>)}{apps.length > applicants(apps).length && <> · <span className="muted">{apps.length - applicants(apps).length} marked spam</span></>}</p>
   </header>
 }

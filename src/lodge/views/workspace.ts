@@ -5,7 +5,7 @@ import { type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { duplicateSuggestions, transferredFrom } from '../records/candidates'
 import { panel, summary } from '../records/scorecards'
-import { history } from '../records/pipeline'
+import { funnel, history } from '../records/pipeline'
 import { rangeCheck } from '../records/offers'
 import { retentionReview } from '../records/retention'
 import { missingTerms } from '../records/vacancies'
@@ -29,7 +29,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     if (managesVacancy(a, v)) {
       const approval = latestApproval(s, 'vacancy', v.id)
       const version = await versionOf(s, 'vacancy', v)
-      vacancies.push({ ...v, manages: true, version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version })
+      vacancies.push({ ...v, manages: true, version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
     } else {
       // Panel members see the role, its stages and the rubric they score against.
       vacancies.push({ id: v.id, title: v.title, department: v.department, location: v.location, status: v.status, stages: v.stages, rubrics: v.rubrics, plan: v.plan, manages: false })

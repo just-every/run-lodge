@@ -30,6 +30,9 @@ function Decide({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: PageProps[
         <Field label="Move to" name="to" options={[...(v?.stages ?? []).filter((s: D) => s.id !== app.stage).map((s: D) => ({ value: s.id, label: s.name })), { value: 'rejected', label: 'Not progressing (close)' }, { value: 'withdrawn', label: 'Candidate withdrew (close)' }]} />
         <Field label="Reason (kept in the history)" name="reason" />
       </Form>
+      <Form label="Mark as spam" compact reset onSubmit={x => mutate('mark-spam', { application: app.id, reason: x.reason })}>
+        <Field label="Why this is spam (no rejection is sent)" name="reason" />
+      </Form>
       {jobs.length > 0 && <Form label="Transfer" compact reset onSubmit={x => mutate('transfer', { application: app.id, vacancy: x.vacancy, reason: x.reason })}>
         <Field label="Transfer to another job" name="vacancy" options={jobs.map((j: D) => ({ value: j.id, label: j.title }))} />
         <Field label="Reason (optional)" name="reason" required={false} />
@@ -53,6 +56,11 @@ export function RecordOverview({ app, v, c, w, mutate }: { app: D; v?: D; c: D; 
     {app.manages && ['rejected', 'withdrawn'].includes(app.status) && <Form label="Reopen" compact reset onSubmit={x => mutate('reopen', { application: app.id, to: x.to, reason: x.reason })}>
       <Field label="Reopen into" name="to" options={(v?.stages ?? []).map((s: D) => ({ value: s.id, label: s.name }))} />
       <Field label="Reason (kept in the history)" name="reason" />
+    </Form>}
+    {app.manages && app.likelySpam && <section className="decide"><h3>Likely spam</h3><p>{app.likelySpam.reasons.join('; ')}. It stays in the pipeline until a person decides.</p>
+      <Form label="Keep: not spam" compact reset onSubmit={x => mutate('clear-spam-flag', { application: app.id, reason: x.reason })}><Field label="Reason" name="reason" /></Form></section>}
+    {app.manages && app.status === 'spam' && <Form label="Not spam: restore" compact reset onSubmit={x => mutate('unmark-spam', { application: app.id, reason: x.reason })}>
+      <Field label={`Marked as spam: ${app.spam.reason}. Reason to restore it`} name="reason" />
     </Form>}
     <h3>History</h3>
     <ol className="history">{app.history.map((e: D) => <li key={e.id}><strong>{e.reopened ? 'Reopened into ' : ''}{stageName(v, e.to)}</strong><span>{when(e.at)} · {person(w, e.actor)}</span><span>{e.reason}</span></li>)}</ol>

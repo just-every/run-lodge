@@ -323,8 +323,8 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 4 | 37 | 67 | 108 |
-| All | 21 | 37 | 67 | 125 |
+| Target and push further | 5 | 37 | 66 | 108 |
+| All | 22 | 37 | 66 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -367,7 +367,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `DATA-001` | Configurable candidate profiles and hiring records | target | partial | `src/lodge/views/search.ts`; `src/lodge/records/candidates.ts`; `tests/hiring.test.mjs` | Fixed profile fields and scoped text search exist; configurable fields, resume-content indexing and saved filtered views are absent. |
 | `DATA-002` | Individual and bulk resume parsing | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `DATA-003` | Reviewed bulk candidate actions | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
-| `DATA-004` | Mark applications as spam | target | missing |  | Junk applications can only be closed as rejected, which counts them as applicants. |
+| `DATA-004` | Mark applications as spam | target | done | `src/lodge/records/pipeline.ts`; `src/lodge/records/intake.ts`; `src/ui/pipeline/record.tsx`; `tests/hiring.test.mjs` |  |
 | `DATA-005` | Add to another job and transfer applications | target | done | `src/lodge/records/candidates.ts`; `src/lodge/core/access.ts`; `src/ui/pipeline/record.tsx`; `tests/hiring.test.mjs` |  |
 | `DATA-006` | Inline resume and document viewer | target | missing |  | Documents download as original bytes only; no inline viewer exists. |
 | `REVIEW-001` | Application review queue with quick decisions | target | partial | `src/lodge/records/pipeline.ts`; `src/ui/overview.tsx` | Reviewer assignment and a "scorecards to write" list exist; a one-at-a-time review queue with quick advance, reject and skip is absent. |

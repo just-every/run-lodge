@@ -5,7 +5,7 @@ import { close, plan, publish, requestVacancyApproval, rubric, stages, unpublish
 import { decide } from './records/approvals'
 import { apply, candidate, correctCandidate, reviewDuplicate, transfer } from './records/candidates'
 import { addDocument } from './records/documents'
-import { assignReviewers, move, reopen } from './records/pipeline'
+import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } from './records/pipeline'
 import { availability, cancel, interview, reply, schedule } from './records/interviews'
 import { note, releaseFeedback, scorecard } from './records/scorecards'
 import { message, requestMessageApproval } from './records/messages'
@@ -25,7 +25,7 @@ export const commands: Record<string, Command> = {
   vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close,
   'decide-approval': decide,
   candidate, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
-  'assign-reviewers': assignReviewers, move, reopen, transfer,
+  'assign-reviewers': assignReviewers, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'release-feedback': releaseFeedback, note,
   message, 'request-message-approval': requestMessageApproval,

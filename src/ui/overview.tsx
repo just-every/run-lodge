@@ -60,7 +60,7 @@ export function Overview({ w, mutate, go }: PageProps) {
           return a && <li key={id}><button onClick={() => go('Applications', { app: id, job: a.vacancy })}><Avatar name={a.candidateName} size="sm" /><span><strong>{a.candidateName}</strong><small>{count(ps.length, 'option')} from {person(w, ps[0].proposedBy)} · {recent(ps[0].proposedAt)}</small></span><Status tone="alert">your decision</Status></button></li>
         })}</ul></section>}
         {open.length > 0 && <section className="card"><h2>Open jobs</h2><ul className="list rich">{open.map((v: D) => {
-          const apps = w.applications.filter((a: D) => a.vacancy === v.id), split = columns(v, apps).filter(c => c.id !== 'closed').map(c => c.apps.length)
+          const apps = w.applications.filter((a: D) => a.vacancy === v.id && a.status !== 'spam'), split = columns(v, apps).filter(c => c.id !== 'closed').map(c => c.apps.length)
           return <li key={v.id}><button onClick={() => go('Applications', { job: v.id, app: null })}><span><strong>{v.title}</strong><small>{count(apps.length, 'application')} · by stage {split.join(' · ')}{v.publishedAt ? ` · open ${since(v.publishedAt)}` : ''}</small></span></button></li>
         })}</ul></section>}
         {(w.coordination.missingScorecards.length > 0 || w.coordination.awaitingTimes.length > 0) && <section className="card">

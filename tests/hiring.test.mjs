@@ -456,6 +456,52 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     for (const id of [target.id, first.id, added.id]) await cmd('move', { application: id, to: 'withdrawn', reason: 'Round closed' }, manager)
   })
 
+  await t.test('DATA-004 spam leaves the pipeline and its counts with a reason; repeats are flagged for review', async () => {
+    const job = await openJob('Dock hand')
+    const notice = String((await state()).business.notices.at(-1).version)
+    const apply = async (name, email) => {
+      const f = new FormData()
+      for (const [k, v] of Object.entries({ name, email, noticeVersion: notice, consent: 'yes', coverNote: 'Cheap pallets at wholesale prices' })) f.append(k, v)
+      assert.equal((await send('/jobs/' + job.slug, f)).status, 200)
+      return (await state(manager)).applications.filter(a => a.vacancy === job.id).at(-1)
+    }
+    const real = await apply('Jo Real', 'jo@example.test')
+    const junk = await apply('Pallet Deals', 'deals@junk.example')
+    assert.equal(junk.likelySpam, undefined, 'a first submission is not flagged')
+    const funnel = async () => (await state(manager)).vacancies.find(v => v.id === job.id).funnel
+    assert.deepEqual([(await funnel()).applicants, (await funnel()).stages[job.stages[0].id]], [2, 2])
+    assert.equal((await send('/api/lodge/command/mark-spam', { application: junk.id }, manager)).status, 400, 'spam needs a reason')
+    assert.equal((await send('/api/lodge/command/mark-spam', { application: junk.id, reason: 'x' }, ivy)).status, 404)
+    await cmd('mark-spam', { application: junk.id, reason: 'Advertising, not an application' }, manager)
+    let s = await state(manager)
+    const marked = s.applications.find(a => a.id === junk.id)
+    assert.deepEqual([marked.status, marked.spam.reason, marked.history.at(-1).to], ['spam', 'Advertising, not an application', 'spam'])
+    assert.deepEqual(await funnel(), { applicants: 1, spam: 1, stages: Object.fromEntries(job.stages.map((st, i) => [st.id, i ? 0 : 1])), rejected: 0, withdrawn: 0, transferred: 0, hired: 0 })
+    assert.equal(s.messages.filter(m => m.application === junk.id).length, 0, 'no rejection email is queued')
+    assert.ok((await state()).audit.some(e => e.action === 'application-spam' && e.email === 'morgan@example.test' && e.reason === 'Advertising, not an application' && e.record === 'application:' + junk.id))
+    // Unmarking restores the stage it left, with the history.
+    assert.equal((await send('/api/lodge/command/unmark-spam', { application: junk.id }, manager)).status, 400)
+    await cmd('unmark-spam', { application: junk.id, reason: 'Checked: a real dock worker' }, manager)
+    s = await state(manager)
+    const back = s.applications.find(a => a.id === junk.id)
+    assert.deepEqual([back.status, back.stage, back.history.map(e => e.to)], ['active', job.stages[0].id, [job.stages[0].id, 'spam', job.stages[0].id]])
+    assert.equal((await funnel()).applicants, 2)
+    // The same email again: flagged for a person, still in Applied.
+    const again = await apply('Pallet Deals', 'deals@junk.example')
+    assert.deepEqual([again.status, again.stage], ['active', job.stages[0].id])
+    assert.deepEqual(again.likelySpam.reasons, ['the same email was marked as spam before', 'the same email already applied to this job'])
+    assert.equal((await funnel()).applicants, 3, 'a flag never removes an application')
+    assert.equal((await send('/api/lodge/command/clear-spam-flag', { application: again.id }, manager)).status, 400)
+    await cmd('clear-spam-flag', { application: again.id, reason: 'Second job interest' }, manager)
+    assert.equal((await state(manager)).applications.find(a => a.id === again.id).likelySpam, undefined)
+    assert.equal((await state(manager)).applications.find(a => a.id === real.id).likelySpam, undefined)
+    for (const id of [real.id, junk.id]) await cmd('move', { application: id, to: 'withdrawn', reason: 'Round closed' }, manager)
+    await cmd('mark-spam', { application: again.id, reason: 'Repeat advert' }, manager)
+    // Spam follows ordinary retention: once its date passes it is listed for review like any closed record.
+    await cmd('extend-retention', { candidate: again.candidate, until: '2020-01-01', reason: 'Spam keeps no longer than needed' })
+    assert.ok((await state()).retention.due.some(r => r.candidate === again.candidate))
+  })
+
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {
     assert.equal((await send('/api/lodge/state')).status, 401)
     assert.equal((await send('/api/lodge/state', undefined, owner, { 'sec-fetch-site': 'cross-site' })).status, 403)

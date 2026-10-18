@@ -21,6 +21,7 @@ function Card({ app, w, selected, waiting, open }: { app: D; w: D; selected: boo
       <span><Icon name="clock" size={15} />{offer.approvedNow ? 'Approved' : offer.approval?.status === 'pending' ? `Awaiting ${person(w, offer.approval.approver)}’s approval` : 'Draft'}</span></span>}
     {iv && !offer && <span className="cand-line"><Icon name="calendar" size={15} /><span>{iv.status === 'scheduled' ? slot(iv.start) : `Proposed: ${weekday(iv.slots[0])}`}</span></span>}
     {waiting && <span className="cand-flag">Needs your decision</span>}
+    {app.likelySpam && <span className="cand-flag">Likely spam: review</span>}
     {app.panel?.length > 0 && <span className="bar"><span className="track"><i style={{ width: `${done / app.panel.length * 100}%` }} /></span>{done} of {app.panel.length}<span className="visually-hidden"> scorecards</span></span>}
   </button>
 }
