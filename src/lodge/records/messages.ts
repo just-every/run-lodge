@@ -43,6 +43,7 @@ const encodeWord = (v: string) => /^[\x20-\x7e]*$/.test(v) ? header(v) : `=?UTF-
 export async function emlFile(s: State, a: Actor, m: Data, from: string) {
   const app = requireApplication(s, a, m.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  requireThat(!m.cancelled, 'This message was canceled: ' + m.cancelledReason, 409)
   requireThat(await approvedNow(s, 'message', m), 'Only the exact approved text can be downloaded; request approval again after edits', 409)
   s.put('message', m.id, { ...m, downloads: [...(m.downloads ?? []), { by: a.email, at: now() }] })
   s.audit(a, 'message-downloaded', 'message:' + m.id, { note: 'Prepared for sending from your own mailbox; Lodge did not send it' })

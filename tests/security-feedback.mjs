@@ -20,7 +20,7 @@ export async function checkFeedback(h) {
  const hiddenAfter = await h.send('/api/lodge/command/decide-proposal', hiddenDecision, h.manager)
  assert.equal(hiddenAfter.status, hiddenBefore.status)
  assert.deepEqual(hiddenAfter.value, hiddenBefore.value, 'hidden draft status and approving email never become an error-message oracle')
- const card = await h.command('scorecard', { application: app.id, ratings: { [criterion]: 4 }, evidence: { [criterion]: 'RELEASED-SCORECARD-EVIDENCE' }, recommendation: 'yes', submit: true }, h.panel)
+ const card = await h.command('scorecard', { application: app.id, ratings: { [criterion]: 4 }, evidence: { [criterion]: 'RELEASED-SCORECARD-EVIDENCE' }, recommendation: 'yes', takeaways: 'Steady and specific', submit: true }, h.panel)
  const sourceProposal = source => ({ workflow: 'prepare-vacancy', approver: 'm1@example.test', summary: 'Prepare from permitted sources', sources: [source], changes: [{ op: 'vacancy', input: { ...h.pendingVacancy, description: 'Prepared with current permissions' } }] })
  for (const source of [{ kind: 'scorecard', id: card.id }, { kind: 'interview-note', id: note.id }, { kind: 'document', id: h.restricted.id }]) {
   const before = (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results

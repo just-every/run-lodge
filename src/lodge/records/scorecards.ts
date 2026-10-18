@@ -42,13 +42,36 @@ export function scorecard(s: State, a: Actor, b: Data) {
   }
   const submit = b.submit === true
   const recommendation = b.recommendation ? oneOf(b.recommendation, RECOMMENDATIONS, 'Recommendation') : null
+  const takeaways = optionalText(b.takeaways, 'Key take-aways', 4000)
   if (submit) requireThat(recommendation, 'Choose a recommendation before submitting')
+  if (submit) requireThat(takeaways, 'Write your key take-aways before submitting')
   const record = s.put('scorecard', id, {
-    application: app.id, interview: interviewId, author: a.email, rubricVersion: rubric.version, ratings, evidence, recommendation,
+    application: app.id, interview: interviewId, author: a.email, rubricVersion: rubric.version, ratings, evidence, recommendation, takeaways,
     notes: optionalText(b.notes, 'Notes', 8000), status: submit ? 'submitted' : 'draft', updatedAt: now(), ...(submit ? { submittedAt: now() } : {}),
   })
   s.audit(a, submit ? 'scorecard-submitted' : 'scorecard-saved', 'application:' + app.id)
   return record
+}
+
+/**
+ * The panel's scorecards for one application as the reader may see them. Before
+ * release a reader learns only who has submitted; after it, every visible card's
+ * recommendation, take-aways and ratings side by side by interview, with counts.
+ */
+export function summary(s: State, app: Data, visible: Data[]) {
+  const submitted = new Set(s.all('scorecard').filter(c => c.application === app.id && c.status === 'submitted').map(c => c.author))
+  const status = panel(s, app).map(email => ({ email, submitted: submitted.has(email) }))
+  if (!app.feedbackReleased) return { released: false, panel: status }
+  const cards = visible.filter(c => c.application === app.id && c.status === 'submitted')
+  const interviews = [...new Set(cards.map(c => c.interview))]
+  return {
+    released: true, panel: status, waiting: status.filter(p => !p.submitted).map(p => p.email),
+    counts: Object.fromEntries(RECOMMENDATIONS.map(r => [r, cards.filter(c => c.recommendation === r).length])),
+    interviews: interviews.map(id => ({
+      interview: id, title: id ? s.find('interview', id)?.title ?? '' : 'Application review',
+      cards: cards.filter(c => c.interview === id).map(c => ({ author: c.author, recommendation: c.recommendation, takeaways: c.takeaways ?? '', ratings: c.ratings })),
+    })),
+  }
 }
 
 /** Release colleagues' feedback; early release (before the whole panel submits) needs a reason. */

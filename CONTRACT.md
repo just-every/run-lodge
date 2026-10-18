@@ -323,8 +323,8 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 1 | 39 | 68 | 108 |
-| All | 18 | 39 | 68 | 125 |
+| Target and push further | 4 | 37 | 67 | 108 |
+| All | 21 | 37 | 67 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -368,13 +368,13 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `DATA-002` | Individual and bulk resume parsing | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `DATA-003` | Reviewed bulk candidate actions | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `DATA-004` | Mark applications as spam | target | missing |  | Junk applications can only be closed as rejected, which counts them as applicants. |
-| `DATA-005` | Add to another job and transfer applications | target | partial | `src/lodge/records/candidates.ts`; `tests/hiring.test.mjs` | Linking an existing candidate to another vacancy exists; a transfer that closes the source application with a link and scoped carry-over is absent. |
+| `DATA-005` | Add to another job and transfer applications | target | done | `src/lodge/records/candidates.ts`; `src/lodge/core/access.ts`; `src/ui/pipeline/record.tsx`; `tests/hiring.test.mjs` |  |
 | `DATA-006` | Inline resume and document viewer | target | missing |  | Documents download as original bytes only; no inline viewer exists. |
 | `REVIEW-001` | Application review queue with quick decisions | target | partial | `src/lodge/records/pipeline.ts`; `src/ui/overview.tsx` | Reviewer assignment and a "scorecards to write" list exist; a one-at-a-time review queue with quick advance, reject and skip is absent. |
 | `REVIEW-002` | Name-blind application review | target | missing |  | Reviewers always see candidate names and contact-free profile fields; no blind mode exists. |
 | `PIPE-001` | Job pipeline board with time in stage | target | partial | `src/ui/applications.tsx`; `src/lodge/records/pipeline.ts` | A table of applications with current stage and submission date exists; stage columns, days in stage, needs-decision flags and saved filters are absent. |
 | `DISP-001` | Rejection reasons and scheduled rejection emails | target | partial | `src/lodge/records/pipeline.ts`; `tests/hiring.test.mjs` | Closing as rejected or withdrawn needs a free-text reason; a configured reason list, rejection templates and delayed sending are absent. |
-| `DISP-002` | Reopen and unreject applications | target | missing |  | A closed application cannot be moved again; reopening is refused. |
+| `DISP-002` | Reopen and unreject applications | target | done | `src/lodge/records/pipeline.ts`; `src/ui/pipeline/record.tsx`; `tests/hiring.test.mjs` |  |
 | `CRM-001` | Searchable consented talent pools | target | done | `src/lodge/views/search.ts`; `tests/agents.test.mjs` |  |
 | `CRM-002` | Authorized sourcing and LinkedIn recruiter connection | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `CRM-003` | Employee referrals and follow-through | target | partial | `src/lodge/records/candidates.ts`; `tests/hiring.test.mjs` | Staff referral source and consent can be recorded; employee portal, notifications, ownership and status tracking are absent. |
@@ -396,7 +396,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `CAL-004` | Candidate interview confirmations and itineraries | target | partial | `src/lodge/records/interviews.ts`; `tests/hiring.test.mjs` | Scheduled interviews produce downloadable ICS files and a candidate private link; delivered confirmations, itineraries and change notices are absent. |
 | `CAL-005` | Organization-wide calendar connection | target | missing |  | Calendars are not connected at all today; interviewers enter availability by hand (LDG-008). |
 | `KIT-001` | Interview kits with questions and focus attributes | target | partial | `src/lodge/records/vacancies.ts`; `src/ui/scorecards.tsx` | The interview plan, rubric criteria with evidence descriptions and the scorecard form exist; per-interview kits, questions, focus-attribute selection and kit links in invites are absent. |
-| `SCORE-001` | Overall recommendation, key take-aways and released panel summary | target | partial | `src/lodge/records/scorecards.ts`; `src/ui/scorecards.tsx`; `tests/hiring.test.mjs` | A recommendation is required to submit and released cards show it with notes; a dedicated take-aways field, the per-interview summary with recommendation counts and a public-door blinding test of recommendations are absent. |
+| `SCORE-001` | Overall recommendation, key take-aways and released panel summary | target | done | `src/lodge/records/scorecards.ts`; `src/lodge/views/workspace.ts`; `src/ui/scorecards.tsx`; `tests/hiring.test.mjs` |  |
 | `SCORE-002` | Scorecard corrections as linked versions | target | missing |  | A submitted scorecard is final; no correction path exists. |
 | `ASSESS-001` | Native take-home tests | target | missing |  | No take-home or assessment flow exists. |
 | `ASSESS-002` | CoderPad and TestGorilla assessments | target | missing |  | No assessment provider connection exists. |

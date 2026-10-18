@@ -31,7 +31,7 @@ export async function fixture() {
     await cmd('availability', { interview: interview.id, slots: [0] }, panel)
     await cmd('schedule', { interview: interview.id, slot: 0 }, manager)
     const note = await cmd('note', { application: app.id, text: 'PRIVATE-NOTE-PASSAGE from my interview' }, panel)
-    const card = await cmd('scorecard', { application: app.id, ratings: { [vacancy.rubrics[0].criteria[0].id]: 4 }, evidence: { [vacancy.rubrics[0].criteria[0].id]: 'PRIVATE-SCORECARD-EVIDENCE' }, recommendation: 'yes', submit: true }, panel)
+    const card = await cmd('scorecard', { application: app.id, ratings: { [vacancy.rubrics[0].criteria[0].id]: 4 }, evidence: { [vacancy.rubrics[0].criteria[0].id]: 'PRIVATE-SCORECARD-EVIDENCE' }, recommendation: 'yes', takeaways: 'Steady and specific', submit: true }, panel)
     const message = await cmd('message', { application: app.id, purpose: 'other', subject: 'Private hiring communication', body: 'PRIVATE-CANDIDATE-MESSAGE' }, manager)
     const ma = await cmd('request-message-approval', { id: message.id, approver: 'owner@example.test' }, manager)
     await cmd('decide-approval', { id: ma.id, decision: 'approved', version: ma.version, reason: 'Exact text approved' })

@@ -126,6 +126,7 @@ export async function journey(browser, root, origin, width, evidence) {
     await interviewer.page.getByLabel('Rating for Site safety', { exact: false }).selectOption('4')
     await interviewer.page.getByLabel('Evidence for Site safety').fill('Walked through daily toolbox talks and a near-miss log.')
     await interviewer.page.getByLabel('Recommendation').selectOption('strong-yes')
+    await interviewer.page.getByLabel('Key take-aways').fill('Runs a safe site and says how.')
     await interviewer.page.getByLabel('Submit (you cannot change it afterwards)').check()
     await interviewer.page.getByRole('button', { name: 'Save scorecard' }).click()
     await interviewer.page.getByText('Your scorecard · Strong yes', { exact: false }).waitFor()

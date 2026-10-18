@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { canSeeContact, requireAdmin, requireManages, requireRole } from '../core/access'
+import { canSeeContact, requireAdmin, requireApplication, requireManages, requireRole } from '../core/access'
 import { date, now, oneOf, optionalEmail, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { storeDocument } from './documents'
 
@@ -25,12 +25,12 @@ export function candidateFields(b: Data) {
   }
 }
 
-export function startApplication(s: State, actor: Actor | null, candidate: Data, vacancy: Data, source: string, extra: Data = {}) {
+export function startApplication(s: State, actor: Actor | null, candidate: Data, vacancy: Data, source: string, extra: Data = {}, received = 'Application received (' + source + ')') {
   requireThat(vacancy.status === 'open', 'Applications are accepted only while the vacancy is published', 409)
   const active = s.scan('application').find(x => x.candidate === candidate.id && x.vacancy === vacancy.id && x.status === 'active')
   requireThat(!active, 'This candidate already has an active application for this vacancy', 409)
   const application = s.put('application', uid(), { candidate: candidate.id, vacancy: vacancy.id, stage: vacancy.stages[0].id, status: 'active', source, rubricVersion: vacancy.rubrics.at(-1).version, reviewers: [], feedbackReleased: false, submittedAt: now(), ...extra })
-  s.put('stage-event', uid(), { application: application.id, from: null, to: application.stage, reason: 'Application received (' + source + ')', actor: actor?.email ?? 'applicant', at: now() })
+  s.put('stage-event', uid(), { application: application.id, from: null, to: application.stage, reason: received, actor: actor?.email ?? 'applicant', at: now() })
   return application
 }
 
@@ -73,6 +73,37 @@ export function apply(s: State, a: Actor, b: Data) {
   const application = startApplication(s, a, person, vacancy, text(b.source, 'Source', 200))
   s.audit(a, 'application-linked', 'application:' + application.id, { candidate: person.id, vacancy: vacancy.id })
   return application
+}
+
+/**
+ * Move an active application to another job: the source closes as transferred
+ * with a link, the target opens in its first stage with its own rubric version
+ * and reviewers, linked back to the source's history and attachments.
+ */
+export function transfer(s: State, a: Actor, b: Data) {
+  const source = requireApplication(s, a, b.application)
+  const from = s.get('vacancy', source.vacancy)
+  requireManages(a, from)
+  requireThat(source.status === 'active', 'Only an active application can be transferred', 409)
+  const target = s.get('vacancy', b.vacancy)
+  requireManages(a, target)
+  requireThat(target.id !== from.id, 'Choose another job to transfer to')
+  const person = s.get('candidate', source.candidate)
+  requireThat(!person.mergedInto && !person.deleted, 'This candidate record is closed', 409)
+  const note = optionalText(b.reason, 'Reason', 2000)
+  const application = startApplication(s, a, person, target, source.source, { transferredFrom: source.id }, `Transferred from ${from.title}${note ? ': ' + note : ''}`)
+  const reason = `Transferred to ${target.title}`
+  s.put('application', source.id, { ...source, status: 'transferred', closedAt: now(), transferredTo: application.id })
+  s.put('stage-event', uid(), { application: source.id, from: source.stage, to: 'transferred', reason: note ? `${reason}: ${note}` : reason, actor: a.email, at: now() })
+  s.audit(a, 'application-transferred', 'application:' + source.id, { to: application.id, vacancy: target.id })
+  return application
+}
+
+/** The applications this one was transferred from, nearest first. */
+export function transferredFrom(s: State, app: Data) {
+  const chain: Data[] = []
+  for (let at = app.transferredFrom && s.find('application', app.transferredFrom); at && chain.length < 20; at = at.transferredFrom && s.find('application', at.transferredFrom)) chain.push(at)
+  return chain
 }
 
 const digits = (v: string) => (v ?? '').replace(/\D/g, '')

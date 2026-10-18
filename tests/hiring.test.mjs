@@ -222,7 +222,7 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     const v = (await state(manager)).vacancies.find(x => x.id === vacancy.id), [safety, scheduling] = v.rubrics[0].criteria
     const unsupported = await send('/api/lodge/command/scorecard', { application: publicApp.id, ratings: { [safety.id]: 4 }, evidence: {}, recommendation: 'yes', submit: true }, ivy)
     assert.equal(unsupported.status, 400)
-    await cmd('scorecard', { application: publicApp.id, ratings: { [safety.id]: 4, [scheduling.id]: null }, evidence: { [safety.id]: 'Walked through her daily toolbox talks' }, recommendation: 'strong-yes', submit: true, author: 'parker@example.test' }, ivy)
+    await cmd('scorecard', { application: publicApp.id, ratings: { [safety.id]: 4, [scheduling.id]: null }, evidence: { [safety.id]: 'Walked through her daily toolbox talks' }, recommendation: 'strong-yes', takeaways: 'Runs a safe site', submit: true, author: 'parker@example.test' }, ivy)
     assert.equal((await send('/api/lodge/command/scorecard', { application: publicApp.id, ratings: {}, evidence: {} }, ivy)).status, 409, 'submitted scorecards are final')
     const mine = (await state(ivy)).scorecards
     assert.equal(mine.length, 1)
@@ -233,6 +233,47 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await send('/api/lodge/command/release-feedback', { application: publicApp.id }, manager)).status, 400, 'Ian has not submitted, so early release needs a reason')
     await cmd('release-feedback', { application: publicApp.id, reason: 'Decision meeting today' }, manager)
     assert.equal((await state(ian)).scorecards[0].recommendation, 'strong-yes')
+  })
+
+  await t.test('SCORE-001 recommendations and take-aways stay blind until release, then summarize by interview', async () => {
+    const una = await h.member('una@example.test', ['interviewer'], 'Una Diaz')
+    const ivyAgent = await h.member('ivy-agent@example.test', [], 'Ivy’s coding agent', { agent: true, actsFor: 'ivy@example.test' })
+    const { application: app } = await cmd('candidate', { name: 'Kai Moreno', email: 'kai@example.test', source: 'Job board', consentBasis: 'application', vacancy: vacancy.id }, manager)
+    await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)
+    const [safety] = (await state(manager)).vacancies.find(x => x.id === vacancy.id).rubrics[0].criteria
+    const card = (recommendation, takeaways, rating) => ({ application: app.id, ratings: { [safety.id]: rating }, evidence: { [safety.id]: 'Explained a lockout procedure' }, recommendation, takeaways, submit: true })
+    const missing = await send('/api/lodge/command/scorecard', card('yes', '', 3), ivy)
+    assert.equal(missing.status, 400)
+    assert.match(missing.value.error, /take-aways/)
+    await cmd('scorecard', card('strong-yes', 'IVY-TAKEAWAY a clear safety leader', 4), ivy)
+    await cmd('scorecard', card('no', 'IAN-TAKEAWAY thin on scheduling', 2), ian)
+    // Before release each reader learns only who has submitted, through state, search, export and an agent read.
+    for (const [who, hidden] of [[ivy, 'IAN-TAKEAWAY'], [ivyAgent, 'IAN-TAKEAWAY'], [ian, 'IVY-TAKEAWAY'], [manager, 'TAKEAWAY']]) {
+      const s = await state(who)
+      assert.ok(!JSON.stringify(s).includes(hidden))
+      const summary = s.applications.find(a => a.id === app.id).scorecardSummary
+      assert.deepEqual([summary.released, summary.counts, summary.panel.map(p => p.submitted)], [false, undefined, [true, true]])
+      assert.deepEqual((await send('/api/lodge/search?q=TAKEAWAY', undefined, who)).value.results, [])
+    }
+    const othersCard = (await state(ivy)).scorecards.filter(c => c.application === app.id && c.author !== 'ivy@example.test')
+    assert.deepEqual(othersCard, [], 'no colleague recommendation before release')
+    assert.ok(!(await send('/api/lodge/download/vacancy/' + vacancy.id, undefined, manager)).text.includes('TAKEAWAY'))
+    await cmd('release-feedback', { application: app.id }, manager)
+    for (const who of [manager, ivy, ivyAgent, ian]) {
+      const summary = (await state(who)).applications.find(a => a.id === app.id).scorecardSummary
+      assert.equal(summary.released, true)
+      assert.deepEqual(summary.counts, { 'strong-no': 0, no: 1, yes: 0, 'strong-yes': 1 })
+      assert.deepEqual(summary.waiting, [])
+      assert.deepEqual(summary.interviews.map(i => i.title), ['Application review'])
+      assert.deepEqual(summary.interviews[0].cards.map(c => [c.author, c.recommendation, c.takeaways, c.ratings[safety.id]]).sort(), [['ian@example.test', 'no', 'IAN-TAKEAWAY thin on scheduling', 2], ['ivy@example.test', 'strong-yes', 'IVY-TAKEAWAY a clear safety leader', 4]])
+    }
+    const exported = (await send('/api/lodge/download/vacancy/' + vacancy.id, undefined, manager)).value
+    assert.equal(exported.applications.find(a => a.id === app.id).scorecardSummary.counts.no, 1)
+    // An interviewer outside the panel still reads nothing of it.
+    const outside = await state(una)
+    assert.ok(!JSON.stringify(outside).includes('TAKEAWAY'))
+    assert.equal(outside.applications.some(a => a.id === app.id), false)
+    await cmd('move', { application: app.id, to: 'withdrawn', reason: 'Took another role' }, manager)
   })
 
   let message
@@ -321,6 +362,98 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     await checkErasure(h, vacancy, manager)
     await cmd('extend-retention', { candidate: publicApp.candidate, until: '2020-01-01', reason: 'Hired; HR keeps the employee file' })
     assert.deepEqual((await state()).retention.due.map(r => r.candidate), [publicApp.candidate], 'past-date records with no open application are listed for review')
+  })
+
+  const openJob = async title => {
+    const draft = await cmd('vacancy', { title, location: 'Denver, CO', headcount: 1, compensation: RANGE, manager: 'morgan@example.test' }, manager)
+    const v = await cmd('rubric', { id: draft.id, criteria: RUBRIC }, manager)
+    await cmd('interview-plan', { id: v.id, plan: [{ name: 'Floor walk', stage: v.stages[2].id }] }, manager)
+    await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
+    return cmd('publish', { id: v.id }, manager)
+  }
+
+  await t.test('DISP-002 a rejected application reopens into a chosen stage with its whole history', async () => {
+    const job = await openJob('Yard lead')
+    const interviewStage = job.stages.find(st => st.name === 'Interview').id
+    const { application: app, candidate: person } = await cmd('candidate', { name: 'Noor Haddad', email: 'noor@example.test', source: 'Careers page', consentBasis: 'application', vacancy: job.id }, manager)
+    await cmd('move', { application: app.id, to: 'rejected', reason: 'No forklift licence' }, manager)
+    const letter = await cmd('message', { application: app.id, purpose: 'rejection', subject: 'Your application', body: 'Thank you for applying.' }, manager)
+    await approve((await cmd('request-message-approval', { id: letter.id, approver: (await state()).members.find(m => m.owner).email }, manager)).id, owner)
+    const reopen = (body, cookie = manager) => send('/api/lodge/command/reopen', { application: app.id, to: interviewStage, reason: 'Licence arrived', ...body }, cookie)
+    assert.equal((await reopen({ reason: '' })).status, 400, 'reopening needs a reason')
+    assert.equal((await reopen({}, ivy)).status, 404)
+    // A second active application to the same job refuses the reopen.
+    const second = await cmd('apply', { candidate: person.id, vacancy: job.id, source: 'Reapplied' }, manager)
+    assert.equal((await reopen({})).status, 409)
+    await cmd('move', { application: second.id, to: 'withdrawn', reason: 'Duplicate of the first application' }, manager)
+    const hold = await cmd('hold', { candidate: person.id, reason: 'Preserve as decided' })
+    assert.equal((await reopen({})).status, 409, 'a hold keeps the record as it stands')
+    await cmd('release-hold', { id: hold.id, reason: 'Review done' })
+    const opened = await reopen({})
+    assert.equal(opened.status, 200, opened.text)
+    const s = await state(manager)
+    const after = s.applications.find(a => a.id === app.id)
+    assert.deepEqual([after.status, after.stage], ['active', interviewStage])
+    assert.deepEqual(after.history.map(e => [e.to, e.reason]), [[job.stages[0].id, 'Application received (Careers page)'], ['rejected', 'No forklift licence'], [interviewStage, 'Licence arrived']])
+    assert.equal(after.history.at(-1).from, 'rejected')
+    // The funnel counts the application once, in its new stage.
+    const mine = s.applications.filter(a => a.vacancy === job.id && a.candidate === person.id)
+    assert.deepEqual(mine.map(a => [a.id, a.status]).sort(), [[app.id, 'active'], [second.id, 'withdrawn']].sort())
+    assert.equal(s.applications.filter(a => a.vacancy === job.id && a.status === 'active' && a.stage === interviewStage).length, 1)
+    assert.equal((await send('/api/lodge/download/vacancy/' + job.id, undefined, manager)).value.applications.filter(a => a.id === app.id).length, 1)
+    // The pending rejection letter is canceled and can no longer be downloaded.
+    assert.equal(s.messages.find(m => m.id === letter.id).cancelled, true)
+    assert.equal((await send('/api/lodge/download/message/' + letter.id, undefined, manager)).status, 409)
+    assert.ok((await state()).audit.some(e => e.action === 'application-reopened' && e.record === 'application:' + app.id))
+    assert.equal((await reopen({})).status, 409, 'an active application is not reopened')
+    // After erasure there is nothing left to reopen.
+    const { application: gone } = await cmd('candidate', { name: 'Remy Vance', email: 'remy@example.test', source: 'Careers page', consentBasis: 'application', vacancy: job.id }, manager)
+    await cmd('move', { application: gone.id, to: 'rejected', reason: 'Not eligible' }, manager)
+    const remy = (await state()).applications.find(a => a.id === gone.id).candidate
+    assert.equal((await send('/api/lodge/delete-candidate', { candidate: remy, confirm: 'Remy Vance', reason: 'Asked to be forgotten' }, owner)).status, 200)
+    assert.equal((await send('/api/lodge/command/reopen', { application: gone.id, to: interviewStage, reason: 'Mistake' }, manager)).status, 404)
+    await cmd('move', { application: app.id, to: 'withdrawn', reason: 'Took another role' }, manager)
+  })
+
+  await t.test('DATA-005 add a candidate to another job, and transfer an application with its history', async () => {
+    const warehouse = await openJob('Warehouse Associate'), forklift = await openJob('Forklift Operator')
+    const { application: source, candidate: person } = await cmd('candidate', { name: 'Lena Ortiz', email: 'lena@example.test', source: 'Referral from Ivy', consentBasis: 'referral', vacancy: warehouse.id, resume: { name: 'lena.txt', mediaType: 'text/plain', base64: b64('Lena Ortiz resume') } }, manager)
+    // Add another candidate to a second job: a new application with its own history, rubric version and reviewers.
+    const { application: first, candidate: other } = await cmd('candidate', { name: 'Omar Fitz', email: 'omar@example.test', source: 'Job board', consentBasis: 'application', vacancy: warehouse.id }, manager)
+    await cmd('assign-reviewers', { application: first.id, reviewers: ['ivy@example.test'] }, manager)
+    const added = await cmd('apply', { candidate: other.id, vacancy: forklift.id, source: 'Also suits forklift' }, manager)
+    let s = await state(manager)
+    const addedView = s.applications.find(a => a.id === added.id)
+    assert.deepEqual([addedView.status, addedView.reviewers, addedView.rubricVersion, addedView.history.length], ['active', [], forklift.rubrics.at(-1).version, 1])
+    assert.equal(s.applications.find(a => a.id === first.id).status, 'active', 'adding leaves the first application open')
+    // Feedback on the source job, released to its own panel.
+    await cmd('assign-reviewers', { application: source.id, reviewers: ['ivy@example.test'] }, manager)
+    const [criterion] = warehouse.rubrics[0].criteria
+    await cmd('scorecard', { application: source.id, ratings: { [criterion.id]: 3 }, evidence: { [criterion.id]: 'SOURCE-EVIDENCE careful loader' }, recommendation: 'yes', takeaways: 'SOURCE-TAKEAWAY steady', submit: true }, ivy)
+    await cmd('release-feedback', { application: source.id }, manager)
+    assert.equal((await send('/api/lodge/command/transfer', { application: source.id, vacancy: forklift.id }, ivy)).status, 403, 'a reviewer cannot transfer')
+    const target = await cmd('transfer', { application: source.id, vacancy: forklift.id, reason: 'Holds a forklift licence' }, manager)
+    s = await state(manager)
+    const closed = s.applications.find(a => a.id === source.id), opened = s.applications.find(a => a.id === target.id)
+    assert.deepEqual([closed.status, closed.transferredTo, closed.history.at(-1).reason], ['transferred', target.id, 'Transferred to Forklift Operator: Holds a forklift licence'])
+    assert.deepEqual([opened.status, opened.vacancy, opened.stage, opened.transferredFrom, opened.source], ['active', forklift.id, forklift.stages[0].id, source.id, 'Referral from Ivy'])
+    assert.equal(opened.history[0].reason, 'Transferred from Warehouse Associate: Holds a forklift licence')
+    assert.deepEqual(opened.earlier.map(e => [e.application, e.title, e.history.at(-1).to]), [[source.id, 'Warehouse Associate', 'transferred']])
+    // An interviewer on the target job reads the linked history and resume, never the source job's scorecards.
+    await cmd('assign-reviewers', { application: target.id, reviewers: ['ian@example.test'] }, manager)
+    const ianView = await state(ian)
+    assert.ok(!ianView.applications.some(a => a.id === source.id))
+    assert.equal(ianView.applications.find(a => a.id === target.id).earlier[0].history.length, 2)
+    assert.ok(!JSON.stringify(ianView).includes('SOURCE-EVIDENCE') && !JSON.stringify(ianView).includes('SOURCE-TAKEAWAY'))
+    const resume = ianView.documents.find(d => d.candidate === person.id && d.kind === 'resume')
+    assert.equal((await send('/api/lodge/download/document/' + resume.id, undefined, ian)).text, 'Lena Ortiz resume')
+    assert.equal((await send('/api/lodge/download/vacancy/' + warehouse.id, undefined, ian)).status, 404)
+    assert.ok((await state(ivy)).scorecards.some(c => c.application === source.id), 'the source panel keeps its released feedback')
+    // One active application per job still holds.
+    assert.equal((await send('/api/lodge/command/apply', { candidate: person.id, vacancy: forklift.id, source: 'again' }, manager)).status, 409)
+    assert.equal((await send('/api/lodge/command/transfer', { application: source.id, vacancy: forklift.id }, manager)).status, 409, 'a closed application cannot transfer again')
+    assert.equal((await send('/api/lodge/command/transfer', { application: added.id, vacancy: forklift.id }, manager)).status, 400)
+    for (const id of [target.id, first.id, added.id]) await cmd('move', { application: id, to: 'withdrawn', reason: 'Round closed' }, manager)
   })
 
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {

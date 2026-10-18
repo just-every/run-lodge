@@ -3,9 +3,9 @@ import { Fault, type Actor, type Data } from './core/types'
 import { business, member } from './records/people'
 import { close, plan, publish, requestVacancyApproval, rubric, stages, unpublish, vacancy } from './records/vacancies'
 import { decide } from './records/approvals'
-import { apply, candidate, correctCandidate, reviewDuplicate } from './records/candidates'
+import { apply, candidate, correctCandidate, reviewDuplicate, transfer } from './records/candidates'
 import { addDocument } from './records/documents'
-import { assignReviewers, move } from './records/pipeline'
+import { assignReviewers, move, reopen } from './records/pipeline'
 import { availability, cancel, interview, reply, schedule } from './records/interviews'
 import { note, releaseFeedback, scorecard } from './records/scorecards'
 import { message, requestMessageApproval } from './records/messages'
@@ -25,7 +25,7 @@ export const commands: Record<string, Command> = {
   vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close,
   'decide-approval': decide,
   candidate, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
-  'assign-reviewers': assignReviewers, move,
+  'assign-reviewers': assignReviewers, move, reopen, transfer,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'release-feedback': releaseFeedback, note,
   message, 'request-message-approval': requestMessageApproval,

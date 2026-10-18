@@ -4,7 +4,7 @@ import type { D } from '../shared'
 // What the board reads off the workspace: each application's stage, its time there, its next interview and the
 // agent proposals that wait on the signed-in person. All derived from records; nothing here is a score.
 
-const CLOSED: D = { hired: 'Hired', rejected: 'Not progressing', withdrawn: 'Withdrew' }
+const CLOSED: D = { hired: 'Hired', rejected: 'Not progressing', withdrawn: 'Withdrew', transferred: 'Transferred' }
 
 export const stageName = (v: D | undefined, id: string) => CLOSED[id] ?? v?.stages.find((s: D) => s.id === id)?.name ?? (id ? sentence(id) : 'Received')
 export const closedLabel = (app: D) => CLOSED[app.status] ?? sentence(app.status)

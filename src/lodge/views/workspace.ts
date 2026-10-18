@@ -3,8 +3,8 @@ import type { State } from '../core/state'
 import { canSeeApproval, canSeeNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
 import { type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
-import { duplicateSuggestions } from '../records/candidates'
-import { panel } from '../records/scorecards'
+import { duplicateSuggestions, transferredFrom } from '../records/candidates'
+import { panel, summary } from '../records/scorecards'
 import { history } from '../records/pipeline'
 import { rangeCheck } from '../records/offers'
 import { retentionReview } from '../records/retention'
@@ -67,6 +67,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     approvals.push({ ...x, currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
   }
 
+  const visibleCards = s.all('scorecard').filter(c => canSeeScorecard(s, a, c))
   return {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
@@ -78,7 +79,10 @@ export async function workspaceRecords(s: State, a: Actor) {
       const cards = s.all('scorecard').filter(c => c.application === app.id)
       return {
         ...app, manages, candidateName: s.all('candidate').find(c => c.id === app.candidate)?.name ?? 'Unknown', history: history(s, app.id),
+        // The source applications' stage histories travel with a transfer; their scorecards stay with their own job's panel.
+        earlier: transferredFrom(s, app).map(x => ({ application: x.id, vacancy: x.vacancy, title: s.find('vacancy', x.vacancy)?.title ?? '', history: history(s, x.id) })),
         panel: manages ? panel(s, app).map(p => ({ email: p, submitted: cards.some(c => c.author === p && c.status === 'submitted') })) : undefined,
+        scorecardSummary: summary(s, app, visibleCards),
       }
     }),
     candidates,
@@ -92,7 +96,7 @@ export async function workspaceRecords(s: State, a: Actor) {
       // The candidate's availability link is a credential for the hiring team only.
       return vacancy && managesVacancy(a, vacancy) ? i : { ...i, candidateToken: undefined }
     }),
-    scorecards: s.all('scorecard').filter(c => canSeeScorecard(s, a, c)),
+    scorecards: visibleCards,
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
     messages, offers, approvals,
     restricted: admin ? s.all('monitoring') : [],
