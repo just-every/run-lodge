@@ -10,7 +10,7 @@ export function Posted() {
         <h3 className="card-title">Opening · Product Designer</h3>
         <dl className="pairs">
           <div><dt>Location</dt><dd>Columbus, OH · hybrid</dd></div>
-          <div><dt>Pay</dt><dd>$102,000 – $124,000 a year</dd></div>
+          <div><dt>Pay</dt><dd><span className="nowrap">$102,000–$124,000</span> <span className="nowrap">a year</span></dd></div>
           <div><dt>Hiring manager</dt><dd>Dev Kapoor</dd></div>
           <div><dt>Headcount</dt><dd>1</dd></div>
         </dl>

@@ -3,7 +3,7 @@ import { runtimeBindings, type Bindings } from '../../auth.server'
 import { fontHead } from '../../base/font-head'
 import { themeFrame } from '../../base/theme-frame'
 import branding from '../../branding.json'
-import { pay as payRange, vacancyFacts } from '../core/labels'
+import { dateTime, pay as payRange, vacancyFacts } from '../core/labels'
 import { load, save } from '../core/store'
 import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
@@ -20,12 +20,6 @@ publicPages.onError(async error => error instanceof Fault ? page('Not accepted',
 
 const theme = { href: '/rer-theme.css', productName: branding.name, accentColor: branding.primaryColor }
 const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
-/** "Sun Oct 18, 2026, 2:26 a.m. UTC": a receipt time that reads the same wherever the applicant is. */
-const stamp = (iso: string) => {
-  const part = (options: Intl.DateTimeFormatOptions) => new Date(iso).toLocaleString('en-US', { timeZone: 'UTC', ...options })
-  return `${part({ weekday: 'short' })} ${part({ month: 'short', day: 'numeric', year: 'numeric' })}, ${part({ hour: 'numeric', minute: '2-digit' }).replace('AM', 'a.m.').replace('PM', 'p.m.')} UTC`
-}
-
 const paragraphs = (v: string) => esc(v).split(/\n{2,}/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')
 
 async function page(title: string, body: string, status = 200) {
@@ -98,7 +92,7 @@ publicPages.post('/jobs/:slug', async c => {
     const resume = file && typeof file !== 'string' && file.size > 0 ? { name: file.name, mediaType: file.type, base64: bytesToBase64(new Uint8Array(await file.arrayBuffer())) } : null
     const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume } as any)
     await save(c.env.DB, s, null)
-    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd>${esc(stamp(receipt.submittedAt))}</dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
+    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(dateTime(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     return page(v.title, form(v, s.get('business', 'main'), error.message, values), error.status)

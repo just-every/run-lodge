@@ -1,17 +1,16 @@
 import { Check, Copy, Section } from '../parts'
 
 // 09: the background check came back clear, then the BambooHR preview (nine fields, one mapping exception Maya
-// approved) and the verified result. Copy sits left here; the cards run Checkr, BambooHR, created.
+// approved) and the verified result. As on the desk: copy on top, the cards run left to right Checkr → BambooHR →
+// Created (one column flowing down on tablets and phones).
 const fields: [string, string][] = [
   ['Name', 'Jordan Ellis'], ['Job title', 'Product Designer'], ['Department', 'Product'], ['Manager', 'Dev Kapoor'],
   ['Location', 'Columbus, OH'], ['Employment', 'Full-time'], ['Pay', '$114,000 a year'], ['Start date', 'Mon Nov 16'], ['Documents', 'Signed offer v2'],
 ]
 
 export function Handoff() {
-  return <Section id="handoff" className="split split-copy-left handoff-band">
-    <div className="split-copy">
-      <Copy id="handoff-title" eyebrow="Welcome · Mon Nov 2 – Tue Nov 3" title="Handed to HR, exactly once." sub="When the offer is signed and the check is clear, Lodge creates the employee in BambooHR and reads it back." />
-    </div>
+  return <Section id="handoff">
+    <Copy id="handoff-title" eyebrow="Welcome · Mon Nov 2 – Tue Nov 3" title="Handed to HR, exactly once." sub="When the offer is signed and the check is clear, Lodge creates the employee in BambooHR and reads it back." />
     <div className="handoff">
       <div className="card checkr">
         <h3 className="card-title">Checkr · Basic+</h3>
@@ -21,7 +20,7 @@ export function Handoff() {
         </dl>
         <p className="card-foot small">Report visible to Maya only</p>
       </div>
-      <span className="flow-arrow a1" aria-hidden="true"><FlowArrow /></span>
+      <span className="flow-arrow" aria-hidden="true"><FlowArrow /></span>
       <div className="card bamboo">
         <h3 className="card-title">New employee · BambooHR</h3>
         <ul className="fields">
@@ -31,7 +30,7 @@ export function Handoff() {
         </ul>
         <p className="card-foot small">Authorized by Maya Torres · <span className="nowrap">Tue Nov 3, 9:12 a.m.</span></p>
       </div>
-      <span className="flow-arrow a2" aria-hidden="true"><FlowArrow /></span>
+      <span className="flow-arrow" aria-hidden="true"><FlowArrow /></span>
       <div className="card created">
         <span className="big-check"><Check /></span>
         <h3 className="card-title">Created in BambooHR</h3>

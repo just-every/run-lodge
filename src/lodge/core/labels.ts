@@ -27,3 +27,9 @@ export function payShort(c: Record<string, any> | null) {
   return `${k(c.min)}–${k(c.max)}${c.period === 'hour' ? '/hr' : c.period === 'month' ? '/mo' : ''}`
 }
 
+/** "Sun Oct 18, 2026, 2:26 a.m. UTC": a time on the application pages, in the house style the homepage writes. */
+export function dateTime(iso: string, timeZone = 'UTC') {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone, timeZoneName: 'short' })
+    .formatToParts(new Date(iso)).map(p => [p.type, p.value]))
+  return `${parts.weekday} ${parts.month} ${parts.day}, ${parts.year}, ${parts.hour}:${parts.minute} ${parts.dayPeriod === 'AM' ? 'a.m.' : 'p.m.'} ${parts.timeZoneName}`
+}
