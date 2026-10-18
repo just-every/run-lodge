@@ -17,7 +17,7 @@ export function Handoff() {
         <h3 className="card-title">Checkr · Basic+</h3>
         <dl className="pairs">
           <div><dt>Consent</dt><dd>Wed Oct 28</dd></div>
-          <div><dt>Status</dt><dd><span className="status-ok"><Check /><span className="nowrap">Clear · Mon Nov 2,</span> <span className="nowrap">4:10 p.m.</span></span></dd></div>
+          <div><dt>Status</dt><dd><span className="status-ok"><Check /><span>Clear · Mon Nov 2, 4:10 p.m.</span></span></dd></div>
         </dl>
         <p className="card-foot small">Report visible to Maya only</p>
       </div>

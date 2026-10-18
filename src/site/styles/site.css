@@ -47,6 +47,8 @@ table { border-collapse: collapse; }
 
 @media (max-width: 1100px) {
   :root { --gutter: 32px; }
+  .site-footer-row { flex-wrap: wrap; }
+  .site-footer nav { white-space: nowrap; }
 }
 @media (max-width: 760px) {
   :root { --gutter: 16px; }

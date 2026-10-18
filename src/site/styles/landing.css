@@ -297,8 +297,8 @@
 
 /* 13 · the closing */
 .closing { position: relative; background: var(--sky); }
-.closing-plate img { display: block; width: 100%; height: clamp(600px, 66.667vw, 1100px); object-fit: cover; object-position: center bottom; }
-.closing-copy { position: absolute; left: 0; right: 0; top: 0; padding-top: clamp(48px, 5.6vw, 88px); text-align: center; }
+.closing-plate img { display: block; width: 100%; height: 66.667vw; object-fit: cover; object-position: center bottom; }
+.closing-copy { position: absolute; left: 0; right: 0; top: 0; padding-top: 5.6vw; text-align: center; }
 .closing h2 { font: 900 clamp(52px, 6.1vw, 92px)/1 var(--font-head); letter-spacing: -.028em; color: var(--ink); }
 .closing-actions { justify-content: center; margin-top: clamp(18px, 1.8vw, 28px); }
 
@@ -328,6 +328,10 @@
   .score-cards > li { flex: 0 0 min(84%, 340px); scroll-snap-align: start; }
   .offer-stack { max-width: 760px; }
   .report { grid-template-columns: minmax(0, 1fr); }
+  /* The closing copy sits on its own sky block above the whole painting. */
+  .closing { display: flex; flex-direction: column-reverse; }
+  .closing-copy { position: relative; padding: 72px var(--gutter) 32px; background: #a1d2fc; }
+  .closing-plate img { height: auto; }
 }
 
 /* Phones: one column at the 16 px gutter, the 390 plans from STRUCTURE.md. */
@@ -423,10 +427,10 @@
   .recon { font-size: 16px; }
   .recon th, .recon td { padding: 14px 10px; }
   .recon .note { font-size: 14px; }
-  .closing-copy { position: relative; padding: 64px var(--gutter) 28px; background: #a1d2fc; }
+  .recon td, .recon thead th:not(:first-child) { width: 19%; }
+  .closing-copy { padding: 64px var(--gutter) 28px; }
   .closing h2 { font-size: min(44px, 11.5vw); text-wrap: balance; }
   .closing-actions { flex-direction: column; gap: 16px; }
   .closing-actions .site-pill { width: 100%; }
   .closing-plate img { height: auto; aspect-ratio: 900 / 774; object-position: center top; }
-  .closing { display: flex; flex-direction: column-reverse; }
 }
