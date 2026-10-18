@@ -75,19 +75,14 @@
   --wrap: 1240px;
   --gutter: 48px;
 
-  /* The app's material until its own round (br-app-lodge) restyles /app: lodge.css still reads these. */
-  --rule: #e2e8f0;
-  --paper-tint: #eef4fb;
-  --neutral: #e9eff6;
-  --birch: #e3f0fd;
-  --birch-board: #d7e8fa;
-  --birch-band: #c5ddf6;
-  --walnut: #161e28;
-  --walnut-ink: #161e28;
-  --pill: #161e28;
-  --grain: none;
-  --shadow-board: var(--shadow-card);
-  --shadow-tile: 0 1px 0 rgb(22 30 40 / .06), 0 10px 20px -16px rgb(22 30 40 / .35);
+  /* The workspace (lodge*.css): quiet field borders and their focus ring, the stage board's columns and the
+     scorecard bars' track. */
+  --field-border: #cbd5e1;
+  --focus-ring: rgb(29 111 209 / .18);
+  --column: #e4f0fc;
+  --column-end: #f4f9fe;
+  --column-line: #d8e8f7;
+  --track: #dbe3ec;
 }
 
 /* Base's no-JavaScript frames (sign-in, /setup): the lockup above one white card on the pale page,
@@ -102,14 +97,14 @@ html.rer-themed .brand::before { width: 52px; height: 36px; }
 html.rer-themed h1 { margin: 0 0 20px; font-family: var(--rer-font-heading); font-size: 46px; font-weight: 900; line-height: 1.05; letter-spacing: -.02em; text-align: center; color: var(--rer-text); }
 html.rer-themed main > h1 + p { text-align: center; color: var(--rer-muted); }
 html.rer-themed label { font-size: 17px; font-weight: 500; color: var(--rer-text); }
-html.rer-themed input:not([type=checkbox]):not([type=hidden]) { min-height: 54px; font-size: 17px; padding: 10px 14px; border: 1px solid #c9d2dd; border-radius: 10px; background: var(--rer-surface); }
+html.rer-themed input:not([type=checkbox]):not([type=hidden]) { min-height: 54px; font-size: 17px; padding: 10px 14px; border: 1px solid var(--field-border); border-radius: 10px; background: var(--rer-surface); }
 html.rer-themed input:not([type=checkbox]):not([type=hidden]):focus { border-color: var(--rer-focus); }
 html.rer-themed input[type=checkbox] { accent-color: var(--rer-accent); }
 html.rer-themed button,
 html.rer-themed .action { min-height: 56px; border: 0; border-radius: 999px; background: var(--rer-accent); color: #fff; font-weight: 600; font-size: 19px; }
 html.rer-themed button:hover,
 html.rer-themed .action:hover { background: #c8241b; box-shadow: none; }
-html.rer-themed button.secondary { background: transparent; color: var(--rer-text); border: 1px solid #c9d2dd; }
+html.rer-themed button.secondary { background: transparent; color: var(--rer-text); border: 1px solid var(--field-border); }
 html.rer-themed :focus-visible { outline: 3px solid var(--rer-focus); outline-offset: 3px; }
 /* /setup: the owner's name and email as a quiet list. */
 html.rer-themed main > dl { gap: 0; margin: 28px 0 24px; padding: 6px 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--row); }

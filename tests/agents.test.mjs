@@ -71,5 +71,23 @@ test('LDG-013 agents propose typed changes from versioned sources; a person appr
     assert.equal((await send('/api/lodge/talent?q=bluebeam', undefined, morgan)).status, 403)
     const quiet = await cmd('candidate', { name: 'Jo Quiet', source: 'Job fair', consentBasis: 'application', skills: 'Bluebeam' })
     assert.equal((await send('/api/lodge/command/propose', { workflow: 'rediscovery', approver: 'morgan@example.test', summary: 'x', sources: [{ kind: 'candidate', id: quiet.candidate.id }], changes: [{ op: 'apply', input: { candidate: quiet.candidate.id, vacancy: vacancy.id, source: 'Talent pool' } }] }, owner)).status, 409, 'no permission to contact, no proposal')
+
+    // Coordination rebooks a panel: cancel the booked interview, book the new time. Two options read the same
+    // interview; once one applies, the other is stale.
+    const booked = await cmd('interview', { application: application.id, planItem: vacancy.plan[0].id, participants: ['ivy@example.test'], slots: ['2026-10-22T14:00:00.000Z'], timezone: 'America/New_York' }, morgan)
+    await cmd('schedule', { interview: booked.id, slot: 0 }, morgan)
+    const rebook = (summary, slot) => cmd('propose', {
+      workflow: 'coordination', approver: 'morgan@example.test', summary, sources: [{ kind: 'application', id: application.id }, { kind: 'interview', id: booked.id }],
+      changes: [
+        { op: 'cancel-interview', input: { interview: booked.id, reason: 'Panellist out sick' } },
+        { op: 'interview', input: { application: application.id, planItem: vacancy.plan[0].id, participants: ['ivy@example.test'], slots: [slot], timezone: 'America/New_York' } },
+        { op: 'schedule', input: { interview: { $result: 1 }, slot: 0 } },
+      ],
+    }, agent)
+    const thursday = await rebook('Rebook Thursday afternoon', '2026-10-22T18:30:00.000Z'), friday = await rebook('Move to Friday', '2026-10-23T14:00:00.000Z')
+    await cmd('decide-proposal', { id: thursday.id, decision: 'approved', reason: 'Afternoon works' }, morgan)
+    const panels = (await state(morgan)).interviews.filter(i => i.application === application.id)
+    assert.deepEqual(panels.map(i => [i.status, i.start ?? null]).sort(), [['cancelled', '2026-10-22T14:00:00.000Z'], ['scheduled', '2026-10-22T18:30:00.000Z']])
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: friday.id, decision: 'approved', reason: 'ok' }, morgan)).status, 409, 'the other option read the interview before it changed')
   } finally { await h.close() }
 })

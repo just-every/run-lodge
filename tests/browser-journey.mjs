@@ -31,6 +31,8 @@ export async function current(context, origin) {
 
 const tab = (page, name) => page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name, exact: true }).click()
 const saved = page => page.getByText('Saved.', { exact: true }).waitFor()
+// The open application's record sits in tabs beside the board: Overview, Interviews, Scorecards, Decisions, Documents.
+const record = (page, name) => page.getByRole('tab', { name, exact: true }).click()
 
 async function fits(page, label) {
   const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: window.innerWidth }))
@@ -105,6 +107,7 @@ export async function journey(browser, root, origin, width, evidence) {
     await manager.page.getByRole('button', { name: 'Open ' + person }).click()
     await manager.page.getByLabel('Reviewers (emails, comma separated)', { exact: false }).fill('interviewer@dev.localhost')
     await manager.page.getByRole('button', { name: 'Save reviewers' }).click(); await saved(manager.page)
+    await record(manager.page, 'Interviews')
     await manager.page.getByText('Plan an interview', { exact: true }).click()
     // A select's accessible name includes its chosen option, so pick the plan field by name.
     await manager.page.locator('select[name="planItem"]').selectOption({ index: 1 })
@@ -119,6 +122,7 @@ export async function journey(browser, root, origin, width, evidence) {
     // Interviewer: sees only this application and submits an independent scorecard.
     await interviewer.page.reload(); await tab(interviewer.page, 'Applications')
     await interviewer.page.getByRole('button', { name: 'Open ' + person }).click()
+    await record(interviewer.page, 'Scorecards')
     await interviewer.page.getByLabel('Rating for Site safety', { exact: false }).selectOption('4')
     await interviewer.page.getByLabel('Evidence for Site safety').fill('Walked through daily toolbox talks and a near-miss log.')
     await interviewer.page.getByLabel('Recommendation').selectOption('strong-yes')
@@ -130,7 +134,9 @@ export async function journey(browser, root, origin, width, evidence) {
     // Manager: release feedback, prepare the offer, request approval.
     await manager.page.reload(); await tab(manager.page, 'Applications')
     await manager.page.getByRole('button', { name: 'Open ' + person }).click()
+    await record(manager.page, 'Scorecards')
     await manager.page.getByRole('button', { name: 'Release feedback to the panel' }).click(); await saved(manager.page)
+    await record(manager.page, 'Decisions')
     await manager.page.getByText('Prepare an offer', { exact: true }).click()
     await manager.page.getByLabel('Start date').fill('2026-12-01')
     await manager.page.getByLabel('Pay', { exact: true }).fill('100000')
@@ -146,6 +152,7 @@ export async function journey(browser, root, origin, width, evidence) {
 
     await manager.page.reload(); await tab(manager.page, 'Applications')
     await manager.page.getByRole('button', { name: 'Open ' + person }).click()
+    await record(manager.page, 'Decisions')
     await manager.page.getByLabel('Outcome').selectOption('accepted')
     await manager.page.getByLabel('Note', { exact: true }).fill('Accepted by phone')
     await manager.page.getByRole('button', { name: 'Record outcome' }).click()

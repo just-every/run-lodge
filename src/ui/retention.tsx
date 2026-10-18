@@ -1,13 +1,17 @@
 import type { PageProps } from './app'
-import { call, Field, Form, Table, when, type D } from './shared'
+import { day, when } from './format'
+import { sentence } from './names'
+import { call, Field, Form, Status, Table, type D } from './shared'
+
+const BASIS: D = { application: 'They applied', referral: 'Referral with their agreement', 'talent-pool': 'Talent pool', manual: 'Other' }
 
 export function Retention({ w, mutate, reload, setNotice }: PageProps) {
   const people = w.candidates.map((c: D) => ({ value: c.id, label: c.name }))
   const name = (id: string) => w.candidates.find((c: D) => c.id === id)?.name ?? id
-  return <>
+  return <div className="page">
     <h1>Retention and requests</h1>
     <h2>Past their retention date</h2>
-    <Table heads={['Candidate', 'Keep until', 'Basis', '']} empty="No records are due.">{w.retention.due.map((r: D) => <tr key={r.candidate}><td>{r.name}</td><td>{r.retainUntil}</td><td>{r.basis}</td><td>
+    <Table heads={['Candidate', 'Keep until', 'Basis', '']} empty="No records are due.">{w.retention.due.map((r: D) => <tr key={r.candidate}><td>{r.name}</td><td>{day(r.retainUntil)}</td><td>{BASIS[r.basis] ?? r.basis}</td><td>
       <Form label={`Delete ${r.name}`} compact onSubmit={async x => { await call('delete-candidate', { candidate: r.candidate, confirm: x.confirm, reason: x.reason }); setNotice('Deleted. A receipt was recorded.'); await reload() }}>
         <Field label={`Type “${r.name}” to confirm`} name="confirm" /><Field label="Reason" name="reason" defaultValue="Retention period ended" />
       </Form></td></tr>)}</Table>
@@ -21,7 +25,7 @@ export function Retention({ w, mutate, reload, setNotice }: PageProps) {
       <Field label="Reason" name="reason" />
     </Form>
     <h2>Candidate requests</h2>
-    <Table heads={['Candidate', 'Type', 'Received', 'Status', '']} empty="No requests recorded.">{w.dataRequests.map((r: D) => <tr key={r.id}><td>{r.candidateName ?? 'deleted'}</td><td>{r.type}</td><td>{r.receivedAt}</td><td>{r.status}{r.outcome ? ` · ${r.outcome}` : ''}</td>
+    <Table heads={['Candidate', 'Type', 'Received', 'Status', '']} empty="No requests recorded.">{w.dataRequests.map((r: D) => <tr key={r.id}><td>{r.candidateName ?? 'deleted'}</td><td>{sentence(r.type)}</td><td>{day(r.receivedAt)}</td><td>{r.status === 'open' ? <Status tone="warn">open</Status> : <Status tone="good">complete</Status>}{r.outcome ? ` ${r.outcome}` : ''}</td>
       <td>{r.status === 'open' && r.candidateName && ['access', 'export'].includes(r.type) && <a href={`/api/lodge/download/candidate/${r.candidate}?request=${r.id}`} onClick={() => setTimeout(reload, 800)}>Download their data and complete</a>}
         {r.status === 'open' && <Form label="Mark complete" compact onSubmit={x => mutate('complete-data-request', { id: r.id, outcome: x.outcome })}><Field label="What was done" name="outcome" /></Form>}</td></tr>)}</Table>
     <Form label="Record request" reset onSubmit={x => mutate('data-request', x)}>
@@ -35,6 +39,6 @@ export function Retention({ w, mutate, reload, setNotice }: PageProps) {
     </Form></details>
     <h2>Deletion receipts</h2>
     {!w.deletionReceipts.length && <p className="empty">No deletion receipts yet.</p>}
-    <ul>{w.deletionReceipts.map((r: D) => <li key={r.id}>{when(r.at)} · record {r.candidate.slice(0, 8)} · {Object.entries(r.counts).filter(([, n]) => (n as number) > 0).map(([k, n]) => `${n} ${k}`).join(', ')}</li>)}</ul>
-  </>
+    <ul>{w.deletionReceipts.map((r: D) => <li key={r.id}>{when(r.at)} · record {r.candidate.slice(0, 8)} · {Object.entries(r.counts).filter(([, n]) => (n as number) > 0).map(([k, n]) => `${n} ${k.replace(/-/g, ' ')}`).join(', ')}</li>)}</ul>
+  </div>
 }

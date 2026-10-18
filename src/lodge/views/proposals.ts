@@ -79,7 +79,8 @@ export function canSeeProposal(s: State, a: Actor, p: Data, view: WorkspaceRecor
         record = { application: input.application }
         break
       }
-      case 'schedule': {
+      case 'schedule':
+      case 'cancel-interview': {
         kind = 'interview'
         record = target(kind, input.interview)
         if (!record || !managedApplication(record.application)) return false

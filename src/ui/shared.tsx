@@ -57,12 +57,17 @@ export async function readFile(file: File): Promise<D> {
 }
 
 export const fileFrom = (form: HTMLFormElement, name: string) => (form.elements.namedItem(name) as HTMLInputElement | null)?.files?.[0]
-export const pay = (c: D | null) => c ? `${c.currency} ${(c.min / 100).toLocaleString('en-US')}–${(c.max / 100).toLocaleString('en-US')}\u00a0/\u00a0${c.period}` : 'No range yet'
-export const money = (s: D) => `${s.currency} ${(s.amount / 100).toLocaleString('en-US')}\u00a0/\u00a0${s.period}`
 export const cents = (value: string) => { const n = Number(value); if (!Number.isFinite(n) || n < 0) throw new Error('Enter an amount'); return Math.round(n * 100) }
-export const when = (iso?: string) => iso ? new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : ''
 export const memberOptions = (members: D[], role?: string) => members.filter(m => m.active && (!role || m.owner || m.roles.includes(role))).map(m => ({ value: m.email, label: `${m.name} (${m.email})` }))
 
-export function Status({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'good' | 'warn' }) {
+export function Status({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'good' | 'warn' | 'alert' }) {
   return <span className={'status ' + tone}>{children}</span>
+}
+
+const TONES = ['sky', 'rose', 'violet', 'green', 'amber']
+/** A person's initials on one of five tints, the same tint for the same name everywhere. */
+export function Avatar({ name, size = 'md', out = false }: { name: string; size?: 'sm' | 'md' | 'lg'; out?: boolean }) {
+  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase()
+  const tone = TONES[[...name].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7) % TONES.length]
+  return <span className={`avatar ${size} ${out ? 'out' : tone}`} aria-hidden="true">{initials}</span>
 }

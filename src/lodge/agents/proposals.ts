@@ -19,7 +19,7 @@ import { canSeeProposal, sourceFields, sourceRecord } from '../views/proposals'
 export const WORKFLOWS = {
   'prepare-vacancy': ['vacancy', 'vacancy-stages', 'rubric', 'interview-plan'],
   'feedback-packet': ['scorecard'],
-  coordination: ['message', 'interview', 'schedule'],
+  coordination: ['message', 'interview', 'schedule', 'cancel-interview'],
   rediscovery: ['apply'],
 } as const
 type Workflow = keyof typeof WORKFLOWS

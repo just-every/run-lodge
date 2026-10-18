@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { PageProps } from './app'
-import { day, sentence } from './names'
+import { day } from './format'
+import { sentence } from './names'
 import { call, fileFrom, Form, readFile, Table, type D } from './shared'
 
 const AREAS: D = { job: 'Jobs', member: 'Team members', candidate: 'Candidates', 'candidate-row': 'Candidate rows set aside', application: 'Applications', file: 'Files', comment: 'Comments', rating: 'Ratings', event: 'Events', 'inbound-message': 'Messages received', 'outbound-message': 'Messages sent' }
@@ -39,7 +40,7 @@ function Preview({ preview, onCommit }: { preview: D; onCommit: () => Promise<vo
 export function MoveIn({ w, reload, setNotice }: PageProps) {
   const [preview, setPreview] = useState<D | null>(null), [file, setFile] = useState<D | null>(null), [status, setStatus] = useState<D | null>(null)
   const act = async (op: string, id: string) => { const r = await call('import/' + op, { id }); setNotice(`Batch ${r.job?.state ?? 'updated'}.`); await reload(); if (op === 'status') setStatus(r) }
-  return <>
+  return <div className="page">
     <h1>Move in from Workable</h1>
     <p className="hint">Ask Workable support for the full data export ZIP (the candidate CSV report leaves out resumes). Lodge previews it first and writes nothing until you commit that exact preview. Imported people, jobs and history stay as records: nothing is sent, no one gets access, and Workable’s talent-pool flag is not treated as permission to contact.</p>
     <Form label="Preview package" onSubmit={async (_, form) => {
@@ -56,5 +57,5 @@ export function MoveIn({ w, reload, setNotice }: PageProps) {
     {status && <section className="card"><h3>{batchName(w.importJobs.find((j: D) => j.id === status.job.id) ?? {})}</h3><p>{sentence(status.job.state.replace(/_/g, ' '))} · {status.job.checkpoint}/{status.job.total}</p>
       <p>Original files kept: {status.originals.filter((o: D) => o.status === 'retained').length} of {status.originals.length}</p>
       {status.undo?.dispositions?.length > 0 && <ul>{status.undo.dispositions.map((d: D) => <li key={d.effectId}>{imported(w, status.undo.dispositions, d)}: {d.disposition} ({d.reason})</li>)}</ul>}</section>}
-  </>
+  </div>
 }

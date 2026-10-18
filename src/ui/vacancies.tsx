@@ -1,10 +1,11 @@
-import { useState } from 'react'
 import type { PageProps } from './app'
 import { EMPLOYMENT_TYPES, vacancyFacts } from '../lodge/core/labels'
+import { pay, payShort } from './format'
+import { Icon } from './icons'
 import { person } from './names'
-import { cents, Field, Form, memberOptions, pay, Status, Table, type D } from './shared'
+import { cents, Field, Form, memberOptions, Status, Table, type D } from './shared'
 
-function statusOf(v: D) {
+export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
   if (v.status === 'open') return <Status tone="good">published</Status>
   if (v.status === 'closed') return <Status>closed</Status>
@@ -58,34 +59,37 @@ function Setup({ v, w, mutate }: { v: D; w: D; mutate: PageProps['mutate'] }) {
   </div>
 }
 
-function Detail({ v, w, mutate }: { v: D; w: D; mutate: PageProps['mutate'] }) {
+function Detail({ v, w, mutate, go }: { v: D } & Pick<PageProps, 'w' | 'mutate' | 'go'>) {
   const apps = w.applications.filter((a: D) => a.vacancy === v.id)
-  return <section className="record" aria-label={v.title}>
-    <h2>{v.title} {statusOf(v)}</h2>
+  return <section className="record card" aria-label={v.title}>
+    <header className="record-head"><h2>{v.title}</h2><VacancyStatus v={v} />{apps.length > 0 && <button className="secondary" onClick={() => go('Applications', { job: v.id, app: null })}><Icon name="applications" size={18} />Open pipeline</button>}</header>
     <p className="meta">{[...vacancyFacts(v), pay(v.compensation), `headcount ${v.headcount ?? 'not set'}`, `hires ${v.hires ?? 0}`, `manager ${person(w, v.manager) || 'none'}`].join(' · ')}</p>
     {v.imported && <p className="hint">Imported from Workable ({v.sourceState || 'unknown state'}). Kept as history; it cannot be reopened.</p>}
-    {v.status === 'open' && <p>Application page: <a href={`/jobs/${v.slug}`}>/jobs/{v.slug}</a> · {apps.length} applications</p>}
+    {v.status === 'open' && <p className="page-link"><Icon name="external" size={18} />Application page: <a href={`/jobs/${v.slug}`}>/jobs/{v.slug}</a> · {apps.length} applications</p>}
     {v.missing?.length > 0 && !v.imported && <p className="warn">Before approval, add: {v.missing.join(', ')}.</p>}
     {v.status === 'draft' && !v.imported && <details><summary>Edit terms</summary><Terms v={v} w={w} mutate={mutate} /></details>}
     {!v.imported && <Setup v={v} w={w} mutate={mutate} />}
-    {v.status === 'draft' && !v.imported && <>
+    {v.status === 'draft' && !v.imported && <section className="approval">
       <h3>Approval</h3>
       {v.approval && <p>Latest request: {v.approval.status} by {person(w, v.approval.approver)}{v.approval.reason ? ` (“${v.approval.reason}”)` : ''}{v.approval.version !== v.version ? ' · the terms changed since, so it no longer applies' : ''}</p>}
       {v.approvedNow ? <button className="primary" onClick={() => mutate('publish', { id: v.id })}>Publish application page</button>
-        : <Form label="Request approval" onSubmit={x => mutate('request-vacancy-approval', { id: v.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} /></Form>}
-    </>}
+        : <Form label="Request approval" compact onSubmit={x => mutate('request-vacancy-approval', { id: v.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} /></Form>}
+    </section>}
     {v.status === 'open' && <Form label="Unpublish" compact onSubmit={x => mutate('unpublish', { id: v.id, reason: x.reason })}><Field label="Reason for unpublishing" name="reason" /></Form>}
     {v.status !== 'closed' && !v.imported && <Form label="Close vacancy" compact onSubmit={x => mutate('close-vacancy', { id: v.id, reason: x.reason })}><Field label="Reason for closing" name="reason" /></Form>}
     <p><a href={`/api/lodge/download/vacancy/${v.id}`}>Export this vacancy’s whole history (JSON)</a></p>
   </section>
 }
 
-export function Vacancies({ w, mutate }: PageProps) {
-  const [selected, setSelected] = useState<string | null>(null)
-  const v = w.vacancies.find((x: D) => x.id === selected)
-  return <>
+export function Vacancies({ w, mutate, go, nav }: PageProps) {
+  const v = w.vacancies.find((x: D) => x.id === nav.vacancy)
+  const select = (id: string) => go('Vacancies', { vacancy: id })
+  const mine = w.vacancies.filter((x: D) => x.manages)
+  return <div className="page">
     <h1>Vacancies</h1>
-    <Table heads={['Title', 'Status', 'Pay', 'Applications', '']} empty="No vacancies yet.">{w.vacancies.filter((x: D) => x.manages).map((x: D) => <tr key={x.id}><td>{x.title}</td><td>{statusOf(x)}</td><td>{pay(x.compensation)}</td><td>{w.applications.filter((a: D) => a.vacancy === x.id).length}</td><td><button aria-label={'Open ' + x.title} onClick={() => setSelected(x.id)}>Open</button></td></tr>)}</Table>
-    {v ? <Detail v={v} w={w} mutate={mutate} /> : <details><summary>New vacancy</summary><Terms w={w} mutate={mutate} onSaved={setSelected} /></details>}
-  </>
+    {nav.vacancy === 'new' && <section className="card"><h2>Terms of the new vacancy</h2><p className="hint">An approver sees these terms with the stages, rubric and interview plan as one set; changing any of them later needs a new approval.</p><Terms w={w} mutate={mutate} onSaved={select} /></section>}
+    {v && <Detail v={v} w={w} mutate={mutate} go={go} />}
+    {!mine.length && nav.vacancy !== 'new' ? <p className="empty"><Icon name="vacancies" size={28} /><strong>No vacancies yet.</strong><span>Use New vacancy to write the first one: its pay range, headcount and the description applicants will read.</span></p>
+      : <Table heads={['Title', 'Status', 'Pay', 'Applications', '']}>{mine.map((x: D) => <tr key={x.id} className={x.id === nav.vacancy ? 'current' : undefined}><td><strong>{x.title}</strong><small>{vacancyFacts(x).join(' · ')}</small></td><td><VacancyStatus v={x} /></td><td>{payShort(x.compensation)}</td><td>{w.applications.filter((a: D) => a.vacancy === x.id).length}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>)}</Table>}
+  </div>
 }

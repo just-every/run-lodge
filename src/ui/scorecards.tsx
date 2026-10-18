@@ -1,6 +1,7 @@
 import type { PageProps } from './app'
 import { person } from './names'
-import { Field, Form, Status, when, type D } from './shared'
+import { when } from './format'
+import { Field, Form, Status, type D } from './shared'
 
 const LABELS: D = { 'strong-no': 'Strong no', no: 'No', yes: 'Yes', 'strong-yes': 'Strong yes' }
 

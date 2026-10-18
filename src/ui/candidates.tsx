@@ -5,7 +5,7 @@ export function Candidates({ w, mutate, go }: PageProps) {
   const admin = w.actor.owner || w.actor.roles.includes('admin')
   const openVacancies = w.vacancies.filter((v: D) => v.manages && v.status === 'open')
   const name = (id: string) => w.candidates.find((c: D) => c.id === id)?.name ?? id
-  return <>
+  return <div className="page">
     <h1>Candidates</h1>
     <details><summary>Add a candidate</summary>
       <Form label="Add candidate" reset onSubmit={async (x, form) => {
@@ -37,8 +37,8 @@ export function Candidates({ w, mutate, go }: PageProps) {
     </details>}
     <Table heads={['Name', 'Contact', 'Source', 'Applications']} empty="No candidates yet.">{w.candidates.map((c: D) => {
       const apps = w.applications.filter((a: D) => a.candidate === c.id)
-      return <tr key={c.id}><td>{c.name}</td><td>{[c.email, c.phone].filter(Boolean).join(' · ')}</td><td>{c.source}</td>
-        <td><span>{apps.map((a: D, i: number) => <span key={a.id}>{i > 0 && ' · '}<button className="link" onClick={() => go('Applications', a.id)}>{w.vacancies.find((v: D) => v.id === a.vacancy)?.title ?? 'vacancy'}</button></span>)}</span></td></tr>
+      return <tr key={c.id}><td><strong>{c.name}</strong>{c.headline && <small>{c.headline}</small>}</td><td>{[c.email, c.phone].filter(Boolean).join(' · ')}</td><td>{c.source}</td>
+        <td><span>{apps.map((a: D, i: number) => <span key={a.id}>{i > 0 && ' · '}<button className="link" onClick={() => go('Applications', { app: a.id, job: a.vacancy })}>{w.vacancies.find((v: D) => v.id === a.vacancy)?.title ?? 'vacancy'}</button></span>)}</span></td></tr>
     })}</Table>
-  </>
+  </div>
 }

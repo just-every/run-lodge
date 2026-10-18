@@ -20,10 +20,10 @@ html.rer-themed main.lodge-public > h1,html.rer-themed main.lodge-public > h1 + 
 }
 .lodge-public select:not([multiple],[size]:not([size="1"])):focus-visible { --rer-select-ink: var(--rer-text); }
 .lodge-public select:not([multiple],[size]:not([size="1"])):disabled { --rer-select-ink: color-mix(in srgb, var(--rer-muted) 55%, transparent); }
-.lodge-public fieldset{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
+.lodge-public fieldset{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
 .lodge-public details{margin:0}.lodge-public summary{cursor:pointer;font-weight:500}
 .lodge-public .roles{list-style:none;padding:0;display:grid;gap:0}
-.lodge-public .roles li{display:grid;gap:2px;padding:16px 0;border-top:1px solid var(--rule)}
+.lodge-public .roles li{display:grid;gap:2px;padding:16px 0;border-top:1px solid var(--line)}
 .lodge-public .roles li:first-child{border-top:0}
 .lodge-public .roles a{font-size:19px;font-weight:600}
 .lodge-public .roles span{color:var(--rer-muted);font-size:15px}

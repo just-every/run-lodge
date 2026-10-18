@@ -3,7 +3,7 @@ import { runtimeBindings, type Bindings } from '../../auth.server'
 import { fontHead } from '../../base/font-head'
 import { themeFrame } from '../../base/theme-frame'
 import branding from '../../branding.json'
-import { vacancyFacts } from '../core/labels'
+import { pay as payRange, vacancyFacts } from '../core/labels'
 import { load, save } from '../core/store'
 import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
@@ -20,6 +20,12 @@ publicPages.onError(async error => error instanceof Fault ? page('Not accepted',
 
 const theme = { href: '/rer-theme.css', productName: branding.name, accentColor: branding.primaryColor }
 const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
+/** "Sun Oct 18, 2026, 2:26 a.m. UTC": a receipt time that reads the same wherever the applicant is. */
+const stamp = (iso: string) => {
+  const part = (options: Intl.DateTimeFormatOptions) => new Date(iso).toLocaleString('en-US', { timeZone: 'UTC', ...options })
+  return `${part({ weekday: 'short' })} ${part({ month: 'short', day: 'numeric', year: 'numeric' })}, ${part({ hour: 'numeric', minute: '2-digit' }).replace('AM', 'a.m.').replace('PM', 'p.m.')} UTC`
+}
+
 const paragraphs = (v: string) => esc(v).split(/\n{2,}/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')
 
 async function page(title: string, body: string, status = 200) {
@@ -49,7 +55,7 @@ publicPages.get('/jobs', async c => {
 
 function form(v: Data, business: Data, error = '', values: Data = {}) {
   const notice = business.notices.at(-1)
-  const pay = v.compensation ? `${v.compensation.currency} ${(v.compensation.min / 100).toLocaleString('en-US')}–${(v.compensation.max / 100).toLocaleString('en-US')} per ${v.compensation.period}` : ''
+  const pay = v.compensation ? payRange(v.compensation) : ''
   const field = (name: string, label: string, type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
   return `<h1>${esc(v.title)}</h1><p class="meta">${esc(vacancyFacts(v).join(' · '))}${pay ? `<br>Pay: ${esc(pay)}` : ''}</p>${paragraphs(v.description || '')}
 ${error ? `<p role="alert" class="error">${esc(error)}</p>` : ''}
@@ -92,7 +98,7 @@ publicPages.post('/jobs/:slug', async c => {
     const resume = file && typeof file !== 'string' && file.size > 0 ? { name: file.name, mediaType: file.type, base64: bytesToBase64(new Uint8Array(await file.arrayBuffer())) } : null
     const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume } as any)
     await save(c.env.DB, s, null)
-    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd>${esc(receipt.submittedAt)}</dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
+    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd>${esc(stamp(receipt.submittedAt))}</dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     return page(v.title, form(v, s.get('business', 'main'), error.message, values), error.status)

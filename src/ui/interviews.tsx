@@ -1,6 +1,7 @@
 import type { PageProps } from './app'
 import { people } from './names'
-import { Field, Form, Status, when, type D } from './shared'
+import { when } from './format'
+import { Field, Form, Status, type D } from './shared'
 
 export function Interviews({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: PageProps['mutate'] }) {
   const list = w.interviews.filter((i: D) => i.application === app.id)

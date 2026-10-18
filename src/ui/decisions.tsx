@@ -1,6 +1,7 @@
 import type { PageProps } from './app'
-import { day, person, sentence, tone } from './names'
-import { cents, Field, Form, memberOptions, money, Status, type D } from './shared'
+import { day, money } from './format'
+import { person, sentence, tone } from './names'
+import { cents, Field, Form, memberOptions, Status, type D } from './shared'
 
 const purpose = (p: string) => sentence(p.replace(/-/g, ' '))
 

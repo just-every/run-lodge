@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { call, type D } from './shared'
+import { Rail, type Tab } from './shell/rail'
+import { TopBar } from './shell/topbar'
 import { Overview } from './overview'
 import { Vacancies } from './vacancies'
 import { Applications } from './applications'
@@ -10,16 +12,15 @@ import { Retention } from './retention'
 import { MoveIn } from './move-in'
 import { People } from './people'
 import { Audit } from './audit'
+import { openProposals } from './pipeline/facts'
+
+/** Where the workspace is: the screen, and on it the open application, the job on the board and the open vacancy. */
+export interface Nav { tab: string; app: string | null; job: string | null; vacancy: string | null }
+export type Target = Partial<Omit<Nav, 'tab'>>
 
 export function App() {
-  const [w, setW] = useState<D>(), [error, setError] = useState(''), [tab, setTab] = useState('Overview'), [notice, setNotice] = useState('')
-  const [openApp, setOpenApp] = useState<string | null>(null)
-  const tabsRef = useRef<HTMLElement>(null), [more, setMore] = useState(false)
-  // On a narrow screen the tab row scrolls sideways: keep the current tab in view, and fade the
-  // right edge while more tabs lie beyond it.
-  const edge = () => { const n = tabsRef.current, last = n?.lastElementChild; setMore(!!n && !!last && last.getBoundingClientRect().right > n.getBoundingClientRect().right - parseFloat(getComputedStyle(n).paddingRight) + 1) }
-  useEffect(() => { tabsRef.current?.querySelector('[aria-current=page]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }); edge() }, [tab, w])
-  useEffect(() => { addEventListener('resize', edge); return () => removeEventListener('resize', edge) }, [])
+  const [w, setW] = useState<D>(), [error, setError] = useState(''), [notice, setNotice] = useState('')
+  const [nav, setNav] = useState<Nav>({ tab: 'Overview', app: null, job: null, vacancy: null })
   async function reload() { setW(await call('state')) }
   useEffect(() => { reload().catch(e => setError(e.message)) }, [])
   async function mutate(op: string, body: D) {
@@ -28,34 +29,45 @@ export function App() {
     await reload()
     return result
   }
-  if (!w) return <main className="loading"><h1>Lodge</h1>{error ? <p role="alert">{error} · <a href="/signin?returnTo=%2Fapp">Sign in</a></p> : <p>Opening your hiring workspace…</p>}</main>
+  if (!w) return <main className="loading"><img src="/brand/mark.svg" alt="" width="52" height="34" /><h1>Lodge</h1>{error ? <p role="alert">{error} · <a href="/signin?returnTo=%2Fapp">Sign in</a></p> : <p>Opening your hiring workspace…</p>}</main>
   const { actor } = w
   const admin = actor.owner || actor.roles.includes('admin'), manager = admin || actor.roles.includes('manager')
-  const tabs = [
-    'Overview', ...(manager ? ['Vacancies'] : []), ...(w.applications.length || manager ? ['Applications'] : []), ...(manager ? ['Candidates'] : []),
-    ...(w.approvals.length || actor.roles.includes('approver') ? ['Approvals'] : []), 'Proposals', ...(admin ? ['Retention'] : []), ...(actor.owner ? ['Move in'] : []),
-    ...(admin ? ['People', 'Audit'] : []),
+  const me = actor.email
+  const waiting = w.approvals.filter((x: D) => x.status === 'pending' && (x.approver === me || actor.owner)).length
+  const tabs: Tab[] = [
+    { name: 'Overview', icon: 'overview' },
+    ...(manager ? [{ name: 'Vacancies', icon: 'vacancies', count: w.vacancies.filter((v: D) => v.status === 'open').length } as Tab] : []),
+    ...(w.applications.length || manager ? [{ name: 'Applications', icon: 'applications', count: w.applications.filter((a: D) => a.status === 'active').length } as Tab] : []),
+    ...(manager ? [{ name: 'Candidates', icon: 'candidates' } as Tab] : []),
+    ...(w.approvals.length || actor.roles.includes('approver') ? [{ name: 'Approvals', icon: 'approvals', count: waiting, urgent: w.approvals.some((x: D) => x.status === 'pending' && x.approver === me) } as Tab] : []),
+    { name: 'Proposals', icon: 'proposals', count: openProposals(w).length, urgent: openProposals(w).length > 0 },
+    ...(admin ? [{ name: 'Retention', icon: 'retention', count: w.retention?.due.length } as Tab] : []),
+    ...(actor.owner ? [{ name: 'Move in', icon: 'movein' } as Tab] : []),
+    ...(admin ? [{ name: 'People', icon: 'people' } as Tab, { name: 'Audit', icon: 'audit' } as Tab] : []),
   ]
-  const go = (t: string, app?: string) => { setTab(t); setNotice(''); if (app !== undefined) setOpenApp(app) }
-  const props = { w, mutate, reload, go, setNotice }
-  return <>
-    <header className="shell-head"><a className="brand" href="/app"><img src="/brand/mark.svg" alt="" width="52" height="34" /><span><strong data-rer-name>{w.business?.name ?? 'Lodge'}</strong> <small>Hiring with every decision on record</small></span></a><span className="who">{actor.name} · {actor.owner ? 'owner' : actor.roles.join(', ') || 'no Lodge role yet'}</span></header>
-    <nav aria-label="Workspace" ref={tabsRef} data-more={more || undefined} onScroll={edge}>{tabs.map(t => <button key={t} aria-current={tab === t ? 'page' : undefined} onClick={() => go(t)}>{t}</button>)}</nav>
-    <main>
-      <p aria-live="polite" className="notice">{notice}</p>
-      {tab === 'Overview' && <Overview {...props} />}
-      {tab === 'Vacancies' && <Vacancies {...props} />}
-      {tab === 'Applications' && <Applications {...props} open={openApp} setOpen={setOpenApp} />}
-      {tab === 'Candidates' && <Candidates {...props} />}
-      {tab === 'Approvals' && <Approvals {...props} />}
-      {tab === 'Proposals' && <Proposals {...props} />}
-      {tab === 'Retention' && <Retention {...props} />}
-      {tab === 'Move in' && <MoveIn {...props} />}
-      {tab === 'People' && <People {...props} />}
-      {tab === 'Audit' && <Audit {...props} />}
-    </main>
-    <footer className="shell-foot">Lodge keeps the hiring record. It sends no email, ranks no one and makes no hiring decision; people do.</footer>
-  </>
+  const go = (tab: string, target: Target = {}) => { setNav(n => ({ ...n, ...target, tab })); setNotice(''); scrollTo({ top: 0 }) }
+  const props = { w, mutate, reload, go, setNotice, nav }
+  const { tab } = nav
+  return <div className="shell">
+    <Rail w={w} tabs={tabs} nav={nav} go={go} />
+    <div className="work">
+      <TopBar w={w} go={go} manager={manager} />
+      <main>
+        <p aria-live="polite" className="notice">{notice}</p>
+        {tab === 'Overview' && <Overview {...props} />}
+        {tab === 'Vacancies' && <Vacancies {...props} />}
+        {tab === 'Applications' && <Applications {...props} />}
+        {tab === 'Candidates' && <Candidates {...props} />}
+        {tab === 'Approvals' && <Approvals {...props} />}
+        {tab === 'Proposals' && <Proposals {...props} />}
+        {tab === 'Retention' && <Retention {...props} />}
+        {tab === 'Move in' && <MoveIn {...props} />}
+        {tab === 'People' && <People {...props} />}
+        {tab === 'Audit' && <Audit {...props} />}
+      </main>
+      <footer className="shell-foot">Lodge keeps the hiring record. It sends no email, ranks no one and makes no hiring decision; people do.</footer>
+    </div>
+  </div>
 }
 
-export interface PageProps { w: D; mutate: (op: string, body: D) => Promise<D>; reload: () => Promise<void>; go: (tab: string, app?: string) => void; setNotice: (n: string) => void }
+export interface PageProps { w: D; mutate: (op: string, body: D) => Promise<D>; reload: () => Promise<void>; go: (tab: string, target?: Target) => void; setNotice: (n: string) => void; nav: Nav }

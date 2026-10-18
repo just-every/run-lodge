@@ -1,76 +1,162 @@
 import { State, type Row } from './lodge/core/state'
 import { terms, versionOf, type Subject } from './lodge/records/approvals'
 import type { Data } from './lodge/core/types'
-import { DELETED, demoAt } from './demo-activity'
+import { DELETED, demoAt, easternWeek } from './demo-activity'
 
-/** A small, connected hiring workspace; all addresses are reserved example domains. */
+/** Fernway's people: Maya Torres runs hiring alone for a 60-person Columbus business; all addresses are reserved example domains. */
+export const TEAM = {
+  dev: 'dev@fernway.example', sam: 'sam@fernway.example', lena: 'lena@fernway.example', ana: 'ana@fernway.example', chris: 'chris@fernway.example',
+}
+
+type Seed = [name: string, source: string, days: number, headline?: string]
+const L = 'LinkedIn', I = 'Indeed', A = 'Application page', R = 'Referral'
+
+// Product Designer, 46 applications: 9 applied, 7 in the recruiter screen, 4 in panels, 1 at offer and 25 closed,
+// from LinkedIn 19, Indeed 12, the application page 11 and referrals 4. `days` is how long since the last move.
+const APPLIED: Seed[] = [['Avery Chen', L, 1, 'Product designer · 5 years'], ['Riley Park', I, 2, 'UX designer · 4 years'], ['Taylor Kim', A, 2, 'Product designer · 3 years'], ['Casey Nguyen', R, 3, 'Senior UX designer'], ['Harper Diaz', L, 3], ['Quinn Foster', I, 4], ['Rowan Mehta', L, 5], ['Sasha Ivanova', A, 5], ['Emery Walsh', L, 6]]
+const SCREEN: Seed[] = [['Marcus Webb', L, 4, 'Product designer · 7 years'], ['Elena Cruz', I, 5, 'Interaction designer · 6 years'], ['Noah Singh', A, 6, 'Product designer · 4 years'], ['Jamie Park', L, 6, 'UX designer · 5 years'], ['Leah Goldberg', I, 7], ['Omar Haddad', L, 7], ['Grace Liu', A, 8]]
+const CLOSED: [name: string, source: string, reason: string, withdrew?: boolean][] = [
+  ['Ethan Cole', L, 'No product work in the portfolio; mostly brand and print.'], ['Mia Robinson', L, 'Looking for a fully remote role; this one is hybrid in Columbus.'], ['Lucas Ward', A, 'Junior for this role; invited to the talent pool.'], ['Zoe Bennett', I, 'Pay expectation well above the approved range.'],
+  ['Henry Adams', L, 'No research or testing in the work shown.'], ['Chloe Rivera', A, 'Accepted another offer before the screen.', true], ['Jack Morales', I, 'Needs visa sponsorship, which this role cannot offer.'], ['Lily Turner', L, 'Portfolio is visual design only.'],
+  ['Mason Hughes', A, 'Not available until next summer.'], ['Ella Price', L, 'Strong screens, little systems work; kept for future roles.'], ['Logan Reed', I, 'No response to two scheduling requests.'], ['Aria Coleman', L, 'Junior for this role.'],
+  ['Wyatt Barnes', A, 'Applied for an engineering role by mistake.'], ['Nora Jenkins', R, 'Prefers a contract role.', true], ['Caleb Perry', L, 'No product work in the portfolio.'], ['Hazel Long', I, 'Pay expectation above the approved range.'],
+  ['Isaac Powell', A, 'Relocating to Seattle; withdrew.', true], ['Violet Butler', L, 'Little collaboration with engineering in the work shown.'], ['Owen Foster', I, 'Junior for this role.'], ['Stella Simmons', A, 'Looking for a fully remote role.'],
+  ['Levi Bryant', L, 'No research or testing in the work shown.'], ['Aurora Gray', I, 'Not authorized to work in the US.'], ['Julian Ross', L, 'Mostly marketing site work.'], ['Penelope Kelly', A, 'Applied twice; this copy closed as a duplicate.'], ['Hudson Ford', L, 'Pay expectation above the approved range.'],
+]
+const PLACES = ['Columbus, OH', 'Dublin, OH', 'Westerville, OH', 'Grandview Heights, OH', 'Worthington, OH', 'Cincinnati, OH', 'Cleveland, OH', 'Pittsburgh, PA']
+
+/** Fernway's hiring workspace on a Monday in October: four open jobs, one awaiting approval, and Thursday's panel to rebook. */
 export async function demoRecords(ownerEmail: string, now: Date): Promise<Row[]> {
   const rows: Row[] = []
-  const at = (days: number) => demoAt(now, days)
+  const ago = (days: number) => demoAt(now, -days)
+  const week = easternWeek(now)
   const put = (kind: string, id: string, value: Data): Data => {
     const record = { ...value, id }
     rows.push({ kind, id, revision: 'demo-v1', value: record })
     return record
   }
-  const manager = 'maya@northline.example', reviewer = 'leo@northline.example'
-  put('business', 'main', { name: 'Lodge', accommodationContact: 'Maya Chen · hiring@northline.example', retentionDays: 365, jurisdiction: 'Northline Studio · Portland, Oregon', notices: [{ version: 1, text: 'Northline Studio uses your application to assess you for the role you chose. Only the hiring team sees it. We keep unsuccessful applications for one year. Contact hiring@northline.example for access, corrections, deletion or interview adjustments.', at: at(-30) }] })
+  const maya = ownerEmail, { dev, sam, lena, ana, chris } = TEAM
+  put('business', 'main', { name: 'Fernway', accommodationContact: 'Maya Torres · hiring@fernway.example', retentionDays: 365, jurisdiction: 'Fernway · Columbus, Ohio', notices: [{ version: 1, text: 'Fernway uses your application to assess you for the role you chose. Only the hiring team sees it. We keep unsuccessful applications for one year. Contact hiring@fernway.example for access, corrections, deletion or interview adjustments.', at: ago(40) }] })
   for (const [email, name, roles, owner] of [
-    [ownerEmail, 'Alex Morgan', ['admin', 'manager', 'interviewer', 'approver'], true],
-    [manager, 'Maya Chen', ['manager', 'interviewer'], false],
-    [reviewer, 'Leo Martinez', ['interviewer'], false],
-    ['priya@northline.example', 'Priya Shah', ['approver'], false],
+    [maya, 'Maya Torres', ['admin', 'manager', 'interviewer', 'approver'], true],
+    [dev, 'Dev Kapoor', ['manager', 'interviewer'], false],
+    [sam, 'Sam Okafor', ['approver'], false],
+    [lena, 'Lena Brooks', ['interviewer'], false],
+    [ana, 'Ana Ruiz', ['interviewer'], false],
+    [chris, 'Chris Lee', ['interviewer'], false],
   ] as const) put('member', email, { email, name, roles, owner, active: true, agent: false })
-  const vacancies = [
-    ['designer', 'Product Designer', 'Design', 9500000, 12000000, 'Shape accessible tools for independent businesses. Work with customers, engineers and our small design team.', ['Research', 'Interaction design']],
-    ['engineer', 'Full Stack Engineer', 'Engineering', 11500000, 14500000, 'Build reliable web applications and take features from customer conversation to production.', ['Engineering judgement', 'Collaboration']],
-    ['operations', 'Studio Operations Coordinator', 'Operations', 6000000, 7500000, 'Keep a distributed studio organized, improve onboarding and help our team do thoughtful work.', ['Organisation', 'Communication']],
-  ].map(([key, title, department, min, max, description, focus], index) => {
+
+  const vacancy = (key: string, v: Data, criteria: [string, string][], plan: [string, number, number[]][], stages: string[], status: 'open' | 'draft', createdDaysAgo: number) => {
     const id = 'demo-' + key
-    return put('vacancy', id, { title, department, location: 'Portland, OR', workMode: 'hybrid', employmentType: 'full-time', description, compensation: { currency: 'USD', min, max, period: 'year' }, headcount: 1, manager, status: index === 2 ? 'draft' : 'open', slug: index === 2 ? undefined : String(key), stages: ['Applied', 'Screen', 'Interview', 'Decision'].map((name, i) => ({ id: id + '-stage-' + i, name })), rubrics: [{ version: 1, by: manager, at: at(-20), criteria: (focus as string[]).map((name, i) => ({ id: id + '-criterion-' + i, name, description: 'Describe a specific example from your past work and explain the choices you made.' })) }], plan: [{ id: id + '-plan', name: 'Working conversation', stage: id + '-stage-2', durationMinutes: 45, criteria: [id + '-criterion-0', id + '-criterion-1'] }], createdBy: manager, createdAt: at(-24 + index), publishedAt: index === 2 ? undefined : at(-18), noticeVersion: 1, hires: 0 })
-  })
-  const candidates = [
-    ['Samira Patel', 'samira.patel', 'Product designer · 6 years', 'Customer interviews, prototyping, accessible design systems'],
-    ['Daniel Brooks', 'daniel.brooks', 'UX designer · 4 years', 'Interaction design, research synthesis, service design'],
-    ['Elena Torres', 'elena.torres', 'Senior product designer', 'Design systems, usability studies, cross-functional delivery'],
-    ['Jordan Kim', 'jordan.kim', 'Full stack engineer · 5 years', 'TypeScript, React, SQL, observability'],
-    ['Amara Okafor', 'amara.okafor', 'Software engineer · 7 years', 'Distributed systems, accessible frontends, mentoring'],
-    ['Noah Williams', 'noah.williams', 'Product engineer · 3 years', 'Node.js, testing, customer support tooling'],
-    ['Sofia Rossi', 'sofia.rossi', 'Operations coordinator · 5 years', 'Scheduling, onboarding, vendor management'],
-    ['Oliver Grant', 'oliver.grant', 'Studio manager · 4 years', 'Team operations, documentation, procurement'],
-  ]
-  const applications = candidates.slice(0, 6).map(([name, key, headline, skills], i) => {
-    const candidate = put('candidate', 'demo-candidate-' + i, { name, email: key + '@example.com', phone: '', location: i % 2 ? 'Portland, OR' : 'Vancouver, WA', headline, skills, source: i % 2 ? 'Referral' : 'Application page', consent: { basis: 'application', talentPool: true, noticeVersion: 1, at: at(-12 + i), recordedBy: 'applicant' }, retainUntil: at(353 + i).slice(0, 10), createdAt: at(-12 + i) })
-    const vacancy = vacancies[i < 3 ? 0 : 1], stage = Math.min(i % 3 + 1, 3)
-    const app = put('application', 'demo-application-' + i, { candidate: candidate.id, vacancy: vacancy.id, stage: vacancy.stages[stage].id, status: 'active', source: candidate.source, rubricVersion: 1, reviewers: [ownerEmail, reviewer], feedbackReleased: i === 2, submittedAt: at(-12 + i), coverNote: 'I enjoy working closely with a small team and would love to discuss how my experience could help Northline.' })
-    put('stage-event', app.id + '-received', { application: app.id, from: null, to: vacancy.stages[0].id, reason: 'Application received (' + candidate.source + ')', actor: 'applicant', at: app.submittedAt })
-    put('stage-event', app.id + '-reviewed', { application: app.id, from: vacancy.stages[0].id, to: app.stage, reason: 'Relevant experience reviewed; moving to the agreed next stage.', actor: manager, at: at(-6 + i / 2) })
-    put('audit', app.id + '-audit', { actor: manager, email: manager, action: 'application-received', record: 'application:' + app.id, at: app.submittedAt })
+    return put('vacancy', id, {
+      employmentType: 'full-time', headcount: 1, ...v, status, slug: status === 'open' ? key : undefined,
+      stages: stages.map((name, i) => ({ id: `${id}-stage-${i}`, name })),
+      rubrics: [{ version: 1, by: v.manager, at: ago(createdDaysAgo - 1), criteria: criteria.map(([name, description], i) => ({ id: `${id}-criterion-${i}`, name, description })) }],
+      plan: plan.map(([name, minutes, focus], i) => ({ id: `${id}-plan-${i}`, name, stage: `${id}-stage-2`, durationMinutes: minutes, criteria: focus.map(c => `${id}-criterion-${c}`) })),
+      createdBy: v.manager, createdAt: ago(createdDaysAgo), publishedAt: status === 'open' ? ago(createdDaysAgo - 3) : undefined, noticeVersion: 1, hires: 0,
+    })
+  }
+  const designer = vacancy('product-designer', { title: 'Product Designer', department: 'Design', location: 'Columbus, OH', workMode: 'hybrid', manager: dev, compensation: { currency: 'USD', min: 10200000, max: 12400000, period: 'year' }, description: 'Design the tools our customers and warehouse team use every day. Work with Dev Kapoor, two engineers and the people who use what you make.' },
+    [['Craft', 'Shows finished product work and explains the decisions behind it.'], ['Systems thinking', 'Builds and extends components and patterns others can reuse.'], ['Collaboration', 'Works a problem through with engineers and product, and changes course on evidence.'], ['Communication', 'Explains trade-offs clearly to people outside design.']],
+    [['Portfolio review', 60, [0, 1]], ['Design exercise', 90, [2, 3]]], ['Applied', 'Recruiter screen', 'Panel interview', 'Offer'], 'open', 21)
+  const success = vacancy('customer-success-lead', { title: 'Customer Success Lead', department: 'Customer success', location: 'Remote, US', workMode: 'remote', manager: maya, compensation: { currency: 'USD', min: 6800000, max: 8000000, period: 'year' }, description: 'Own our largest wholesale accounts from onboarding to renewal.' },
+    [['Account care', 'Describes keeping a difficult account and what changed.'], ['Communication', 'Writes clearly to customers under pressure.']], [['Customer conversation', 45, [0, 1]]], ['Applied', 'Recruiter screen', 'Interview', 'Offer'], 'open', 16)
+  const warehouse = vacancy('warehouse-associate', { title: 'Warehouse Associate', department: 'Operations', location: 'Columbus, OH', workMode: 'onsite', manager: maya, compensation: { currency: 'USD', min: 1900, max: 2200, period: 'hour' }, description: 'Pick, pack and ship orders from our Columbus warehouse, Monday to Friday, 7 a.m. to 3:30 p.m.' },
+    [['Safety', 'Describes working safely around equipment and stock.'], ['Reliability', 'Explains how they keep to a shift and a pick rate.']], [['Warehouse walk', 30, [0, 1]]], ['Applied', 'Phone screen', 'Interview', 'Offer'], 'open', 12)
+  vacancy('marketing-coordinator', { title: 'Marketing Coordinator', department: 'Marketing', location: 'Columbus, OH', workMode: 'hybrid', manager: maya, compensation: { currency: 'USD', min: 5500000, max: 6500000, period: 'year' }, description: 'Run our email calendar, trade shows and product photography.' },
+    [['Planning', 'Describes a campaign they planned and shipped on time.'], ['Writing', 'Shares writing they are proud of and why.']], [['Working conversation', 45, [0, 1]]], ['Applied', 'Recruiter screen', 'Interview', 'Offer'], 'open', 6)
+  const accountant = vacancy('senior-accountant', { title: 'Senior Accountant', department: 'Finance', location: 'Columbus, OH', workMode: 'hybrid', manager: maya, compensation: { currency: 'USD', min: 7800000, max: 9200000, period: 'year' }, description: 'Close the books monthly and own our sales-tax filings across 30 states.' },
+    [['Accounting judgement', 'Walks through a close they ran and a problem they caught.'], ['Systems', 'Explains a process they automated.']], [['Working conversation', 45, [0, 1]]], ['Applied', 'Recruiter screen', 'Interview', 'Offer'], 'draft', 3)
+
+  let n = 0
+  const person = (name: string, source: string, sinceDays: number, headline = 'Product designer', basis = source === R ? 'referral' : 'application') => {
+    const key = name.toLowerCase().replace(/[^a-z]+/g, '.')
+    return put('candidate', 'demo-candidate-' + n, { name, email: key + '@example.com', phone: '', location: PLACES[n++ % PLACES.length], headline, skills: 'Product design, prototyping, usability testing', source, consent: { basis, talentPool: n % 3 === 0, noticeVersion: 1, at: ago(sinceDays), recordedBy: source === A ? 'applicant' : maya }, retainUntil: ago(sinceDays - 365).slice(0, 10), createdAt: ago(sinceDays) })
+  }
+  /** An application with its received event and, when it moved, the move that brought it to `stage` `days` ago. */
+  const apply = (v: Data, c: Data, stage: number, days: number, extra: Data = {}) => {
+    const received = days + (stage ? 3 + (n % 4) : 0), id = 'demo-application-' + c.id.slice(15)
+    const app = put('application', id, { candidate: c.id, vacancy: v.id, stage: v.stages[stage].id, status: 'active', source: c.source, rubricVersion: 1, reviewers: [], feedbackReleased: false, submittedAt: ago(received), coverNote: c.source === R ? 'Priya Nair suggested I apply; I would love to design for the people who use Fernway’s tools every day.' : '', ...extra })
+    put('stage-event', id + '-received', { application: id, from: null, to: v.stages[0].id, reason: `Application received (${c.source})`, actor: c.source === A ? 'applicant' : maya, at: app.submittedAt })
+    put('audit', id + '-audit', { actor: maya, email: maya, action: 'application-received', record: 'application:' + id, at: app.submittedAt })
+    for (let s = 1; s <= stage; s++) put('stage-event', `${id}-moved-${s}`, { application: id, from: v.stages[s - 1].id, to: v.stages[s].id, reason: s === 1 ? 'Relevant product work; moving to the recruiter screen.' : s === 2 ? 'Screen went well; booking the panel.' : 'Panel agreed; preparing the offer.', actor: s === 1 ? maya : dev, at: ago(days + (stage - s) * 4) })
     return app
+  }
+  const crit = (v: Data, i: number) => `${v.id}-criterion-${i}`
+  /** A submitted scorecard on criteria `on`, each with its written evidence. */
+  const card = (app: Data, author: string, interview: string | null, on: [number, number, string][], recommendation: string, daysAgo: number) => {
+    const v = rows.find(r => r.kind === 'vacancy' && r.id === app.vacancy)!.value as Data
+    put('scorecard', `${app.id}:${interview ?? 'review'}:${author}`, { application: app.id, interview, author, rubricVersion: 1, ratings: Object.fromEntries(on.map(([c, r]) => [crit(v, c), r])), evidence: Object.fromEntries(on.map(([c, , e]) => [crit(v, c), e])), recommendation, notes: '', status: 'submitted', updatedAt: ago(daysAgo), submittedAt: ago(daysAgo) })
+  }
+  const SCREEN_NOTES: [number, number, string][] = [[0, 3, 'Portfolio shows two shipped product flows with the reasoning behind each.']]
+  const screeners = [maya, dev, lena]
+
+  APPLIED.forEach(([name, source, days, headline], i) => {
+    const app = apply(designer, person(name, source, days, headline), 0, days, { reviewers: screeners })
+    for (const author of screeners.slice(0, [2, 1, 0, 1, 0, 1, 0, 0, 0][i])) card(app, author, null, SCREEN_NOTES, 'yes', days / 2)
   })
-  for (let i = 6; i < candidates.length; i++) {
-    const [name, key, headline, skills] = candidates[i]
-    put('candidate', 'demo-candidate-' + i, { name, email: key + '@example.com', phone: '', location: 'Portland, OR', headline, skills, source: 'Referral', consent: { basis: 'talent-pool', talentPool: true, at: at(-8), recordedBy: manager }, retainUntil: at(357).slice(0, 10), createdAt: at(-8) })
-  }
-  // Marcus later withdrew and asked to be deleted; Ben is a past talent-pool contact now past the retention date.
-  const marcus = put('candidate', DELETED, { name: 'Marcus Lee', email: 'marcus.lee@example.com', phone: '', location: 'Seattle, WA', headline: 'Product designer · 8 years', skills: 'Brand systems, illustration', source: 'Application page', consent: { basis: 'application', talentPool: false, noticeVersion: 1, at: at(-18), recordedBy: 'applicant' }, retainUntil: at(347).slice(0, 10), createdAt: at(-18) })
-  const withdrawn = put('application', 'demo-application-6', { candidate: marcus.id, vacancy: vacancies[0].id, stage: vacancies[0].stages[0].id, status: 'active', source: marcus.source, rubricVersion: 1, reviewers: [ownerEmail, reviewer], feedbackReleased: false, submittedAt: at(-18), coverNote: 'I would love to bring brand and illustration craft to Northline’s product work.' })
-  put('stage-event', withdrawn.id + '-received', { application: withdrawn.id, from: null, to: vacancies[0].stages[0].id, reason: 'Application received (Application page)', actor: 'applicant', at: withdrawn.submittedAt })
-  put('audit', withdrawn.id + '-audit', { actor: manager, email: manager, action: 'application-received', record: 'application:' + withdrawn.id, at: withdrawn.submittedAt })
-  put('candidate', 'demo-candidate-9', { name: 'Ben Carter', email: 'ben.carter@example.com', phone: '', location: 'Portland, OR', headline: 'Office manager · 6 years', skills: 'Facilities, purchasing, events', source: 'Application page', consent: { basis: 'talent-pool', talentPool: true, at: at(-368), recordedBy: manager }, retainUntil: at(-3).slice(0, 10), createdAt: at(-368) })
-  for (let i = 0; i < 3; i++) {
-    const app = applications[i], v = vacancies[0], start = at(i === 0 ? -1 : 2 + i)
-    const iv = put('interview', 'demo-interview-' + i, { application: app.id, vacancy: v.id, planItem: v.plan[0].id, title: 'Working conversation: Product Designer', durationMinutes: 45, participants: [ownerEmail, reviewer], slots: [start, at(4 + i)], availability: { [ownerEmail]: [0], [reviewer]: [0], candidate: [0, 1] }, candidateToken: String(i + 1).repeat(48), location: 'Northline Studio · meeting room 2', timezone: 'America/Los_Angeles', status: i === 2 ? 'proposed' : 'scheduled', start: i === 2 ? undefined : start, createdBy: manager, createdAt: at(-4), scheduledBy: manager, scheduledAt: at(-3) })
-    if (i === 0) put('scorecard', `${app.id}:${iv.id}:${reviewer}`, { application: app.id, interview: iv.id, author: reviewer, rubricVersion: 1, ratings: { [v.rubrics[0].criteria[0].id]: 4, [v.rubrics[0].criteria[1].id]: 3 }, evidence: { [v.rubrics[0].criteria[0].id]: 'Explained how five customer interviews changed the onboarding flow and reduced confusion.', [v.rubrics[0].criteria[1].id]: 'Walked through keyboard navigation and testing with a screen reader.' }, recommendation: 'yes', notes: 'Discuss collaboration with engineering in the next conversation.', status: 'submitted', updatedAt: at(-0.5), submittedAt: at(-0.5) })
-  }
-  const reviewed = applications[2], rubric = vacancies[0].rubrics[0]
-  put('scorecard', `${reviewed.id}:review:${ownerEmail}`, { application: reviewed.id, interview: null, author: ownerEmail, rubricVersion: 1, ratings: { [rubric.criteria[0].id]: 3, [rubric.criteria[1].id]: 4 }, evidence: { [rubric.criteria[0].id]: 'Connected customer interviews to a clear change in product direction.', [rubric.criteria[1].id]: 'Showed a practical, accessible component library used by three engineering teams.' }, recommendation: 'yes', notes: 'Ready for the final discussion about the role.', status: 'submitted', updatedAt: at(-1), submittedAt: at(-1) })
-  const app = applications[2]
-  put('offer', 'demo-offer', { application: app.id, title: 'Product Designer', salary: { amount: 11000000, currency: 'USD', period: 'year' }, startDate: at(30).slice(0, 10), terms: 'Full-time, hybrid. Twenty days paid leave. Final terms subject to the signed employment agreement.', status: 'draft', createdBy: manager, createdAt: at(-1) })
-  put('message', 'demo-message', { application: applications[0].id, purpose: 'interview-invitation', to: candidates[0][1] + '@example.com', subject: 'Your next conversation with Northline Studio', body: 'Hi Samira,\nThank you for sharing your work with us. We would love to invite you to a working conversation with Alex and Leo. Please let Maya know if any adjustments would help.\nBest, Maya', draftedBy: manager, draftedAt: at(-2), downloads: [] })
+  SCREEN.forEach(([name, source, days, headline], i) => {
+    const app = apply(designer, person(name, source, days + 4, headline), 1, days, { reviewers: screeners })
+    for (const author of screeners.slice(0, [2, 2, 1, 1, 2, 0, 1][i])) card(app, author, null, SCREEN_NOTES, 'yes', days - 1)
+  })
+  CLOSED.forEach(([name, source, reason, withdrew], i) => {
+    const days = 6 + (i % 9), c = person(name, source, days + 5)
+    const app = apply(designer, c, 0, days + 5, { status: withdrew ? 'withdrawn' : 'rejected', closedAt: ago(days) })
+    put('stage-event', app.id + '-closed', { application: app.id, from: app.stage, to: withdrew ? 'withdrawn' : 'rejected', reason, actor: maya, at: ago(days) })
+  })
+
+  // The four panels. Jordan's Panel 1 is done with all three scorecards; Panel 2 is Thursday at 10:00 in Juniper,
+  // and Lena Brooks, one of its three panellists, is out sick. Priya's Panel 1 still waits for Lena's scorecard.
+  const pd = designer.plan as Data[]
+  let tokens = 0
+  const interview = (app: Data, key: string, plan: number, participants: string[], slots: string[], status: 'scheduled' | 'proposed', availability: Data = {}) => put('interview', 'demo-interview-' + key, {
+    application: app.id, vacancy: designer.id, planItem: pd[plan].id, title: `${pd[plan].name}: Product Designer`, durationMinutes: pd[plan].durationMinutes, participants, slots, availability,
+    candidateToken: (++tokens).toString(16).repeat(48), location: 'Juniper room · 1150 Goodale Blvd', timezone: week.zone, status, start: status === 'scheduled' ? slots[0] : undefined,
+    createdBy: maya, createdAt: ago(9), ...(status === 'scheduled' ? { scheduledBy: maya, scheduledAt: ago(8) } : {}),
+  })
+  const jordan = apply(designer, person('Jordan Ellis', R, 13, 'Senior designer · Lakeshore Health'), 2, 8)
+  const panel1 = interview(jordan, 'jordan-1', 0, [dev, ana, maya], [week.at(-5, 10)], 'scheduled')
+  card(jordan, dev, panel1.id, [[0, 4, 'Rebuilt Lakeshore’s intake flow; form errors fell by half.'], [1, 4, 'Extended their component library with a form pattern three teams adopted.']], 'strong-yes', 4)
+  card(jordan, ana, panel1.id, [[0, 4, 'Strong, clear screens with the reasoning for each change.'], [1, 2, 'The component library shown was thin; few shared patterns.']], 'yes', 4)
+  card(jordan, maya, panel1.id, [[0, 3, 'Walked through the intake research and what it changed.']], 'yes', 4)
+  interview(jordan, 'jordan-2', 1, [lena, dev, maya], [week.at(3, 10)], 'scheduled')
+
+  const priya = apply(designer, person('Priya Raman', I, 12, 'Product designer · 6 years'), 2, 8)
+  const priya1 = interview(priya, 'priya-1', 0, [lena, dev, ana], [week.at(-3, 13)], 'scheduled')
+  card(priya, dev, priya1.id, [[0, 3, 'Clear case study on a returns flow; measured the change.'], [1, 3, 'Uses a shared library well; has not built one.']], 'yes', 2)
+  card(priya, ana, priya1.id, [[0, 3, 'Good detail on edge cases in checkout.']], 'yes', 2)
+
+  const devon = apply(designer, person('Devon Price', R, 15, 'UX designer · 5 years'), 2, 10)
+  interview(devon, 'devon-1', 0, [dev, ana, maya], [week.at(8, 11)], 'scheduled')
+  const liam = apply(designer, person('Liam O’Connor', L, 16, 'Product designer · 4 years'), 2, 11)
+  interview(liam, 'liam-1', 0, [dev, ana, maya], [week.at(9, 14), week.at(10, 10)], 'proposed', { [dev]: [0, 1], [ana]: [0] })
+
+  // Naomi's panels are done and released; her offer waits for Sam Okafor, the approver.
+  const naomi = apply(designer, person('Naomi Fields', I, 24, 'Senior product designer · 8 years'), 3, 3, { feedbackReleased: true })
+  const naomi1 = interview(naomi, 'naomi-1', 0, [dev, ana, maya], [week.at(-10, 10)], 'scheduled')
+  const naomi2 = interview(naomi, 'naomi-2', 1, [dev, chris, maya], [week.at(-7, 14)], 'scheduled')
+  for (const [author, iv] of [[dev, naomi1], [ana, naomi1], [maya, naomi1], [dev, naomi2], [chris, naomi2], [maya, naomi2]] as const) card(naomi, author, iv.id, [[iv === naomi1 ? 0 : 2, 4, iv === naomi1 ? 'Led a design system used by four product teams; showed the adoption numbers.' : 'Paired with engineering on the exercise and adjusted the plan when constraints changed.']], 'strong-yes', 5)
+  put('offer', 'demo-offer', { application: naomi.id, title: 'Product Designer', salary: { amount: 11200000, currency: 'USD', period: 'year' }, startDate: week.date(21), terms: 'Full-time, hybrid in Columbus. Fifteen days paid leave plus holidays. Final terms subject to the signed employment agreement.', status: 'draft', createdBy: maya, createdAt: ago(1) })
+
+  // Customer Success Lead and Warehouse Associate have smaller pipelines; Marketing Coordinator was published this week and has none yet.
+  const smaller: [Data, Seed, number][] = [
+    [success, ['Brianna Scott', L, 2, 'Account manager · 6 years'], 0], [success, ['Derek Owens', A, 3, 'Customer success manager'], 0], [success, ['Fatima Khan', L, 4, 'Customer success lead · 4 years'], 1], [success, ['Gabriel Ortiz', I, 5, 'Support lead'], 1], [success, ['Hannah Wells', R, 6, 'Account director'], 2],
+    [warehouse, ['Andre Thomas', I, 1, 'Warehouse associate · 3 years'], 0], [warehouse, ['Carmen Lopez', I, 1, 'Picker and packer'], 0], [warehouse, ['Darnell Hayes', A, 2, 'Forklift certified'], 0], [warehouse, ['Erin Murphy', I, 3, 'Shipping clerk'], 1], [warehouse, ['Frank Nguyen', A, 3, 'Inventory associate'], 1], [warehouse, ['Gina Russo', I, 4, 'Warehouse lead'], 2],
+  ]
+  for (const [v, [name, source, days, headline], stage] of smaller) apply(v, person(name, source, days + 2, headline), stage, days, { reviewers: [maya] })
+
+  // Owen asked to be deleted after withdrawing; Ben is a past talent-pool contact now past the retention date.
+  const owen = put('candidate', DELETED, { name: 'Owen Hart', email: 'owen.hart@example.com', phone: '', location: 'Cincinnati, OH', headline: 'Account manager · 8 years', skills: 'Wholesale accounts, renewals', source: A, consent: { basis: 'application', talentPool: false, noticeVersion: 1, at: ago(18), recordedBy: 'applicant' }, retainUntil: ago(-347).slice(0, 10), createdAt: ago(18) })
+  const withdrawn = put('application', 'demo-application-owen', { candidate: owen.id, vacancy: success.id, stage: success.stages[0].id, status: 'active', source: A, rubricVersion: 1, reviewers: [], feedbackReleased: false, submittedAt: ago(18), coverNote: '' })
+  put('stage-event', withdrawn.id + '-received', { application: withdrawn.id, from: null, to: success.stages[0].id, reason: 'Application received (Application page)', actor: 'applicant', at: withdrawn.submittedAt })
+  put('candidate', 'demo-candidate-ben', { name: 'Ben Carter', email: 'ben.carter@example.com', phone: '', location: 'Columbus, OH', headline: 'Office manager · 6 years', skills: 'Facilities, purchasing, events', source: A, consent: { basis: 'talent-pool', talentPool: true, at: ago(368), recordedBy: maya }, retainUntil: ago(3).slice(0, 10), createdAt: ago(368) })
+
+  put('message', 'demo-message', { application: jordan.id, purpose: 'interview-invitation', to: 'jordan.ellis@example.com', subject: 'Your Panel 2 design exercise at Fernway', body: 'Hi Jordan,\nThank you for Panel 1. We would love to invite you to the design exercise with Lena, Dev and me in the Juniper room.\nBest,\nMaya Torres\nHead of Operations, Fernway', draftedBy: maya, draftedAt: ago(7), downloads: [] })
   const state = new State(rows)
-  for (const [kind, id, status] of [['vacancy', vacancies[0].id, 'approved'], ['vacancy', vacancies[1].id, 'approved'], ['vacancy', vacancies[2].id, 'pending'], ['offer', 'demo-offer', 'pending'], ['message', 'demo-message', 'approved']] as const) {
+  for (const [kind, id, status, by] of [['vacancy', designer.id, 'approved', sam], ['vacancy', success.id, 'approved', sam], ['vacancy', warehouse.id, 'approved', sam], ['vacancy', 'demo-marketing-coordinator', 'approved', sam], ['vacancy', accountant.id, 'pending', sam], ['offer', 'demo-offer', 'pending', sam], ['message', 'demo-message', 'approved', maya]] as const) {
     const record = state.get(kind, id)
-    put('approval', id + '-approval', { subjectKind: kind as Subject, subjectId: id, version: await versionOf(state, kind, record), terms: terms(state, kind, record), requestedBy: manager, approver: ownerEmail, status, requestedAt: at(kind === 'vacancy' && status === 'approved' ? -21 : -2), ...(status === 'approved' ? { decidedBy: ownerEmail, decidedAt: at(kind === 'vacancy' ? -19 : -1), reason: 'Reviewed the agreed scope and budget.' } : {}) })
+    const decided = kind === 'vacancy' ? (record.createdAt < ago(10) ? 17 : 4) : 6
+    put('approval', id + '-approval', { subjectKind: kind as Subject, subjectId: id, version: await versionOf(state, kind, record), terms: terms(state, kind, record), requestedBy: kind === 'vacancy' ? record.manager : maya, approver: by, status, requestedAt: ago(kind === 'vacancy' && status === 'approved' ? decided + 1 : 1), ...(status === 'approved' ? { decidedBy: by, decidedAt: ago(decided), reason: kind === 'message' ? 'Clear and kind; sending from my mailbox.' : 'Within this year’s hiring budget.' } : {}) })
   }
   return rows
 }

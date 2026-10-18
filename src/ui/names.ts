@@ -40,6 +40,3 @@ export function recordName(w: D, ref: string) {
 
 /** The chip tone of an approval, offer or proposal status, the same everywhere. */
 export const tone = (status: string): 'good' | 'warn' | 'neutral' => ['approved', 'accepted', 'applied', 'submitted'].includes(status) ? 'good' : status === 'pending' ? 'warn' : 'neutral'
-
-/** "Nov 3, 2026" for a calendar date such as 2026-11-03. */
-export const day = (date?: string) => date ? new Date(date + (date.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('en-US', { dateStyle: 'medium' }) : ''

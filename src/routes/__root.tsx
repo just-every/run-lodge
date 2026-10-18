@@ -14,6 +14,8 @@ export const Route = createRootRoute({
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/rer-theme.css" />
     <link rel="stylesheet" href="/lodge.css" />
+    <link rel="stylesheet" href="/lodge-shell.css" />
+    <link rel="stylesheet" href="/lodge-pipeline.css" />
     <HeadContent />
     <script dangerouslySetInnerHTML={{ __html: introGuardScript }} />
     <style>{introCss}</style>

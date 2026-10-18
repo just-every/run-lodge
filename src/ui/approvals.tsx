@@ -1,6 +1,7 @@
 import type { PageProps } from './app'
-import { day, KINDS, person, tone } from './names'
-import { Field, Form, money, pay, Status, when, type D } from './shared'
+import { day, money, pay, when } from './format'
+import { KINDS, person, tone } from './names'
+import { Field, Form, Status, type D } from './shared'
 
 function Terms({ x, w }: { x: D; w: D }) {
   const t = x.terms
@@ -14,7 +15,7 @@ export function Approvals({ w, mutate }: PageProps) {
   const me = w.actor.email
   const waiting = w.approvals.filter((x: D) => x.status === 'pending' && (x.approver === me || w.actor.owner))
   const rest = w.approvals.filter((x: D) => !waiting.includes(x))
-  return <>
+  return <div className="page">
     <h1>Approvals</h1>
     {!waiting.length && <p className="empty">Nothing is waiting for you.</p>}
     {waiting.map((x: D) => <article key={x.id} className="card"><h2>{KINDS[x.subjectKind]} approval requested by {person(w, x.requestedBy)}</h2><p>{when(x.requestedAt)}</p>
@@ -26,5 +27,5 @@ export function Approvals({ w, mutate }: PageProps) {
         </Form>}
     </article>)}
     {rest.length > 0 && <><h2>History</h2><ul>{rest.map((x: D) => <li key={x.id}>{KINDS[x.subjectKind]} · {x.terms.title ?? x.terms.subject} · <Status tone={tone(x.status)}>{x.status}</Status> · {person(w, x.decidedBy ?? x.approver)} {x.reason ? `· “${x.reason}”` : ''}</li>)}</ul></>}
-  </>
+  </div>
 }

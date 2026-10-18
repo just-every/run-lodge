@@ -15,7 +15,7 @@ export function BusinessForm({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
 }
 
 export function People({ w, mutate, setNotice }: PageProps) {
-  return <>
+  return <div className="page">
     <h1>People and settings</h1>
     {w.actor.owner && <><h2>Business</h2><BusinessForm w={w} mutate={mutate} /></>}
     <h2>Hiring team</h2>
@@ -28,5 +28,5 @@ export function People({ w, mutate, setNotice }: PageProps) {
       <fieldset className="wide"><legend>Roles</legend>{ROLES.map(([r, label]) => <Check key={r} name={'role-' + r} label={label} />)}<Check name="inactive" label="Deactivate (keeps their history, removes access)" /></fieldset>
     </Form>
     <p className="hint">Interviewers see only the applications they are assigned to, without contact details. Restricted documents and voluntary monitoring answers stay with the owner and hiring admins.</p>
-  </>
+  </div>
 }
