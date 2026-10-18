@@ -1,111 +1,164 @@
-/* Lodge's declared theme: every colour, face, radius and shadow, defined once.
-   The installer, sign-in, confirmation, /setup and Lobby frames read the --rer-*
-   tokens; the app (lodge.css) and the run site read the Lodge tokens too.
-   --rer-accent and --rer-accent-text are declared together so actions keep
-   Lodge's walnut regardless of the colour chosen at setup. */
-@font-face {
-  font-family: Outfit;
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/outfit/outfit-latin-wght-normal.woff2') format('woff2');
-}
-/* Bitter (SIL Open Font License 1.1, public/fonts/bitter): headings and engraved birch text. */
-@font-face {
-  font-family: Bitter;
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/bitter/bitter-latin-wght-normal.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: Bitter;
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/bitter/bitter-latin-ext-wght-normal.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
+/* Lodge's declared theme: every color, face, radius and shadow, defined once.
+   Lodge's look (design desk, 17 Oct 2026): a sky-blue field, a pale blue page, deep navy ink from the
+   two-chairs mark, poppy red for the one action, chosen states and failures, green for done and amber
+   for waiting. Figtree black headings over Inter body text; white cards with hairlines and soft shadows.
+   The installer, sign-in, confirmation, /setup, the Lobby, Base's Run and not-found pages, the run site
+   and the app (lodge.css) all read this file. */
+@import url('/fonts/fonts.css');
+
 :root {
-  --rer-font-body: Outfit, 'Outfit Fallback', Arial, sans-serif;
-  --rer-font-heading: Bitter, Georgia, serif;
-  --rer-page: #fdfbf6;
+  --rer-font-body: 'Inter', 'Inter Fallback', Arial, sans-serif;
+  --rer-font-heading: 'Figtree', 'Figtree Fallback', Arial, sans-serif;
+  --rer-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --rer-page: #f3f8fe;
   --rer-surface: #ffffff;
-  --rer-text: #211c17;
-  --rer-muted: #6b6259;
-  --rer-border: #cfc6bb;
-  --rer-focus: #211c17;
-  --rer-link: #6a3f1c;
-  --rer-accent: #6a3f1c;
+  --rer-text: #161e28;
+  --rer-muted: #556170;
+  --rer-border: #8c97a5;
+  --rer-focus: #1d6fd1;
+  --rer-link: #161e28;
+  --rer-accent: #e02a21;
   --rer-accent-text: #ffffff;
-  --rer-radius: 12px;
+  --rer-radius: 14px;
+  --rer-button-radius: 999px;
+  --rer-code-background: #161e28;
+  --rer-code-text: #e9eef5;
   --rer-logo: url('/brand/mark.svg');
-  --rer-wordmark-weight: 600;
-  --rule: #e4ded6;
-  --paper-tint: #f7f2ea;
-  --neutral: #efe9e1;
-  --birch: #f3d5b1;
-  --birch-board: #ebcba4;
-  --birch-band: #ddb386;
-  --walnut: #6a3f1c;
-  --walnut-ink: #3b1e0a;
-  --pill: #221e18;
-  --grain: url('/brand/birch.webp');
-  --shadow-card: 0 1px 2px rgb(33 28 23 / .06), 0 8px 24px -12px rgb(33 28 23 / .18);
-  --shadow-board: 0 2px 0 #d9b48a, 0 24px 40px -24px rgb(59 30 10 / .45);
-  --shadow-tile: 0 1px 0 #d9b48a, 0 12px 20px -14px rgb(59 30 10 / .4);
+  --rer-wordmark-weight: 800;
+  --rer-wordmark-tracking: -.025em;
+  /* Base's /contract page: done in green, partial in amber, missing in quiet slate (not built yet, not an alarm). */
+  --rer-done: #1f9d55;
+  --rer-done-ink: #17803f;
+  --rer-on-done: #ffffff;
+  --rer-partial: #f0a234;
+  --rer-partial-ink: #9a5b06;
+  --rer-on-partial: #161e28;
+  --rer-missing: #8c97a5;
+  --rer-missing-ink: #556170;
+  --rer-on-missing: #ffffff;
+
+  /* The run site's palette and measures. */
+  --font-head: var(--rer-font-heading);
+  --font-body: var(--rer-font-body);
+  --font-mono: var(--rer-font-mono);
+  --ink: var(--rer-text);
+  --body: #3d4855;
+  --muted: var(--rer-muted);
+  --soft: #7a8594;
+  --faint: #a8b1bd;
+  --paper: var(--rer-page);
+  --surface: var(--rer-surface);
+  --sky: #a0d2fe;          /* the painted hero's field, sampled so HTML and plate meet without a seam */
+  --sky-bar: #7fb8ea;      /* data bars */
+  --sky-tint: #e3f0fd;
+  --sky-ink: #1f5f9e;
+  --red: var(--rer-accent);
+  --red-ink: #c8241b;      /* red text on white and pale */
+  --red-tint: #fdeceb;
+  --green: #1f9d55;
+  --green-ink: #17803f;
+  --green-tint: #e7f6ec;
+  --green-deep: #13843f;
+  --amber: #f0a234;
+  --amber-ink: #9a5b06;
+  --amber-tint: #fdf2e0;
+  --violet-tint: #ece6fb;
+  --violet-ink: #5b3fb3;
+  --rose-tint: #fde4e4;
+  --line: #e2e8f0;
+  --line-soft: #edf1f6;
+  --row: #f6f9fc;
+  --shadow-card: 0 1px 2px rgb(22 30 40 / .04), 0 14px 34px -20px rgb(22 30 40 / .22);
+  --shadow-lift: 0 2px 4px rgb(22 30 40 / .05), 0 24px 48px -24px rgb(22 30 40 / .3);
+  --radius-card: 16px;
+  --radius-chip: 999px;
+  --wrap: 1240px;
+  --gutter: 48px;
+
+  /* The app's material until its own round (br-app-lodge) restyles /app: lodge.css still reads these. */
+  --rule: #e2e8f0;
+  --paper-tint: #eef4fb;
+  --neutral: #e9eff6;
+  --birch: #e3f0fd;
+  --birch-board: #d7e8fa;
+  --birch-band: #c5ddf6;
+  --walnut: #161e28;
+  --walnut-ink: #161e28;
+  --pill: #161e28;
+  --grain: none;
+  --shadow-board: var(--shadow-card);
+  --shadow-tile: 0 1px 0 rgb(22 30 40 / .06), 0 10px 20px -16px rgb(22 30 40 / .35);
 }
 
-/* Base's no-JavaScript frames (sign-in, /setup): the lockup above one white card on paper,
-   a Bitter heading, 44px inputs and the near-black pill. html.rer-themed outranks each
-   frame's own hashed .rer-themed rules. */
+/* Base's no-JavaScript frames (sign-in, /setup): the lockup above one white card on the pale page,
+   a Figtree heading, 54px inputs and the red pill. html.rer-themed outranks each frame's own hashed rules. */
 html.rer-themed { background: var(--rer-page); }
 html.rer-themed body { padding: 120px 20px 64px; background: var(--rer-page); font-family: var(--rer-font-body); }
-html.rer-themed main { max-width: 600px; margin: 96px auto 0; padding: 52px 56px 56px; border: 1px solid var(--rule); border-radius: var(--rer-radius); background: var(--rer-surface); box-shadow: var(--shadow-card); }
+html.rer-themed main { max-width: 600px; margin: 96px auto 0; padding: 52px 56px 56px; border: 1px solid var(--line); border-radius: var(--rer-radius); background: var(--rer-surface); box-shadow: var(--shadow-card); }
 html.rer-themed .rer-brand,
-html.rer-themed .brand { justify-content: center; margin: -140px 0 72px; color: var(--rer-text); font-family: var(--rer-font-body); font-size: 32px; font-weight: 600; letter-spacing: -.01em; }
+html.rer-themed .brand { justify-content: center; margin: -140px 0 72px; color: var(--rer-text); font-family: var(--rer-font-heading); font-size: 34px; font-weight: 800; letter-spacing: -.025em; }
 html.rer-themed .rer-brand::before,
-html.rer-themed .brand::before { width: 40px; height: 40px; }
-html.rer-themed h1 { margin: 0 0 20px; font-family: var(--rer-font-heading); font-size: 48px; font-weight: 800; line-height: 1.1; letter-spacing: -.015em; text-align: center; color: var(--rer-text); }
+html.rer-themed .brand::before { width: 52px; height: 36px; }
+html.rer-themed h1 { margin: 0 0 20px; font-family: var(--rer-font-heading); font-size: 46px; font-weight: 900; line-height: 1.05; letter-spacing: -.02em; text-align: center; color: var(--rer-text); }
 html.rer-themed main > h1 + p { text-align: center; color: var(--rer-muted); }
 html.rer-themed label { font-size: 17px; font-weight: 500; color: var(--rer-text); }
-html.rer-themed input:not([type=checkbox]):not([type=hidden]) { min-height: 54px; font-size: 17px; padding: 10px 14px; border: 1px solid var(--rer-border); border-radius: 8px; background: var(--rer-surface); }
-html.rer-themed input[type=checkbox] { accent-color: var(--rer-text); }
+html.rer-themed input:not([type=checkbox]):not([type=hidden]) { min-height: 54px; font-size: 17px; padding: 10px 14px; border: 1px solid #c9d2dd; border-radius: 10px; background: var(--rer-surface); }
+html.rer-themed input:not([type=checkbox]):not([type=hidden]):focus { border-color: var(--rer-focus); }
+html.rer-themed input[type=checkbox] { accent-color: var(--rer-accent); }
 html.rer-themed button,
-html.rer-themed .action { min-height: 56px; border: 0; border-radius: 999px; background: var(--pill); color: #fff; font-weight: 500; font-size: 19px; }
+html.rer-themed .action { min-height: 56px; border: 0; border-radius: 999px; background: var(--rer-accent); color: #fff; font-weight: 600; font-size: 19px; }
 html.rer-themed button:hover,
-html.rer-themed .action:hover { background: #000; box-shadow: none; }
-html.rer-themed button.secondary { background: transparent; color: var(--rer-text); border: 1px solid var(--rer-text); }
+html.rer-themed .action:hover { background: #c8241b; box-shadow: none; }
+html.rer-themed button.secondary { background: transparent; color: var(--rer-text); border: 1px solid #c9d2dd; }
 html.rer-themed :focus-visible { outline: 3px solid var(--rer-focus); outline-offset: 3px; }
-/* /setup: the owner's name and email as an engraved birch list. */
-html.rer-themed main > dl { gap: 0; margin: 28px 0 24px; padding: 6px 24px; border-radius: 10px; background: var(--birch) var(--grain); background-blend-mode: multiply; box-shadow: var(--shadow-tile); }
+/* /setup: the owner's name and email as a quiet list. */
+html.rer-themed main > dl { gap: 0; margin: 28px 0 24px; padding: 6px 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--row); }
 html.rer-themed main > dl dt,
-html.rer-themed main > dl dd { padding: 14px 0; color: var(--walnut-ink); }
+html.rer-themed main > dl dd { padding: 14px 0; color: var(--rer-muted); }
 html.rer-themed main > dl dt { font-weight: 500; }
 html.rer-themed main > dl dd { padding-left: 24px; color: var(--rer-text); }
 html.rer-themed main > dl dt:not(:last-of-type),
-html.rer-themed main > dl dd:not(:last-of-type) { border-bottom: 1px solid rgb(106 63 28 / .22); }
+html.rer-themed main > dl dd:not(:last-of-type) { border-bottom: 1px solid var(--line); }
 @media (max-width: 480px) {
   html.rer-themed body { padding: 88px 16px 40px; }
   html.rer-themed main { margin-top: 64px; padding: 32px 24px; }
   html.rer-themed .rer-brand,
-  html.rer-themed .brand { margin: -112px 0 64px; font-size: 24px; }
-  html.rer-themed h1 { font-size: 32px; }
+  html.rer-themed .brand { margin: -112px 0 64px; font-size: 28px; }
+  html.rer-themed h1 { font-size: 34px; }
   html.rer-themed main > dl { padding: 4px 18px; }
   /* Under rer dev, Base's identity badge sits at the top and the lockup clears it. */
   html.rer-themed body:has(#rer-dev-badge) { padding-top: 16px; }
   html.rer-themed body:has(#rer-dev-badge) main { margin-top: 104px; }
 }
-/* The Lobby: the Outfit lockup and the near-black pill, as on every other Lodge page. */
-main.door .word { font-family: var(--rer-font-body); }
-main.door .btn { background: var(--pill); color: #fff; box-shadow: none; }
-main.door .btn:hover { background: #000; }
-/* Base's Run page (/run) and the site's 404: the Outfit lockup and Bitter 800 headings of the landing and docs. */
-header.bar .brand { font-family: var(--rer-font-body); font-size: 26px; }
-header.bar ~ main h1 { font-weight: 800; }
+/* The Lobby: the Figtree lockup and the red pill, as on the run site. */
+main.door .word { font-family: var(--rer-font-heading); }
+main.door .mark { width: 1.5em; height: 1em; margin-right: .1em; }
+main.door .btn { background: var(--rer-accent); color: #fff; box-shadow: 0 14px 28px -16px rgb(224 42 33 / .7); }
+main.door .btn:hover { background: #c8241b; }
+/* Base's Run page (/run) and the site's 404: the run site's header lockup, Figtree black headings,
+   white step cards with hairlines and red numerals, ink code cards. */
+header.bar .brand { font-family: var(--rer-font-heading); font-size: 34px; font-weight: 800; letter-spacing: -.025em; gap: 12px; }
+header.bar .brand img { width: 52px; height: 34px; }
+header.bar nav { font-size: 18px; gap: 40px; }
+header.bar ~ main h1 { font-weight: 900; letter-spacing: -.025em; }
+header.bar ~ main .step { background: var(--rer-surface); border-color: var(--line); box-shadow: var(--shadow-card); }
+header.bar ~ main .num { font-weight: 800; }
+header.bar ~ main .sub { color: var(--body); }
+header.bar ~ main .step h2 { font-weight: 800; }
+/* /run and the not-found page: the sky band behind the header and title, as on the homepage and the docs;
+   the step cards overlap its edge. */
+body:has(> main .steps), body:has(> main > .hero) { background: linear-gradient(180deg, var(--sky) 0, var(--sky) 300px, var(--rer-page) 300px); }
+/* Narrow windows: the Copy button sits above the command, and a long command scrolls inside its card instead of
+   wrapping, so no line starts with a pipe. */
+@media (max-width: 1000px) {
+  header.bar ~ main .code pre { padding: 50px 16px 16px; white-space: pre; overflow-wrap: normal; overflow-x: auto; }
+  header.bar ~ main .copy { top: 8px; right: 8px; transform: none; }
+}
 @media (max-width: 760px) {
-  header.bar .brand { font-size: 23px; }
+  body:has(> main .steps) { background: linear-gradient(180deg, var(--sky) 0, var(--sky) 300px, var(--rer-page) 300px); }
+  header.bar .brand { font-size: 27px; gap: 9px; }
+  header.bar .brand img { width: 41px; height: 27px; }
+  header.bar nav { font-size: 16px; gap: 22px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   html.rer-themed button { transition: background-color 150ms; }

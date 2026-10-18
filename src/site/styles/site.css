@@ -1,0 +1,65 @@
+/* The run site's frame: page base, header, footer and the actions. Tokens come from /rer-theme.css
+   (defined once there, shared with the app); every page links it before this sheet. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; overflow-x: clip; background: var(--paper); color: var(--ink); font: 400 18px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+h1, h2, h3, p, ol, ul, figure, dl, dd, blockquote { margin: 0; padding: 0; }
+ol, ul { list-style: none; }
+a { color: inherit; }
+img, svg { display: block; max-width: 100%; }
+table { border-collapse: collapse; }
+:focus-visible { outline: 3px solid var(--rer-focus); outline-offset: 3px; border-radius: 6px; }
+.site-wrap { width: 100%; max-width: calc(var(--wrap) + 2 * var(--gutter)); margin: 0 auto; padding: 0 var(--gutter); }
+.nowrap { white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Header: the lockup (mark and wordmark in the heading face) and two links. */
+.site-header { position: relative; z-index: 3; }
+.site-header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 96px; }
+.site-header.overlay { position: absolute; left: 0; right: 0; top: 0; }
+.site-header.overlay .site-wrap { max-width: none; padding: 0 var(--gutter); }
+.site-brand { display: inline-flex; align-items: center; gap: 12px; font: 800 41px/1 var(--font-head); letter-spacing: -.025em; text-decoration: none; color: var(--ink); }
+.site-brand img { width: 57px; height: 37px; margin-top: 2px; }
+.site-header nav { display: flex; gap: 40px; font-size: 19px; font-weight: 500; }
+.site-header nav a { text-decoration: none; padding: 6px 0; }
+.site-header nav a:hover, .site-header nav a[aria-current='page'] { text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 1.5px; }
+
+/* Actions: the red pill and underlined text links. */
+.site-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 40px; }
+.site-pill { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 60px; padding: 0 36px; border-radius: var(--radius-chip); background: var(--red); color: #fff; font: 700 25px/1 var(--font-head); letter-spacing: -.01em; text-decoration: none; box-shadow: 0 14px 28px -16px rgb(224 42 33 / .75); transition: background-color .15s ease, transform .15s ease; }
+.site-pill:hover { background: var(--red-ink); transform: translateY(-1px); }
+.site-pill svg { width: 22px; height: 22px; }
+.site-link { font-size: 20px; font-weight: 500; text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 1.5px; }
+.site-link:hover { text-decoration-thickness: 2.5px; }
+
+/* Footer strip: lockup and line at left, links at right. */
+.site-footer { background: var(--paper); border-top: 1px solid var(--line); }
+.site-footer-row { display: flex; align-items: center; justify-content: space-between; gap: 20px 40px; padding-top: 26px; padding-bottom: 28px; font-size: 18px; }
+.site-footer-name { display: flex; align-items: center; gap: 28px; color: var(--muted); }
+.site-footer .site-brand { font-size: 24px; gap: 9px; }
+.site-footer .site-brand img { width: 36px; height: 24px; }
+.site-footer nav { display: flex; gap: 36px; }
+.site-footer nav a { text-decoration: none; color: var(--ink); }
+.site-footer nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.skip-link { position: absolute; left: 16px; top: -64px; z-index: 10; padding: 10px 18px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; }
+.skip-link:focus { top: 12px; }
+
+@media (max-width: 1100px) {
+  :root { --gutter: 32px; }
+}
+@media (max-width: 760px) {
+  :root { --gutter: 16px; }
+  body { font-size: 16px; }
+  .site-header-row { height: 72px; }
+  .site-brand { font-size: 30px; gap: 9px; }
+  .site-brand img { width: 42px; height: 27px; }
+  .site-header nav { gap: 28px; font-size: 17px; }
+  .site-actions { gap: 14px 28px; }
+  .site-pill { min-height: 56px; padding: 0 30px; font-size: 22px; }
+  .site-link { font-size: 18px; }
+  .site-footer-row { flex-direction: column; align-items: flex-start; gap: 14px; font-size: 16px; }
+  .site-footer-name { flex-wrap: wrap; gap: 6px 16px; }
+  .site-footer nav { gap: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .site-pill { transition: none; } .site-pill:hover { transform: none; } }

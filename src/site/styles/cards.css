@@ -1,0 +1,75 @@
+/* The product drawn in HTML: white cards with hairlines, rows, chips, dots and checks, at Uptime's density. */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 26px 28px; min-width: 0; }
+.card-title { font: 800 23px/1.2 var(--font-head); letter-spacing: -.015em; color: var(--ink); }
+.card-title.big { font-size: 30px; letter-spacing: -.02em; }
+.card-foot { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 17px; }
+.card-foot.small { font-size: 15px; color: var(--soft); }
+.label { margin-top: 22px; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+i { font-style: normal; }
+
+/* Label/value rows with hairlines. */
+.pairs { margin-top: 14px; }
+.pairs > div { display: grid; grid-template-columns: minmax(118px, 40%) 1fr; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.pairs > div:last-child { border-bottom: 0; }
+.pairs dt { color: var(--muted); font-size: 17px; }
+.pairs dd { color: var(--ink); font-size: 17px; }
+.pairs.plain > div { border-bottom: 0; padding: 7px 0; }
+
+/* Chips: tinted pills with an optional check, clock or stop sign. */
+.chip { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; min-height: 34px; padding: 4px 14px; border-radius: var(--radius-chip); font-size: 15px; font-weight: 500; line-height: 1.25; white-space: normal; }
+.chip .check { width: 20px; height: 20px; flex: none; }
+.chip-green { background: var(--green-tint); color: var(--green-ink); }
+.chip-amber { background: var(--amber-tint); color: var(--amber-ink); }
+.chip-red { background: var(--red-tint); color: var(--red-ink); }
+.chip-sky { background: var(--sky-tint); color: var(--sky-ink); }
+.chip-grey { background: var(--row); color: var(--muted); }
+.chip-inline { min-height: 0; padding: 0 7px; border-radius: 6px; font-size: inherit; font-weight: 500; }
+
+.dot { display: inline-block; flex: none; width: 13px; height: 13px; border-radius: 50%; }
+.dot-green { background: var(--green); }
+.dot-amber { background: var(--amber); }
+.dot-red { background: var(--red); }
+.dot-sky { background: var(--sky-bar); }
+.dot-grey { background: #a3adba; }
+.dot-ink { background: var(--ink); }
+
+.check { flex: none; width: 24px; height: 24px; }
+.check circle { fill: var(--green); }
+.check path { fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+.avatar { display: inline-grid; place-items: center; flex: none; width: 52px; height: 52px; border-radius: 50%; font: 700 18px/1 var(--font-body); letter-spacing: .02em; }
+.avatar-sky { background: #bfe0fb; color: #0f3d68; }
+.avatar-rose { background: var(--rose-tint); color: #7b1d1d; }
+.avatar-violet { background: var(--violet-tint); color: var(--violet-ink); }
+.avatar-grey { background: #e6eaef; color: #5d6874; }
+.avatar-green { background: var(--green-tint); color: var(--green-ink); }
+
+/* Buttons drawn inside cards (pictures of controls, not controls). */
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 20px; border: 1px solid #c3ccd7; border-radius: 10px; background: #fff; color: var(--ink); font-size: 18px; font-weight: 600; }
+.btn-red { background: var(--red); border-color: var(--red); color: #fff; }
+.btn-wide { width: 100%; }
+
+/* Horizontal bars: label, track, count. */
+.bars { display: grid; gap: 16px; margin-top: 20px; }
+.bars li { display: grid; grid-template-columns: minmax(96px, 30%) 1fr 34px; align-items: center; gap: 14px; font-size: 17px; }
+.bar { position: relative; height: 18px; border-radius: 3px; background: #edf2f8; overflow: hidden; }
+.bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--sky-bar); border-radius: 3px; }
+.bar.bare { background: none; height: 24px; }
+.bars .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Browser and terminal frames. */
+.lights { display: inline-flex; gap: 8px; }
+.lights i { width: 13px; height: 13px; border-radius: 50%; background: #ff5f57; }
+.lights i:nth-child(2) { background: #febc2e; }
+.lights i:nth-child(3) { background: #28c840; }
+
+@media (max-width: 760px) {
+  .card { padding: 20px 18px; border-radius: 14px; }
+  .card-title { font-size: 21px; }
+  .card-title.big { font-size: 24px; }
+  .pairs dt, .pairs dd, .card-foot { font-size: 16px; }
+  .pairs > div { grid-template-columns: minmax(104px, 38%) 1fr; padding: 12px 0; }
+  .bars li { font-size: 16px; grid-template-columns: minmax(92px, 32%) 1fr 30px; gap: 10px; }
+  .btn { min-height: 48px; font-size: 16px; padding: 0 12px; }
+  .avatar { width: 46px; height: 46px; font-size: 16px; }
+}

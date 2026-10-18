@@ -57,8 +57,8 @@ function render(file: string) {
         if (!slug || !slugs.has(slug)) throw new Error(`Docs: docs/${file} links to ${href}, which is not a docs page.`)
         return `<a href="/docs/${slug}${hash ? '#' + hash : ''}">${text}</a>`
       },
-      code({ text }: Tokens.Code) { return `<pre class="docs-code plank" tabindex="0"><code>${escape(text)}</code></pre>` },
-      blockquote({ tokens }: Tokens.Blockquote) { return `<aside class="docs-tip plank"><span class="docs-tip-mark" aria-hidden="true">i</span><div>${this.parser.parse(tokens)}</div></aside>` },
+      code({ text }: Tokens.Code) { return `<div class="docs-code"><pre tabindex="0"><code>${escape(text)}</code></pre><button class="docs-copy" type="button" hidden>Copy</button></div>` },
+      blockquote({ tokens }: Tokens.Blockquote) { return `<aside class="docs-tip"><span class="docs-tip-mark" aria-hidden="true">i</span><div>${this.parser.parse(tokens)}</div></aside>` },
       table(token: Tokens.Table) {
         const cell = (c: Tokens.TableCell) => this.parser.parseInline(c.tokens)
         return `<div class="docs-table"><table><thead><tr>${token.header.map(c => `<th scope="col">${cell(c)}</th>`).join('')}</tr></thead><tbody>${token.rows.map(row => `<tr>${row.map(c => `<td>${cell(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`

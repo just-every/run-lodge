@@ -39,7 +39,7 @@ export function App() {
   const go = (t: string, app?: string) => { setTab(t); setNotice(''); if (app !== undefined) setOpenApp(app) }
   const props = { w, mutate, reload, go, setNotice }
   return <>
-    <header className="shell-head"><a className="brand" href="/app"><img src="/brand/mark.svg" alt="" width="36" height="36" /><span><strong data-rer-name>{w.business?.name ?? 'Lodge'}</strong> <small>Hiring with every decision on record</small></span></a><span className="who">{actor.name} · {actor.owner ? 'owner' : actor.roles.join(', ') || 'no Lodge role yet'}</span></header>
+    <header className="shell-head"><a className="brand" href="/app"><img src="/brand/mark.svg" alt="" width="52" height="34" /><span><strong data-rer-name>{w.business?.name ?? 'Lodge'}</strong> <small>Hiring with every decision on record</small></span></a><span className="who">{actor.name} · {actor.owner ? 'owner' : actor.roles.join(', ') || 'no Lodge role yet'}</span></header>
     <nav aria-label="Workspace" ref={tabsRef} data-more={more || undefined} onScroll={edge}>{tabs.map(t => <button key={t} aria-current={tab === t ? 'page' : undefined} onClick={() => go(t)}>{t}</button>)}</nav>
     <main>
       <p aria-live="polite" className="notice">{notice}</p>

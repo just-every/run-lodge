@@ -1,15 +1,25 @@
+<p><img src="public/brand/mark.svg" alt="" width="60" height="40"> <strong>Lodge</strong></p>
+
 # Run it locally
 
 Lodge is a hiring workspace for one business: from an approved vacancy to a
 recorded offer decision. Its website is at https://run-lodge.com.
 
-Start it from nothing with one line:
+Start it from nothing in two lines, as https://run-lodge.com/run shows. Install rer:
 
 ```sh
-npx -y @runeditrun/rer dev just-every/run-lodge
+curl -fsSL https://runeditrun.com/install.sh | sh
 ```
 
-Without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-lodge` does the same. To start it again later, run `cd run-lodge && rer dev`. To choose the owner mailbox yourself, run `npx -y @runeditrun/rer install just-every/run-lodge`, then from the checkout:
+It installs rer for you alone, with its own Node if you have no Node 22 or later. If its last line puts rer on
+your PATH, run that line first. Then start Lodge:
+
+```sh
+rer dev just-every/run-lodge
+```
+
+Already have Node 22 or later? `npx -y @runeditrun/rer dev just-every/run-lodge` does both steps in one line.
+To start it again later, run `cd run-lodge && rer dev`. To choose the owner mailbox yourself, run `rer install just-every/run-lodge`, then from the checkout:
 
 ```sh
 rer setup --owner-email you@example.com
@@ -88,4 +98,4 @@ employer's jurisdiction before real candidate use.
 First-party seed, working name **Lodge** (name clearance is an owner
 decision). Source code: [just-every/run-lodge](https://github.com/just-every/run-lodge). Contract: [CONTRACT.md](CONTRACT.md). What is
 proven and what is not: [ACCEPTANCE.md](ACCEPTANCE.md). Source origins:
-[SOURCE.md](SOURCE.md). MIT licence.
+[SOURCE.md](SOURCE.md). MIT license.

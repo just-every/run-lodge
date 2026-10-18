@@ -69,13 +69,13 @@ export async function buildWorkable(filename: string, zipBytes: Uint8Array, reta
     if (/\.csv$/i.test(entry.name) && depth <= 2) {
       const area = areaOf(entry.name)
       if (OMITTED[area]) { report.omitted.push({ file: entry.name, reason: OMITTED[area] }); continue }
-      if (!AREAS[area]) { report.omitted.push({ file: entry.name, reason: 'Not a recognised Workable export area' }); continue }
+      if (!AREAS[area]) { report.omitted.push({ file: entry.name, reason: 'Not a recognized Workable export area' }); continue }
       const parsed = parseCsv(new TextDecoder().decode(entry.bytes))
       if (parsed.error) { report.quarantined.push({ file: entry.name, reason: parsed.error + '; the whole file was set aside' }); continue }
       for (const m of parsed.malformed) report.quarantined.push({ file: entry.name, line: m.line, reason: 'Row ' + m.reason })
       tables[AREAS[area]] = { file: entry, rows: parsed.rows }
     } else if (depth >= 3) files.push(entry)
-    else report.omitted.push({ file: entry.name, reason: /read ?me/i.test(entry.name) ? 'Export guide, kept only in the package' : 'Not a recognised Workable export file' })
+    else report.omitted.push({ file: entry.name, reason: /read ?me/i.test(entry.name) ? 'Export guide, kept only in the package' : 'Not a recognized Workable export file' })
   }
   requireThat(tables.candidate || tables.job, 'No jobs or candidates CSV was found in this package')
 

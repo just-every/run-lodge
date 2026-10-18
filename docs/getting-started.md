@@ -2,20 +2,31 @@
 
 Run Lodge on your own computer, sign in as the owner and set up your business.
 
-Lodge is free and open source under the MIT licence. It runs on your computer
+Lodge is free and open source under the MIT license. It runs on your computer
 with the `rer` command, keeps every record in a local database you own, and
 needs no account with anyone.
 
 ## 1. Get Lodge and start it
 
+Install `rer`, the Run Edit Run command:
+
 ```sh
-npx -y @runeditrun/rer dev just-every/run-lodge
+curl -fsSL https://runeditrun.com/install.sh | sh
 ```
 
-That one line installs `rer`, the Run Edit Run command, clones Lodge and starts it. Without Node, `curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-lodge` does the same. To start it again later, run `cd run-lodge && rer dev`. `rer dev` installs everything, makes you the owner and prints a link that opens
-Lodge signed in as you. The first start can take a few minutes. Lodge runs
-on macOS, Linux or Windows with WSL2; `rer` fetches the exact Node version
-Lodge pins when your computer does not have it.
+It installs `rer` for you alone, with its own Node if you have no Node 22 or
+later, and changes no shell settings: if its last line puts `rer` on your PATH,
+run that line first. Then start Lodge:
+
+```sh
+rer dev just-every/run-lodge
+```
+
+`rer` clones Lodge, installs everything, makes you the owner and prints a link
+that opens Lodge signed in as you. The first start can take a few minutes. To
+start it again later, run `cd run-lodge && rer dev`. Already have Node 22 or
+later? `npx -y @runeditrun/rer dev just-every/run-lodge` does both steps in one
+line. Lodge runs on macOS, Linux or Windows with WSL2, with git.
 
 > Treat the link `rer dev` prints as a password: anyone who opens it is signed
 > in as you.

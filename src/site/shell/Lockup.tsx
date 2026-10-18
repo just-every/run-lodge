@@ -1,6 +1,6 @@
 import { links } from './links'
 
-/** The house-outline mark and the name, as on the installed app. */
-export function Lockup() {
-  return <a className="lockup" href={links.home}><img src="/brand/mark.svg" alt="" width="28" height="28" /><span>Lodge</span></a>
+/** The two-chairs mark and the "Lodge" wordmark in the heading face. */
+export function Lockup({ light = false }: { light?: boolean }) {
+  return <a className="site-brand" href={links.home}><img src={light ? '/brand/mark-light.svg' : '/brand/mark.svg'} alt="" width="52" height="34" /><span>Lodge</span></a>
 }

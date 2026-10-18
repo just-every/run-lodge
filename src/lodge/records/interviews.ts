@@ -67,7 +67,7 @@ export function schedule(s: State, a: Actor, b: Data) {
   const iv = s.get('interview', b.interview)
   const app = requireApplication(s, a, iv.application)
   requireManages(a, s.get('vacancy', app.vacancy))
-  requireThat(iv.status === 'proposed', 'This interview is already scheduled or cancelled', 409)
+  requireThat(iv.status === 'proposed', 'This interview is already scheduled or canceled', 409)
   const index = integer(b.slot, 'Time', 0, iv.slots.length - 1)
   const record = s.put('interview', iv.id, { ...iv, status: 'scheduled', start: iv.slots[index], scheduledBy: a.email, scheduledAt: now() })
   s.audit(a, 'interview-scheduled', 'interview:' + iv.id, { start: record.start })
@@ -78,7 +78,7 @@ export function cancel(s: State, a: Actor, b: Data) {
   const iv = s.get('interview', b.interview)
   const app = requireApplication(s, a, iv.application)
   requireManages(a, s.get('vacancy', app.vacancy))
-  requireThat(iv.status !== 'cancelled', 'Already cancelled', 409)
+  requireThat(iv.status !== 'cancelled', 'Already canceled', 409)
   const record = s.put('interview', iv.id, { ...iv, status: 'cancelled', cancelReason: text(b.reason, 'Reason', 500) })
   s.audit(a, 'interview-cancelled', 'interview:' + iv.id)
   return record

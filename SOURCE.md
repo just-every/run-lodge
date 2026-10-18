@@ -23,8 +23,8 @@ Base), `src/modules/ai`, `src/modules/dependencies` and
 `src/mail.server.mjs` and `scripts/operations-config.mjs` are the foundation
 template's files; `src/identity.ts`, `src/server.ts`, `src/auth.server.ts`,
 `src/routes/__root.tsx` and `vite.config.ts` are the template's with Lodge's
-routes added. The Outfit fonts are SIL Open Font License
-(`public/fonts/outfit/LICENSE.txt`).
+routes added. The Figtree, Inter, JetBrains Mono and Outfit fonts are SIL Open Font License
+(each `LICENSE.txt` under `public/fonts/`).
 
 **Migrations.** 0001–0005 are the original foundation's and 0006 is Base
 import-kit's D1 schema at 87835b4; 0007 is Lodge's. None was edited. 0008–0015
