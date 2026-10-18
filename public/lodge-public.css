@@ -3,6 +3,7 @@ html.rer-themed main.lodge-public{max-width:720px}
 html.rer-themed main.lodge-public > h1,html.rer-themed main.lodge-public > h1 + p{text-align:left}
 .lodge-public .meta{color:var(--rer-muted)}
 .lodge-public textarea,.lodge-public select{box-sizing:border-box;width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--rer-border);border-radius:8px;background:var(--rer-surface);color:var(--rer-text);font:inherit}
+.lodge-public select{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23556170' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:12px 8px}
 .lodge-public fieldset{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
 .lodge-public details{margin:0}.lodge-public summary{cursor:pointer;font-weight:500}
 .lodge-public .roles{list-style:none;padding:0;display:grid;gap:0}
