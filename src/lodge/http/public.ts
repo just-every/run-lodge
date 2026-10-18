@@ -3,7 +3,8 @@ import { runtimeBindings, type Bindings } from '../../auth.server'
 import { fontHead } from '../../base/font-head'
 import { themeFrame } from '../../base/theme-frame'
 import branding from '../../branding.json'
-import { dateTime, pay as payRange, vacancyFacts } from '../core/labels'
+import { pay as payRange, vacancyFacts } from '../core/labels'
+import { businessZone, isZone, times } from '../core/time'
 import { load, save } from '../core/store'
 import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
@@ -92,7 +93,7 @@ publicPages.post('/jobs/:slug', async c => {
     const resume = file && typeof file !== 'string' && file.size > 0 ? { name: file.name, mediaType: file.type, base64: bytesToBase64(new Uint8Array(await file.arrayBuffer())) } : null
     const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume } as any)
     await save(c.env.DB, s, null)
-    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(dateTime(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
+    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     return page(v.title, form(v, s.get('business', 'main'), error.message, values), error.status)
@@ -103,8 +104,7 @@ publicPages.get('/availability/:token', async c => {
   const s = await load(c.env.DB)
   let iv: Data
   try { iv = interviewByToken(s, c.req.param('token')) } catch { return notFound() }
-  const tz = iv.timezone || 'UTC'
-  const when = (iso: string) => { try { return new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'short', timeZone: tz }).format(new Date(iso)) + ` (${tz})` } catch { return iso } }
+  const when = times(isZone(iv.timezone) ? iv.timezone : businessZone(s.find('business', 'main'))).stamped
   if (iv.status === 'scheduled') return page('Interview time', `<h1>Your interview is scheduled</h1><p>${esc(iv.title)}</p><p><strong>${esc(when(iv.start))}</strong></p>`)
   const picked: number[] = iv.availability?.candidate ?? []
   return page('Choose interview times', `<h1>Choose times that work for you</h1><p>${esc(iv.title)} · ${esc(iv.durationMinutes)} minutes</p><form method="post" action="/availability/${esc(c.req.param('token'))}"><fieldset><legend>Times you can attend</legend>${iv.slots.map((slot: string, i: number) => `<label><input type="checkbox" name="slot" value="${i}"${picked.includes(i) ? ' checked' : ''}> ${esc(when(slot))}</label>`).join('')}</fieldset><button type="submit">Send my availability</button></form>`)

@@ -1,8 +1,12 @@
 // How a vacancy's stored keys read to people, in the workspace and on the application pages.
 export const WORK_MODES: Record<string, string> = { onsite: 'On site', hybrid: 'Hybrid', remote: 'Remote' }
 export const EMPLOYMENT_TYPES: Record<string, string> = { 'full-time': 'Full-time', 'part-time': 'Part-time', contract: 'Contract', temporary: 'Temporary' }
-export const vacancyFacts = (v: { department?: string; location?: string; workMode?: string; employmentType?: string }, withDepartment = true) =>
-  [withDepartment ? v.department : '', v.location, v.workMode && (WORK_MODES[v.workMode] ?? v.workMode), v.employmentType && (EMPLOYMENT_TYPES[v.employmentType] ?? v.employmentType)].filter(Boolean) as string[]
+/** "Design · Columbus, OH · Hybrid · Full-time"; a work mode the location already names ("Remote, US") is not repeated. */
+export function vacancyFacts(v: { department?: string; location?: string; workMode?: string; employmentType?: string }, withDepartment = true) {
+  const mode = v.workMode && (WORK_MODES[v.workMode] ?? v.workMode)
+  const said = mode && v.location?.toLowerCase().split(/[^a-z-]+/).includes(mode.toLowerCase())
+  return [withDepartment ? v.department : '', v.location, said ? '' : mode, v.employmentType && (EMPLOYMENT_TYPES[v.employmentType] ?? v.employmentType)].filter(Boolean) as string[]
+}
 
 // Pay in US form: "$102,000–$124,000 a year", "$102k–$124k" on a chip; another currency keeps its code.
 const PER: Record<string, string> = { year: 'a year', month: 'a month', hour: 'an hour' }
@@ -25,11 +29,4 @@ export function payShort(c: Record<string, any> | null) {
   if (!c) return 'No range yet'
   const k = (cents: number) => c.period === 'year' && cents % 100000 === 0 ? amount(cents / 1000, c.currency) + 'k' : amount(cents, c.currency)
   return `${k(c.min)}–${k(c.max)}${c.period === 'hour' ? '/hr' : c.period === 'month' ? '/mo' : ''}`
-}
-
-/** "Sun Oct 18, 2026, 2:26 a.m. UTC": a time on the application pages, in the house style the homepage writes. */
-export function dateTime(iso: string, timeZone = 'UTC') {
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone, timeZoneName: 'short' })
-    .formatToParts(new Date(iso)).map(p => [p.type, p.value]))
-  return `${parts.weekday} ${parts.month} ${parts.day}, ${parts.year}, ${parts.hour}:${parts.minute} ${parts.dayPeriod === 'AM' ? 'a.m.' : 'p.m.'} ${parts.timeZoneName}`
 }

@@ -13,6 +13,8 @@ import { MoveIn } from './move-in'
 import { People } from './people'
 import { Audit } from './audit'
 import { openProposals } from './pipeline/facts'
+import { useZone } from './format'
+import { businessZone } from '../lodge/core/time'
 
 /** Where the workspace is: the screen, and on it the open application, the job on the board and the open vacancy. */
 export interface Nav { tab: string; app: string | null; job: string | null; vacancy: string | null }
@@ -20,7 +22,8 @@ export type Target = Partial<Omit<Nav, 'tab'>>
 
 export function App() {
   const [w, setW] = useState<D>(), [error, setError] = useState(''), [notice, setNotice] = useState('')
-  const [nav, setNav] = useState<Nav>({ tab: 'Overview', app: null, job: null, vacancy: null })
+  // An empty tab is the home screen: the job board, the screen the owner picked, once there are applications to run.
+  const [nav, setNav] = useState<Nav>({ tab: '', app: null, job: null, vacancy: null })
   async function reload() { setW(await call('state')) }
   useEffect(() => { reload().catch(e => setError(e.message)) }, [])
   async function mutate(op: string, body: D) {
@@ -30,16 +33,17 @@ export function App() {
     return result
   }
   if (!w) return <main className="loading"><img src="/brand/mark.svg" alt="" width="52" height="34" /><h1>Lodge</h1>{error ? <p role="alert">{error} · <a href="/signin?returnTo=%2Fapp">Sign in</a></p> : <p>Opening your hiring workspace…</p>}</main>
+  useZone(businessZone(w.business))
   const { actor } = w
   const admin = actor.owner || actor.roles.includes('admin'), manager = admin || actor.roles.includes('manager')
   const me = actor.email
-  const waiting = w.approvals.filter((x: D) => x.status === 'pending' && (x.approver === me || actor.owner)).length
+  const pending = w.approvals.filter((x: D) => x.status === 'pending')
   const tabs: Tab[] = [
     { name: 'Overview', icon: 'overview' },
     ...(manager ? [{ name: 'Vacancies', icon: 'vacancies', count: w.vacancies.filter((v: D) => v.status === 'open').length } as Tab] : []),
     ...(w.applications.length || manager ? [{ name: 'Applications', icon: 'applications', count: w.applications.filter((a: D) => a.status === 'active').length } as Tab] : []),
     ...(manager ? [{ name: 'Candidates', icon: 'candidates' } as Tab] : []),
-    ...(w.approvals.length || actor.roles.includes('approver') ? [{ name: 'Approvals', icon: 'approvals', count: waiting, urgent: w.approvals.some((x: D) => x.status === 'pending' && x.approver === me) } as Tab] : []),
+    ...(w.approvals.length || actor.roles.includes('approver') ? [{ name: 'Approvals', icon: 'approvals', count: pending.length, urgent: pending.some((x: D) => x.approver === me) } as Tab] : []),
     { name: 'Proposals', icon: 'proposals', count: openProposals(w).length, urgent: openProposals(w).length > 0 },
     ...(admin ? [{ name: 'Retention', icon: 'retention', count: w.retention?.due.length } as Tab] : []),
     ...(actor.owner ? [{ name: 'Move in', icon: 'movein' } as Tab] : []),
@@ -47,9 +51,10 @@ export function App() {
   ]
   const go = (tab: string, target: Target = {}) => { setNav(n => ({ ...n, ...target, tab })); setNotice(''); scrollTo({ top: 0 }) }
   const props = { w, mutate, reload, go, setNotice, nav }
-  const { tab } = nav
+  const home = w.business && manager && w.applications.some((a: D) => a.manages) ? 'Applications' : 'Overview'
+  const tab = nav.tab || home
   return <div className="shell">
-    <Rail w={w} tabs={tabs} nav={nav} go={go} />
+    <Rail w={w} tabs={tabs} nav={{ ...nav, tab }} go={go} />
     <div className="work">
       <TopBar w={w} go={go} manager={manager} />
       <main>

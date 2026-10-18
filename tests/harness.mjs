@@ -96,4 +96,4 @@ export async function harness({ claim = true } = {}) {
 }
 
 /** The owner's business settings, used by every suite. */
-export const BUSINESS = { name: 'Example Builders', accommodationContact: 'adjustments@example.test', retentionDays: 365, jurisdiction: 'United States (New York office); legal review pending', privacyNotice: 'We use your application only to assess you for this role and keep it for one year.' }
+export const BUSINESS = { name: 'Example Builders', accommodationContact: 'adjustments@example.test', retentionDays: 365, jurisdiction: 'United States (New York office); legal review pending', timeZone: 'America/New_York', privacyNotice: 'We use your application only to assess you for this role and keep it for one year.' }

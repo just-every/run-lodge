@@ -1,6 +1,7 @@
 import type { State } from '../core/state'
 import { requireAdmin } from '../core/access'
 import { email, integer, list, now, oneOf, optionalText, requireThat, text, ROLES, type Actor, type Data } from '../core/types'
+import { isZone } from '../core/time'
 
 // The business's hiring settings and the people who can work in Lodge.
 
@@ -16,12 +17,19 @@ export function business(s: State, a: Actor, b: Data) {
     accommodationContact: text(b.accommodationContact, 'Accommodation contact', 300),
     retentionDays: integer(b.retentionDays, 'Retention period in days', 30, 3650),
     jurisdiction: optionalText(b.jurisdiction, 'Jurisdiction note', 500),
+    // Every time Lodge shows or writes (interviews, history, receipts) reads in this zone, wherever it is opened.
+    timeZone: zone(b.timeZone),
     notices,
   })
   // The owner always appears as a member so they can be chosen as manager, approver or interviewer.
   s.put('member', a.email, { email: a.email, name: a.name, roles: [...ROLES], active: true, owner: true })
   s.audit(a, current ? 'business-updated' : 'business-created', 'business:main')
   return record
+}
+
+function zone(value: unknown) {
+  requireThat(isZone(value), 'Choose the time zone your business works in')
+  return value
 }
 
 export function member(s: State, a: Actor, b: Data) {

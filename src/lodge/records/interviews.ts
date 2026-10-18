@@ -1,6 +1,7 @@
 import type { State } from '../core/state'
 import { canReview, onPanel, requireApplication, requireManages, requireMember } from '../core/access'
-import { email, instant, integer, list, now, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { email, instant, integer, list, now, oneOf, optionalText, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
+import { businessZone, isZone } from '../core/time'
 
 // Flow 8: plan an interview from the vacancy's plan, collect availability from
 // the panel and the candidate, schedule one slot and hand out calendar files.
@@ -27,7 +28,7 @@ export function interview(s: State, a: Actor, b: Data) {
   requireThat(slots.length > 0, 'Propose at least one time')
   const record = s.put('interview', uid(), {
     application: app.id, vacancy: vacancy.id, planItem: item.id, title: `${item.name}: ${vacancy.title}`, durationMinutes: integer(b.durationMinutes ?? item.durationMinutes, 'Duration', 10, 480),
-    participants: [...new Set(participants)], slots, availability: {}, candidateToken: token(), location: optionalText(b.location, 'Location or video link', 500), timezone: optionalText(b.timezone, 'Time zone', 60) || 'UTC',
+    participants: [...new Set(participants)], slots, availability: {}, candidateToken: token(), location: optionalText(b.location, 'Location or video link', 500), timezone: isZone(b.timezone) ? b.timezone : businessZone(s.find('business', 'main')),
     status: 'proposed', createdBy: a.email, createdAt: now(),
   })
   s.audit(a, 'interview-proposed', 'interview:' + record.id)
@@ -71,6 +72,24 @@ export function schedule(s: State, a: Actor, b: Data) {
   const index = integer(b.slot, 'Time', 0, iv.slots.length - 1)
   const record = s.put('interview', iv.id, { ...iv, status: 'scheduled', start: iv.slots[index], scheduledBy: a.email, scheduledAt: now() })
   s.audit(a, 'interview-scheduled', 'interview:' + iv.id, { start: record.start })
+  return record
+}
+
+/**
+ * A panellist tells the hiring team they cannot attend, or another interviewer on this candidate's panels offers
+ * to cover, in their own words and with the time they are free. It changes nothing on the interview; whoever runs
+ * the vacancy decides, and an agent may read the reply to propose a rebooking.
+ */
+export function reply(s: State, a: Actor, b: Data) {
+  const iv = s.get('interview', b.interview)
+  requireApplication(s, a, iv.application)
+  requireThat(iv.status !== 'cancelled', 'This interview was canceled', 409)
+  const answer = oneOf(b.answer, ['cannot-attend', 'can-cover'] as const, 'Answer')
+  const on = onPanel(a, iv)
+  requireThat(answer === 'cannot-attend' ? on : canReview(a) && !on, answer === 'cannot-attend' ? 'Only an invited interviewer can say they cannot attend' : 'Only an interviewer not already on this panel can offer to cover', 403)
+  const entry = { by: scope(a), answer, note: optionalText(b.note, 'Note', 500), freeAt: b.freeAt ? instant(b.freeAt, 'Free at') : null, at: now() }
+  const record = s.put('interview', iv.id, { ...iv, replies: [...(iv.replies ?? []), entry] })
+  s.audit(a, 'interview-reply', 'interview:' + iv.id, { answer, note: entry.note, freeAt: entry.freeAt })
   return record
 }
 

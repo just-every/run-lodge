@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Target } from '../app'
-import { weekday } from '../format'
+import { day, zoneName } from '../format'
 import { Icon } from '../icons'
 import { call, type D } from '../shared'
 
@@ -36,10 +36,9 @@ function Search({ w, go }: { w: D; go: (tab: string, target?: Target) => void })
 }
 
 export function TopBar({ w, go, manager }: { w: D; go: (tab: string, target?: Target) => void; manager: boolean }) {
-  const today = new Date().toISOString()
   return <header className="topbar">
     {w.business && <Search w={w} go={go} />}
-    <span className="today">{weekday(today)}, {new Date(today).getFullYear()}</span>
+    <span className="today" title="Every time in Lodge is in your business’s time zone">{day(new Date().toISOString())}<small> · {zoneName()}</small></span>
     {manager && w.business && <button className="primary new" onClick={() => go('Vacancies', { vacancy: 'new' })}><Icon name="plus" />New vacancy</button>}
   </header>
 }

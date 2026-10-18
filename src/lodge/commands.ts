@@ -6,7 +6,7 @@ import { decide } from './records/approvals'
 import { apply, candidate, correctCandidate, reviewDuplicate } from './records/candidates'
 import { addDocument } from './records/documents'
 import { assignReviewers, move } from './records/pipeline'
-import { availability, cancel, interview, schedule } from './records/interviews'
+import { availability, cancel, interview, reply, schedule } from './records/interviews'
 import { note, releaseFeedback, scorecard } from './records/scorecards'
 import { message, requestMessageApproval } from './records/messages'
 import { offer, outcome, requestOfferApproval } from './records/offers'
@@ -26,7 +26,7 @@ export const commands: Record<string, Command> = {
   'decide-approval': decide,
   candidate, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'assign-reviewers': assignReviewers, move,
-  interview, availability, schedule, 'cancel-interview': cancel,
+  interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'release-feedback': releaseFeedback, note,
   message, 'request-message-approval': requestMessageApproval,
   offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome,

@@ -3,11 +3,19 @@ import { call, Check, Field, Form, Status, Table, type D } from './shared'
 
 const ROLES = [['admin', 'Hiring admin'], ['manager', 'Hiring manager'], ['interviewer', 'Interviewer'], ['approver', 'Approver']]
 
+/** Every zone this browser knows, with the one already chosen (or this computer's, for a new business) among them. */
+function zones(current: string) {
+  const known = (Intl as unknown as { supportedValuesOf?: (k: string) => string[] }).supportedValuesOf?.('timeZone') ?? []
+  return [...new Set([current, ...known])].sort().map(z => ({ value: z, label: z.replace(/_/g, ' ') }))
+}
+
 export function BusinessForm({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
   const b = w.business ?? {}
+  const zone = b.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone
   return <Form label="Save business settings" onSubmit={v => mutate('business', { ...v, retentionDays: Number(v.retentionDays) })}>
     <Field label="Business name" name="name" defaultValue={b.name} />
     <Field label="Accommodation contact (email or phone shown to applicants)" name="accommodationContact" defaultValue={b.accommodationContact} />
+    <Field label="Time zone your business works in" name="timeZone" defaultValue={zone} options={zones(zone)} hint="Interviews, history and applicant receipts read in this zone, wherever they are opened." />
     <Field label="Keep candidate records for (days)" name="retentionDays" type="number" defaultValue={b.retentionDays ?? 365} />
     <Field label="Jurisdiction note (where you hire, for your legal review)" name="jurisdiction" required={false} defaultValue={b.jurisdiction} />
     <Field label="Applicant privacy notice" name="privacyNotice" type="textarea" wide defaultValue={b.notices?.at(-1)?.text} hint="Each change becomes a new version; every application records the version the applicant saw." />

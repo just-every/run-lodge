@@ -1,5 +1,22 @@
 import type { PageProps } from './app'
-import { Check, Field, fileFrom, Form, readFile, Table, type D } from './shared'
+import { since, slot } from './format'
+import { count, person } from './names'
+import { Check, Field, fileFrom, Form, readFile, Status, Table, type D } from './shared'
+import { closedLabel, lastMove, nextInterview, openProposals, proposalApplication, stageName } from './pipeline/facts'
+
+/** What happens next on an application, from its records: a decision waiting, an offer, an interview, a scorecard. */
+function nextStep(w: D, app: D) {
+  if (app.status !== 'active') return '—'
+  if (openProposals(w).some((p: D) => proposalApplication(p) === app.id)) return 'Your decision on the agent’s options'
+  const offer = w.offers.find((o: D) => o.application === app.id && o.status === 'draft')
+  if (offer) return offer.approvedNow ? 'Record the offer’s outcome' : offer.approval?.status === 'pending' ? `Offer awaiting ${person(w, offer.approval.approver)}` : 'Request offer approval'
+  const iv = nextInterview(w, app)
+  if (iv?.status === 'scheduled') return `${iv.title.split(':')[0]} · ${slot(iv.start)}`
+  if (iv) return `${iv.title.split(':')[0]} · times proposed`
+  const missing = w.coordination.missingScorecards.filter((m: D) => m.application === app.id).length
+  if (missing) return `Chase ${count(missing, 'scorecard')}`
+  return app.panel?.length && app.panel.every((p: D) => p.submitted) ? 'Decide: advance or reject' : 'Screen and score'
+}
 
 export function Candidates({ w, mutate, go }: PageProps) {
   const admin = w.actor.owner || w.actor.roles.includes('admin')
@@ -35,10 +52,14 @@ export function Candidates({ w, mutate, go }: PageProps) {
         <Field label="Vacancy" name="vacancy" options={openVacancies.map((v: D) => ({ value: v.id, label: v.title }))} />
       </Form>
     </details>}
-    <Table heads={['Name', 'Contact', 'Source', 'Applications']} empty="No candidates yet.">{w.candidates.map((c: D) => {
-      const apps = w.applications.filter((a: D) => a.candidate === c.id)
-      return <tr key={c.id}><td><strong>{c.name}</strong>{c.headline && <small>{c.headline}</small>}</td><td>{[c.email, c.phone].filter(Boolean).join(' · ')}</td><td>{c.source}</td>
-        <td><span>{apps.map((a: D, i: number) => <span key={a.id}>{i > 0 && ' · '}<button className="link" onClick={() => go('Applications', { app: a.id, job: a.vacancy })}>{w.vacancies.find((v: D) => v.id === a.vacancy)?.title ?? 'vacancy'}</button></span>)}</span></td></tr>
+    <Table heads={['Name', 'Stage', 'Scorecards', 'Next step', 'Source', 'Applied for']} empty="No candidates yet.">{w.candidates.map((c: D) => {
+      const apps = w.applications.filter((a: D) => a.candidate === c.id).sort((x: D, y: D) => (x.status === 'active' ? 0 : 1) - (y.status === 'active' ? 0 : 1) || lastMove(y).localeCompare(lastMove(x)))
+      const a = apps[0], v = a && w.vacancies.find((x: D) => x.id === a.vacancy), done = a?.panel?.filter((p: D) => p.submitted).length ?? 0
+      return <tr key={c.id}><td><strong>{c.name}</strong><small>{[c.headline, c.email].filter(Boolean).join(' · ')}</small></td>
+        <td>{a ? <span className="stage-cell"><Status tone={a.status === 'active' ? 'good' : 'neutral'}>{a.status === 'active' ? stageName(v, a.stage) : closedLabel(a)}</Status><small>{since(lastMove(a))}</small></span> : <small>No application</small>}</td>
+        <td>{a?.panel?.length ? <span className="bar"><span className="track"><i style={{ width: `${done / a.panel.length * 100}%` }} /></span>{done} of {a.panel.length}</span> : <small>None yet</small>}</td>
+        <td>{a ? nextStep(w, a) : ''}</td><td>{c.source}</td>
+        <td><span>{apps.map((x: D, i: number) => <span key={x.id}>{i > 0 && ' · '}<button className="link" onClick={() => go('Applications', { app: x.id, job: x.vacancy })}>{w.vacancies.find((y: D) => y.id === x.vacancy)?.title ?? 'vacancy'}</button></span>)}</span></td></tr>
     })}</Table>
   </div>
 }

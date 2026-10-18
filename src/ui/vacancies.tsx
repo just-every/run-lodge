@@ -1,9 +1,10 @@
 import type { PageProps } from './app'
 import { EMPLOYMENT_TYPES, vacancyFacts } from '../lodge/core/labels'
-import { pay, payShort } from './format'
+import { daysSince, pay, payShort } from './format'
 import { Icon } from './icons'
 import { person } from './names'
 import { cents, Empty, Field, Form, memberOptions, Status, Table, type D } from './shared'
+import { columns } from './pipeline/facts'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -90,6 +91,12 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
     {nav.vacancy === 'new' && <section className="card"><h2>Terms of the new vacancy</h2><p className="hint">An approver sees these terms with the stages, rubric and interview plan as one set; changing any of them later needs a new approval.</p><Terms w={w} mutate={mutate} onSaved={select} /></section>}
     {v && <Detail v={v} w={w} mutate={mutate} go={go} />}
     {!mine.length && nav.vacancy !== 'new' ? <Empty icon="vacancies" title="No vacancies yet.">Use New vacancy to write the first one: its pay range, headcount and the description applicants will read.</Empty>
-      : <Table heads={['Title', 'Status', 'Pay', 'Applications', '']}>{mine.map((x: D) => <tr key={x.id} className={x.id === nav.vacancy ? 'current' : undefined}><td><strong>{x.title}</strong><small>{vacancyFacts(x).join(' · ')}</small></td><td><VacancyStatus v={x} /></td><td>{payShort(x.compensation)}</td><td>{w.applications.filter((a: D) => a.vacancy === x.id).length}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>)}</Table>}
+      : <Table heads={['Title', 'Status', 'Pay', 'By stage', 'Applications', '']}>{mine.map((x: D) => {
+        const apps = w.applications.filter((a: D) => a.vacancy === x.id), stages = columns(x, apps).filter(c => c.id !== 'closed')
+        return <tr key={x.id} className={x.id === nav.vacancy ? 'current' : undefined}><td><strong>{x.title}</strong><small>{vacancyFacts(x).join(' · ')}</small></td>
+          <td><span className="stage-cell"><VacancyStatus v={x} />{x.status === 'open' && x.publishedAt && <small>open {daysSince(x.publishedAt)} days</small>}</span></td><td>{payShort(x.compensation)}</td>
+          <td>{apps.length ? <span className="split" title={stages.map(c => `${c.name} ${c.apps.length}`).join(', ')}>{stages.map(c => c.apps.length).join(' · ')}</span> : <small>{x.status === 'open' ? 'None yet' : '—'}</small>}</td>
+          <td>{apps.length}{apps.some((a: D) => a.status !== 'active') && <small>{apps.filter((a: D) => a.status !== 'active').length} closed</small>}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>
+      })}</Table>}
   </div>
 }

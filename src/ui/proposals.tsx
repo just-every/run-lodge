@@ -1,5 +1,5 @@
 import type { PageProps } from './app'
-import { person, sentence, tone } from './names'
+import { count, person, sentence, tone } from './names'
 import { when } from './format'
 import { Empty, Field, Form, Status, type D } from './shared'
 
@@ -13,7 +13,7 @@ export function Proposals({ w, mutate }: PageProps) {
     {open.map((p: D) => <article key={p.id} className="card">
       <p className="eyebrow">{sentence(p.workflow.replace(/-/g, ' '))}</p>
       <h2>{p.summary}</h2>
-      <p className="muted">From {person(w, p.proposedBy)} · {when(p.proposedAt)} · read {p.sources.length} record(s)</p>
+      <p className="muted">From {person(w, p.proposedBy)} · {when(p.proposedAt)} · read {count(p.sources.length, 'record')}</p>
       {p.missing.length > 0 && <p className="warn">Missing, not invented: {p.missing.join(', ')}.</p>}
       {p.rationale && <p className="pre">{p.rationale}</p>}
       <details><summary>The exact changes ({p.changes.length})</summary><ol className="changes">{p.changes.map((c: D, i: number) => <li key={i}><strong>{c.op}</strong><pre>{JSON.stringify(c.input, null, 2)}</pre></li>)}</ol></details>

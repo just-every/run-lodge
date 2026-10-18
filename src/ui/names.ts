@@ -6,11 +6,18 @@ import type { D } from './shared'
 /** A member's name for an email address, or the address when it belongs to no member. */
 export const person = (w: D, email?: string) => !email ? '' : email === 'public' || email === 'applicant' ? 'Applicant' : w.members.find((m: D) => m.email === email)?.name || email
 export const people = (w: D, emails: string[]) => emails.map(e => person(w, e)).join(', ')
+/** "Ana, Dev, Maya": first names where they tell the people apart, full names where they do not. */
+export function firstNames(w: D, emails: string[]) {
+  const full = emails.map(e => person(w, e)), first = full.map(n => n.split(' ')[0])
+  return full.map((n, i) => first.filter(f => f === first[i]).length > 1 || w.members.filter((m: D) => m.name?.split(' ')[0] === first[i]).length > 1 ? n : first[i]).join(', ')
+}
 
 /** "approval-requested" → "Approval requested". */
 const PHRASES: D = { 'approval-approved': 'Approved', 'approval-rejected': 'Rejected', 'import-commit': 'Import committed', 'import-undo': 'Import undone', 'import-resume': 'Import resumed', 'interview-plan': 'Interview plan saved', 'rubric-version': 'Rubric version saved', 'data-request': 'Candidate request recorded', 'data-request-complete': 'Candidate request completed', 'interview-note': 'Interview note saved', 'candidate-availability': 'Candidate availability recorded' }
 export const phrase = (key: string) => PHRASES[key] ?? sentence(key.replace(/-/g, ' '))
 export const sentence = (text: string) => text ? text[0].toUpperCase() + text.slice(1) : text
+/** "1 record", "3 records": a count with its noun in the right number. */
+export const count = (n: number, word: string, plural = word + 's') => `${n} ${n === 1 ? word : plural}`
 
 export const KINDS: D = { message: 'Message', vacancy: 'Vacancy', offer: 'Offer' }
 

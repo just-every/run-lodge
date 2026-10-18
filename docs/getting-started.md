@@ -41,6 +41,9 @@ Lodge then opens on **Welcome to Lodge**. Save your business:
 - **Business name**, shown at the top of every screen.
 - **Accommodation contact**, the email or phone applicants use to ask for
   adjustments.
+- **Time zone your business works in**, filled in with your computer's zone.
+  Interview times, history and applicant receipts read in this zone wherever
+  Lodge is opened, so a Thursday panel is Thursday for everyone.
 - **Keep candidate records for (days)**, 365 to begin with. See
   [Retention and deletion](retention.md).
 - **Jurisdiction note**, where you hire, for your own legal review.
@@ -49,7 +52,8 @@ Lodge then opens on **Welcome to Lodge**. Save your business:
   the applicant saw.
 
 Press **Save business settings** and the **Overview** opens with your
-**Getting started** steps.
+**Getting started** steps. Once your jobs have applications, Lodge opens on the
+job board instead.
 
 ## Stop and start again
 

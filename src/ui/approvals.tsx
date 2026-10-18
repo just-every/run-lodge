@@ -11,21 +11,32 @@ function Terms({ x, w }: { x: D; w: D }) {
   return <dl className="terms"><dt>To</dt><dd>{t.to}</dd><dt>Subject</dt><dd>{t.subject}</dd><dt>Message</dt><dd className="pre">{t.body}</dd></dl>
 }
 
+function Decision({ x, mutate, label }: { x: D; mutate: PageProps['mutate']; label: string }) {
+  return <Form label={label} onSubmit={v => mutate('decide-approval', { id: x.id, decision: v.decision, reason: v.reason, version: x.version })}>
+    <Field label="Decision" name="decision" options={[{ value: 'approved', label: 'Approve these exact terms' }, { value: 'rejected', label: 'Reject' }]} />
+    <Field label="Reason" name="reason" />
+  </Form>
+}
+
+/** Pending approvals: who must approve each one; the form goes to that person, and the owner may override it as the owner. */
 export function Approvals({ w, mutate }: PageProps) {
   const me = w.actor.email
-  const waiting = w.approvals.filter((x: D) => x.status === 'pending' && (x.approver === me || w.actor.owner))
-  const rest = w.approvals.filter((x: D) => !waiting.includes(x))
+  const pending = w.approvals.filter((x: D) => x.status === 'pending')
+  const rest = w.approvals.filter((x: D) => x.status !== 'pending')
   return <div className="page">
     <h1>Approvals</h1>
-    {!waiting.length && <Empty icon="approvals" title="Nothing is waiting for you.">Vacancies, offers and messages sent to you for approval appear here with their exact terms.</Empty>}
-    {waiting.map((x: D) => <article key={x.id} className="card"><h2>{KINDS[x.subjectKind]} approval requested by {person(w, x.requestedBy)}</h2><p>{when(x.requestedAt)}</p>
-      <Terms x={x} w={w} />
-      {x.currentVersion !== x.version ? <p className="warn">This changed after approval was requested. It needs a new request.</p>
-        : <Form label="Record decision" onSubmit={v => mutate('decide-approval', { id: x.id, decision: v.decision, reason: v.reason, version: x.version })}>
-          <Field label="Decision" name="decision" options={[{ value: 'approved', label: 'Approve these exact terms' }, { value: 'rejected', label: 'Reject' }]} />
-          <Field label="Reason" name="reason" />
-        </Form>}
-    </article>)}
+    {!pending.length && <Empty icon="approvals" title="Nothing is waiting for you.">Vacancies, offers and messages sent for approval appear here with their exact terms.</Empty>}
+    {pending.map((x: D) => {
+      const yours = x.approver === me
+      return <article key={x.id} className="card approval-card">
+        <header className="approval-head"><h2>{KINDS[x.subjectKind]}: {x.terms.title ?? x.terms.subject}</h2><Status tone={yours ? 'alert' : 'warn'}>{yours ? 'waiting on you' : `waiting on ${person(w, x.approver)}`}</Status></header>
+        <p className="muted">Requested by {person(w, x.requestedBy)} · {when(x.requestedAt)} · approver {person(w, x.approver)}</p>
+        <Terms x={x} w={w} />
+        {x.currentVersion !== x.version ? <p className="warn">This changed after approval was requested. It needs a new request.</p>
+          : yours ? <Decision x={x} mutate={mutate} label="Record decision" />
+            : w.actor.owner && <details><summary>Decide as the owner instead of {person(w, x.approver)}</summary><p className="hint">An owner’s decision overrides the named approver and is recorded as yours.</p><Decision x={x} mutate={mutate} label="Record owner’s decision" /></details>}
+      </article>
+    })}
     {rest.length > 0 && <><h2>History</h2><ul>{rest.map((x: D) => <li key={x.id}>{KINDS[x.subjectKind]} · {x.terms.title ?? x.terms.subject} · <Status tone={tone(x.status)}>{x.status}</Status> · {person(w, x.decidedBy ?? x.approver)} {x.reason ? `· “${x.reason}”` : ''}</li>)}</ul></>}
   </div>
 }

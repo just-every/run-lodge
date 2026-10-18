@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import type { PageProps } from '../app'
 import { recent, slot, when } from '../format'
 import { Icon } from '../icons'
-import { person, people } from '../names'
+import { count, firstNames, person } from '../names'
 import { Avatar, call, type D } from '../shared'
 import { planPlace } from './facts'
 
@@ -47,10 +47,10 @@ export function Exception({ proposals, app, v, w, mutate }: { proposals: D[]; ap
       <fieldset className="choices"><legend className="visually-hidden">Options from {person(w, pick.proposedBy)}</legend>
         {proposals.map(p => { const iv = change(p, 'interview'); return <label key={p.id} className="choice">
           <input type="radio" name="option" value={p.id} checked={p.id === pick.id} onChange={() => setChosen(p.id)} />
-          <span><strong>{p.summary}</strong>{iv && <small>{slot(iv.slots[0])} · {people(w, iv.participants)}</small>}</span>
+          <span><strong>{p.summary}</strong>{iv && <small title={iv.participants.map((e: string) => person(w, e)).join(', ')}>{slot(iv.slots[0])} · {firstNames(w, iv.participants)}</small>}</span>
         </label> })}
       </fieldset>
-      <p className="hint">From {person(w, pick.proposedBy)} · {recent(pick.proposedAt)} · read {pick.sources.length} record{pick.sources.length === 1 ? '' : 's'}. Nothing changes until you choose.</p>
+      <p className="hint">From {person(w, pick.proposedBy)} · {recent(pick.proposedAt)} · read {count(pick.sources.length, 'record')}. Nothing changes until you choose.</p>
       <label>Reason (kept with the decision)<input name="reason" required /></label>
       <div className="form-end split-actions"><button className="primary" value="apply" disabled={busy}>Apply change</button><button className="secondary" value="keep" disabled={busy}>Keep as is</button></div>
       {error && <p role="alert">{error}</p>}

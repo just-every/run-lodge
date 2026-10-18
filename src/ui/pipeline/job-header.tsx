@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import type { PageProps } from '../app'
 import { WORK_MODES } from '../../lodge/core/labels'
-import { payShort, weekday } from '../format'
+import { day, payShort, weekday } from '../format'
 import { Icon } from '../icons'
 import type { D } from '../shared'
 import { VacancyStatus } from '../vacancies'
@@ -21,7 +21,7 @@ export function JobHeader({ v, apps, w, go }: { v: D; apps: D[] } & Pick<PagePro
       {v.location && <li className="chip"><Icon name="pin" size={17} />{v.location}{v.workMode && v.workMode !== 'remote' ? ` · ${WORK_MODES[v.workMode].toLowerCase()}` : ''}</li>}
       {v.compensation && <li className="chip"><Icon name="dollar" size={17} />{payShort(v.compensation)}</li>}
       {v.manages && <li className="chip plain"><VacancyStatus v={v} /></li>}
-      {v.publishedAt && v.status === 'open' && <li className="chip"><Icon name="calendar" size={17} />Published {weekday(v.publishedAt)}</li>}
+      {v.publishedAt && v.status === 'open' && <li className="chip" title={'Published ' + day(v.publishedAt)}><Icon name="calendar" size={17} />Posted {weekday(v.publishedAt).replace(/^\w+ /, '')}</li>}
       {v.status === 'open' && <li className="chip"><a href={`/jobs/${v.slug}`}><Icon name="external" size={17} />Application page</a></li>}
     </ul>
     <p className="sources"><strong>{apps.length} applied</strong>{sources(apps).map(([name, n]) => <Fragment key={name}> · <span>{name} {n}</span></Fragment>)}</p>

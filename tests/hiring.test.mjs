@@ -86,6 +86,8 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     const received = await send('/jobs/' + slug, form({ ...fields, noticeVersion: '2' }, 'Dana Whitfield resume\nSite supervisor 2019-2026\n'))
     assert.equal(received.status, 200, received.text)
     const code = received.text.match(/LDG-[0-9A-F]{8}/)[0]
+    // The receipt states its time in the business's own zone, not the server's.
+    assert.match(received.text, /\d{1,2}:\d\d [ap]\.m\. E[SD]T</)
     const s = await state()
     publicApp = s.applications.find(a => a.candidateName === 'Dana Whitfield')
     const receipt = (await h.db.prepare("SELECT value FROM l_records WHERE kind='receipt' AND id=?").bind(code).first()).value
@@ -204,6 +206,16 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.match(ics.text, /DTSTART:20261104T150000Z/)
     assert.match(ics.text, /ATTENDEE;ROLE=REQ-PARTICIPANT:mailto:ivy@example.test/)
     assert.equal((await send('/api/lodge/download/calendar/' + interview.id, undefined, approver)).status, 404)
+    // A panellist says they cannot attend, in their own words; someone off the panel offers to cover. Nothing moves.
+    const reply = body => send('/api/lodge/command/interview-reply', { interview: interview.id, ...body }, ivy)
+    assert.equal((await reply({ answer: 'can-cover', note: 'I am on it already' })).status, 403)
+    await cmd('interview-reply', { interview: interview.id, answer: 'cannot-attend', note: 'Fever, sorry!' }, ivy)
+    assert.equal((await send('/api/lodge/command/interview-reply', { interview: interview.id, answer: 'cannot-attend' }, manager)).status, 403)
+    await cmd('interview-reply', { interview: interview.id, answer: 'can-cover', freeAt: '2026-11-04T19:00:00.000Z', note: 'Free that afternoon' }, manager)
+    const replied = (await state(manager)).interviews.find(i => i.id === interview.id)
+    assert.deepEqual(replied.replies.map(r => [r.by, r.answer, r.note]), [['ivy@example.test', 'cannot-attend', 'Fever, sorry!'], ['morgan@example.test', 'can-cover', 'Free that afternoon']])
+    assert.equal(replied.status, 'scheduled')
+    assert.ok((await state()).audit.some(e => e.action === 'interview-reply' && e.answer === 'cannot-attend' && e.note === 'Fever, sorry!'))
   })
 
   await t.test('LDG-009 scorecards are independent until the manager releases feedback', async () => {

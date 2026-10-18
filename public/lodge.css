@@ -149,6 +149,7 @@ td form.compact{margin:0}
 .metrics article{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 12px;padding:16px 18px;background:var(--rer-surface);border:1px solid var(--line);border-radius:var(--radius-card);box-shadow:var(--shadow-card)}
 .metric-icon{display:grid;place-items:center;grid-row:span 2;width:40px;height:40px;border-radius:12px;background:var(--sky-tint);color:var(--rer-focus)}
 .metrics small{color:var(--rer-muted);font-size:13.5px;font-weight:500}
+.metric-note{grid-column:2;color:var(--rer-muted);font-size:12.5px}
 .metrics strong{font-family:var(--rer-font-heading);font-size:30px;font-weight:800;line-height:1}
 .pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;align-items:start}
 ol.steps{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px;counter-reset:step}
@@ -162,6 +163,20 @@ ol.steps li.done button.link{color:var(--rer-muted)}
 .list li > :is(a,button):first-child{flex:1;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px;padding:0;border:0;border-radius:0;background:none;color:var(--rer-text);font-weight:500;text-decoration:none;text-align:left}
 .list li > :is(a,button):first-child::after{content:"";flex:none;width:7px;height:7px;margin-right:4px;border-top:1.7px solid var(--soft);border-right:1.7px solid var(--soft);transform:rotate(45deg)}
 .list .meta{color:var(--rer-muted);font-weight:400}
+/* Rows with who, what and when: a person or icon, two lines, and a status at the end. */
+.list.rich li > :is(a,button):first-child{justify-content:flex-start}
+.list.rich li > :is(a,button):first-child > span:not(.avatar):not(.status){display:grid;flex:1;min-width:0}
+.list.rich small{color:var(--rer-muted);font-size:13px;font-weight:400}
+.list.rich svg{color:var(--rer-muted)}
+.page.wide{max-width:1240px}
+.pair > div{min-width:0}
+.pair > div > .card:first-child,.pair > .card{margin-top:14px}
+.approval-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-bottom:4px}
+.approval-head h2{margin:0}
+.stage-cell{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.split{font-variant-numeric:tabular-nums;white-space:nowrap}
+td .bar{min-width:120px}
+td > small{display:block}
 
 /* Records: a vacancy's terms and setup, an application's history. */
 .record-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:6px}
@@ -219,5 +234,7 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
  .table-scroll td[data-label=""]::before{content:none}
  .table-scroll td > *{justify-self:start}
  .table-scroll td > button{justify-self:stretch;width:100%}
+ .table-scroll td.note{grid-template-columns:1fr;gap:2px;overflow-wrap:break-word}
+ .table-scroll td.note:empty{display:none}
  .page > .empty{padding:48px 16px}
 }

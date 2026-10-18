@@ -20,11 +20,15 @@ html.rer-themed main.lodge-public > h1,html.rer-themed main.lodge-public > h1 + 
 }
 .lodge-public select:not([multiple],[size]:not([size="1"])):focus-visible { --rer-select-ink: var(--rer-text); }
 .lodge-public select:not([multiple],[size]:not([size="1"])):disabled { --rer-select-ink: color-mix(in srgb, var(--rer-muted) 55%, transparent); }
-<<<<<<< HEAD
-.lodge-public fieldset{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
-=======
-.lodge-public fieldset{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
->>>>>>> origin/main
+/* The quiet field everywhere: a hairline card round a question group, and a file field with a secondary button inside it. */
+.lodge-public fieldset{display:grid;gap:10px;margin:0;padding:14px 16px 16px;border:1px solid var(--line);border-radius:12px;background:var(--rer-surface)}
+/* A floated legend sits inside the card as its heading instead of breaking the border. */
+.lodge-public legend{float:left;width:100%;margin:0;padding:0;color:var(--rer-text);font-weight:600}
+.lodge-public fieldset p{margin:0;color:var(--rer-muted)}
+.lodge-public input[type=file]{box-sizing:border-box;width:100%;min-height:48px;padding:7px 8px;border:1px solid var(--rer-border);border-radius:8px;background:var(--rer-surface);color:var(--rer-muted);font:inherit;font-size:15px}
+.lodge-public input[type=file]::file-selector-button{margin-right:12px;min-height:32px;padding:5px 14px;border:1px solid var(--rer-border);border-radius:999px;background:var(--rer-surface);color:var(--rer-text);font:inherit;font-weight:500;cursor:pointer}
+.lodge-public input[type=file]::file-selector-button:hover{background:var(--row)}
+.lodge-public input[type=file]:focus-visible{outline:0;border-color:var(--rer-focus);box-shadow:0 0 0 3px var(--focus-ring)}
 .lodge-public details{margin:0}.lodge-public summary{cursor:pointer;font-weight:500}
 .lodge-public .roles{list-style:none;padding:0;display:grid;gap:0}
 .lodge-public .roles li{display:grid;gap:2px;padding:16px 0;border-top:1px solid var(--line)}

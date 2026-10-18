@@ -25,7 +25,7 @@ export function Retention({ w, mutate, reload, setNotice }: PageProps) {
       <Field label="Reason" name="reason" />
     </Form>
     <h2>Candidate requests</h2>
-    <Table heads={['Candidate', 'Type', 'Received', 'Status', '']} empty="No requests recorded.">{w.dataRequests.map((r: D) => <tr key={r.id}><td>{r.candidateName ?? 'deleted'}</td><td>{sentence(r.type)}</td><td>{day(r.receivedAt)}</td><td>{r.status === 'open' ? <Status tone="warn">open</Status> : <Status tone="good">complete</Status>}{r.outcome ? ` ${r.outcome}` : ''}</td>
+    <Table heads={['Candidate', 'Type', 'Received', 'Status', 'Note', '']} empty="No requests recorded.">{w.dataRequests.map((r: D) => <tr key={r.id}><td>{r.candidateName ?? 'deleted'}</td><td>{sentence(r.type)}</td><td>{day(r.receivedAt)}</td><td>{r.status === 'open' ? <Status tone="warn">open</Status> : <Status tone="good">complete</Status>}</td><td className="note">{r.outcome || r.note || ''}</td>
       <td>{r.status === 'open' && r.candidateName && ['access', 'export'].includes(r.type) && <a href={`/api/lodge/download/candidate/${r.candidate}?request=${r.id}`} onClick={() => setTimeout(reload, 800)}>Download their data and complete</a>}
         {r.status === 'open' && <Form label="Mark complete" compact onSubmit={x => mutate('complete-data-request', { id: r.id, outcome: x.outcome })}><Field label="What was done" name="outcome" /></Form>}</td></tr>)}</Table>
     <Form label="Record request" reset onSubmit={x => mutate('data-request', x)}>
