@@ -3,7 +3,23 @@ html.rer-themed main.lodge-public{max-width:720px}
 html.rer-themed main.lodge-public > h1,html.rer-themed main.lodge-public > h1 + p{text-align:left}
 .lodge-public .meta{color:var(--rer-muted)}
 .lodge-public textarea,.lodge-public select{box-sizing:border-box;width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--rer-border);border-radius:8px;background:var(--rer-surface);color:var(--rer-text);font:inherit}
-.lodge-public select{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23556170' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:12px 8px}
+/* every single-choice select; multiple and size>1 lists keep their native look (Base #247 foundation/runtime/select-style.ts) */
+.lodge-public select:not([multiple],[size]:not([size="1"])) {
+  --rer-select-ink: var(--rer-muted);
+  -webkit-appearance: none;
+  appearance: none;
+  padding-inline-end: 40px;
+  line-height: normal;
+  text-overflow: ellipsis;
+  background-image:
+    linear-gradient(to top right, transparent calc(50% - 1.1px), var(--rer-select-ink) calc(50% - .55px), var(--rer-select-ink) calc(50% + .55px), transparent calc(50% + 1.1px)),
+    linear-gradient(to top left, transparent calc(50% - 1.1px), var(--rer-select-ink) calc(50% - .55px), var(--rer-select-ink) calc(50% + .55px), transparent calc(50% + 1.1px));
+  background-repeat: no-repeat;
+  background-position: right 20px center, right 14px center;
+  background-size: 6px 6px;
+}
+.lodge-public select:not([multiple],[size]:not([size="1"])):focus-visible { --rer-select-ink: var(--rer-text); }
+.lodge-public select:not([multiple],[size]:not([size="1"])):disabled { --rer-select-ink: color-mix(in srgb, var(--rer-muted) 55%, transparent); }
 .lodge-public fieldset{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
 .lodge-public details{margin:0}.lodge-public summary{cursor:pointer;font-weight:500}
 .lodge-public .roles{list-style:none;padding:0;display:grid;gap:0}
