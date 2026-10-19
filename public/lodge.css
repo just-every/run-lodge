@@ -168,10 +168,11 @@ ol.steps li.done button.link{color:var(--rer-muted)}
 .list.rich li > :is(a,button):first-child > span:not(.avatar):not(.status){display:grid;flex:1;min-width:0}
 .list.rich small{color:var(--rer-muted);font-size:13px;font-weight:400}
 .list.rich svg{color:var(--rer-muted)}
-/* ATTR-005: an internal job’s apply button wraps under its title on a phone. */
+/* ATTR-005: an internal job’s apply button wraps under its title on a phone, and a long title wraps inside the button. */
 .list.internal-jobs li{flex-wrap:wrap}
 .list.internal-jobs li > span{display:grid;flex:1 1 220px;min-width:0}
-.list.internal-jobs li > form{flex:0 1 auto;max-width:100%}
+.list.internal-jobs li > form{flex:0 1 auto;min-width:0;max-width:100%}
+.list.internal-jobs .form-end button{white-space:normal;overflow-wrap:anywhere;text-align:center}
 .page.wide{max-width:1240px}
 .pair > div{min-width:0}
 .pair > div > .card:first-child,.pair > .card{margin-top:14px}
