@@ -1,4 +1,4 @@
-import { DocumentViewer } from './document-viewer'
+import { DocumentViewer, applicationDocuments } from './document-viewer'
 import type { PageProps } from './app'
 import { recent, when } from './format'
 import { count, person } from './names'
@@ -18,14 +18,15 @@ export function ReviewQueue({ v, w, mutate, open }: { v: D; open: (id: string) =
   const app = w.applications.find((a: D) => a.id === q.queue[0])
   if (!app) return null
   const next = v.stages[1]
-  const resumes = w.documents.filter((d: D) => (d.application === app.id || (d.candidate === app.candidate && !d.application)) && d.kind === 'resume')
+  const documents = applicationDocuments(app, w)
+  const resumes = documents.filter((d: D) => d.kind === 'resume')
   const reviews = q.reviews.filter((r: D) => r.application === app.id)
   return <section className="card review-queue" aria-label="Review queue">
     <h3>Review queue <Status>{count(q.remaining, 'application')} to review</Status></h3>
     <h4><button className="link" onClick={() => open(app.id)}>{app.candidateName}</button></h4>
     <p className="meta">{[app.source, `received ${when(app.submittedAt) || app.submittedAt}`].filter(Boolean).join(' · ')}</p>
     {resumes.length > 0 ? <p>Resume: {resumes.map((d: D) => <a key={d.id} href={`/api/lodge/download/document/${d.id}`}>{d.name}</a>)}</p> : <p className="hint">No resume on file.</p>}
-    <DocumentViewer documents={resumes} />
+    <DocumentViewer documents={documents} />
     <Answers app={app} />
     {reviews.length > 0 && <ul className="plain">{reviews.map((r: D) => <li key={r.id}>{person(w, r.by)} {said(r)} · {recent(r.at)}</li>)}</ul>}
     {q.manages ? <div className="actions">

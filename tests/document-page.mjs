@@ -48,11 +48,19 @@ export async function documentsPage(browser, { root, origin, run, evidence, owne
    // The same document is readable from the REVIEW-001 queue.
    await page.goto(origin + '/app?job=' + job.id)
    const queue = page.getByRole('region', { name: 'Review queue' })
-   for (const doc of documents.slice(0, 2)) {
+   for (const doc of documents) {
     await queue.getByLabel('Read a document').selectOption(doc.id)
-    await queue.getByLabel('Search in document').fill('forklift')
-    await queue.locator('mark').waitFor()
+    if (doc.mediaType.startsWith('image/')) {
+     await queue.getByRole('img').waitFor()
+     assert.ok(await queue.getByRole('img').evaluate(img => img.complete && img.naturalWidth > 0))
+    } else {
+     await queue.getByLabel('Search in document').fill('forklift')
+     await queue.locator('mark').first().waitFor()
+    }
    }
+   await queue.getByLabel('Read a document').selectOption(documents[1].id)
+   await queue.getByLabel('Search in document').fill('forklift')
+   await queue.locator('mark').waitFor()
    await page.screenshot({ path: join(evidence, `DATA-006-queue-${width}.png`), fullPage: true })
    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'queue reader fits viewport')
    await s.context.setOffline(true)
