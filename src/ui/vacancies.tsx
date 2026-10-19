@@ -11,6 +11,7 @@ import { JobQuestions } from './questions'
 import { Rules } from './rules'
 import { departmentOptions, officeOptions } from './org'
 import { Team } from './team'
+import { JobCopies, Templates } from './templates'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -25,9 +26,10 @@ function Terms({ v, w, mutate, onSaved }: { v?: D; w: D; mutate: PageProps['muta
   const c = v?.compensation
   return <Form label={v ? 'Save terms' : 'Create vacancy'} onSubmit={async x => {
     const compensation = x.min || x.max ? { currency: x.currency.toUpperCase(), min: cents(x.min), max: cents(x.max), period: x.period } : null
-    const saved = await mutate('vacancy', { id: v?.id, title: x.title, department: x.department, departmentId: x.departmentId || undefined, officeId: x.officeId || undefined, location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation })
+    const saved = await mutate(x.template ? 'vacancy-from-template' : 'vacancy', { id: v?.id, template: x.template || undefined, title: x.title, department: x.department, departmentId: x.departmentId || undefined, officeId: x.officeId || undefined, location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation })
     onSaved?.(saved.id)
   }}>
+    {!v && w.jobTemplates?.length ? <Field label="Start from template" name="template" required={false} defaultValue="" options={w.jobTemplates.map((t: D) => ({ value: t.id, label: t.name }))} /> : null}
     <Field label="Job title" name="title" defaultValue={v?.title} />
     {w.departments?.length ? <Field label="Managed department" name="departmentId" required={false} defaultValue={v?.departmentId ?? ''} options={departmentOptions(w)} /> : null}
     <Field label="Department" name="department" required={false} defaultValue={v?.department} hint={w.departments?.length ? 'Filled from the managed department when one is chosen' : undefined} />
@@ -72,7 +74,7 @@ function Setup({ v, w, mutate }: { v: D; w: D; mutate: PageProps['mutate'] }) {
   </div>
 }
 
-function Detail({ v, w, mutate, go }: { v: D } & Pick<PageProps, 'w' | 'mutate' | 'go'>) {
+function Detail({ v, w, mutate, go, select }: { v: D; select: (id: string) => void } & Pick<PageProps, 'w' | 'mutate' | 'go'>) {
   const apps = w.applications.filter((a: D) => a.vacancy === v.id)
   return <section className="record card" aria-label={v.title}>
     <header className="record-head"><h2>{v.title}</h2><VacancyStatus v={v} />{apps.length > 0 && <button className="secondary" onClick={() => go('Applications', { job: v.id, app: null })}><Icon name="applications" size={18} />Open pipeline</button>}</header>
@@ -102,6 +104,7 @@ function Detail({ v, w, mutate, go }: { v: D } & Pick<PageProps, 'w' | 'mutate' 
         <Field label="Neutral title for the careers page (blank keeps it off)" name="publicTitle" required={false} defaultValue={v.publicTitle} />
       </Form></details>}
     {v.status !== 'closed' && !v.imported && <Form label="Close vacancy" compact onSubmit={x => mutate('close-vacancy', { id: v.id, reason: x.reason })}><Field label="Reason for closing" name="reason" /></Form>}
+    {!v.imported && v.manages && <JobCopies v={v} w={w} mutate={mutate} select={select} />}
     <p><a href={`/api/lodge/download/vacancy/${v.id}`}>Export this vacancy’s whole history (JSON)</a></p>
   </section>
 }
@@ -113,7 +116,7 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
   return <div className="page">
     <h1>Vacancies</h1>
     {nav.vacancy === 'new' && <section className="card"><h2>Terms of the new vacancy</h2><p className="hint">An approver sees these terms with the stages, rubric and interview plan as one set; changing any of them later needs a new approval.</p><Terms w={w} mutate={mutate} onSaved={select} /></section>}
-    {v && <Detail v={v} w={w} mutate={mutate} go={go} />}
+    {v && <Detail v={v} w={w} mutate={mutate} go={go} select={select} />}
     {!mine.length && nav.vacancy !== 'new' ? <Empty icon="vacancies" title="No vacancies yet.">Use New vacancy to write the first one: its pay range, headcount and the description applicants will read.</Empty>
       : <Table heads={['Title', 'Status', 'Pay', 'By stage', 'Applications', '']}>{mine.map((x: D) => {
         const apps = w.applications.filter((a: D) => a.vacancy === x.id), stages = columns(x, apps).filter(c => c.id !== 'closed')
@@ -122,6 +125,7 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
           <td>{apps.length ? <span className="split" title={stages.map(c => `${c.name} ${c.apps.length}`).join(', ')}>{stages.map(c => c.apps.length).join(' · ')}</span> : <small>{x.status === 'open' ? 'None yet' : '—'}</small>}</td>
           <td>{apps.length}{apps.some((a: D) => a.status !== 'active') && <small>{apps.filter((a: D) => a.status !== 'active').length} closed</small>}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>
       })}</Table>}
+    <Templates w={w} mutate={mutate} />
     <Kickoffs w={w} mutate={mutate} select={select} />
   </div>
 }

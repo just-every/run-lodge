@@ -132,6 +132,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     tasks,
     // SCREEN-001: the question library, for admins who keep it and managers who attach it.
     questions: library(s, a),
+    // REQ-002: job templates, for the admins who keep them and the managers who start jobs from them.
+    jobTemplates: admin || a.roles.includes('manager') ? s.all('job-template').sort((x, y) => x.name.localeCompare(y.name)) : [],
     // REQ-004: the department hierarchy and office list, which every member may read.
     departments: s.all('department'), offices: s.all('office'),
     // SCREEN-002: rules and the rule-matches queue, for the people who run the job.

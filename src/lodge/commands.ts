@@ -16,6 +16,7 @@ import { message, requestMessageApproval } from './records/messages'
 import { teamNote } from './records/notes'
 import { completeTask, task } from './records/tasks'
 import { team } from './records/team'
+import { cloneVacancy, jobTemplate, vacancyFromTemplate } from './records/templates'
 import { kickoff, vacancyFromKickoff } from './records/kickoffs'
 import { offer, outcome, requestOfferApproval } from './records/offers'
 import { completeRequest, dataRequest, extendRetention, hold, releaseHold } from './records/retention'
@@ -32,6 +33,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
 export const commands: Record<string, Command> = {
   business, member,
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy, 'hiring-team': team,
+  'job-template': jobTemplate, 'vacancy-from-template': vacancyFromTemplate, 'clone-vacancy': cloneVacancy,
   'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening, question, 'job-questions': jobQuestions,
   department, office, 'delete-org': deleteOrg, 'member-org': memberOrg,
   'screening-rule': screeningRule, 'approve-auto-reject': approveAutoReject, 'preview-rule': previewRule, 'apply-rule': applyRule, 'decide-rule-matches': decideRuleMatches,

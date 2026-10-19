@@ -44,7 +44,10 @@ an interview's scorecard rates only its plan item's criteria), `vacancy-privacy`
 `namedPeople`, and a job's neutral `publicTitle` for the careers page; only the named, the job's
 hiring team, the owner and members the owner gave `seePrivate` see them), `hiring-team` (admins: a
 live job's `recruiters`, `coordinators`, `hiringManagers`, `sourcers` and `interviewers` as email
-lists; see REQ-003), `vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
+lists; see REQ-003), `job-template` (admins: `name` with `fromVacancy` and/or `stages`, `criteria`,
+`team`; send its `id` to edit, a rubric change being its next version), `vacancy-from-template` (a
+`template` plus the new job's terms), `clone-vacancy` (a job's `id`, optional `title`, `location`,
+`officeId`, `departmentId`; never candidates, approvals or openings), `vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
 `request-vacancy-approval`, `publish`, `unpublish`, `close-vacancy`,
 `decide-approval` (send the `version` you reviewed), `candidate`,
 `correct-candidate`, `apply`, `review-duplicate`, `document`,

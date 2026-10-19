@@ -1085,6 +1085,49 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.ok(!(await state(neve)).vacancies.some(x => x.id === yard.id))
   })
 
+  await t.test('REQ-002 job templates and clones: jobs keep what they copied; a clone carries no candidates, approvals or openings and needs its own approval', async () => {
+    const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
+    const authorized = q('Are you legally authorized to work in the US?')
+    // A job set up the long way: stages, rubric, an interview with its kit, a screening question and a rule.
+    const base = await cmd('vacancy', { title: 'Associate (setup)', location: 'Newark, NJ', headcount: 1, manager: 'morgan@example.test', compensation: RANGE })
+    await cmd('rubric', { id: base.id, criteria: RUBRIC })
+    await cmd('interview-plan', { id: base.id, plan: [{ name: 'Floor walk', stageName: 'Interview', durationMinutes: 30, purpose: 'See how they move a pallet safely', questions: [{ text: 'Walk me through a near miss', guidance: 'Listens for reporting it' }] }] })
+    await cmd('job-questions', { id: base.id, questions: [{ question: authorized, required: true }] }, manager)
+    await cmd('screening-rule', { vacancy: base.id, name: 'Work authorization', question: authorized, when: { equals: 'no' }, then: { kind: 'propose-reject', reason: 'Not authorized to work in the US' } })
+    assert.equal((await send('/api/lodge/command/job-template', { name: 'Warehouse Associate', fromVacancy: base.id }, manager)).status, 403, 'admins keep templates')
+    const tpl = await cmd('job-template', { name: 'Warehouse Associate', fromVacancy: base.id, team: { coordinators: ['cleo@example.test'] } })
+    assert.equal((await send('/api/lodge/command/job-template', { name: 'warehouse associate', fromVacancy: base.id }, owner)).status, 409, 'template names are unique')
+    assert.deepEqual([tpl.plan[0].purpose, tpl.plan[0].questions[0].text, tpl.questions.map(x => x.question), tpl.rules.map(r => r.name), tpl.team.coordinators], ['See how they move a pallet safely', 'Walk me through a near miss', [authorized], ['Work authorization'], ['cleo@example.test']])
+
+    // Two location jobs from the template, each copying its stages, rubric, plan and kits, questions, rule and team.
+    const denver = await cmd('vacancy-from-template', { template: tpl.id, title: 'Warehouse Associate', location: 'Denver, CO', headcount: 1, manager: 'morgan@example.test', compensation: RANGE }, manager)
+    const austin = await cmd('vacancy-from-template', { template: tpl.id, title: 'Warehouse Associate', location: 'Austin, TX', headcount: 1, manager: 'morgan@example.test', compensation: RANGE })
+    const setup = async id => {
+      const w = await state(), v = w.vacancies.find(x => x.id === id)
+      return { stages: v.stages.map(x => x.name), rubric: v.rubrics.map(r => [r.version, r.criteria.map(c => c.name)]), kit: v.plan.map(p => [p.name, p.purpose, p.questions.length]), questions: v.questions.map(x => x.question), team: v.team.coordinators, rules: w.screeningRules.filter(r => r.vacancy === id).map(r => [r.name, r.versions.length, r.auto]), approval: v.approval, openings: (v.openings ?? []).length, applications: w.applications.filter(x => x.vacancy === id).length }
+    }
+    const copied = { stages: ['Applied', 'Screen', 'Interview', 'Decision'], rubric: [[1, ['Site safety', 'Scheduling']]], kit: [['Floor walk', 'See how they move a pallet safely', 1]], questions: [authorized], team: ['cleo@example.test'], rules: [['Work authorization', 1, null]], approval: null, openings: 0, applications: 0 }
+    assert.deepEqual(await setup(denver.id), copied)
+    assert.deepEqual(await setup(austin.id), copied)
+    // Changing the template's rubric is its next version; both jobs keep theirs.
+    const edited = await cmd('job-template', { id: tpl.id, criteria: [{ name: 'Forklift', description: 'Holds a current forklift certificate' }] })
+    assert.deepEqual(edited.rubrics.map(r => [r.version, r.criteria.map(c => c.name)]), [[1, ['Site safety', 'Scheduling']], [2, ['Forklift']]])
+    for (const id of [denver.id, austin.id]) assert.deepEqual((await setup(id)).rubric, [[1, ['Site safety', 'Scheduling']]])
+
+    // Denver is approved, opens, takes a candidate and fills nothing yet; its clone carries none of that and needs its own approval.
+    await approve((await cmd('request-vacancy-approval', { id: denver.id, approver: 'parker@example.test' }, manager)).id)
+    await cmd('publish', { id: denver.id }, manager)
+    await cmd('candidate', { name: 'Gia Pallets', email: 'gia@example.test', source: 'Referral', consentBasis: 'referral', vacancy: denver.id }, manager)
+    const clone = await cmd('clone-vacancy', { id: denver.id, title: 'Warehouse Associate (Aurora)', location: 'Aurora, CO' }, manager)
+    assert.deepEqual([clone.status, clone.clonedFrom, clone.title, clone.location, clone.compensation, clone.kickoff ?? null], ['draft', denver.id, 'Warehouse Associate (Aurora)', 'Aurora, CO', RANGE, null])
+    assert.deepEqual(await setup(clone.id), copied)
+    assert.equal((await send('/api/lodge/command/publish', { id: clone.id }, manager)).status, 409, 'the clone needs its own approval')
+    const denverNow = await setup(denver.id)
+    assert.deepEqual([denverNow.applications, denverNow.openings, denverNow.approval.status], [1, 1, 'approved'], 'the source keeps its candidate, opening and approval')
+    await approve((await cmd('request-vacancy-approval', { id: clone.id, approver: 'parker@example.test' }, manager)).id)
+    assert.equal((await cmd('publish', { id: clone.id }, manager)).status, 'open')
+  })
+
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {
     assert.equal((await send('/api/lodge/state')).status, 401)
     assert.equal((await send('/api/lodge/state', undefined, owner, { 'sec-fetch-site': 'cross-site' })).status, 403)

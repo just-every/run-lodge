@@ -19,6 +19,13 @@ function eligible(s: State, role: TeamRole, address: string) {
   return m.email as string
 }
 
+/** A team by role, each person checked as eligible today; the job's own hiring manager is not listed again. */
+export function validTeam(s: State, b: Data, manager: string) {
+  const next = Object.fromEntries(TEAM_ROLES.map(r => [r, [...new Set(list(b[r] ?? [], LABELS[r] + 's', 20, x => eligible(s, r, email(x, LABELS[r]))))]])) as Record<TeamRole, string[]>
+  next.hiringManagers = next.hiringManagers.filter(x => x !== manager)
+  return next
+}
+
 /**
  * Set the whole team of one job. Someone taken off the team loses access at
  * once, and their open follow-ups and tasks on the job's applications go to
@@ -31,8 +38,7 @@ export function team(s: State, a: Actor, b: Data) {
   requireManages(a, v)
   requireThat(!v.imported && v.status !== 'closed', 'Set the hiring team of a live job', 409)
   const before = Object.fromEntries(TEAM_ROLES.map(r => [r, teamOf(v, r)])) as Record<TeamRole, string[]>
-  const next = Object.fromEntries(TEAM_ROLES.map(r => [r, [...new Set(list(b[r] ?? [], LABELS[r] + 's', 20, x => eligible(s, r, email(x, LABELS[r]))))]])) as Record<TeamRole, string[]>
-  next.hiringManagers = next.hiringManagers.filter(x => x !== v.manager)
+  const next = validTeam(s, b, v.manager)
   const record = s.put('vacancy', v.id, { ...v, team: next })
   s.audit(a, 'hiring-team', 'vacancy:' + v.id, { team: next })
 

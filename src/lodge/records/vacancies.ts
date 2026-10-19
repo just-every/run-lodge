@@ -71,11 +71,24 @@ export function vacancy(s: State, a: Actor, b: Data) {
   return record
 }
 
-export function stages(s: State, a: Actor, b: Data) {
-  const v = editable(s, a, b.id)
-  const next = list(b.stages, 'Stages', 12, (x: any) => ({ id: typeof x?.id === 'string' && x.id ? x.id : shortId(), name: text(x?.name, 'Stage name', 80) }))
+/** A job's or template's stages, in order: at least two, ids unique. */
+export function stageList(value: unknown) {
+  const next = list(value, 'Stages', 12, (x: any) => ({ id: typeof x?.id === 'string' && x.id ? x.id : shortId(), name: text(x?.name, 'Stage name', 80) }))
   requireThat(next.length >= 2, 'Keep at least two stages')
   requireThat(new Set(next.map(x => x.id)).size === next.length, 'Stage ids must be unique')
+  return next
+}
+
+/** A rubric's job-related criteria, at least one. */
+export function criteriaList(value: unknown) {
+  const criteria = list(value, 'Criteria', 20, (x: any) => ({ id: typeof x?.id === 'string' && x.id ? x.id : shortId(), name: text(x?.name, 'Criterion', 120), description: text(x?.description, 'What job-related evidence this criterion looks for', 1000) }))
+  requireThat(criteria.length > 0, 'Add at least one criterion')
+  return criteria
+}
+
+export function stages(s: State, a: Actor, b: Data) {
+  const v = editable(s, a, b.id)
+  const next = stageList(b.stages)
   for (const app of s.all('application').filter(x => x.vacancy === v.id)) requireThat(next.some(x => x.id === app.stage), `Stage of ${app.id} is in use; move its applications first`, 409)
   const record = s.put('vacancy', v.id, { ...v, stages: next, plan: v.plan.filter((p: Data) => next.some(x => x.id === p.stage)) })
   s.audit(a, 'stages-defined', 'vacancy:' + v.id, { stages: next.map(x => x.name) })
@@ -85,8 +98,7 @@ export function stages(s: State, a: Actor, b: Data) {
 /** Each rubric change is a new version; scorecards keep the version they were written against. */
 export function rubric(s: State, a: Actor, b: Data) {
   const v = editable(s, a, b.id)
-  const criteria = list(b.criteria, 'Criteria', 20, (x: any) => ({ id: typeof x?.id === 'string' && x.id ? x.id : shortId(), name: text(x?.name, 'Criterion', 120), description: text(x?.description, 'What job-related evidence this criterion looks for', 1000) }))
-  requireThat(criteria.length > 0, 'Add at least one criterion')
+  const criteria = criteriaList(b.criteria)
   const version = (v.rubrics.at(-1)?.version ?? 0) + 1
   const record = s.put('vacancy', v.id, { ...v, rubrics: [...v.rubrics, { version, criteria, by: a.email, at: now() }] })
   s.audit(a, 'rubric-version', 'vacancy:' + v.id, { version })
