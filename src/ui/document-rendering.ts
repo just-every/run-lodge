@@ -1,4 +1,4 @@
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url'
 
 export interface ReadingPage { text: string; image?: string; html?: string }
 export interface Reading { pages: ReadingPage[]; dispose: () => void }
@@ -44,7 +44,7 @@ export function markHtml(html: string, term: string) {
 /** Genuine local decoding; unsupported/corrupt files report the failure and keep the original download. */
 export async function readDocument(bytes: ArrayBuffer, name: string, mediaType: string): Promise<Reading> {
   if (mediaType === 'application/pdf' || /\.pdf$/i.test(name)) {
-    const pdf = await import('pdfjs-dist')
+    const pdf = await import('pdfjs-dist/legacy/build/pdf.mjs')
     pdf.GlobalWorkerOptions.workerSrc = workerUrl
     const task = pdf.getDocument({ data: bytes, useSystemFonts: true, stopAtErrors: true })
     try {
