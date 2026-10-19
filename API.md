@@ -187,6 +187,111 @@ statements }` (checked the same way) and `decide-debrief { id, decision:
 "keep" | "discard" }`; discarding deletes it. A brief never moves the
 candidate.
 
+## Public job board (ATTR-009, version 1)
+
+The board your own careers page reads. It needs no session, and a session
+cookie or INT-001 credential is never needed or used; a board key is refused
+by every `/api/lodge` route. An admin names the board token, lists the
+websites that may submit from a browser, and creates, rotates and revokes
+submit-only board keys under People → Public job board (commands
+`job-board { token, allowedOrigins }`, `board-key { label }`,
+`rotate-board-key { id }`, `revoke-board-key { id }`; a key's value is in the
+create or rotate answer only and is stored as SHA-256). Until a token is set
+every board route answers 404. [docs/careers-page-example.html](docs/careers-page-example.html)
+is a complete static careers page built on it.
+
+Reads answer any origin (`access-control-allow-origin: *`), with
+`cache-control: public, max-age=60` and an `ETag` (`If-None-Match` gets 304).
+They contain only published jobs that are not confidential (OPS-005), even
+under a neutral title, and only the fields below.
+
+- `GET /api/board/v1/{token}/jobs[?content=true]` →
+  `{ jobs: Job[], meta: { total } }`; `content=true` adds each description.
+- `GET /api/board/v1/{token}/jobs/{id}` → `JobDetail` (404 for a job not on
+  the board).
+- `GET /api/board/v1/{token}/departments` → `{ departments: [{ id, name,
+  parentId, path, jobs }] }`: the departments listed jobs use, with their
+  parents; `jobs` counts listed jobs in the department and every department
+  below it.
+- `GET /api/board/v1/{token}/offices` → `{ offices: [{ id, name, jobs }] }`:
+  offices of listed jobs and of their open openings.
+- `POST /api/board/v1/{token}/jobs/{id}/applications` → `201 { receipt,
+  submittedAt, noticeVersion, accommodationContact }`. Send
+  `Authorization: Bearer <board key>` from a server, or call it from a browser
+  on an allowed origin (CORS answers that origin only; preflight allows
+  `content-type` and `idempotency-key`). An `Idempotency-Key` header repeated by
+  the same key or origin within 24 hours returns the first receipt with
+  `replayed: true` and changes nothing.
+
+```json
+{
+  "$id": "Job",
+  "type": "object",
+  "required": ["id", "title", "departments", "offices", "employmentType", "workMode", "remote", "pay", "publishedAt", "updatedAt", "url"],
+  "properties": {
+    "id": { "type": "string" }, "title": { "type": "string" },
+    "departments": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "parentId": { "type": ["string", "null"] } } }, "description": "The job's department with its parents, top first" },
+    "department": { "type": ["string", "null"], "description": "Path such as \"Operations › Warehouse\"" },
+    "offices": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" } } } },
+    "location": { "type": ["string", "null"] },
+    "employmentType": { "enum": ["full-time", "part-time", "contract", "temporary"] },
+    "workMode": { "enum": ["onsite", "hybrid", "remote"] }, "remote": { "type": "boolean" },
+    "pay": { "type": "array", "items": { "type": "object", "properties": { "location": { "type": ["string", "null"] }, "currency": { "const": "USD" }, "min": { "type": "integer" }, "max": { "type": "integer" }, "period": { "enum": ["year", "month", "hour"] }, "minorUnits": { "const": 2 } } }, "description": "Approved good-faith range per location, in cents" },
+    "payTransparency": { "type": ["string", "null"], "description": "The pay line the hosted job page shows" },
+    "publishedAt": { "type": "string", "format": "date-time" }, "updatedAt": { "type": "string", "format": "date-time" },
+    "url": { "type": "string", "format": "uri", "description": "The hosted job page" },
+    "content": { "type": "string", "description": "With content=true, and always on the detail" }
+  }
+}
+```
+
+```json
+{
+  "$id": "JobDetail",
+  "allOf": [{ "$ref": "Job" }],
+  "properties": {
+    "applyUrl": { "type": "string", "format": "uri" },
+    "fields": { "type": "array", "items": { "type": "object", "properties": { "name": { "enum": ["name", "email", "phone", "location", "resume", "coverNote", "accommodation", "talentPool"] }, "label": { "type": "string" }, "type": { "type": "string" }, "required": { "type": "boolean" }, "maxBytes": { "type": "integer" }, "fileTypes": { "type": "array", "items": { "type": "string" } } } } },
+    "questions": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "text": { "type": "string" }, "type": { "enum": ["yes-no", "single-choice", "multiple-choice", "number", "date", "file", "short-text", "long-text"] }, "required": { "type": "boolean" }, "options": { "type": "array", "items": { "type": "string" } }, "help": { "type": ["string", "null"] } } } },
+    "voluntaryQuestions": { "type": "array", "description": "The voluntary equal-opportunity set; answers are restricted and never reach assessors" },
+    "privacyNotice": { "type": "object", "properties": { "version": { "type": "integer" }, "text": { "type": "string" } } },
+    "accommodationContact": { "type": "string" }
+  }
+}
+```
+
+```json
+{
+  "$id": "ApplicationSubmission",
+  "type": "object",
+  "required": ["name", "email", "noticeVersion", "consent"],
+  "properties": {
+    "name": { "type": "string", "maxLength": 160 }, "email": { "type": "string", "format": "email" },
+    "phone": { "type": "string" }, "location": { "type": "string" }, "coverNote": { "type": "string", "maxLength": 8000 },
+    "noticeVersion": { "type": "integer", "description": "The privacy notice version the applicant was shown; a stale one is refused" },
+    "consent": { "const": true }, "talentPool": { "type": "boolean" }, "accommodation": { "type": "string" }, "monitoring": { "type": "string" },
+    "resume": { "type": "object", "properties": { "name": { "type": "string" }, "mediaType": { "type": "string" }, "base64": { "type": "string" } }, "description": "pdf, doc, docx, txt, rtf or odt, at most 1 MB" },
+    "answers": { "type": "object", "additionalProperties": true, "description": "By question id: \"yes\"/\"no\", a choice, a list of choices, a number or date as text, text, or a file object" },
+    "source": { "type": "string", "description": "Defaults to \"Careers page (API)\"" },
+    "campaign": { "type": "object", "properties": { "utm_source": {}, "utm_medium": {}, "utm_campaign": {}, "utm_term": {}, "utm_content": {} } },
+    "website": { "type": "string", "description": "Leave empty (spam check)" }
+  }
+}
+```
+
+Errors are JSON `{ error, field }`, `field` naming what to fix: `name`,
+`email`, `noticeVersion` (409), `consent`, `resume` (413 when too large),
+`answers.<question id>`, `campaign`, `website`, `authorization` (401 for a
+missing, unknown or revoked key, 403 for a website not on the list) or `rate`
+(429). Spam checks: at most ten attempts per client IP per clock hour (UTC),
+kept only as a keyed digest deleted after the hour; a filled `website` field
+is refused; and DATA-004 likely-spam flags as on the hosted page. One email
+applies to a job once: a repeat submission to the same job while that
+application is active adds nothing but its own receipt, recorded on the
+earlier application. Every application records its source (default
+"Careers page (API)", an automatic CRM-008 careers-site entry) and campaign,
+and the job's SCREEN-002 rules run on its answers.
+
 ## Moving in
 
 `POST /api/lodge/import/preview { filename, base64 }`, then

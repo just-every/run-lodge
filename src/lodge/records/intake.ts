@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { email, now, optionalText, requireThat, sha256, canonical, text, uid, type Data } from '../core/types'
+import { Fault, about, email, now, optionalText, requireThat, sha256, canonical, text, uid, type Data } from '../core/types'
 import { candidateFields, retentionUntil, startApplication } from './candidates'
 import { storeDocument } from './documents'
 import { answers, type Answer } from './questions'
@@ -12,6 +12,14 @@ import { ensureSource } from './sources'
 // restricted records that reviewers, search and agent context never see.
 
 export const MONITORING_OPTIONS = ['Prefer not to say', 'Woman', 'Man', 'Non-binary', 'Another description']
+
+/**
+ * The door an application came through: the source it records, the intake path
+ * SCREEN-002 rules name, the CRM-008 entry the door keeps, and for the board API
+ * (ATTR-009) its campaign and the rule that one email applies to a job once.
+ */
+export interface Door { source: string; path: string; entry: string; campaign?: Data; oncePerJob?: boolean }
+export const APPLICATION_PAGE: Door = { source: 'Application page', path: 'Careers page', entry: 'Application page' }
 
 export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
 
@@ -44,35 +52,41 @@ function likelySpamReasons(s: State, vacancy: Data, address: string, fingerprint
   return [...reasons]
 }
 
-export async function submit(s: State, vacancy: Data, input: Submission) {
+export async function submit(s: State, vacancy: Data, input: Submission, door: Door = APPLICATION_PAGE) {
   const business = s.get('business', 'main')
   const notice = business.notices.at(-1)
   // The applicant must have been shown the current notice; a stale page is refused, not silently upgraded.
-  requireThat(String(input.noticeVersion) === String(notice.version), 'The privacy notice changed while this page was open; reload the page and review it again', 409)
-  requireThat(input.consent === 'yes', 'Confirm you have read the privacy notice')
-  const fields = candidateFields({ name: input.name, email: email(input.email, 'Email'), phone: input.phone, location: input.location })
+  about('noticeVersion', () => requireThat(String(input.noticeVersion) === String(notice.version), 'The privacy notice changed while this page was open; reload the page and review it again', 409))
+  about('consent', () => requireThat(input.consent === 'yes', 'Confirm you have read the privacy notice'))
+  const address = about('email', () => email(input.email, 'Email'))
+  const fields = candidateFields({ name: about('name', () => text(input.name, 'Full name', 160)), email: address, phone: about('phone', () => optionalText(input.phone, 'Phone', 40)), location: about('location', () => optionalText(input.location, 'Location', 160)) })
   // SCREEN-001: each answer keeps the question version the applicant was shown.
   const answered = answers(s, vacancy, input.answers ?? {})
   const talentPool = input.talentPool === 'yes'
-  ensureSource(s, 'Application page', 'careers-site')
+  ensureSource(s, door.entry, 'careers-site')
+  // ATTR-009: one email applies to a job once through the board API. A repeat adds
+  // no application; it gets its own receipt and is recorded on the earlier one, so
+  // the answer never tells a caller whether that email applied before.
+  const earlier = door.oncePerJob && s.scan('application').find(x => x.vacancy === vacancy.id && x.status === 'active' && s.find('candidate', x.candidate)?.email === address)
+  if (earlier) return { receipt: await repeat(s, vacancy, earlier, door, notice.version), accommodationContact: business.accommodationContact }
   const candidate = s.put('candidate', uid(), {
-    ...fields, source: 'Application page', createdAt: now(), retainUntil: retentionUntil(s),
+    ...fields, source: door.source, createdAt: now(), retainUntil: retentionUntil(s),
     consent: { basis: 'application', noticeVersion: notice.version, talentPool, at: now(), recordedBy: 'applicant' },
   })
   const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
   const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
-  const application = startApplication(s, null, candidate, vacancy, 'Application page', { coverNote, fingerprint, ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
-  if (input.resume) await storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume.name, mediaType: input.resume.mediaType, base64: input.resume.base64, kind: 'resume', source: 'Application page' })
+  const application = startApplication(s, null, candidate, vacancy, door.source, { coverNote, fingerprint, ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
+  if (input.resume) await stored('resume', () => storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume!.name, mediaType: input.resume!.mediaType, base64: input.resume!.base64, kind: 'resume', source: door.source }))
   if (answered.length) {
     for (const x of answered) if (x.type === 'file') {
       const file = x.value as { name: string; mediaType: string; base64: string }
-      const doc = await storeDocument(s, { candidate: candidate.id, application: application.id, name: file.name, mediaType: file.mediaType, base64: file.base64, kind: 'other', source: 'Application page: ' + x.text })
+      const doc = await stored('answers.' + x.question, () => storeDocument(s, { candidate: candidate.id, application: application.id, name: file.name, mediaType: file.mediaType, base64: file.base64, kind: 'other', source: door.source + ': ' + x.text }))
       x.value = { document: doc.id, name: doc.name }
     }
     s.put('application', application.id, { ...s.get('application', application.id), answers: answered })
     // SCREEN-002: the job's rules run on the objective answers, as on every intake path.
-    evaluate(s, s.get('application', application.id), 'Careers page')
+    evaluate(s, s.get('application', application.id), door.path)
   }
   const accommodation = optionalText(input.accommodation, 'Accommodation request', 4000)
   const monitoring = typeof input.monitoring === 'string' && MONITORING_OPTIONS.includes(input.monitoring) && input.monitoring !== 'Prefer not to say' ? input.monitoring : ''
@@ -85,6 +99,19 @@ export async function submit(s: State, vacancy: Data, input: Submission) {
   })
   s.audit(null, 'application-received', 'application:' + application.id, { receipt: code })
   return { receipt, accommodationContact: business.accommodationContact }
+}
+
+async function stored<T>(field: string, store: () => Promise<T>) {
+  try { return await store() } catch (e) { if (e instanceof Fault) e.field ??= field; throw e }
+}
+
+async function repeat(s: State, vacancy: Data, earlier: Data, door: Door, noticeVersion: unknown) {
+  const code = 'LDG-' + uid().slice(0, 8).toUpperCase()
+  const at = now()
+  s.put('application', earlier.id, { ...s.get('application', earlier.id), repeatSubmissions: [...(earlier.repeatSubmissions ?? []), { at, receipt: code, door: door.source }] })
+  const receipt = s.put('receipt', code, { application: earlier.id, vacancy: vacancy.id, vacancyTitle: publicPosting(vacancy)!.title, noticeVersion, submittedAt: at, repeat: true })
+  s.audit(null, 'application-repeat', 'application:' + earlier.id, { receipt: code })
+  return receipt
 }
 
 export function interviewByToken(s: State, token: string) {

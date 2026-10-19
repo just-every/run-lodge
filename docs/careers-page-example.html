@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Careers</title>
+<!--
+  An example careers page for your own website (Webflow, WordPress, Squarespace
+  or hand-built), reading Lodge's public job board (API.md, "Public job board").
+  Set LODGE to your Lodge address and BOARD to the board token from People →
+  Public job board, and add this site's origin to "Websites that may submit
+  applications". ?lodge= and ?board= on the page address override both, and
+  utm_* parameters on it travel with each application as its campaign.
+-->
+<style>
+  :root { color-scheme: light; --ink: #1d232b; --muted: #5b6573; --line: #d9dee5; --accent: #2f5d50; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 system-ui, sans-serif; color: var(--ink); background: #fbfaf7; }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 2rem; margin: 0 0 8px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 24px; }
+  label { display: grid; gap: 4px; font-weight: 600; font-size: .95rem; }
+  select, input, textarea { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; width: 100%; max-width: 100%; }
+  ul.jobs { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  ul.jobs li { border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 16px; }
+  ul.jobs h2 { font-size: 1.15rem; margin: 0 0 4px; }
+  .meta { color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+  .pay { margin: 4px 0 0; font-weight: 600; }
+  button { font: inherit; font-weight: 600; padding: 9px 16px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; cursor: pointer; margin-top: 8px; }
+  form { display: grid; gap: 14px; margin-top: 16px; }
+  fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: grid; gap: 8px; }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-weight: 400; }
+  .check input { width: auto; margin-top: 4px; }
+  [role=alert] { color: #9b1c1c; font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Careers</h1>
+  <p class="meta">Open roles, read live from our hiring system.</p>
+  <div class="filters">
+    <label>Department <select id="department"><option value="">All departments</option></select></label>
+    <label>Office <select id="office"><option value="">All offices</option></select></label>
+  </div>
+  <p id="status" class="meta" role="status">Loading open roles…</p>
+  <ul class="jobs" id="jobs" aria-label="Open roles"></ul>
+  <section id="detail" hidden aria-live="polite"></section>
+</main>
+<script>
+  const params = new URLSearchParams(location.search)
+  const LODGE = (params.get('lodge') || 'https://lodge.example.com').replace(/\/$/, '')
+  const BOARD = params.get('board') || 'example-builders'
+  const API = `${LODGE}/api/board/v1/${encodeURIComponent(BOARD)}`
+  const campaign = Object.fromEntries([...params].filter(([k]) => k.startsWith('utm_')))
+  const $ = id => document.getElementById(id)
+  const el = (tag, props = {}, ...children) => { const n = Object.assign(document.createElement(tag), props); n.append(...children.filter(c => c != null)); return n }
+  let jobs = []
+
+  const get = path => fetch(API + path).then(r => r.ok ? r.json() : Promise.reject(new Error('The job board did not answer')))
+
+  async function start() {
+    const [list, departments, offices] = await Promise.all([get('/jobs'), get('/departments'), get('/offices')])
+    jobs = list.jobs
+    for (const d of departments.departments) $('department').append(el('option', { value: d.id, textContent: `${d.path} (${d.jobs})` }))
+    for (const o of offices.offices) $('office').append(el('option', { value: o.id, textContent: `${o.name} (${o.jobs})` }))
+    render()
+  }
+
+  function render() {
+    const dept = $('department').value, office = $('office').value
+    const shown = jobs.filter(j => (!dept || j.departments.some(d => d.id === dept)) && (!office || j.offices.some(o => o.id === office)))
+    $('status').textContent = shown.length ? `${shown.length} open role${shown.length === 1 ? '' : 's'}` : 'No open roles match.'
+    $('jobs').replaceChildren(...shown.map(j => el('li', {},
+      el('h2', { textContent: j.title }),
+      el('p', { className: 'meta', textContent: [j.departments.map(d => d.name).join(' › '), j.offices.map(o => o.name).join(', ') || j.location, j.remote ? 'Remote' : ''].filter(Boolean).join(' · ') }),
+      ...j.pay.map(p => el('p', { className: 'pay', textContent: `${p.location ?? 'All locations'}: ${money(p.min, p.currency)}–${money(p.max, p.currency)} a ${p.period}` })),
+      el('button', { type: 'button', textContent: 'View role', ariaLabel: 'View ' + j.title, onclick: () => open(j.id) }))))
+  }
+
+  const money = (cents, currency) => (cents / 100).toLocaleString('en-US', { style: 'currency', currency, maximumFractionDigits: cents % 100 ? 2 : 0 })
+
+  async function open(id) {
+    const job = await get('/jobs/' + id)
+    const field = f => f.type === 'long-text' ? el('label', {}, f.label + (f.required ? '' : ' (optional)'), el('textarea', { name: f.name, rows: 4, required: f.required }))
+      : f.type === 'file' ? el('label', {}, `${f.label} (optional; ${f.fileTypes.join(', ')}; up to 1 MB)`, el('input', { type: 'file', name: f.name, accept: f.fileTypes.map(t => '.' + t).join(',') }))
+      : f.type === 'yes-no' ? el('label', { className: 'check' }, el('input', { type: 'checkbox', name: f.name }), f.label)
+      : el('label', {}, f.label + (f.required ? '' : ' (optional)'), el('input', { name: f.name, type: f.type === 'email' ? 'email' : 'text', required: f.required }))
+    const question = q => q.type === 'yes-no' || q.type === 'single-choice'
+      ? el('label', {}, q.text, el('select', { name: 'q-' + q.id, required: q.required }, el('option', { value: '', textContent: 'Choose…' }), ...(q.type === 'yes-no' ? [['yes', 'Yes'], ['no', 'No']] : q.options.map(o => [o, o])).map(([v, t]) => el('option', { value: v, textContent: t }))))
+      : el('label', {}, q.text, el('input', { name: 'q-' + q.id, type: q.type === 'number' ? 'number' : q.type === 'date' ? 'date' : 'text', required: q.required }))
+    const notice = el('details', {}, el('summary', { textContent: `Privacy notice (version ${job.privacyNotice.version})` }), el('p', { textContent: job.privacyNotice.text }))
+    const error = el('p', { role: 'alert' })
+    const form = el('form', { noValidate: false },
+      ...job.fields.filter(f => f.name !== 'talentPool').map(field),
+      job.questions.length ? el('fieldset', {}, el('legend', { textContent: 'Questions from the employer' }), ...job.questions.map(question)) : null,
+      el('fieldset', {}, el('legend', { textContent: 'Voluntary equal-opportunity question (optional)' }), el('label', {}, job.voluntaryQuestions[0].text, el('select', { name: 'monitoring' }, ...job.voluntaryQuestions[0].options.map(o => el('option', { textContent: o }))))),
+      notice,
+      el('label', { className: 'check' }, el('input', { type: 'checkbox', name: 'consent', required: true }), `I have read privacy notice version ${job.privacyNotice.version}.`),
+      field(job.fields.find(f => f.name === 'talentPool')),
+      el('input', { type: 'text', name: 'website', tabIndex: -1, autocomplete: 'off', hidden: true, ariaHidden: 'true' }),
+      error, el('button', { type: 'submit', textContent: 'Submit application' }))
+    const idempotency = crypto.randomUUID()
+    form.onsubmit = async event => {
+      event.preventDefault()
+      const data = new FormData(form), file = data.get('resume')
+      const answers = Object.fromEntries(job.questions.map(q => [q.id, data.get('q-' + q.id) || undefined]))
+      const resume = file && file.size ? { name: file.name, mediaType: file.type, base64: await toBase64(file) } : null
+      const body = { name: data.get('name'), email: data.get('email'), phone: data.get('phone'), location: data.get('location'), coverNote: data.get('coverNote'), accommodation: data.get('accommodation'), monitoring: data.get('monitoring'), talentPool: data.get('talentPool') === 'on', consent: data.get('consent') === 'on', website: data.get('website'), noticeVersion: job.privacyNotice.version, resume, answers, campaign }
+      const response = await fetch(`${API}/jobs/${job.id}/applications`, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': idempotency }, body: JSON.stringify(body) })
+      const answer = await response.json().catch(() => ({ error: 'The job board did not answer' }))
+      if (!response.ok) { error.textContent = answer.error + (answer.field ? ` (${answer.field})` : ''); return }
+      $('detail').replaceChildren(el('h2', { textContent: 'Application received' }), el('p', { textContent: 'Thank you. Keep this receipt for your records.' }), el('p', { className: 'pay', textContent: 'Receipt ' + answer.receipt }), el('p', { className: 'meta', textContent: `Questions about adjustments or your data: ${answer.accommodationContact}` }))
+    }
+    $('detail').hidden = false
+    $('detail').replaceChildren(el('h2', { textContent: job.title }), el('p', { className: 'meta', textContent: job.payTransparency ?? '' }), el('p', { textContent: job.content }), el('p', { className: 'meta', textContent: `Need an adjustment to apply? Contact ${job.accommodationContact}.` }), form)
+    $('detail').scrollIntoView()
+  }
+
+  const toBase64 = file => new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(String(r.result).split(',')[1]); r.onerror = reject; r.readAsDataURL(file) })
+
+  $('department').onchange = render
+  $('office').onchange = render
+  start().catch(e => { $('status').textContent = e.message })
+</script>
+</body>
+</html>

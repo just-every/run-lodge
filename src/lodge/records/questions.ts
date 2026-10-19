@@ -2,7 +2,7 @@ import type { State } from '../core/state'
 import { isAdmin, requireAdmin, requireManages } from '../core/access'
 import { protectedTerm } from '../core/protected'
 import { CRIMINAL_HISTORY, fairChancePlace } from './fair-chance'
-import { date, list, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { about, date, list, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 
 // SCREEN-001: the screening-question library. Admins keep reusable questions
 // with typed answers; each edit is a new version, and an application keeps the
@@ -87,6 +87,11 @@ export type Answer = string | string[] | { name: string; mediaType: string; base
 export function answers(s: State, v: Data, given: Record<string, Answer>) {
   return jobForm(s, v).flatMap((q: Data) => {
     const raw = given[q.question]
+    return about('answers.' + q.question, () => checked(q, raw))
+  })
+}
+
+function checked(q: Data, raw: Answer | undefined) {
     const label = `“${q.text}”`
     const empty = raw === undefined || raw === null || raw === '' || (Array.isArray(raw) && !raw.length)
     if (empty) { requireThat(!q.required, `Answer ${label}`); return [] }
@@ -101,8 +106,7 @@ export function answers(s: State, v: Data, given: Record<string, Answer>) {
       case 'short-text': value = text(raw, label, 300); break
       case 'long-text': value = text(raw, label, 8000); break
     }
-    return [{ question: q.question, version: q.version, text: q.text, type: q.type, objective: q.objective, value }]
-  })
+    return [{ question: q.question as string, version: q.version as number, text: q.text as string, type: q.type as QuestionType, objective: q.objective as boolean, value }]
 }
 
 /** Library questions for the people who keep or attach them. */

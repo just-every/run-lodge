@@ -2,7 +2,14 @@
 export type Data = Record<string, any>
 
 export class Fault extends Error {
+  /** The input field a refusal is about, for doors that answer field by field (ATTR-009). */
+  field?: string
   constructor(public status: number, message: string) { super(message) }
+}
+
+/** Run a check and name the field any refusal from it is about. */
+export function about<T>(field: string, check: () => T): T {
+  try { return check() } catch (e) { if (e instanceof Fault) e.field ??= field; throw e }
 }
 
 export function requireThat(condition: unknown, message: string, status = 400): asserts condition {

@@ -25,6 +25,7 @@ import { erasureTransfers } from '../records/erasure-transfers'
 import { retentionUntil } from '../records/candidates'
 import { importJobs, imports } from '../move-in/imports'
 import { deploymentHealth } from '../../base/deployment-health'
+import { boardApi } from './board'
 
 // Lodge's private HTTP surface. The app and an owner's coding agent use the
 // same routes (see API.md); each request resolves the person from the native
@@ -40,6 +41,9 @@ api.use('/api/lodge/*', async (c, next) => {
   await next()
   c.header('cache-control', 'no-store'); c.header('x-content-type-options', 'nosniff'); c.header('referrer-policy', 'no-referrer')
 })
+// ATTR-009: the public job board answers under /api/board with its own errors and CORS.
+api.route('/api/board', boardApi)
+
 api.onError((error, c) => {
   if (error instanceof Fault) return c.json({ error: error.message }, error.status as 400)
   console.error('lodge request failed', (error as Error)?.name)

@@ -20,6 +20,7 @@ import { rejectionsView } from '../records/rejections'
 import { reviewQueues } from '../records/reviews'
 import { boardViews } from '../records/board-views'
 import { mergeRule, sourceOf } from '../records/sources'
+import { boardSettings, publicSettings } from '../records/job-board'
 import { fairChanceView } from '../records/fair-chance'
 
 /**
@@ -176,6 +177,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     boardViews: boardViews(s, a, visibleVacancyIds),
     // CRM-008: the source list every member may read, and the admin's attribution rule after merges.
     sources: s.all('source').sort((x, y) => x.type.localeCompare(y.type) || x.name.localeCompare(y.name)), sourceMergeRule: mergeRule(s),
+    // ATTR-009: the public job board's token, allowed origins and keys (never a key's hash), for the people who administer it.
+    jobBoard: admin && !a.agent ? publicSettings(boardSettings(s)) : null,
     // COORD-006 briefs, for the people who run the job (and their agents) only.
     debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [

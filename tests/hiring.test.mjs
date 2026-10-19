@@ -1382,6 +1382,110 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await state()).offices.some(o => o.id === spare.id), false)
   })
 
+  await t.test('ATTR-009 the public job board: published jobs as JSON for the employer’s own careers page; applications with a board key or from an allowed site', async () => {
+    const board = '/api/board/v1/example-builders'
+    const fulfil = await cmd('department', { name: 'Fulfilment' }), nights = await cmd('department', { name: 'Night shift', parent: fulfil.id }), legal = await cmd('department', { name: 'Legal affairs' })
+    const aurora = await cmd('office', { name: 'Aurora, CO' })
+    const lift = await cmd('question', { text: 'Can you lift 50 pounds?', type: 'yes-no', required: true })
+    const job = async (title, departmentId) => {
+      const v = await cmd('vacancy', { title, departmentId, officeId: aurora.id, headcount: 1, manager: 'morgan@example.test', compensation: RANGE, description: title + ' duties.' }, manager)
+      await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
+      await cmd('interview-plan', { id: v.id, plan: [{ name: 'Walk', stageName: 'Interview', durationMinutes: 45 }] }, manager)
+      await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
+      return cmd('publish', { id: v.id }, manager)
+    }
+    const loader = await job('Night loader', nights.id), counsel = await job('Counsel', legal.id)
+    await cmd('job-questions', { id: loader.id, questions: [{ question: lift.id, required: true }] }, manager)
+    await cmd('screening-rule', { vacancy: loader.id, name: 'Lifts', question: lift.id, when: { equals: 'yes' }, then: { kind: 'tag', tag: 'Can lift' } })
+    await cmd('vacancy-privacy', { id: counsel.id, confidential: true, publicTitle: 'Advisor' })
+    const draft = await cmd('vacancy', { title: 'Paralegal', departmentId: legal.id, headcount: 1, manager: 'morgan@example.test', compensation: RANGE }, manager)
+
+    // The board exists once an admin names it; only admins keep it, and keys are shown once and stored as hashes.
+    assert.equal((await send(board + '/jobs')).status, 404)
+    assert.equal((await send('/api/lodge/command/job-board', { token: 'example-builders' }, manager)).status, 403)
+    assert.equal((await send('/api/lodge/command/job-board', { token: 'example-builders', allowedOrigins: ['https://careers.example.test/jobs'] }, owner)).status, 400, 'an allowed origin is a scheme and host only')
+    await cmd('job-board', { token: 'example-builders', allowedOrigins: ['https://careers.example.test'] })
+    const created = await cmd('board-key', { label: 'Website server' })
+    assert.match(created.key, /^lbk_[0-9a-f]{64}$/)
+    const settings = (await state()).jobBoard
+    assert.deepEqual(settings.keys.map(k => [k.label, k.last4, 'hash' in k]), [['Website server', created.key.slice(-4), false]])
+    assert.equal((await state(manager)).jobBoard, null)
+
+    // The list: published, non-confidential jobs with departments, offices and pay; any origin, cached with an ETag.
+    const list = await send(board + '/jobs')
+    assert.equal(list.status, 200)
+    assert.deepEqual([list.headers.get('access-control-allow-origin'), list.headers.get('cache-control')], ['*', 'public, max-age=60'])
+    const listed = list.value.jobs.find(j => j.id === loader.id)
+    assert.deepEqual(listed.departments.map(d => d.name), ['Fulfilment', 'Night shift'])
+    assert.deepEqual(listed.offices.map(o => o.name), ['Aurora, CO'])
+    assert.deepEqual(listed.pay, [{ location: 'Aurora, CO', currency: 'USD', min: 9000000, max: 11000000, period: 'year', minorUnits: 2 }])
+    assert.equal(listed.payTransparency, 'Pay for Aurora, CO: $90,000–$110,000 a year')
+    assert.ok(listed.url.endsWith('/jobs/' + loader.slug) && listed.publishedAt && !('content' in listed))
+    for (const hidden of [counsel.id, draft.id]) assert.equal(list.value.jobs.some(j => j.id === hidden), false, 'confidential and unpublished jobs never list')
+    assert.equal(list.value.jobs.some(j => j.title === 'Advisor'), false, 'not even under a neutral title')
+    assert.equal((await send(board + '/jobs?content=true')).value.jobs.find(j => j.id === loader.id).content, 'Night loader duties.')
+    assert.equal((await send(board + '/jobs', undefined, '', { 'if-none-match': list.headers.get('etag') })).status, 304)
+    assert.equal((await send('/api/board/v1/someone-else/jobs')).status, 404)
+
+    // The detail carries the application form: questions, the notice version and the voluntary question set.
+    const detail = (await send(`${board}/jobs/${loader.id}`)).value
+    assert.deepEqual(detail.questions.map(q => [q.id, q.type, q.required]), [[lift.id, 'yes-no', true]])
+    assert.deepEqual([detail.privacyNotice.version, detail.voluntaryQuestions[0].options.includes('Woman'), detail.fields.find(f => f.name === 'resume').maxBytes], [(await state()).business.notices.at(-1).version, true, 1000000])
+    for (const hidden of [counsel.id, draft.id]) assert.equal((await send(`${board}/jobs/${hidden}`)).status, 404)
+    const departments = (await send(board + '/departments')).value.departments
+    assert.deepEqual(departments.filter(d => [fulfil.id, nights.id, legal.id].includes(d.id)).map(d => [d.path, d.jobs]), [['Fulfilment', 1], ['Fulfilment › Night shift', 1]], 'department counts leave out confidential and unpublished jobs')
+    assert.deepEqual((await send(board + '/offices')).value.offices.filter(o => o.id === aurora.id).map(o => o.jobs), [1])
+
+    // Submitting with the board key: each refusal names its field; a good submission returns a receipt once.
+    const submit = (body, headers = {}, id = loader.id) => send(`${board}/jobs/${id}/applications`, body, '', { origin: 'https://agency.example.test', authorization: 'Bearer ' + created.key, 'cf-connecting-ip': '203.0.113.7', ...headers })
+    const good = { name: 'Rae Okafor', email: 'rae@example.test', noticeVersion: detail.privacyNotice.version, consent: true, resume: { name: 'rae.pdf', mediaType: 'application/pdf', base64: b64('%PDF-1.4 Rae Okafor, forklift certified') }, answers: { [lift.id]: 'yes' }, campaign: { utm_source: 'webflow', utm_campaign: 'spring-hiring' } }
+    const refused = async (body, status, field, headers) => { const r = await submit(body, headers); assert.deepEqual([r.status, r.value.field], [status, field], JSON.stringify(r.value)) }
+    await refused({ ...good, answers: {} }, 400, 'answers.' + lift.id)
+    await refused({ ...good, noticeVersion: detail.privacyNotice.version + 1 }, 409, 'noticeVersion')
+    await refused({ ...good, resume: { ...good.resume, base64: Buffer.alloc(1_100_000, 7).toString('base64') } }, 413, 'resume')
+    await refused({ ...good, resume: { ...good.resume, name: 'rae.exe' } }, 400, 'resume')
+    await refused({ ...good, website: 'https://spam.example' }, 400, 'website')
+    await refused(good, 401, 'authorization', { authorization: 'Bearer lbk_' + '0'.repeat(64) })
+    const first = await submit(good, { 'idempotency-key': 'form-1' })
+    assert.equal(first.status, 201, JSON.stringify(first.value))
+    const again = await submit(good, { 'idempotency-key': 'form-1' })
+    assert.deepEqual([again.status, again.value.receipt, again.value.replayed], [200, first.value.receipt, true])
+    const repeat = await submit(good, { 'idempotency-key': 'form-2' })
+    assert.ok(repeat.status === 201 && repeat.value.receipt !== first.value.receipt, 'a repeat gets its own receipt and reveals nothing')
+    let view = await state()
+    const apps = view.applications.filter(a => a.vacancy === loader.id)
+    assert.equal(apps.length, 1, 'one email applies to a job once: no duplicate application')
+    assert.deepEqual([apps[0].source, apps[0].campaign, apps[0].repeatSubmissions.map(r => r.receipt)], ['Careers page (API)', { utm_source: 'webflow', utm_campaign: 'spring-hiring' }, [repeat.value.receipt]])
+    assert.ok(view.documents.some(d => d.application === apps[0].id && d.name === 'rae.pdf' && d.kind === 'resume'))
+    assert.deepEqual([apps[0].answers.map(a => a.value), apps[0].tags], [['yes'], ['Can lift']], 'SCREEN-002 rules run on board submissions')
+    assert.deepEqual(view.sources.filter(x => x.name === 'Careers page (API)').map(x => [x.type, x.automatic]), [['careers-site', true]], 'the door joins the CRM-008 list by itself')
+
+    // From a browser: only an allowed origin, answered with CORS for that origin alone.
+    const browser = { authorization: '', origin: 'https://careers.example.test', 'cf-connecting-ip': '203.0.113.8' }
+    const fromSite = await submit({ ...good, email: 'sol@example.test', name: 'Sol Reyes' }, browser)
+    assert.deepEqual([fromSite.status, fromSite.headers.get('access-control-allow-origin')], [201, 'https://careers.example.test'])
+    await refused({ ...good, email: 'tia@example.test' }, 403, 'authorization', { ...browser, origin: 'https://elsewhere.example.test' })
+    const preflight = async origin => (await h.mf.dispatchFetch(`${h.origin}${board}/jobs/${loader.id}/applications`, { method: 'OPTIONS', headers: { origin, 'access-control-request-method': 'POST' } }))
+    assert.deepEqual([(await preflight('https://careers.example.test')).status, (await preflight('https://elsewhere.example.test')).status], [204, 403])
+
+    // Rotating stops the old key at once; a revoked key is refused; no board key opens the private API.
+    const rotated = await cmd('rotate-board-key', { id: settings.keys[0].id })
+    await refused({ ...good, email: 'uma@example.test' }, 401, 'authorization')
+    assert.equal((await submit({ ...good, email: 'uma@example.test', name: 'Uma Bell' }, { authorization: 'Bearer ' + rotated.key })).status, 201)
+    await cmd('revoke-board-key', { id: rotated.keys.find(k => !k.revokedAt).id })
+    const revoked = await submit({ ...good, email: 'vic@example.test' }, { authorization: 'Bearer ' + rotated.key })
+    assert.deepEqual([revoked.status, revoked.value.field, revoked.value.error], [401, 'authorization', 'This board key was revoked'])
+    for (const path of ['/api/lodge/state', '/api/lodge/search?q=Rae']) assert.equal((await send(path, undefined, '', { authorization: 'Bearer ' + rotated.key })).status, 401, path)
+    assert.equal((await send('/api/lodge/command/vacancy', { title: 'x' }, '', { authorization: 'Bearer ' + created.key })).status, 401)
+    view = await state()
+    assert.ok(['board-key-created', 'board-key-rotated', 'board-key-revoked'].every(action => view.audit.some(e => e.action === action)))
+
+    // Spam controls: at most ten attempts an hour from one connection.
+    const flood = []
+    for (let i = 0; i < 11; i++) flood.push((await submit({ ...good, website: 'x' }, { ...browser, 'cf-connecting-ip': '198.51.100.9' })).status)
+    assert.deepEqual([flood.slice(0, 10).every(s => s === 400), flood[10]], [true, 429])
+  })
+
   await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {
     const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
     const [authorized, relocate, cdl, story] = [q('Are you legally authorized to work in the US?'), q('Willing to relocate?'), q('Years holding a Class A CDL'), q('Tell us about a job you finished early')]

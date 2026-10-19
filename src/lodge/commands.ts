@@ -13,6 +13,7 @@ import { rejectionReasons, rejectionTemplate } from './records/rejections'
 import { reviewDecision, reviewRecommendation } from './records/reviews'
 import { boardView } from './records/board-views'
 import { source, sourceCredit, sourceSettings } from './records/sources'
+import { boardKey, jobBoard, revokeBoardKey, rotateBoardKey } from './records/job-board'
 import { fairChancePlaces, fairChanceStep } from './records/fair-chance'
 import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } from './records/pipeline'
 import { availability, cancel, interview, reply, schedule } from './records/interviews'
@@ -45,7 +46,7 @@ export const commands: Record<string, Command> = {
   'decide-approval': decide,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate, 'review-decision': reviewDecision, 'review-recommendation': reviewRecommendation,
-  'assign-reviewers': assignReviewers, 'board-view': boardView, source, 'source-settings': sourceSettings, 'source-credit': sourceCredit, 'fair-chance-places': fairChancePlaces, 'fair-chance-step': fairChanceStep, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
+  'assign-reviewers': assignReviewers, 'board-view': boardView, source, 'source-settings': sourceSettings, 'job-board': jobBoard, 'board-key': boardKey, 'revoke-board-key': revokeBoardKey, 'rotate-board-key': rotateBoardKey, 'source-credit': sourceCredit, 'fair-chance-places': fairChancePlaces, 'fair-chance-step': fairChanceStep, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
   message, 'request-message-approval': requestMessageApproval,
