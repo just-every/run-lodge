@@ -4,6 +4,7 @@ import { candidateFields, retentionUntil, startApplication } from './candidates'
 import { storeDocument } from './documents'
 import { answers, type Answer } from './questions'
 import { evaluate } from './rules'
+import { ensureSource } from './sources'
 
 // Flow 3: the public application page. The applicant sees the privacy notice
 // and accommodation contact; each submission records the notice version and
@@ -53,6 +54,7 @@ export async function submit(s: State, vacancy: Data, input: Submission) {
   // SCREEN-001: each answer keeps the question version the applicant was shown.
   const answered = answers(s, vacancy, input.answers ?? {})
   const talentPool = input.talentPool === 'yes'
+  ensureSource(s, 'Application page', 'careers-site')
   const candidate = s.put('candidate', uid(), {
     ...fields, source: 'Application page', createdAt: now(), retainUntil: retentionUntil(s),
     consent: { basis: 'application', noticeVersion: notice.version, talentPool, at: now(), recordedBy: 'applicant' },

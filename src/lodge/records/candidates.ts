@@ -3,6 +3,7 @@ import { canSeeCandidate, canSeeContact, requireAdmin, requireApplication, requi
 import { date, email, list, now, oneOf, optionalEmail, optionalText, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { storeDocument } from './documents'
 import { cancelTasks } from './tasks'
+import { initialCredit } from './sources'
 
 // Flows 4 and 5: candidates with source, consent and retention metadata; one
 // candidate linked to several applications; possible duplicates surfaced for a
@@ -53,7 +54,7 @@ export async function candidate(s: State, a: Actor, b: Data) {
   })
   s.audit(a, 'candidate-added', 'candidate:' + record.id, { source: record.source })
   let application = null
-  if (vacancy) application = startApplication(s, a, record, vacancy, record.source)
+  if (vacancy) application = startApplication(s, a, record, vacancy, record.source, { credit: initialCredit(s, a, vacancy, b) })
   if (b.resume) await storeDocument(s, { candidate: record.id, application: application?.id ?? null, name: b.resume.name, mediaType: b.resume.mediaType, base64: b.resume.base64, kind: 'resume', source: 'uploaded by ' + a.email })
   return { candidate: record, application }
 }
@@ -86,7 +87,7 @@ export function apply(s: State, a: Actor, b: Data) {
   const person = s.get('candidate', b.candidate)
   requireThat(canSeeContact(s, a, person), 'Candidate not found', 404)
   requireThat(!person.mergedInto && !person.deleted, 'This candidate record is closed', 409)
-  const application = startApplication(s, a, person, vacancy, text(b.source, 'Source', 200))
+  const application = startApplication(s, a, person, vacancy, text(b.source, 'Source', 200), { credit: initialCredit(s, a, vacancy, b) })
   s.audit(a, 'application-linked', 'application:' + application.id, { candidate: person.id, vacancy: vacancy.id })
   return application
 }
@@ -107,7 +108,7 @@ export function transfer(s: State, a: Actor, b: Data) {
   const person = s.get('candidate', source.candidate)
   requireThat(!person.mergedInto && !person.deleted, 'This candidate record is closed', 409)
   const note = optionalText(b.reason, 'Reason', 2000)
-  const application = startApplication(s, a, person, target, source.source, { transferredFrom: source.id }, `Transferred from ${from.title}${note ? ': ' + note : ''}`)
+  const application = startApplication(s, a, person, target, source.source, { transferredFrom: source.id, credit: source.credit ?? null }, `Transferred from ${from.title}${note ? ': ' + note : ''}`)
   const reason = `Transferred to ${target.title}`
   s.put('application', source.id, { ...source, status: 'transferred', closedAt: now(), transferredTo: application.id })
   cancelTasks(s, source.id, 'Application transferred')

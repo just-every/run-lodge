@@ -7,6 +7,7 @@ import { Exception } from './exception'
 import { Answers } from '../questions'
 import { lastMove, openProposals, proposalApplication, stageName } from './facts'
 import { CloseForm, RejectionEmails } from '../rejections'
+import { SourceCredit } from '../sources'
 
 const OUTCOMES: D = { disqualified: 'disqualified', 'open-in-source': 'still open in Workable' }
 
@@ -53,6 +54,7 @@ export function RecordOverview({ app, v, c, w, mutate }: { app: D; v?: D; c: D; 
     <p className="record-status"><Status tone={active ? 'good' : 'neutral'}>{active ? stageName(v, app.stage) : stageName(v, app.status)}</Status>{active && <span className="muted">for {since(lastMove(app))} · received {when(app.submittedAt) || app.submittedAt}</span>}</p>
     <p className="meta">{[c.email, c.phone, c.location].filter(Boolean).join(' · ') || 'Contact details are visible to the hiring team only.'}</p>
     {c.headline && <p>{c.headline}</p>}
+    <SourceCredit app={app} w={w} mutate={mutate} />
     <Answers app={app} />
     {app.coverNote && <details><summary>Cover note</summary><p className="pre">{app.coverNote}</p></details>}
     {app.imported && <p className="hint">Imported from Workable: source stage “{app.sourceStage}”, {OUTCOMES[app.outcome] ?? app.outcome}{app.disqualificationReason ? ` (${app.disqualificationReason})` : ''}.</p>}

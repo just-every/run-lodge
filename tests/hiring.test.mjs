@@ -488,10 +488,10 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
   await t.test('PIPE-001 the job board: stage counts and days in stage from the history, per-person saved filters and sort, a needs-decision flag, moves with reasons', async () => {
     const job = await openJob('Glazier')
     assert.ok(job.stages.length >= 4, 'four stages to fill')
-    // Ten candidates in four stages; [stage, days in it]. Odd ones came from the job fair.
+    // Ten candidates in four stages; [stage, days in it]. Odd ones came from a trade show.
     const placed = [[0, 0], [0, 2], [0, 5], [1, 1], [1, 3], [1, 8], [2, 4], [2, 6], [3, 2], [3, 9]], apps = []
     for (const [i, [stage, days]] of placed.entries()) {
-      const { application } = await cmd('candidate', { name: `Glen Pane ${i}`, email: `glen${i}.pane@example.test`, source: i % 2 ? 'Spring job fair' : 'Careers page', consentBasis: 'application', vacancy: job.id }, manager)
+      const { application } = await cmd('candidate', { name: `Glen Pane ${i}`, email: `glen${i}.pane@example.test`, source: i % 2 ? 'Trade show' : 'Careers page', consentBasis: 'application', vacancy: job.id }, manager)
       if (stage) await cmd('move', { application: application.id, to: job.stages[stage].id, reason: 'Placed for the board' }, manager)
       apps.push({ ...application, stage, days })
     }
@@ -516,14 +516,14 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.deepEqual(b.columns[1].cards.map(c => c.daysInStage), [1, 3, 8], 'last activity first by default')
 
     // A filter by source and a sort are saved for this manager on this job only.
-    assert.deepEqual(b.options.source, ['Careers page', 'Spring job fair'])
+    assert.deepEqual(b.options.source, ['Careers page', 'Trade show'])
     assert.equal((await send('/api/lodge/command/board-view', { vacancy: job.id, sort: 'random' }, manager)).status, 400)
-    await cmd('board-view', { vacancy: job.id, sort: 'days', filters: { source: 'Spring job fair' } }, manager)
+    await cmd('board-view', { vacancy: job.id, sort: 'days', filters: { source: 'Trade show' } }, manager)
     b = await boardOf()
     assert.deepEqual([b.filtered, b.view.sort, b.columns.map(c => [c.cards.length, c.total])], [true, 'days', [[1, 3], [2, 3], [1, 2], [1, 2], [0, 0]]])
-    assert.ok(cards(b).every(c => c.source === 'Spring job fair'))
+    assert.ok(cards(b).every(c => c.source === 'Trade show'))
     assert.deepEqual(b.columns[1].cards.map(c => c.daysInStage), [8, 1], 'longest in stage first')
-    assert.deepEqual((await state(manager)).boardViews.map(v => [v.vacancy, v.filters]), [[job.id, { source: 'Spring job fair' }]])
+    assert.deepEqual((await state(manager)).boardViews.map(v => [v.vacancy, v.filters]), [[job.id, { source: 'Trade show' }]])
     assert.equal((await boardOf(owner)).filtered, false, 'another person keeps their own view')
     assert.equal((await send('/api/lodge/board/' + job.id, undefined, ian)).status, 404, 'an interviewer with nothing on the job has no board')
     assert.equal((await send('/api/lodge/command/board-view', { vacancy: job.id }, ian)).status, 404)
@@ -606,6 +606,70 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     await cmd('cancel-interview', { interview: upcoming.id, reason: 'Candidate rescheduling' }, manager)
     assert.deepEqual(Object.values((await homeOf()).counts), [0, 0, 0, 0, 0, 0, 0, 0])
     for (const app of [a1, a2, b1, b2]) await cmd('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Home test done' }, manager)
+  })
+
+  await t.test('CRM-008 a managed source list with mapped texts; each hire shows its source and credited sourcer, agency or employee; credit changes keep history; merges follow the rule', async () => {
+    // The application page put its own entry on the list; admins add the rest.
+    assert.ok((await state(manager)).sources.some(x => x.name === 'Application page' && x.type === 'careers-site' && x.automatic), 'the intake door Lodge runs created its source')
+    assert.equal((await send('/api/lodge/command/source', { name: 'Spring job fair', type: 'event' }, manager)).status, 403, 'only admins keep the list')
+    const fair = await cmd('source', { name: 'Spring job fair', type: 'event' })
+    await cmd('source', { name: 'Northside Staffing', type: 'agency' }); await cmd('source', { name: 'Employee referral', type: 'referral' })
+    assert.equal((await send('/api/lodge/command/source', { name: 'spring JOB fair', type: 'other' }, owner)).status, 409, 'names stay unique')
+    const suki = await h.member('suki@example.test', ['interviewer'], 'Suki Mori')
+    const [j1, j2, j3] = [await openJob('Mason'), await openJob('Roofer lead'), await openJob('Drywaller')]
+    await cmd('hiring-team', { id: j1.id, sourcers: ['suki@example.test'] })
+    const add = async (body, cookie = manager) => (await cmd('candidate', { consentBasis: 'manual', ...body }, cookie)).application
+    // The same person reached first through the fair (sourced by Suki), later through the agency on another job as a second record.
+    const early = await add({ name: 'Ada Stone', email: 'ada.stone@example.test', source: 'Spring job fair', vacancy: j1.id }, suki)
+    const viaAgency = await add({ name: 'Ada Stone', email: 'ada.stone.work@example.test', source: 'Northside Staffing', agency: 'Northside Staffing', vacancy: j2.id })
+    const referred = await add({ name: 'Rafe Lin', email: 'rafe@example.test', source: 'Employee referral', referrer: 'dev.okafor@example.test', consentBasis: 'referral', vacancy: j3.id })
+    const freeText = await add({ name: 'Ola Fair', email: 'ola@example.test', source: 'job fair 2026', vacancy: j3.id })
+    let s = await state(manager)
+    const app = id => s.applications.find(x => x.id === id)
+    assert.deepEqual([early, viaAgency, referred].map(x => [app(x.id).sourceEntry?.name, app(x.id).credit.kind, app(x.id).credit.who]),
+      [['Spring job fair', 'sourcer', 'suki@example.test'], ['Northside Staffing', 'agency', 'Northside Staffing'], ['Employee referral', 'employee', 'dev.okafor@example.test']])
+    assert.deepEqual([app(freeText.id).sourceEntry, app(freeText.id).credit.kind], [null, 'recruiter'])
+    // Mapping a free-text source reaches the application already made.
+    await cmd('source', { id: fair.id, name: 'Spring job fair', type: 'event', aliases: ['job fair 2026'] })
+    s = await state(manager)
+    assert.equal(app(freeText.id).sourceEntry.name, 'Spring job fair')
+    // Hire all three, the sourced one on its own job too.
+    const hire = async (application, title) => {
+      const [opening] = (await state(manager)).vacancies.find(v => v.id === application.vacancy).openings
+      const offer = await cmd('offer', { application: application.id, title, startDate: '2027-04-01', salary: { currency: 'USD', amount: 9500000, period: 'year' }, opening: opening.id }, manager)
+      await approve((await cmd('request-offer-approval', { id: offer.id, approver: 'parker@example.test' }, manager)).id)
+      await cmd('offer-outcome', { id: offer.id, outcome: 'accepted', reason: 'Signed' }, manager)
+    }
+    await cmd('move', { application: freeText.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Took another job' }, manager)
+    await hire(viaAgency, 'Roofer lead'); await hire(referred, 'Drywaller')
+    // A recruiter changes one credit with a reason; the earlier credit stays in its history.
+    assert.equal((await send('/api/lodge/command/source-credit', { application: referred.id, kind: 'employee', who: 'kim.lee@example.test', reason: 'Kim referred Rafe first' }, ivy)).status, 404)
+    assert.equal((await send('/api/lodge/command/source-credit', { application: referred.id, kind: 'employee', who: 'kim.lee@example.test' }, manager)).status, 400, 'a change needs its reason')
+    await cmd('source-credit', { application: referred.id, kind: 'employee', who: 'kim.lee@example.test', reason: 'Kim referred Rafe first' }, manager)
+    s = await state(manager)
+    assert.deepEqual([app(referred.id).credit.who, app(referred.id).credit.reason, app(referred.id).creditHistory.map(c => [c.who, c.automatic])], ['kim.lee@example.test', 'Kim referred Rafe first', [['dev.okafor@example.test', true]]])
+    const report = async () => { const r = await send('/api/lodge/reports/sources', undefined, manager); assert.equal(r.status, 200, JSON.stringify(r.value)); return r.value }
+    assert.equal((await send('/api/lodge/reports/sources', undefined, ivy)).status, 403)
+    let r = await report()
+    // Only this test's hires and the sources and credits it named: earlier tests hired through the application page.
+    const ours = new Set([early.id, viaAgency.id, referred.id]), names = ['Spring job fair', 'Northside Staffing', 'Employee referral']
+    const hiresOf = x => Object.fromEntries(x.bySource.filter(row => names.includes(row.name) && row.hires).map(row => [row.name, row.hires]))
+    const credits = x => x.byCredit.filter(row => ['Northside Staffing', 'kim.lee@example.test', 'dev.okafor@example.test', 'suki@example.test'].includes(row.who)).map(row => [row.kind, row.who, row.hires])
+    assert.deepEqual([r.rule, hiresOf(r), r.hires.filter(x => ours.has(x.application)).length], ['own', { 'Northside Staffing': 1, 'Employee referral': 1 }, 2])
+    assert.deepEqual(credits(r), [['agency', 'Northside Staffing', 1], ['employee', 'kim.lee@example.test', 1]])
+    assert.equal(r.bySource.find(x => x.name === 'Spring job fair').applications, 2, 'the mapped text counts under the fair')
+    await hire(early, 'Mason')
+    r = await report()
+    assert.deepEqual(credits(r), [['agency', 'Northside Staffing', 1], ['employee', 'kim.lee@example.test', 1], ['sourcer', 'suki@example.test', 1]], 'hires by credited sourcer')
+    // Merging the two Ada records: each hire keeps its own source, or under "first touch" the fair's.
+    await cmd('review-duplicate', { keep: app(viaAgency.id).candidate, other: app(early.id).candidate, decision: 'merge', reason: 'Same person, two emails' })
+    assert.deepEqual((await report()).hires.filter(x => x.candidateName === 'Ada Stone').map(x => [x.name, x.credit.kind]).sort(), [['Northside Staffing', 'agency'], ['Spring job fair', 'sourcer']])
+    assert.equal((await send('/api/lodge/command/source-settings', { onMerge: 'first-touch' }, manager)).status, 403)
+    await cmd('source-settings', { onMerge: 'first-touch' })
+    r = await report()
+    assert.deepEqual([r.rule, r.hires.filter(x => x.candidateName === 'Ada Stone').map(x => [x.name, x.credit.kind, x.attributedTo])], ['first-touch', [['Spring job fair', 'sourcer', early.id], ['Spring job fair', 'sourcer', early.id]]])
+    assert.deepEqual([hiresOf(r), credits(r)], [{ 'Spring job fair': 2, 'Employee referral': 1 }, [['sourcer', 'suki@example.test', 2], ['employee', 'kim.lee@example.test', 1]]])
+    await cmd('source-settings', { onMerge: 'own' })
   })
 
   await t.test('OFFER-006 a recruiter records an offer signed outside Lodge: bytes bound to the approved terms, hire recorded, honest label', async () => {

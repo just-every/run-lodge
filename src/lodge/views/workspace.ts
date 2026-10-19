@@ -19,6 +19,7 @@ import { rulesView } from '../records/rules'
 import { rejectionsView } from '../records/rejections'
 import { reviewQueues } from '../records/reviews'
 import { boardViews } from '../records/board-views'
+import { mergeRule, sourceOf } from '../records/sources'
 
 /**
  * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
@@ -103,6 +104,8 @@ export async function workspaceRecords(s: State, a: Actor) {
       earlier: transferredFrom(s, app).map(x => ({ application: x.id, vacancy: x.vacancy, title: s.find('vacancy', x.vacancy)?.title ?? '', history: history(s, x.id) })),
       panel: manages ? panel(s, app).map(p => ({ email: p, submitted: cards.some(c => c.author === p && c.status === 'submitted') })) : undefined,
       scorecardSummary: summary(s, app, visibleCards),
+      // CRM-008: the list entry the source text resolves to (null while unmapped).
+      sourceEntry: sourceOf(s, app.source),
     }
   })
   const interviews = s.all('interview').filter(i => appIds.has(i.application)).map((i): Data => {
@@ -161,6 +164,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     reviewQueues: reviewQueues(s, a, applications),
     // PIPE-001: the reader's own saved board views (filters, sort, layout) per job.
     boardViews: boardViews(s, a, visibleVacancyIds),
+    // CRM-008: the source list every member may read, and the admin's attribution rule after merges.
+    sources: s.all('source').sort((x, y) => x.type.localeCompare(y.type) || x.name.localeCompare(y.name)), sourceMergeRule: mergeRule(s),
     // COORD-006 briefs, for the people who run the job (and their agents) only.
     debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [

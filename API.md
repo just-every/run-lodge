@@ -21,6 +21,9 @@ cookie or sign-in URL in a task, log or source file.
   fill in whole days from its own open date, and the summed applications funnel.
 - `GET /api/lodge/reports/rejections`: admins and hiring managers: per job they run, closed applications
   counted by the DISP-001 reason of their current close, grouped as rejected and withdrew.
+- `GET /api/lodge/reports/sources`: admins and hiring managers: over the jobs they run, applications and hires
+  by source list entry (unmapped texts as themselves) and hires by credit (sourcer, recruiter, referring
+  employee, agency), each hire attributed by the admin's merge rule (`own` or `first-touch`) (CRM-008).
 - `GET /api/lodge/reports/interviewers`: admins and hiring managers: per interviewer and job they run,
   interviews held, scorecards on time, late or missing against the business's `scorecardDueHours`
   (default 24), average hours to submit, released recommendations only, upcoming load, and each item.
@@ -60,6 +63,10 @@ lists; see REQ-003), `job-template` (admins: `name` with `fromVacancy` and/or `s
 `request-vacancy-approval`, `publish`, `unpublish`, `close-vacancy`,
 `decide-approval` (send the `version` you reviewed), `candidate`,
 `correct-candidate`, `apply`, `review-duplicate`, `document`,
+`source` (CRM-008, admins: `{ id?, name, type: job-board | careers-site | referral | agency | sourced | internal |
+event | other, aliases?: [free-text sources mapped onto it], retired? }`), `source-settings` (admins: `{ onMerge: own |
+first-touch }`), `source-credit` (people who run the job: `{ application, kind: employee | agency | sourcer | recruiter,
+who, reason }`; `candidate` and `apply` also take `referrer` (an employee's email) or `agency` to credit them),
 `assign-reviewers`, `board-view` (PIPE-001, your own view of a job's board: `{ vacancy, layout: columns | list,
 sort: activity | days | name | submitted, filters: { source?, reviewer?, tag?, rule? } }`), `move` (a stage move takes `to` and `reason`; a close takes `to: "rejected" | "withdrawn"`,
 `closeReason` (a current reason id of the matching group from `rejectionReasons`), an optional `reason` note
