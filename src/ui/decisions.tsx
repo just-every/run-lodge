@@ -36,8 +36,8 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
   return <section className="card">
     <h3>Offer</h3>
     {list.map((o: D) => <article key={o.id} className="card">
-      <h4>{o.title} · {money(o.salary)} · starts {day(o.startDate)}{o.opening && ` · opening ${v?.openings?.find((x: D) => x.id === o.opening)?.code ?? ''}`} {o.status === 'draft' ? approvalState(o, w) : <Status tone={tone(o.status)}>{o.signature?.label ?? o.status}</Status>}</h4>
-      {o.signature && <p className="hint">Signed original <a href={`/api/lodge/download/document/${o.signature.document}`}>on file</a> ({o.signature.method === 'hris' ? 'signed in the HR system' : o.signature.method === 'paper' ? 'signed on paper' : 'signed in another tool'}), SHA-256 {o.signature.sha256.slice(0, 12)}…, attested by {person(w, o.signature.attestedBy)}{o.signature.differences ? `; differences: ${o.signature.differences}` : '; no differences named'}.</p>}
+      <h4>{o.title} · {money(o.salary)} · starts {day(o.startDate)}{o.opening && ` · opening ${v?.openings?.find((x: D) => x.id === o.opening)?.code ?? ''}`} {o.status === 'draft' ? approvalState(o, w) : <Status tone={tone(o.status)}>{o.status}</Status>}</h4>
+      {o.signature && <p className="hint"><strong>{o.signature.label[0].toUpperCase() + o.signature.label.slice(1)}.</strong> Signed original <a href={`/api/lodge/download/document/${o.signature.document}`}>on file</a> ({o.signature.method === 'hris' ? 'signed in the HR system' : o.signature.method === 'paper' ? 'signed on paper' : 'signed in another tool'}), SHA-256 {o.signature.sha256.slice(0, 12)}…, attested by {person(w, o.signature.attestedBy)}{o.signature.differences ? `; differences: ${o.signature.differences}` : '; no differences named'}.</p>}
       {o.rangeWarning && <p className="warn">{o.rangeWarning}.</p>}
       {o.terms && <p className="pre">{o.terms}</p>}
       <p><a href={`/api/lodge/download/packet/${o.id}`}>Approval packet (JSON)</a>{o.status === 'accepted' && <> · <a href={`/api/lodge/download/handoff/${o.id}`}>HR handoff (JSON)</a></>}</p>
