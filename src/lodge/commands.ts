@@ -16,6 +16,7 @@ import { boardView } from './records/board-views'
 import { source, sourceCredit, sourceSettings } from './records/sources'
 import { boardKey, jobBoard, revokeBoardKey, rotateBoardKey } from './records/job-board'
 import { event, eventApply, eventCapture, eventCost, eventStatus } from './records/events'
+import { bulkApply, bulkPreview } from './records/bulk'
 import { applyInternal, internalPolicy, reportsTo, vacancyInternal } from './records/internal'
 import { fairChancePlaces, fairChanceStep } from './records/fair-chance'
 import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } from './records/pipeline'
@@ -47,6 +48,7 @@ export const commands: Record<string, Command> = {
   department, office, 'delete-org': deleteOrg, 'member-org': memberOrg,
   'screening-rule': screeningRule, 'approve-auto-reject': approveAutoReject, 'preview-rule': previewRule, 'apply-rule': applyRule, 'decide-rule-matches': decideRuleMatches,
   'decide-approval': decide,
+  'bulk-preview': bulkPreview, 'bulk-apply': bulkApply,
   event, 'event-status': eventStatus, 'event-cost': eventCost, 'event-capture': eventCapture, 'event-apply': eventApply,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate, 'review-decision': reviewDecision, 'review-recommendation': reviewRecommendation,

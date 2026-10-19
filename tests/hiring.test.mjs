@@ -1755,6 +1755,65 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal(ev.report.attendees, 5)
   })
 
+  await t.test('DATA-003 reviewed bulk actions across two jobs: preview per item, apply only unchanged items with each outcome shown and audited, a resubmitted batch changes nothing, and a bulk rejection previews each recipient and schedules one email each', async () => {
+    const publishJob = async title => {
+      const v = await cmd('vacancy', { title, location: 'Queens, NY', headcount: 2, manager: 'morgan@example.test', compensation: RANGE, description: 'Bulk review job.' }, manager)
+      await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
+      await cmd('interview-plan', { id: v.id, plan: [{ name: 'Yard talk', stageName: 'Interview', durationMinutes: 30 }] }, manager)
+      await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
+      return cmd('publish', { id: v.id }, manager)
+    }
+    const [welder, rigger] = [await publishJob('Bulk Welder'), await publishJob('Bulk Rigger')]
+    const add = async (name, job) => (await cmd('candidate', { name, email: name.toLowerCase().replace(' ', '.') + '@bulk.example.test', source: 'Job board', consentBasis: 'application', vacancy: job.id }, manager)).application
+    const [w1, r1, w2, r2] = [await add('Ola Fenn', welder), await add('Pim Varga', rigger), await add('Ruth Kemal', welder), await add('Saul Ito', rigger)]
+    const bulk = (op, body, cookie = manager) => send('/api/lodge/command/' + op, body, cookie)
+
+    // Preview a move to Screen across both jobs; an application outside the reader's view is refused like an unknown one.
+    const moveTo = { kind: 'move', stage: 'Screen', reason: 'Strong portfolios' }
+    const preview = (await bulk('bulk-preview', { items: [w1.id, r1.id, 'not-an-application'], action: moveTo })).value
+    assert.deepEqual([preview.ready, preview.refused, preview.items.map(i => i.ok), preview.items[2].refusal], [2, 1, [true, true, false], 'Application not found'])
+    assert.deepEqual(preview.items.slice(0, 2).map(i => [i.candidateName, i.job]), [['Ola Fenn', 'Bulk Welder'], ['Pim Varga', 'Bulk Rigger']])
+    assert.equal((await state(manager)).applications.find(a => a.id === w1.id).stage, w1.stage, 'a preview changes nothing')
+    assert.equal((await bulk('bulk-preview', { items: [w1.id], action: moveTo }, ivy)).value.items[0].refusal, 'Application not found', 'an interviewer cannot act on applications they do not run')
+
+    // Before apply, one candidate's record changes: that item is refused with the reason, the other moves, each audited.
+    await cmd('correct-candidate', { id: w1.candidate, name: 'Ola Fenn', email: 'ola.fenn@bulk.example.test', phone: '+1 555 0199', reason: 'Phone added' })
+    const previewed = Object.fromEntries(preview.items.filter(i => i.ok).map(i => [i.application, i.seen]))
+    const batch = 'bulk-move-0001'
+    const applied = (await bulk('bulk-apply', { batch, items: [w1.id, r1.id, 'not-an-application'], action: moveTo, previewed })).value
+    assert.deepEqual([applied.applied, applied.refused, applied.items.map(i => i.ok)], [1, 2, [false, true, false]], 'partial failure is counted as partial')
+    assert.match(applied.items[0].refusal, /changed since the preview/)
+    let w = await state(manager)
+    const stageOf = app => { const a = w.applications.find(x => x.id === app.id); return w.vacancies.find(v => v.id === a.vacancy).stages.find(st => st.id === a.stage).name }
+    assert.deepEqual([stageOf(w1), stageOf(r1)], ['Applied', 'Screen'])
+    const audit = (await state()).audit
+    assert.ok(audit.some(e => e.action === 'bulk-item-refused' && e.record === 'application:' + w1.id) && audit.some(e => e.action === 'bulk-applied' && e.applied === 1 && e.refused === 2))
+    // Resubmitting the same batch returns its outcome and moves nobody again.
+    const again = (await bulk('bulk-apply', { batch, items: [w1.id, r1.id], action: moveTo, previewed })).value
+    assert.deepEqual([again.replayed, again.applied], [true, 1])
+    assert.equal(w.applications.find(a => a.id === r1.id).history.filter(h => h.reason === 'Strong portfolios').length, 1)
+
+    // Bulk tags and reviewers go through the same per-item checks.
+    const tagged = (await bulk('bulk-preview', { items: [w2.id, r2.id], action: { kind: 'tag', tag: 'Night shift' } })).value
+    const tagSeen = Object.fromEntries(tagged.items.map(i => [i.application, i.seen]))
+    assert.equal((await bulk('bulk-apply', { batch: 'bulk-tag-0001', items: [w2.id, r2.id], action: { kind: 'tag', tag: 'Night shift' }, previewed: tagSeen })).value.applied, 2)
+
+    // Bulk rejection: a DISP-001 reason and a two-business-day template; the preview shows each recipient and filled text.
+    const template = await cmd('rejection-template', { name: 'Bulk certification', subject: 'Your application for {job_title}', body: 'Dear {candidate_name}, thank you. — {business_name}' })
+    const reject = { kind: 'reject', closeReason: 'certification', send: 'delay', businessDays: 2, template: template.id }
+    const rp = (await bulk('bulk-preview', { items: [w2.id, r2.id], action: reject })).value
+    assert.deepEqual(rp.items.map(i => [i.email.to, i.email.subject, i.email.body]), [
+      ['ruth.kemal@bulk.example.test', 'Your application for Bulk Welder', 'Dear Ruth Kemal, thank you. — Example Builders'],
+      ['saul.ito@bulk.example.test', 'Your application for Bulk Rigger', 'Dear Saul Ito, thank you. — Example Builders']])
+    const rejectSeen = Object.fromEntries(rp.items.map(i => [i.application, i.seen]))
+    for (let i = 0; i < 2; i++) await bulk('bulk-apply', { batch: 'bulk-reject-0001', items: [w2.id, r2.id], action: reject, previewed: rejectSeen })
+    w = await state(manager)
+    for (const app of [w2, r2]) {
+      assert.deepEqual([w.applications.find(a => a.id === app.id).status, w.rejectionEmails.filter(m => m.application === app.id).map(m => [m.businessDays, m.state])], ['rejected', [[2, 'scheduled']]], 'one scheduled DISP-001 email each, even after resubmission')
+      assert.equal(w.applications.find(a => a.id === app.id).history.at(-1).reason, 'Lacks required certification')
+    }
+  })
+
   await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {
     const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
     const [authorized, relocate, cdl, story] = [q('Are you legally authorized to work in the US?'), q('Willing to relocate?'), q('Years holding a Class A CDL'), q('Tell us about a job you finished early')]
