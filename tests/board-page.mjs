@@ -32,7 +32,7 @@ export async function careersPage(browser, { lodge, site, board, job, width, evi
     await card.getByRole('button', { name: 'View ' + job.title }).click()
     await page.getByLabel('Full name').fill('Jules Moreno')
     await page.getByLabel('Email').fill(email)
-    await page.getByLabel('Resume', { exact: false }).setInputFiles({ name: 'resume.txt', mimeType: 'text/plain', buffer: Buffer.from('Jules Moreno\nYard lead 2019-2026\n') })
+    await page.getByLabel('Resume', { exact: false }).setInputFiles({ name: 'jules.txt', mimeType: 'text/plain', buffer: Buffer.from('Jules Moreno\nYard lead 2019-2026\n') })
     await page.getByLabel('I have read privacy notice', { exact: false }).check()
     const { scroll, inner } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, inner: window.innerWidth }))
     assert.ok(scroll <= inner + 1, `careers page at ${width}: no sideways scrolling (${scroll} > ${inner})`)
