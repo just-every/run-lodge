@@ -71,7 +71,9 @@ lists; see REQ-003), `job-template` (admins: `name` with `fromVacancy` and/or `s
 event | other, aliases?: [free-text sources mapped onto it], retired? }`), `source-settings` (admins: `{ onMerge: own |
 first-touch }`), `source-credit` (people who run the job: `{ application, kind: employee | agency | sourcer | recruiter,
 who, reason }`; `candidate` and `apply` also take `referrer` (an employee's email) or `agency` to credit them),
-`assign-reviewers`, `board-view` (PIPE-001, your own view of a job's board: `{ vacancy, layout: columns | list,
+`fair-chance-places` (HIRE-007, admins: `{ places: [{ place, waitingDays? }] }`), `fair-chance-step` (admins, after a
+conditional offer: `{ application, step: assessment | pre-adverse-notice | final-decision, text, date? (notice day),
+outcome? (proceed | adverse) }`; `offer` takes `conditional: true`), `assign-reviewers`, `board-view` (PIPE-001, your own view of a job's board: `{ vacancy, layout: columns | list,
 sort: activity | days | name | submitted, filters: { source?, reviewer?, tag?, rule? } }`), `move` (a stage move takes `to` and `reason`; a close takes `to: "rejected" | "withdrawn"`,
 `closeReason` (a current reason id of the matching group from `rejectionReasons`), an optional `reason` note
 and, for a rejection only, `send: none | now | delay` with `template` and `businessDays` 1–20),

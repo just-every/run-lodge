@@ -365,8 +365,8 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.deepEqual((await state()).retention.due.map(r => r.candidate), [publicApp.candidate], 'past-date records with no open application are listed for review')
   })
 
-  const openJob = async title => {
-    const draft = await cmd('vacancy', { title, location: 'Denver, CO', headcount: 1, compensation: RANGE, manager: 'morgan@example.test' }, manager)
+  const openJob = async (title, location = 'Denver, CO') => {
+    const draft = await cmd('vacancy', { title, location, headcount: 1, compensation: RANGE, manager: 'morgan@example.test' }, manager)
     const v = await cmd('rubric', { id: draft.id, criteria: RUBRIC }, manager)
     await cmd('interview-plan', { id: v.id, plan: [{ name: 'Floor walk', stage: v.stages[2].id }] }, manager)
     await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
@@ -716,6 +716,58 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     const after = (await send('/api/lodge/download/audit' + period, undefined, owner)).text
     for (const personal of ['Zed Quill', 'zed.q', 'AUDITMOVE']) assert.ok(!after.includes(personal), personal + ' is gone from the audit')
     assert.ok(JSON.parse(after).events.some(e => e.action === 'candidate-deleted' && e.record === 'candidate:' + candidate.id))
+  })
+
+  await t.test('HIRE-007 fair-chance places: no criminal-history question before a conditional offer, then assessment, notice and a waiting period, restricted to admins', async () => {
+    assert.equal((await send('/api/lodge/command/fair-chance-places', { places: [{ place: 'California' }] }, manager)).status, 403)
+    await cmd('fair-chance-places', { places: [{ place: 'California', waitingDays: 5 }] })
+    const la = await openJob('Forklift operator', 'Los Angeles, CA'), denver = await openJob('Forklift lead')
+    const conviction = await cmd('question', { text: 'Have you ever been convicted of a felony?', type: 'yes-no' })
+    const forklift = await cmd('question', { text: 'Do you hold a forklift certificate?', type: 'yes-no' })
+    const attach = (job, qs) => send('/api/lodge/command/job-questions', { id: job.id, questions: qs.map(q => ({ question: q.id, required: false })) }, manager)
+    const refused = await attach(la, [forklift, conviction])
+    assert.equal(refused.status, 400); assert.match(refused.value.error, /California is a fair-chance place/)
+    assert.equal((await attach(la, [forklift])).status, 200)
+    assert.equal((await attach(denver, [forklift, conviction])).status, 200, 'Denver is not a fair-chance place')
+    const page = async job => (await send('/jobs/' + (await state(manager)).vacancies.find(v => v.id === job.id).slug)).text
+    assert.ok((await page(denver)).includes('convicted of a felony'))
+    // Naming Colorado later takes the attached question off the Denver application page too.
+    await cmd('fair-chance-places', { places: [{ place: 'California', waitingDays: 5 }, { place: 'CO', waitingDays: 3 }] })
+    assert.ok(!(await page(denver)).includes('convicted of a felony') && (await page(denver)).includes('forklift certificate'))
+    await cmd('fair-chance-places', { places: [{ place: 'California', waitingDays: 5 }] })
+
+    // Nothing before a conditional offer; then the assessment, the notice and the waiting period, in that order.
+    const { application: app } = await cmd('candidate', { name: 'Cruz Vega', email: 'cruz.vega@example.test', source: 'Careers page', consentBasis: 'manual', vacancy: la.id }, manager)
+    const step = (body, cookie = owner) => send('/api/lodge/command/fair-chance-step', { application: app.id, ...body }, cookie)
+    assert.equal((await step({ step: 'assessment', text: 'Early' })).status, 409, 'no conditional offer yet')
+    const [opening] = (await state(manager)).vacancies.find(v => v.id === la.id).openings
+    const plain = await cmd('offer', { application: app.id, title: 'Forklift operator', startDate: '2027-05-03', salary: { currency: 'USD', amount: 9500000, period: 'year' }, opening: opening.id }, manager)
+    await approve((await cmd('request-offer-approval', { id: plain.id, approver: 'parker@example.test' }, manager)).id)
+    assert.equal((await step({ step: 'assessment', text: 'Early' })).status, 409, 'an offer not marked conditional does not open the steps')
+    const offer = await cmd('offer', { id: plain.id, application: app.id, title: 'Forklift operator', startDate: '2027-05-03', salary: { currency: 'USD', amount: 9500000, period: 'year' }, opening: opening.id, conditional: true }, manager)
+    assert.equal((await step({ step: 'assessment', text: 'Early' })).status, 409, 'marking it conditional changed the terms: it needs approval again')
+    await approve((await cmd('request-offer-approval', { id: offer.id, approver: 'parker@example.test' }, manager)).id)
+    assert.equal((await step({ step: 'assessment', text: 'Manager view' }, manager)).status, 403, 'admins only')
+    assert.equal((await step({ step: 'pre-adverse-notice', date: new Date().toISOString().slice(0, 10), text: 'Letter' })).status, 409, 'the assessment comes first')
+    await cmd('fair-chance-step', { application: app.id, step: 'assessment', text: 'FCA-ASSESS 2014 conviction unrelated to forklift duties; ten years since' })
+    const today = (await state(owner)).fairChance && new Date().toLocaleDateString('en-CA', { timeZone: BUSINESS.timeZone })
+    const noticed = await cmd('fair-chance-step', { application: app.id, step: 'pre-adverse-notice', date: today, text: 'Letter and report copy handed over' })
+    assert.equal(noticed.adverseFrom, new Date(Date.parse(today) + 5 * 86400000).toISOString().slice(0, 10))
+    const early = await step({ step: 'final-decision', outcome: 'adverse', text: 'Too soon' })
+    assert.equal(early.status, 409); assert.match(early.value.error, new RegExp('runs until ' + noticed.adverseFrom))
+    // Five days later (the stored notice day moved back), the final adverse decision may be recorded.
+    await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.notice.date',?) WHERE kind='fair-chance-record' AND id=?").bind(new Date(Date.parse(today) - 5 * 86400000).toISOString().slice(0, 10), app.id).run()
+    await cmd('fair-chance-step', { application: app.id, step: 'final-decision', outcome: 'adverse', text: 'Individualized assessment and response considered' })
+    assert.equal((await step({ step: 'assessment', text: 'Late' })).status, 409, 'the decision closes the steps')
+    // Restricted: the owner and admins see it; the manager, interviewers, search and agents do not; the access export carries it.
+    const ownerView = await state(owner)
+    assert.deepEqual(ownerView.fairChance.records.map(r => [r.application, r.decision.outcome, r.assessments.length]), [[app.id, 'adverse', 1]])
+    for (const who of [manager, ivy]) { const v = await state(who); assert.equal(v.fairChance, null); assert.ok(!JSON.stringify(v).includes('FCA-ASSESS')) }
+    assert.deepEqual((await send('/api/lodge/search?q=FCA-ASSESS', undefined, owner)).value.results, [])
+    const exported = (await send('/api/lodge/download/candidate/' + app.candidate, undefined, owner)).value
+    assert.equal(exported['fair-chance-record'][0].assessments[0].text.slice(0, 10), 'FCA-ASSESS')
+    await cmd('offer-outcome', { id: offer.id, outcome: 'withdrawn', reason: 'Final adverse decision' }, manager)
+    await cmd('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Fair-chance test done' }, manager)
   })
 
   await t.test('OFFER-006 a recruiter records an offer signed outside Lodge: bytes bound to the approved terms, hire recorded, honest label', async () => {

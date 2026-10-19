@@ -1,7 +1,7 @@
 import type { PageProps } from './app'
 import { day, money } from './format'
 import { person, sentence, tone } from './names'
-import { cents, Field, fileFrom, Form, memberOptions, readFile, Status, type D } from './shared'
+import { cents, Check, Field, fileFrom, Form, memberOptions, readFile, Status, type D } from './shared'
 
 const purpose = (p: string) => sentence(p.replace(/-/g, ' '))
 
@@ -39,6 +39,7 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
       <h4>{o.title} · {money(o.salary)} · starts {day(o.startDate)}{o.opening && ` · opening ${v?.openings?.find((x: D) => x.id === o.opening)?.code ?? ''}`} {o.status === 'draft' ? approvalState(o, w) : <Status tone={tone(o.status)}>{o.status}</Status>}</h4>
       {o.signature && <p className="hint"><strong>{o.signature.label[0].toUpperCase() + o.signature.label.slice(1)}.</strong> Signed original <a href={`/api/lodge/download/document/${o.signature.document}`}>on file</a> ({o.signature.method === 'hris' ? 'signed in the HR system' : o.signature.method === 'paper' ? 'signed on paper' : 'signed in another tool'}), SHA-256 {o.signature.sha256.slice(0, 12)}…, attested by {person(w, o.signature.attestedBy)}{o.signature.differences ? `; differences: ${o.signature.differences}` : '; no differences named'}.</p>}
       {o.rangeWarning && <p className="warn">{o.rangeWarning}.</p>}
+      {o.conditional && <p className="hint">Conditional offer: any background check comes after it.</p>}
       {o.terms && <p className="pre">{o.terms}</p>}
       <p><a href={`/api/lodge/download/packet/${o.id}`}>Approval packet (JSON)</a>{o.status === 'accepted' && <> · <a href={`/api/lodge/download/handoff/${o.id}`}>HR handoff (JSON)</a></>}</p>
       {o.status === 'draft' && <>
@@ -61,13 +62,14 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
         </details>}
       </>}
     </article>)}
-    {app.status === 'active' && !list.some((o: D) => o.status === 'draft') && <details><summary>Prepare an offer</summary><Form label="Save offer" reset onSubmit={x => mutate('offer', { application: app.id, title: x.title, startDate: x.startDate, terms: x.terms, opening: x.opening || undefined, salary: { currency: x.currency.toUpperCase(), amount: cents(x.amount), period: x.period } })}>
+    {app.status === 'active' && !list.some((o: D) => o.status === 'draft') && <details><summary>Prepare an offer</summary><Form label="Save offer" reset onSubmit={x => mutate('offer', { application: app.id, title: x.title, startDate: x.startDate, terms: x.terms, opening: x.opening || undefined, conditional: x.conditional === true, salary: { currency: x.currency.toUpperCase(), amount: cents(x.amount), period: x.period } })}>
       <Field label="Job title" name="title" defaultValue={v?.title} />
       <Field label="Start date" name="startDate" type="date" />
       <Field label="Currency" name="currency" defaultValue={v?.compensation?.currency ?? 'USD'} />
       <Field label="Pay" name="amount" type="number" />
       <Field label="Pay period" name="period" defaultValue={v?.compensation?.period ?? 'year'} options={[{ value: 'year', label: 'per year' }, { value: 'month', label: 'per month' }, { value: 'hour', label: 'per hour' }]} />
       <Field label="Other terms" name="terms" type="textarea" wide required={false} />
+      <Check name="conditional" label="Conditional offer: any background check comes after it" />
       {(v?.openings ?? []).some((o: D) => o.status === 'open') && <Field label="Opening it fills" name="opening" defaultValue={v!.openings.find((o: D) => o.status === 'open').id} options={v!.openings.filter((o: D) => o.status === 'open').map((o: D) => ({ value: o.id, label: o.code }))} />}
     </Form></details>}
   </section>

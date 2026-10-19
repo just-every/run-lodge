@@ -8,6 +8,7 @@ import { Answers } from '../questions'
 import { lastMove, openProposals, proposalApplication, stageName } from './facts'
 import { CloseForm, RejectionEmails } from '../rejections'
 import { SourceCredit } from '../sources'
+import { FairChanceSteps } from '../fair-chance'
 
 const OUTCOMES: D = { disqualified: 'disqualified', 'open-in-source': 'still open in Workable' }
 
@@ -69,6 +70,7 @@ export function RecordOverview({ app, v, c, w, mutate }: { app: D; v?: D; c: D; 
       <Field label={`Marked as spam: ${app.spam.reason}. Reason to restore it`} name="reason" />
     </Form>}
     <RejectionEmails app={app} w={w} />
+    <FairChanceSteps app={app} w={w} mutate={mutate} />
     <h3>History</h3>
     <ol className="history">{app.history.map((e: D) => <li key={e.id}><strong>{e.reopened ? 'Reopened into ' : ''}{stageName(v, e.to)}</strong><span>{when(e.at)} · {person(w, e.actor)}</span><span>{[e.reason, e.note].filter(Boolean).join(' · ')}</span></li>)}</ol>
     {app.earlier?.map((x: D) => <details key={x.application}><summary>Earlier on {x.title}</summary><ol className="history">{x.history.map((e: D) => <li key={e.id}><strong>{stageName(w.vacancies.find((j: D) => j.id === x.vacancy), e.to)}</strong><span>{when(e.at)} · {person(w, e.actor)}</span><span>{e.reason}</span></li>)}</ol></details>)}

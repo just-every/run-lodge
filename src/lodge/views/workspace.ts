@@ -20,6 +20,7 @@ import { rejectionsView } from '../records/rejections'
 import { reviewQueues } from '../records/reviews'
 import { boardViews } from '../records/board-views'
 import { mergeRule, sourceOf } from '../records/sources'
+import { fairChanceView } from '../records/fair-chance'
 
 /**
  * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
@@ -183,6 +184,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     ],
     messages, offers, approvals,
     restricted: admin ? s.all('monitoring').filter(m => !hiddenApp(m.application)) : [],
+    // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.
+    fairChance: admin ? fairChanceView(s, a, appIds) : null,
     holds: admin ? s.all('hold').filter(h => !(h.candidate && hiddenCandidate(h.candidate)) && !(h.vacancy && hiddenVacancy(h.vacancy))) : [],
     retention: admin ? (r => ({ due: r.due.filter(x => !hiddenCandidate(x.candidate)), held: r.held.filter(x => !hiddenCandidate(x.candidate)) }))(retentionReview(s)) : null,
     dataRequests: admin ? s.all('data-request').filter(r => !hiddenCandidate(r.candidate)) : [],

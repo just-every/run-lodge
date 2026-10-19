@@ -1,6 +1,7 @@
 import type { State } from '../core/state'
 import { isAdmin, requireAdmin, requireManages } from '../core/access'
 import { protectedTerm } from '../core/protected'
+import { CRIMINAL_HISTORY, fairChancePlace } from './fair-chance'
 import { date, list, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 
 // SCREEN-001: the screening-question library. Admins keep reusable questions
@@ -52,9 +53,12 @@ export function jobQuestions(s: State, a: Actor, b: Data) {
   const v = s.get('vacancy', b.id)
   requireManages(a, v)
   requireThat(!v.imported && v.status !== 'closed', 'Questions go on a live job only', 409)
+  const place = fairChancePlace(s, v)
   const attached = list(b.questions ?? [], 'Screening questions', 20, (x: any) => {
     const q = s.get('question', x?.question, 'question')
     allowed(currentVersion(q).text, 'The question')
+    // HIRE-007: at a fair-chance place criminal history waits until after a conditional offer.
+    if (place) requireThat(!CRIMINAL_HISTORY.test(currentVersion(q).text), `${place.place} is a fair-chance place: criminal-history questions wait until after a conditional offer`)
     return { question: q.id as string, required: x.required === undefined ? currentVersion(q).required : x.required === true }
   })
   requireThat(new Set(attached.map(x => x.question)).size === attached.length, 'Attach each question once')
@@ -65,9 +69,11 @@ export function jobQuestions(s: State, a: Actor, b: Data) {
 
 /** The questions a job's applicants answer, as they read today. */
 export function jobForm(s: State, v: Data) {
+  // HIRE-007: a job at a fair-chance place never asks a criminal-history question, even one attached before the place was named.
+  const fairChance = !!fairChancePlace(s, v)
   return (v.questions ?? []).flatMap((x: Data) => {
     const q = s.find('question', x.question)
-    return q ? [{ question: q.id, required: x.required, ...currentVersion(q) }] : []
+    return q && !(fairChance && CRIMINAL_HISTORY.test(currentVersion(q).text)) ? [{ question: q.id, required: x.required, ...currentVersion(q) }] : []
   })
 }
 

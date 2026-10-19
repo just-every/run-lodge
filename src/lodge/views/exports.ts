@@ -64,7 +64,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
     application: applications, 'stage-event': applications.flatMap(app => app.history),
     interview: byApp(view.interviews), scorecard: byApp(view.scorecards), debrief: byApp(view.debriefs), 'interview-note': byApp(view.notes),
     'team-note': view.teamNotes.filter(n => n.candidate === id), activity: view.activity.filter(e => e.candidate === id),
-    message: messages, offer: offers, receipt: byApp(view.receipts), monitoring: byApp(view.restricted),
+    message: messages, offer: offers, receipt: byApp(view.receipts), monitoring: byApp(view.restricted), 'fair-chance-record': byApp(view.fairChance?.records ?? []),
     approval: view.approvals.filter(r => subjectIds.has(r.subjectId)), document: documents,
     'duplicate-review': view.duplicateReviews.filter(r => r.first === id || r.second === id),
     'imported-note': byApp(view.importedHistory.notes), 'imported-rating': byApp(view.importedHistory.ratings), 'imported-message': byApp(view.importedHistory.messages),

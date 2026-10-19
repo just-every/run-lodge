@@ -21,11 +21,14 @@ export function offer(s: State, a: Actor, b: Data) {
     startDate: date(b.startDate, 'Start date'), terms: optionalText(b.terms, 'Other terms', 8000),
     // REQ-001: the opening this offer fills once accepted; part of the approved terms.
     opening: namedOpening(vacancy, b.opening),
+    // HIRE-007: an offer conditional on a background check; part of the approved terms.
+    ...(b.conditional === true ? { conditional: true } : {}),
   }
   if (b.id) {
     const current = s.get('offer', b.id)
     requireThat(current.application === app.id && current.status === 'draft', 'Only a draft offer can change', 409)
-    const record = s.put('offer', current.id, { ...current, ...fields, editedAt: now() })
+    const { conditional, ...kept } = current
+    const record = s.put('offer', current.id, { ...kept, ...fields, editedAt: now() })
     s.audit(a, 'offer-edited', 'offer:' + current.id)
     return record
   }
