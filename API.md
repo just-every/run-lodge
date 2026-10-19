@@ -16,6 +16,9 @@ cookie or sign-in URL in a task, log or source file.
 - `GET /api/lodge/search?q=`: matches within that same workspace.
 - `GET /api/lodge/talent?q=`: owner/admin: prior candidates with current
   permission to be contacted whose own words match; matched fields shown, no score.
+- `GET /api/lodge/reports/openings?department=&office=`: admins and hiring managers: the jobs they run
+  (optionally in a department with its sub-departments, or an office), each opening's status and time to
+  fill in whole days from its own open date, and the summed applications funnel.
 - `GET /api/lodge/reports/interviewers`: admins and hiring managers: per interviewer and job they run,
   interviews held, scorecards on time, late or missing against the business's `scorecardDueHours`
   (default 24), average hours to submit, released recommendations only, upcoming load, and each item.

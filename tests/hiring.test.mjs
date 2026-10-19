@@ -818,6 +818,9 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     const filled = v.openings.find(o => o.id === first.id)
     assert.deepEqual([filled.status, filled.code, filled.offer, filled.application], ['filled', 'CARP-2026-01', named.id, hire.id])
     assert.ok(filled.filledAt >= filled.openedAt, 'time to fill runs from the opening’s own open date')
+    const fillReport = (await send('/api/lodge/reports/openings', undefined, manager)).value.openings.filter(x => x.vacancy === job.id)
+    assert.deepEqual(fillReport.map(x => [x.opening, x.status, x.daysToFill]), [['CARP-2026-01', 'filled', 0], [second.code, 'open', null], [third.code, 'open', null]], 'REPORT-001 time to fill per opening, from its own open date')
+    assert.equal((await send('/api/lodge/reports/openings', undefined, ivy)).status, 403)
     assert.deepEqual((await send('/api/lodge/download/handoff/' + named.id, undefined, manager)).value.opening, { id: 'CARP-2026-01', targetStart: '2027-01-11', openedAt: filled.openedAt, filledAt: filled.filledAt }, 'the HR handoff names the filled opening')
 
     // Closing an opening without a hire needs a reason.
@@ -920,6 +923,11 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.deepEqual(await titles(`?department=${ops.id}`), ['Picker'])
     assert.deepEqual(await titles(`?office=${remote.id}`), ['Platform engineer'])
     assert.match((await send('/jobs')).text, /<label>Department<select name="department">/)
+    await cmd('candidate', { name: 'Pia Lund', email: 'pia@example.test', source: 'Referral', consentBasis: 'referral', vacancy: picker.id }, manager)
+    const report = async query => (await send('/api/lodge/reports/openings' + query, undefined, manager)).value
+    const byOps = await report(`?department=${ops.id}`), byRemote = await report(`?office=${remote.id}`)
+    assert.deepEqual([byOps.jobs.map(j => j.title), byOps.funnel.applicants, byOps.funnel.active], [['Picker'], 1, 1], 'the REPORT-001 funnel filtered by department')
+    assert.deepEqual([byRemote.jobs.map(j => j.title), byRemote.funnel.applicants], [['Platform engineer'], 0], 'and by office')
     await cmd('opening', { vacancy: picker.id, opening: picker.openings[0].id, code: 'PICK-01', office: remote.id }, manager)
     assert.deepEqual(await titles(`?office=${remote.id}`), ['Picker', 'Platform engineer'])
 

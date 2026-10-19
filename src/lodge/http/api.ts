@@ -7,13 +7,14 @@ import { Fault, requireThat, type Actor, type Data } from '../core/types'
 import type { State } from '../core/state'
 import { run } from '../commands'
 import { invite } from '../core/invitation'
-import { workspace } from '../views/workspace'
+import { workspace, workspaceRecords } from '../views/workspace'
 import { search, talentPool } from '../views/search'
 import { candidateActivity, candidateExport, vacancyHistory } from '../views/exports'
 import { calendarFile } from '../records/interviews'
 import { emlFile } from '../records/messages'
 import { handoff, packet } from '../views/offer-exports'
 import { kitView } from '../views/kits'
+import { openingsReport } from '../views/openings-report'
 import { deleteCandidate } from '../records/retention'
 import { erasureTransfers } from '../records/erasure-transfers'
 import { retentionUntil } from '../records/candidates'
@@ -86,6 +87,13 @@ api.get('/api/lodge/reports/interviewers', async c => {
   const { state, actor } = await context(c)
   const report = (await workspace(state, actor)).interviewerActivity
   requireThat(report, 'Only admins and hiring managers see interviewer activity', 403)
+  return c.json(report)
+})
+
+api.get('/api/lodge/reports/openings', async c => {
+  const { state, actor } = await context(c)
+  const report = openingsReport(state, actor, await workspaceRecords(state, actor), { department: c.req.query('department') || undefined, office: c.req.query('office') || undefined })
+  requireThat(report, 'Only admins and hiring managers see openings and funnels', 403)
   return c.json(report)
 })
 
