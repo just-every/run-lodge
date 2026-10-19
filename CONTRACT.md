@@ -323,8 +323,8 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 6 | 37 | 65 | 108 |
-| All | 23 | 37 | 65 | 125 |
+| Target and push further | 7 | 37 | 64 | 108 |
+| All | 24 | 37 | 64 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -400,7 +400,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `SCORE-002` | Scorecard corrections as linked versions | target | done | `src/lodge/records/scorecards.ts`; `src/lodge/views/offer-exports.ts`; `src/ui/scorecards.tsx`; `tests/hiring.test.mjs` |  |
 | `ASSESS-001` | Native take-home tests | target | missing |  | No take-home or assessment flow exists. |
 | `ASSESS-002` | CoderPad and TestGorilla assessments | target | missing |  | No assessment provider connection exists. |
-| `TEAM-001` | Shared candidate notes and activity feed | target | missing |  | Only private interviewer notes exist; there is no shared note or candidate activity feed. |
+| `TEAM-001` | Shared candidate notes and activity feed | target | done | `src/lodge/records/notes.ts`; `src/lodge/views/activity.ts`; `src/lodge/core/access.ts`; `src/ui/notes.tsx`; `tests/hiring.test.mjs` |  |
 | `TEAM-002` | @mentions with access-checked notifications | target | missing |  | No @mentions or note notifications exist. |
 | `TEAM-003` | Personal notification subscriptions | target | missing |  | Members receive no email or in-app notifications about hiring events. |
 | `HOME-001` | Personal work dashboard | target | partial | `src/ui/overview.tsx`; `src/lodge/agents/coordination.ts` | Home counts approvals and unsubmitted scorecards and lists scorecards to write and coordination facts; upcoming interviews, review assignments, mentions, tasks, offers and per-item links across jobs are absent. |

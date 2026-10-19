@@ -112,6 +112,19 @@ export function canSeeNote(s: State, a: Actor, note: Data) {
   return note.author === scope(a) && !!app && canSeeApplication(s, a, app)
 }
 
+/**
+ * A shared candidate note reaches everyone who can see the candidate; a private
+ * one only admins, the hiring managers of the note's job and its author.
+ */
+export function canSeeTeamNote(s: State, a: Actor, note: Data) {
+  const candidate = s.find('candidate', note.candidate)
+  if (!candidate || !canSeeCandidate(s, a, candidate)) return false
+  if (!note.private || isAdmin(a) || note.author === scope(a)) return true
+  const app = note.application && s.find('application', note.application)
+  const vacancy = app && s.find('vacancy', app.vacancy)
+  return !!vacancy && managesVacancy(a, vacancy)
+}
+
 /** Approval terms have their own assigned reviewer grant, independent of application visibility. */
 export function canSeeApproval(s: State, a: Actor, approval: Data) {
   if (isAdmin(a)) return true

@@ -6,13 +6,14 @@ import { Interviews } from '../interviews'
 import { ScorecardForm, Scorecards } from '../scorecards'
 import { Messages, Offers } from '../decisions'
 import { Documents } from '../documents'
+import { Notes } from '../notes'
 import { RecordOverview } from './record'
 
-/** The open application beside the board: who they are, then its record in five tabs. */
+/** The open application beside the board: who they are, then its record in tabs. */
 export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () => void } & PageProps) {
   const v = w.vacancies.find((x: D) => x.id === app.vacancy)
   const c = w.candidates.find((x: D) => x.id === app.candidate) ?? { name: app.candidateName }
-  const tabs = ['Overview', 'Interviews', 'Scorecards', ...(app.manages ? ['Decisions'] : []), 'Documents']
+  const tabs = ['Overview', 'Notes', 'Interviews', 'Scorecards', ...(app.manages ? ['Decisions'] : []), 'Documents']
   const [tab, setTab] = useState('Overview')
   const id = (t: string) => `panel-${t.toLowerCase()}`
   return <section className="app-panel" aria-label={`Application of ${c.name}`}>
@@ -26,6 +27,7 @@ export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () 
     </div>
     <div role="tabpanel" id={id(tab)} aria-labelledby={id(tab) + '-tab'} className="tab-body">
       {tab === 'Overview' && <RecordOverview app={app} v={v} c={c} w={w} mutate={mutate} />}
+      {tab === 'Notes' && <Notes app={app} w={w} mutate={mutate} />}
       {tab === 'Interviews' && <Interviews app={app} v={v} w={w} mutate={mutate} />}
       {tab === 'Scorecards' && <><Scorecards app={app} v={v} w={w} mutate={mutate} /><ScorecardForm app={app} v={v} w={w} mutate={mutate} /></>}
       {tab === 'Decisions' && <><Offers app={app} v={v} w={w} mutate={mutate} /><Messages app={app} w={w} mutate={mutate} /></>}

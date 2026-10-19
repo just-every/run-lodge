@@ -1,6 +1,6 @@
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
-import { canSeeApproval, canSeeNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
+import { canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
 import { scope, type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { duplicateSuggestions, transferredFrom } from '../records/candidates'
@@ -10,6 +10,7 @@ import { rangeCheck } from '../records/offers'
 import { retentionReview } from '../records/retention'
 import { missingTerms } from '../records/vacancies'
 import { coordination } from '../agents/coordination'
+import { activity } from './activity'
 
 /**
  * The actor's whole permitted view. The app, search, exports and the agent
@@ -68,36 +69,41 @@ export async function workspaceRecords(s: State, a: Actor) {
   }
 
   const visibleCards = versioned(s.all('scorecard').filter(c => canSeeScorecard(s, a, c)))
+  const projected = applications.map((app): Data => {
+    const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
+    const manages = !!vacancy && managesVacancy(a, vacancy)
+    const cards = s.all('scorecard').filter(c => c.application === app.id)
+    return {
+      ...app, manages, candidateName: s.all('candidate').find(c => c.id === app.candidate)?.name ?? 'Unknown', history: history(s, app.id),
+      // The source applications' stage histories travel with a transfer; their scorecards stay with their own job's panel.
+      earlier: transferredFrom(s, app).map(x => ({ application: x.id, vacancy: x.vacancy, title: s.find('vacancy', x.vacancy)?.title ?? '', history: history(s, x.id) })),
+      panel: manages ? panel(s, app).map(p => ({ email: p, submitted: cards.some(c => c.author === p && c.status === 'submitted') })) : undefined,
+      scorecardSummary: summary(s, app, visibleCards),
+    }
+  })
+  const interviews = s.all('interview').filter(i => appIds.has(i.application)).map((i): Data => {
+    const app = applications.find(x => x.id === i.application)!
+    const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
+    // The candidate's availability link is a credential for the hiring team only.
+    return vacancy && managesVacancy(a, vacancy) ? i : { ...i, candidateToken: undefined }
+  })
+  const visibleCandidates = new Set(candidates.map(c => c.id))
+  const teamNotes = s.all('team-note').filter(n => visibleCandidates.has(n.candidate) && canSeeTeamNote(s, a, n)).sort((x, y) => x.at.localeCompare(y.at))
   return {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
     members: s.all('member').map(m => admin ? m : { email: m.email, name: m.name, roles: m.roles, active: m.active }),
     vacancies,
-    applications: applications.map((app): Data => {
-      const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
-      const manages = !!vacancy && managesVacancy(a, vacancy)
-      const cards = s.all('scorecard').filter(c => c.application === app.id)
-      return {
-        ...app, manages, candidateName: s.all('candidate').find(c => c.id === app.candidate)?.name ?? 'Unknown', history: history(s, app.id),
-        // The source applications' stage histories travel with a transfer; their scorecards stay with their own job's panel.
-        earlier: transferredFrom(s, app).map(x => ({ application: x.id, vacancy: x.vacancy, title: s.find('vacancy', x.vacancy)?.title ?? '', history: history(s, x.id) })),
-        panel: manages ? panel(s, app).map(p => ({ email: p, submitted: cards.some(c => c.author === p && c.status === 'submitted') })) : undefined,
-        scorecardSummary: summary(s, app, visibleCards),
-      }
-    }),
+    applications: projected,
     candidates,
     mergedCandidates: admin ? s.all('candidate').filter(c => c.mergedInto) : [],
     receipts: admin ? s.all('receipt') : [],
     duplicateReviews: admin ? s.all('duplicate-review') : [],
     documents: s.all('document').filter(d => canSeeDocument(s, a, s.get('document', d.id))),
-    interviews: s.all('interview').filter(i => appIds.has(i.application)).map((i): Data => {
-      const app = applications.find(x => x.id === i.application)!
-      const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
-      // The candidate's availability link is a credential for the hiring team only.
-      return vacancy && managesVacancy(a, vacancy) ? i : { ...i, candidateToken: undefined }
-    }),
+    interviews,
     scorecards: visibleCards,
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
+    teamNotes, activity: activity(s, { applications: projected, messages, interviews, offers, teamNotes }),
     notifications: s.all('notification').filter(n => n.to === scope(a) && appIds.has(n.application)).sort((x, y) => y.at.localeCompare(x.at)),
     messages, offers, approvals,
     restricted: admin ? s.all('monitoring') : [],

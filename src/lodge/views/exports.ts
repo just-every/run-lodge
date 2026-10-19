@@ -22,9 +22,21 @@ export function vacancyHistory(w: Workspace, id: string) {
     applications, candidates: w.candidates.filter(c => candidateIds.has(c.id)),
     documents: w.documents.filter(d => appIds.has(d.application) || (candidateIds.has(d.candidate) && !d.application)),
     interviews: forApp(w.interviews), scorecards: forApp(w.scorecards), messages: forApp(w.messages), offers: forApp(w.offers),
+    teamNotes: w.teamNotes.filter(n => appIds.has(n.application) || (candidateIds.has(n.candidate) && !n.application)),
+    activity: w.activity.filter(e => appIds.has(e.application) || (e.kind === 'note' && candidateIds.has(e.candidate) && !e.application)),
     restricted: forApp(w.restricted), holds: w.holds.filter(h => h.vacancy === id || candidateIds.has(h.candidate)),
     importedHistory: { notes: forApp(w.importedHistory.notes), ratings: forApp(w.importedHistory.ratings), messages: forApp(w.importedHistory.messages) },
     audit: w.audit.filter(e => e.record === 'vacancy:' + id || [...appIds].some(x => e.record === 'application:' + x)),
+  }
+}
+
+/** One candidate's feed and shared notes, for anyone who can see the candidate, exactly as their workspace shows them. */
+export function candidateActivity(w: Workspace, id: string) {
+  const candidate = w.candidates.find(c => c.id === id)
+  if (!candidate) throw new Fault(404, 'Candidate not found')
+  return {
+    format: 'lodge-candidate-activity-1', exportedAt: now(), exportedBy: w.actor.email, candidate: { id: candidate.id, name: candidate.name },
+    notes: w.teamNotes.filter(n => n.candidate === id), activity: w.activity.filter(e => e.candidate === id),
   }
 }
 
@@ -51,6 +63,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
     candidate, mergedCandidates: mergedCandidates(view.mergedCandidates, id),
     application: applications, 'stage-event': applications.flatMap(app => app.history),
     interview: byApp(view.interviews), scorecard: byApp(view.scorecards), 'interview-note': byApp(view.notes),
+    'team-note': view.teamNotes.filter(n => n.candidate === id), activity: view.activity.filter(e => e.candidate === id),
     message: messages, offer: offers, receipt: byApp(view.receipts), monitoring: byApp(view.restricted),
     approval: view.approvals.filter(r => subjectIds.has(r.subjectId)), document: documents,
     'duplicate-review': view.duplicateReviews.filter(r => r.first === id || r.second === id),

@@ -19,7 +19,8 @@ cookie or sign-in URL in a task, log or source file.
 - Downloads: `/api/lodge/download/document/:id` (original bytes),
   `/calendar/:interviewId` (.ics, current panel or vacancy management), `/message/:id` (.eml, approved text only),
   `/packet/:offerId`, `/handoff/:offerId` (accepted offers), `/vacancy/:id`
-  (whole history as the requester may see it), `/candidate/:id?request=ID`
+  (whole history as the requester may see it), `/activity/:candidateId` (the candidate's
+  activity feed and shared notes, for anyone who can see the candidate), `/candidate/:id?request=ID`
   (owner/admin; completes an access or export request with the export digest).
 
 ## Changing
@@ -34,7 +35,9 @@ state; nothing is retried automatically. Operations: `business`, `member`,
 `assign-reviewers`, `move`, `interview`, `availability`, `schedule`,
 `cancel-interview`, `interview-reply` (a panellist's `cannot-attend`, or another
 interviewer's `can-cover` with an optional `freeAt`, each with a `note`), `scorecard`, `correct-scorecard` (the author's
-linked correction of a submitted `scorecard` id, with a `reason`), `release-feedback`, `note`, `message`,
+linked correction of a submitted `scorecard` id, with a `reason`), `release-feedback`, `note`, `team-note`
+(a shared candidate note: `candidate` or `application`, `text`, `private` for admins and the job's
+managers; send its `id` to edit your own, history kept), `message`,
 `request-message-approval`, `offer`, `request-offer-approval`,
 `offer-outcome`, `hold`, `release-hold`, `extend-retention`, `data-request`,
 `complete-data-request`, `propose`, `decide-proposal`. Also

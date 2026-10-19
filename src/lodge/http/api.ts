@@ -9,7 +9,7 @@ import { run } from '../commands'
 import { invite } from '../core/invitation'
 import { workspace } from '../views/workspace'
 import { search, talentPool } from '../views/search'
-import { candidateExport, vacancyHistory } from '../views/exports'
+import { candidateActivity, candidateExport, vacancyHistory } from '../views/exports'
 import { calendarFile } from '../records/interviews'
 import { emlFile } from '../records/messages'
 import { handoff, packet } from '../views/offer-exports'
@@ -173,6 +173,13 @@ api.get('/api/lodge/download/vacancy/:id', async c => {
   const result = vacancyHistory(await workspace(state, actor), c.req.param('id'))
   state.audit(actor, 'vacancy-exported', 'vacancy:' + c.req.param('id'))
   return recorded(c, state, actor, json(result, 'vacancy-history.json'))
+})
+
+api.get('/api/lodge/download/activity/:id', async c => {
+  const { state, actor } = await context(c)
+  const result = candidateActivity(await workspace(state, actor), c.req.param('id'))
+  state.audit(actor, 'activity-exported', 'candidate:' + c.req.param('id'))
+  return recorded(c, state, actor, json(result, 'candidate-activity.json'))
 })
 
 api.get('/api/lodge/download/candidate/:id', async c => {

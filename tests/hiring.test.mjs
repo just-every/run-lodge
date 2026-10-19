@@ -502,6 +502,54 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.ok((await state()).retention.due.some(r => r.candidate === again.candidate))
   })
 
+  await t.test('TEAM-001 shared notes and the activity feed reach the hiring team; private notes and unreleased scorecards do not', async () => {
+    const rhea = await h.member('rhea@example.test', ['admin'], 'Rhea Stone')
+    const ivyAgent = await h.signIn('ivy-agent@example.test'), una = await h.signIn('una@example.test')
+    const { application: app } = await cmd('candidate', { name: 'Omar Haddad', email: 'omar@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, rhea)
+    const mine = rows => rows.filter(r => r.candidate === app.candidate)
+    const words = rows => mine(rows).map(r => r.text.split(' ')[0])
+    await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)
+    const first = await cmd('team-note', { application: app.id, text: 'SHARED-1 Strong referral from the Queens site' }, rhea)
+    await cmd('team-note', { candidate: app.candidate, text: 'SHARED-2 Agreed, booking a site walk' }, manager)
+    await cmd('team-note', { application: app.id, text: 'PRIVATE-1 Current pay is above our band', private: true }, manager)
+    assert.equal((await send('/api/lodge/command/team-note', { application: app.id, text: 'Approvers are not the hiring team' }, approver)).status, 403)
+    assert.equal((await send('/api/lodge/command/team-note', { id: first.id, text: 'Rewritten' }, manager)).status, 403, 'only its author edits a note')
+    await cmd('team-note', { id: first.id, text: 'SHARED-1 Strong referral from the Queens and Bronx sites' }, rhea)
+    const v = (await state(manager)).vacancies.find(x => x.id === vacancy.id), [safety] = v.rubrics[0].criteria
+    await cmd('move', { application: app.id, to: v.stages[1].id, reason: 'Referral checks out' }, manager)
+    await cmd('message', { application: app.id, purpose: 'other', subject: 'Site walk next week', body: 'Hi Omar' }, manager)
+    await cmd('offer', { application: app.id, title: 'Site supervisor', startDate: '2027-02-01', salary: { currency: 'USD', amount: 10000000, period: 'year' } }, manager)
+    const card = (who, takeaways) => cmd('scorecard', { application: app.id, ratings: { [safety.id]: 3 }, evidence: { [safety.id]: 'Clear on lockout' }, recommendation: 'yes', takeaways, submit: true }, who)
+    await card(ivy, 'IVY-UNRELEASED steady'); await card(ian, 'IAN-UNRELEASED careful')
+    // The recruiter and the job's manager read every note, edits kept, in a feed of everything that happened.
+    for (const who of [rhea, manager]) {
+      const s = await state(who)
+      assert.deepEqual(words(s.teamNotes), ['SHARED-1', 'SHARED-2', 'PRIVATE-1'])
+      assert.deepEqual(s.teamNotes.find(n => n.id === first.id).edits.map(e => e.text), ['SHARED-1 Strong referral from the Queens site'])
+      assert.deepEqual([...new Set(mine(s.activity).map(e => e.kind))].sort(), ['email', 'note', 'offer', 'scorecard', 'stage'])
+      assert.ok(!JSON.stringify(mine(s.activity)).includes('UNRELEASED'), 'a submission shows as who and when, never its content')
+    }
+    // The assigned interviewer, and their agent, read the shared notes only, in the app state and the feed export.
+    for (const who of [ivy, ivyAgent]) {
+      const s = await state(who)
+      assert.deepEqual(words(s.teamNotes), ['SHARED-1', 'SHARED-2'])
+      assert.deepEqual(mine(s.activity).filter(e => e.kind === 'note').map(e => [e.text.split(' ')[0], e.edited]).sort(), [['SHARED-1', true], ['SHARED-2', false]])
+      assert.ok(mine(s.activity).some(e => e.kind === 'scorecard' && e.actor === 'ian@example.test'))
+      assert.ok(!mine(s.activity).some(e => ['email', 'offer'].includes(e.kind)))
+      assert.ok(!JSON.stringify(s).includes('PRIVATE-1') && !JSON.stringify(s).includes('IAN-UNRELEASED'))
+      const exported = await send('/api/lodge/download/activity/' + app.candidate, undefined, who)
+      assert.equal(exported.status, 200)
+      assert.deepEqual(exported.value.notes.map(n => n.text.split(' ')[0]), ['SHARED-1', 'SHARED-2'])
+      assert.ok(!exported.text.includes('PRIVATE-1') && !exported.text.includes('IAN-UNRELEASED'))
+    }
+    // An interviewer outside the panel reaches none of it; the manager's job export and the admin's candidate export carry it all.
+    assert.ok(!JSON.stringify(await state(una)).includes('SHARED-1'))
+    assert.equal((await send('/api/lodge/download/activity/' + app.candidate, undefined, una)).status, 404)
+    assert.deepEqual(words((await send('/api/lodge/download/vacancy/' + vacancy.id, undefined, manager)).value.teamNotes), ['SHARED-1', 'SHARED-2', 'PRIVATE-1'])
+    assert.deepEqual(words((await send('/api/lodge/download/candidate/' + app.candidate, undefined, rhea)).value['team-note']), ['SHARED-1', 'SHARED-2', 'PRIVATE-1'])
+    await cmd('move', { application: app.id, to: 'withdrawn', reason: 'Took another role' }, manager)
+  })
+
   await t.test('SCORE-002 a correction is a linked version: the original stays, the manager hears, the packet goes stale', async () => {
     const { application: app } = await cmd('candidate', { name: 'Noor Haddad', email: 'noor@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
     await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)
