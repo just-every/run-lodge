@@ -13,7 +13,7 @@ export function InternalJobs({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
   return <section className="card" aria-label="Internal jobs">
     <h2>Internal jobs</h2>
     <p className="hint">Open roles you can apply to as an employee. Only the job’s hiring team and the hiring admins see your application.</p>
-    <ul className="list rich">{jobs.map(j => <li key={j.id}><span><strong>{j.title}</strong><small>{[j.department, j.location, j.internalOnly ? 'Internal only' : 'Also on the careers page', j.applied ? `You applied ${when(j.applied)}` : ''].filter(Boolean).join(' · ')}</small></span>
+    <ul className="list rich internal-jobs">{jobs.map(j => <li key={j.id}><span><strong>{j.title}</strong><small>{[j.department, j.location, j.internalOnly ? 'Internal only' : 'Also on the careers page', j.applied ? `You applied ${when(j.applied)}` : ''].filter(Boolean).join(' · ')}</small></span>
       {!j.applied && <Form label={'Apply to ' + j.title} compact onSubmit={() => mutate('apply-internal', { vacancy: j.id })} />}</li>)}</ul>
     {notices.length > 0 && <><h3>Your reports’ internal applications</h3><ul className="plain">{notices.map(n => <li key={n.id}>{n.who} applied to {n.title} · {when(n.at)}</li>)}</ul></>}
   </section>
