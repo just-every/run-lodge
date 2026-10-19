@@ -6,7 +6,7 @@ export function commandBodies(h) {
     'vacancy-privacy': { id: vacancy.id, confidential: true }, 'candidate-privacy': { id: candidate.id, private: true },
     business: { name: 'Forbidden' }, member: { email: 'new@example.test', name: 'New', roles: ['admin'] },
     vacancy: { title: 'Forbidden', manager: 'outside@example.test' }, 'vacancy-stages': { id: vacancy.id, stages: vacancy.stages },
-    rubric: { id: vacancy.id, criteria: [{ name: 'Criterion', description: 'Evidence' }] }, 'interview-plan': { id: vacancy.id, plan: vacancy.plan },
+    rubric: { id: vacancy.id, criteria: [{ name: 'Criterion', description: 'Evidence' }] }, 'interview-plan': { id: vacancy.id, plan: vacancy.plan }, 'interview-kit': { id: vacancy.id, item: vacancy.plan[0].id, purpose: 'Forbidden' },
     'request-vacancy-approval': { id: h.pendingVacancy.id, approver: 'approve@example.test' }, publish: { id: h.pendingVacancy.id },
     unpublish: { id: vacancy.id, reason: 'Forbidden' }, 'close-vacancy': { id: vacancy.id, reason: 'Forbidden' },
     'decide-approval': { id: h.pending.id, decision: 'approved', reason: 'Forbidden', version: h.pending.version },

@@ -28,7 +28,7 @@ export function Interviews({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate:
     {list.map((iv: D) => <article key={iv.id} className="card">
       <h4>{iv.title} <Status tone={status(iv) === 'scheduled' ? 'good' : 'neutral'}>{status(iv)}</Status></h4>
       <p>{iv.durationMinutes} min · {people(w, iv.participants)}{iv.location ? ' · ' + iv.location : ''}</p>
-      {status(iv) === 'scheduled' && <p>{when(iv.start)} · <a href={`/api/lodge/download/calendar/${iv.id}`}>Download calendar invitation (.ics)</a></p>}
+      {status(iv) === 'scheduled' && <p>{when(iv.start)} · <a href={`/api/lodge/download/calendar/${iv.id}`}>Download calendar invitation (.ics)</a> · <a href={`/app?kit=${iv.id}`}>Open interview kit</a></p>}
       {iv.status === 'scheduled' && status(iv) !== 'scheduled' && <p>{when(iv.start)}</p>}
       {iv.replies?.length > 0 && <ul className="replies">{iv.replies.map((r: D, i: number) => <li key={i} className={r.answer}><strong>{person(w, r.by)} {r.answer === 'cannot-attend' ? 'cannot attend' : `can cover${r.freeAt ? ', free ' + slot(r.freeAt) : ''}`}</strong>{r.note && <span>“{r.note}”</span>}<small>{when(r.at)}</small></li>)}</ul>}
       {iv.status === 'proposed' && <>

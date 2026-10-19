@@ -54,7 +54,11 @@ function Setup({ v, w, mutate }: { v: D; w: D; mutate: PageProps['mutate'] }) {
       <Field label="Criteria, one per line as “Name: the job-related evidence it looks for”" name="criteria" type="textarea" wide defaultValue={rubric?.criteria.map((c: D) => `${c.name}: ${c.description}`).join('\n')} />
     </Form>}</div>
     <div><h3>Interview plan</h3>
-    {v.plan.length > 0 && <ul>{v.plan.map((p: D) => <li key={p.id}>{p.name}{stageName(p.stage) !== p.name && ` · ${stageName(p.stage)}`} · {p.durationMinutes} min · {p.criteria.map(critName).join(', ') || 'all criteria'}</li>)}</ul>}
+    {v.plan.length > 0 && <ul>{v.plan.map((p: D) => <li key={p.id}>{p.name}{stageName(p.stage) !== p.name && ` · ${stageName(p.stage)}`} · {p.durationMinutes} min · {p.criteria.map(critName).join(', ') || 'all criteria'}{p.questions?.length ? ` · kit: ${p.questions.length} questions` : ''}
+      {!locked && <details><summary>Kit for {p.name}</summary><Form label="Save kit" onSubmit={x => mutate('interview-kit', { id: v.id, item: p.id, purpose: x.purpose, questions: x.questions.split('\n').map((l: string) => l.trim()).filter(Boolean).map((l: string) => { const [text, ...guidance] = l.split('|'); return { text: text.trim(), guidance: guidance.join('|').trim() } }) })}>
+        <Field label={`Purpose of ${p.name}`} name="purpose" type="textarea" wide required={false} defaultValue={p.purpose} />
+        <Field label={`Questions for ${p.name} (each line “Question | guidance”)`} name="questions" type="textarea" wide required={false} defaultValue={(p.questions ?? []).map((q: D) => q.guidance ? `${q.text} | ${q.guidance}` : q.text).join('\n')} />
+      </Form></details>}</li>)}</ul>}
     {!locked && rubric && <Form label="Save interview plan" onSubmit={x => mutate('interview-plan', { id: v.id, plan: x.plan.split('\n').map((l: string) => l.trim()).filter(Boolean).map((l: string) => { const [name, stage, minutes, focus = ''] = l.split('|').map(p => p.trim()); return { id: v.plan.find((p: D) => p.name === name)?.id, name, stage: v.stages.find((s: D) => s.name === stage)?.id, durationMinutes: Number(minutes || 45), criteria: focus.split(',').map(f => f.trim()).filter(Boolean).map(f => rubric.criteria.find((c: D) => c.name === f)?.id ?? f) } }) })}>
       <Field label="Interviews, one per line as “Name | Stage | minutes | criterion, criterion”" name="plan" type="textarea" wide defaultValue={v.plan.map((p: D) => `${p.name} | ${stageName(p.stage)} | ${p.durationMinutes} | ${p.criteria.map(critName).join(', ')}`).join('\n')} />
     </Form>}</div>

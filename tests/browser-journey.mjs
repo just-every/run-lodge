@@ -131,6 +131,13 @@ export async function journey(browser, root, origin, width, evidence) {
     await interviewer.page.getByRole('button', { name: 'Save scorecard' }).click()
     await interviewer.page.getByText('Your scorecard · Strong yes', { exact: false }).waitFor()
     await shot(interviewer.page, evidence, 'scorecard', width)
+    // KIT-001: the interviewer opens the interview's kit from its invitation link at this width.
+    const kitFor = (await current(interviewer.context, origin)).interviews.filter(i => i.status === 'scheduled').at(-1)
+    await interviewer.page.goto(origin + '/app?kit=' + kitFor.id)
+    await interviewer.page.getByRole('heading', { name: 'Interview kit: Site walk' }).waitFor()
+    await interviewer.page.getByRole('heading', { name: 'What this interview assesses' }).waitFor()
+    await shot(interviewer.page, evidence, 'kit', width)
+    await interviewer.page.goto(origin + '/app'); await interviewer.page.getByRole('navigation', { name: 'Workspace' }).waitFor()
 
     // Manager: release feedback, prepare the offer, request approval.
     await manager.page.reload(); await tab(manager.page, 'Applications')

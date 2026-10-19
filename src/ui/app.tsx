@@ -12,6 +12,7 @@ import { Retention } from './retention'
 import { MoveIn } from './move-in'
 import { People } from './people'
 import { Audit } from './audit'
+import { Kit } from './kit'
 import { openProposals } from './pipeline/facts'
 import { useZone } from './format'
 import { businessZone } from '../lodge/core/time'
@@ -24,8 +25,10 @@ export function App() {
   const [w, setW] = useState<D>(), [error, setError] = useState(''), [notice, setNotice] = useState('')
   // An empty tab is the home screen: the job board, the screen the owner picked, once there are applications to run.
   const [nav, setNav] = useState<Nav>({ tab: '', app: null, job: null, vacancy: null })
+  // An interview kit opens straight from its calendar invitation link (/app?kit=<interview>).
+  const [kit, setKit] = useState<string | null>(null)
   async function reload() { setW(await call('state')) }
-  useEffect(() => { reload().catch(e => setError(e.message)) }, [])
+  useEffect(() => { setKit(new URLSearchParams(location.search).get('kit')); reload().catch(e => setError(e.message)) }, [])
   async function mutate(op: string, body: D) {
     const result = await call('command/' + op, body)
     setNotice('Saved.')
@@ -49,7 +52,8 @@ export function App() {
     ...(actor.owner ? [{ name: 'Move in', icon: 'movein' } as Tab] : []),
     ...(admin ? [{ name: 'People', icon: 'people' } as Tab, { name: 'Audit', icon: 'audit' } as Tab] : []),
   ]
-  const go = (tab: string, target: Target = {}) => { setNav(n => ({ ...n, ...target, tab })); setNotice(''); scrollTo({ top: 0 }) }
+  const go = (tab: string, target: Target = {}) => { setKit(null); setNav(n => ({ ...n, ...target, tab })); setNotice(''); scrollTo({ top: 0 }) }
+  const closeKit = () => { history.replaceState(null, '', '/app'); setKit(null) }
   const props = { w, mutate, reload, go, setNotice, nav }
   const home = w.business && manager && w.applications.some((a: D) => a.manages) ? 'Applications' : 'Overview'
   const tab = nav.tab || home
@@ -59,16 +63,17 @@ export function App() {
       <TopBar w={w} go={go} manager={manager} />
       <main>
         <p aria-live="polite" className="notice">{notice}</p>
-        {tab === 'Overview' && <Overview {...props} />}
-        {tab === 'Vacancies' && <Vacancies {...props} />}
-        {tab === 'Applications' && <Applications {...props} />}
-        {tab === 'Candidates' && <Candidates {...props} />}
-        {tab === 'Approvals' && <Approvals {...props} />}
-        {tab === 'Proposals' && <Proposals {...props} />}
-        {tab === 'Retention' && <Retention {...props} />}
-        {tab === 'Move in' && <MoveIn {...props} />}
-        {tab === 'People' && <People {...props} />}
-        {tab === 'Audit' && <Audit {...props} />}
+        {kit && <Kit id={kit} w={w} mutate={mutate} close={closeKit} />}
+        {!kit && tab === 'Overview' && <Overview {...props} />}
+        {!kit && tab === 'Vacancies' && <Vacancies {...props} />}
+        {!kit && tab === 'Applications' && <Applications {...props} />}
+        {!kit && tab === 'Candidates' && <Candidates {...props} />}
+        {!kit && tab === 'Approvals' && <Approvals {...props} />}
+        {!kit && tab === 'Proposals' && <Proposals {...props} />}
+        {!kit && tab === 'Retention' && <Retention {...props} />}
+        {!kit && tab === 'Move in' && <MoveIn {...props} />}
+        {!kit && tab === 'People' && <People {...props} />}
+        {!kit && tab === 'Audit' && <Audit {...props} />}
       </main>
       <footer className="shell-foot">Lodge keeps the hiring record. It sends no email, ranks no one and makes no hiring decision; people do.</footer>
     </div>

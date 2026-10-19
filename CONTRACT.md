@@ -323,8 +323,8 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 10 | 37 | 61 | 108 |
-| All | 27 | 37 | 61 | 125 |
+| Target and push further | 11 | 36 | 61 | 108 |
+| All | 28 | 36 | 61 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -395,7 +395,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `CAL-003` | Zoom, Google Meet and Microsoft Teams interviews | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `CAL-004` | Candidate interview confirmations and itineraries | target | partial | `src/lodge/records/interviews.ts`; `tests/hiring.test.mjs` | Scheduled interviews produce downloadable ICS files and a candidate private link; delivered confirmations, itineraries and change notices are absent. |
 | `CAL-005` | Organization-wide calendar connection | target | missing |  | Calendars are not connected at all today; interviewers enter availability by hand (LDG-008). |
-| `KIT-001` | Interview kits with questions and focus attributes | target | partial | `src/lodge/records/vacancies.ts`; `src/ui/scorecards.tsx` | The interview plan, rubric criteria with evidence descriptions and the scorecard form exist; per-interview kits, questions, focus-attribute selection and kit links in invites are absent. |
+| `KIT-001` | Interview kits with questions and focus attributes | target | done | `src/lodge/records/vacancies.ts`; `src/lodge/records/scorecards.ts`; `src/lodge/views/kits.ts`; `src/ui/kit.tsx`; `tests/hiring.test.mjs`; `tests/browser-journey.mjs` |  |
 | `SCORE-001` | Overall recommendation, key take-aways and released panel summary | target | done | `src/lodge/records/scorecards.ts`; `src/lodge/views/workspace.ts`; `src/ui/scorecards.tsx`; `tests/hiring.test.mjs` |  |
 | `SCORE-002` | Scorecard corrections as linked versions | target | done | `src/lodge/records/scorecards.ts`; `src/lodge/views/offer-exports.ts`; `src/ui/scorecards.tsx`; `tests/hiring.test.mjs` |  |
 | `ASSESS-001` | Native take-home tests | target | missing |  | No take-home or assessment flow exists. |

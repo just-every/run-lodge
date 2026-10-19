@@ -19,9 +19,16 @@ function rubricFor(s: State, app: Data) {
   return vacancy.rubrics.find((r: Data) => r.version === app.rubricVersion)
 }
 
+/** The criteria a card rates: an interview's kit focus attributes, or the whole rubric for an application review. */
+export function focusOf(rubric: Data, vacancy: Data, interview: Data | null | undefined) {
+  const item = interview && vacancy.plan.find((p: Data) => p.id === interview.planItem)
+  return item?.criteria?.length ? { ...rubric, criteria: rubric.criteria.filter((c: Data) => item.criteria.includes(c.id)) } : rubric
+}
+
 /** Ratings 1-4 per criterion; every rating needs the interviewer's evidence, and blanks stay unanswered. */
 function rate(rubric: Data, b: Data) {
   const ratings: Data = {}, evidence: Data = {}
+  for (const id of Object.keys(b.ratings ?? {})) requireThat(b.ratings[id] === null || b.ratings[id] === '' || rubric.criteria.some((c: Data) => c.id === id), 'This interview’s kit does not assess that criterion')
   for (const c of rubric.criteria) {
     const raw = b.ratings?.[c.id]
     const note = optionalText(b.evidence?.[c.id], `Evidence for ${c.name}`, 4000)
@@ -44,7 +51,7 @@ export function scorecard(s: State, a: Actor, b: Data) {
   const existing = s.find('scorecard', id)
   requireThat(!existing || existing.status === 'draft', 'You already submitted this scorecard', 409)
   const rubric = rubricFor(s, app)
-  const { ratings, evidence } = rate(rubric, b)
+  const { ratings, evidence } = rate(focusOf(rubric, s.get('vacancy', app.vacancy), interviewId ? s.get('interview', interviewId) : null), b)
   const submit = b.submit === true
   const recommendation = b.recommendation ? oneOf(b.recommendation, RECOMMENDATIONS, 'Recommendation') : null
   const takeaways = optionalText(b.takeaways, 'Key take-aways', 4000)
@@ -103,7 +110,7 @@ export function correct(s: State, a: Actor, b: Data) {
   requireThat(vacancy.status !== 'closed', 'This job is closed; its scorecards are final', 409)
   const reason = text(b.reason, 'Reason for the correction', 2000)
   const input = { ratings: card.ratings, evidence: card.evidence, recommendation: card.recommendation, takeaways: card.takeaways, notes: card.notes, ...b }
-  const { ratings, evidence } = rate(vacancy.rubrics.find((r: Data) => r.version === card.rubricVersion), input)
+  const { ratings, evidence } = rate(focusOf(vacancy.rubrics.find((r: Data) => r.version === card.rubricVersion), vacancy, card.interview ? s.get('interview', card.interview) : null), input)
   const recommendation = oneOf(input.recommendation, RECOMMENDATIONS, 'Recommendation')
   const takeaways = text(input.takeaways, 'Key take-aways', 4000)
   const original = card.original ?? card.id, version = (card.version ?? 1) + 1

@@ -96,11 +96,30 @@ export function plan(s: State, a: Actor, b: Data) {
     if (x && !x.stage && x.stageName) x.stage = v.stages.find((st: Data) => st.name === x.stageName)?.id
     requireThat(v.stages.some((st: Data) => st.id === x?.stage), 'Each interview must belong to a stage')
     const focus = list(x?.criteria ?? [], 'Interview focus', 20, c => { requireThat(criteria.some(k => k.id === c), 'Interview focus must be rubric criteria'); return c as string })
-    return { id: typeof x?.id === 'string' && x.id ? x.id : shortId(), name: text(x?.name, 'Interview name', 120), stage: x.stage as string, durationMinutes: integer(x?.durationMinutes ?? 45, 'Duration', 10, 480), criteria: focus }
+    const id = typeof x?.id === 'string' && x.id ? x.id : shortId(), before = v.plan.find((p: Data) => p.id === id)
+    // An item's kit travels with it when the plan is re-saved without one.
+    return { id, name: text(x?.name, 'Interview name', 120), stage: x.stage as string, durationMinutes: integer(x?.durationMinutes ?? 45, 'Duration', 10, 480), criteria: focus, ...kitFields(x?.purpose === undefined && x?.questions === undefined ? before ?? {} : x) }
   })
   requireThat(items.length > 0, 'Plan at least one interview')
   const record = s.put('vacancy', v.id, { ...v, plan: items })
   s.audit(a, 'interview-plan', 'vacancy:' + v.id)
+  return record
+}
+
+/** An interview's kit: its purpose and the questions with guidance, saved on the plan item so it is versioned and approved with the plan. */
+function kitFields(x: Data) {
+  return {
+    purpose: optionalText(x.purpose, 'Kit purpose', 2000),
+    questions: list(x.questions ?? [], 'Kit questions', 20, (q: any) => ({ text: text(q?.text, 'Question', 500), guidance: optionalText(q?.guidance, 'Guidance', 2000) })),
+  }
+}
+
+export function kit(s: State, a: Actor, b: Data) {
+  const v = editable(s, a, b.id)
+  const item = v.plan.find((p: Data) => p.id === b.item)
+  requireThat(item, 'Choose an interview from the plan')
+  const record = s.put('vacancy', v.id, { ...v, plan: v.plan.map((p: Data) => p.id === item.id ? { ...p, ...kitFields(b) } : p) })
+  s.audit(a, 'interview-kit', 'vacancy:' + v.id, { item: item.id })
   return record
 }
 

@@ -13,6 +13,7 @@ import { candidateActivity, candidateExport, vacancyHistory } from '../views/exp
 import { calendarFile } from '../records/interviews'
 import { emlFile } from '../records/messages'
 import { handoff, packet } from '../views/offer-exports'
+import { kitView } from '../views/kits'
 import { deleteCandidate } from '../records/retention'
 import { erasureTransfers } from '../records/erasure-transfers'
 import { retentionUntil } from '../records/candidates'
@@ -74,6 +75,11 @@ api.post('/api/lodge/command/:op', async c => {
 api.get('/api/lodge/search', async c => {
   const { state, actor } = await context(c)
   return c.json({ results: search(await workspace(state, actor), c.req.query('q')) })
+})
+
+api.get('/api/lodge/kit/:id', async c => {
+  const { state, actor } = await context(c)
+  return c.json(kitView(await workspace(state, actor), c.req.param('id')))
 })
 
 api.get('/api/lodge/talent', async c => {

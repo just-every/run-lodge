@@ -16,6 +16,8 @@ cookie or sign-in URL in a task, log or source file.
 - `GET /api/lodge/search?q=`: matches within that same workspace.
 - `GET /api/lodge/talent?q=`: owner/admin: prior candidates with current
   permission to be contacted whose own words match; matched fields shown, no score.
+- `GET /api/lodge/kit/:interviewId`: the interview's kit (purpose, focus criteria, questions, resume,
+  released feedback, your scorecard) for its panel and the job's managers; invitations link `/app?kit=:id`.
 - Downloads: `/api/lodge/download/document/:id` (original bytes),
   `/calendar/:interviewId` (.ics, current panel or vacancy management), `/message/:id` (.eml, approved text only),
   `/packet/:offerId`, `/handoff/:offerId` (accepted offers), `/vacancy/:id`
@@ -31,7 +33,8 @@ state; nothing is retried automatically. Operations: `business`, `member`,
 `kickoff` (a hiring manager's job intake: `title`, `purpose`, `mustHave`, `niceToHave`,
 `plan` of `{ name, interviewers }`, USD `payRange`, `headcount`, `targetStart`; send its `id` to edit),
 `vacancy-from-kickoff` (admins: the job draft from a `kickoff`, whose pay and headcount join the
-approved terms), `vacancy-privacy` and `candidate-privacy` (admins: `confidential` or `private` with
+approved terms), `interview-kit` (a draft plan item's `purpose` and `questions` of `{ text, guidance }`;
+an interview's scorecard rates only its plan item's criteria), `vacancy-privacy` and `candidate-privacy` (admins: `confidential` or `private` with
 `namedPeople`, and a job's neutral `publicTitle` for the careers page; only the named, the job's
 manager, the owner and members the owner gave `seePrivate` see them), `vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
 `request-vacancy-approval`, `publish`, `unpublish`, `close-vacancy`,

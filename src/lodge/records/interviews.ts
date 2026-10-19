@@ -115,7 +115,8 @@ export function calendarFile(iv: Data, candidateName: string, origin: string) {
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lodge//Hiring//EN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
     `UID:${iv.id}@${new URL(origin).host}`, `DTSTAMP:${icsTime(now())}`, `DTSTART:${icsTime(iv.start)}`, `DTEND:${icsTime(end)}`,
     `SUMMARY:${icsText(`${iv.title} with ${candidateName}`)}`, `LOCATION:${icsText(iv.location || 'To be confirmed')}`,
-    `DESCRIPTION:${icsText('Interview scheduled in Lodge. Score against the agreed rubric and submit your own scorecard.')}`,
+    `DESCRIPTION:${icsText(`Interview scheduled in Lodge. Open the interview kit (questions, focus attributes and your scorecard): ${origin}/app?kit=${iv.id}`)}`,
+    `URL:${origin}/app?kit=${iv.id}`,
     ...iv.participants.map((p: string) => `ATTENDEE;ROLE=REQ-PARTICIPANT:mailto:${p}`),
     'END:VEVENT', 'END:VCALENDAR',
   ]

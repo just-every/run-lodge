@@ -667,6 +667,45 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await state(rae)).totals.candidates, (await state(sam)).totals.candidates, 'aggregate counts include private people')
   })
 
+  await t.test('KIT-001 each interview has a versioned kit, opened from its invitation by its panel, and its scorecard rates only its focus', async () => {
+    const job = await cmd('vacancy', { title: 'Estimator', department: 'Operations', location: 'Brooklyn, NY', headcount: 1, manager: 'morgan@example.test', compensation: RANGE }, manager)
+    const { rubrics: [{ criteria: [safety, scheduling] }], stages } = await cmd('rubric', { id: job.id, criteria: RUBRIC }, manager)
+    await cmd('interview-plan', { id: job.id, plan: [{ name: 'Phone screen', stage: stages[1].id, durationMinutes: 30, criteria: [safety.id] }, { name: 'On-site', stage: stages[2].id, durationMinutes: 90, criteria: [scheduling.id] }] }, manager)
+    let v = (await state(manager)).vacancies.find(x => x.id === job.id)
+    await cmd('interview-kit', { id: job.id, item: v.plan[0].id, purpose: 'Check safety basics', questions: [{ text: 'Walk me through a toolbox talk', guidance: 'Listen for hazards named' }] }, manager)
+    await cmd('interview-kit', { id: job.id, item: v.plan[1].id, purpose: 'Test schedule recovery', questions: [{ text: 'Recover this slipped pour', guidance: 'Look for sequencing' }, { text: 'Who do you call first?' }] }, manager)
+    // Re-saving the plan keeps each item's kit; the kit is part of the approved plan and locks with it.
+    v = (await state(manager)).vacancies.find(x => x.id === job.id)
+    await cmd('interview-plan', { id: job.id, plan: v.plan.map(({ purpose, questions, ...item }) => item) }, manager)
+    v = (await state(manager)).vacancies.find(x => x.id === job.id)
+    assert.deepEqual(v.plan.map(p => [p.purpose, p.questions.length]), [['Check safety basics', 1], ['Test schedule recovery', 2]])
+    await approve((await cmd('request-vacancy-approval', { id: job.id, approver: 'parker@example.test' }, manager)).id)
+    const before = (await state(manager)).vacancies.find(x => x.id === job.id).version
+    await cmd('publish', { id: job.id }, manager)
+    assert.equal((await send('/api/lodge/command/interview-kit', { id: job.id, item: v.plan[0].id, purpose: 'Changed' }, manager)).status, 409, 'a published plan keeps its kits')
+    const { application: app } = await cmd('candidate', { name: 'Theo Marsh', email: 'theo@example.test', source: 'Referral', consentBasis: 'referral', vacancy: job.id, resume: { name: 'theo.txt', mediaType: 'text/plain', base64: b64('Theo resume') } }, manager)
+    const plan = async (item, who) => { const iv = await cmd('interview', { application: app.id, planItem: item.id, participants: [who], slots: ['2026-11-10T15:00:00Z'] }, manager); await cmd('schedule', { interview: iv.id, slot: 0 }, manager); return iv }
+    const phone = await plan(v.plan[0], 'ivy@example.test'), onsite = await plan(v.plan[1], 'ian@example.test')
+    // The invitation links to its kit; each panellist opens their own kit with only its focus and questions.
+    const ics = (await send('/api/lodge/download/calendar/' + phone.id, undefined, ivy)).text.replace(/\r\n /g, '')
+    assert.ok(ics.includes(`/app?kit=${phone.id}`))
+    const kit = (await send('/api/lodge/kit/' + phone.id, undefined, ivy)).value
+    assert.deepEqual([kit.purpose, kit.questions.map(q => q.text), kit.focus.map(c => c.name), kit.resume.map(d => d.name), kit.feedback, kit.scorecard], ['Check safety basics', ['Walk me through a toolbox talk'], ['Site safety'], ['theo.txt'], null, null])
+    assert.deepEqual((await send('/api/lodge/kit/' + onsite.id, undefined, ian)).value.focus.map(c => c.name), ['Scheduling'])
+    assert.equal((await send('/api/lodge/kit/' + onsite.id, undefined, ivy)).status, 404, 'an interviewer off that panel is refused')
+    assert.equal((await send('/api/lodge/kit/' + phone.id, undefined, (await h.signIn('una@example.test')))).status, 404)
+    assert.equal((await send('/api/lodge/kit/' + phone.id, undefined, manager)).status, 200, 'the job\'s manager reads every kit')
+    // The phone screen's scorecard asks only its kit's attribute.
+    const offFocus = await send('/api/lodge/command/scorecard', { application: app.id, interview: phone.id, ratings: { [safety.id]: 3, [scheduling.id]: 2 }, evidence: { [safety.id]: 'Named three hazards', [scheduling.id]: 'Not asked' }, recommendation: 'yes', takeaways: 'Safe', submit: true }, ivy)
+    assert.equal(offFocus.status, 400)
+    assert.match(offFocus.value.error, /kit does not assess/)
+    await cmd('scorecard', { application: app.id, interview: phone.id, ratings: { [safety.id]: 3 }, evidence: { [safety.id]: 'Named three hazards' }, recommendation: 'yes', takeaways: 'Safe', submit: true }, ivy)
+    const mine = (await send('/api/lodge/kit/' + phone.id, undefined, ivy)).value.scorecard
+    assert.deepEqual([mine.status, Object.keys(mine.ratings)], ['submitted', [safety.id]])
+    assert.equal((await state(manager)).vacancies.find(x => x.id === job.id).version, before, 'the approved version covered the kits')
+    await cmd('close-vacancy', { id: job.id, reason: 'Kit journey done' }, manager)
+  })
+
   await t.test('SCORE-002 a correction is a linked version: the original stays, the manager hears, the packet goes stale', async () => {
     const { application: app } = await cmd('candidate', { name: 'Noor Haddad', email: 'noor@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
     await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)
