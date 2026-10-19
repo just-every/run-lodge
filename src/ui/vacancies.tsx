@@ -10,7 +10,7 @@ import { Openings } from './openings'
 import { JobQuestions } from './questions'
 import { Rules } from './rules'
 import { departmentOptions, officeOptions } from './org'
-import { Team } from './team'
+import { Sourcing, Team } from './team'
 import { JobCopies, Templates } from './templates'
 
 export function VacancyStatus({ v }: { v: D }) {
@@ -125,6 +125,7 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
           <td>{apps.length ? <span className="split" title={stages.map(c => `${c.name} ${c.apps.length}`).join(', ')}>{stages.map(c => c.apps.length).join(' · ')}</span> : <small>{x.status === 'open' ? 'None yet' : '—'}</small>}</td>
           <td>{apps.length}{apps.some((a: D) => a.status !== 'active') && <small>{apps.filter((a: D) => a.status !== 'active').length} closed</small>}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>
       })}</Table>}
+    <Sourcing w={w} />
     <Templates w={w} mutate={mutate} />
     <Kickoffs w={w} mutate={mutate} select={select} />
   </div>

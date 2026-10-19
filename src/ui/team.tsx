@@ -30,3 +30,15 @@ export function Team({ v, w, mutate }: { v: D; w: D; mutate: PageProps['mutate']
       </Form></details>}
   </section>
 }
+
+/** The jobs a member sources for: who is already on each, by name and stage, so nobody is sourced twice. */
+export function Sourcing({ w }: { w: D }) {
+  const jobs = w.vacancies.filter((v: D) => v.sources)
+  if (!jobs.length) return null
+  return <section className="card" aria-label="Jobs you source for">
+    <h2>Jobs you source for</h2>
+    <p className="hint">Add the people you find from Candidates. Here you see who is already on each job and where they are.</p>
+    {jobs.map((v: D) => <div key={v.id}><h3>{v.title}</h3>
+      {v.pipeline.length ? <ul>{v.pipeline.map((x: D, i: number) => <li key={i}>{x.candidateName} · {x.stage}</li>)}</ul> : <p className="hint">Nobody yet.</p>}</div>)}
+  </section>
+}

@@ -18,6 +18,19 @@ import { library } from '../records/questions'
 import { rulesView } from '../records/rules'
 
 /**
+ * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
+ * current stage only, so they do not source someone twice. Spam, erased and
+ * private candidates they are not cleared for are left out.
+ */
+function sourcingList(s: State, a: Actor, v: Data) {
+  return s.all('application').filter(app => app.vacancy === v.id && app.status !== 'spam').flatMap(app => {
+    const c = s.find('candidate', app.candidate)
+    if (!c || c.deleted || c.mergedInto || !cleared(a, c, 'private')) return []
+    return [{ candidateName: c.name, stage: app.status === 'active' ? v.stages.find((st: Data) => st.id === app.stage)?.name ?? '' : app.status }]
+  }).sort((x, y) => x.candidateName.localeCompare(y.candidateName))
+}
+
+/**
  * The actor's whole permitted view. The app, search, exports and the agent
  * command surface all read this same projection, so what a person cannot see
  * here they cannot reach any other way.
@@ -40,7 +53,8 @@ export async function workspaceRecords(s: State, a: Actor) {
       vacancies.push({ ...v, manages: true, version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
     } else {
       // Panel members see the role, its stages and the rubric they score against.
-      vacancies.push({ id: v.id, title: v.title, department: v.department, location: v.location, status: v.status, stages: v.stages, rubrics: v.rubrics, plan: v.plan, manages: false, sources: teamOf(v, 'sourcers').includes(scope(a)) })
+      const sources = teamOf(v, 'sourcers').includes(scope(a))
+      vacancies.push({ id: v.id, title: v.title, department: v.department, location: v.location, status: v.status, stages: v.stages, rubrics: v.rubrics, plan: v.plan, manages: false, sources, ...(sources ? { pipeline: sourcingList(s, a, v) } : {}) })
     }
   }
 

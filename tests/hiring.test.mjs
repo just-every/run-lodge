@@ -1055,11 +1055,17 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     // Running the job stops at approving offers and terms, which stay with the approver role.
     const offer = await cmd('offer', { application: yardApp.id, title: 'Yard lead', startDate: '2027-02-01', salary: { currency: 'USD', amount: 10000000, period: 'year' } }, rory)
     assert.match((await send('/api/lodge/command/request-offer-approval', { id: offer.id, approver: 'rory@example.test' }, rory)).value.error, /approver role/)
-    // A sourcer sees the job and adds candidates to it, but reads no application, scorecard, note or offer.
+    // A sourcer sees the job and who is on it, as names and current stage only, and adds candidates to it;
+    // no application content, contact, scorecard, note or offer reaches them.
+    await cmd('team-note', { application: yardApp.id, text: 'YARD-NOTE shared with the team' }, rory)
     const sourced = await state(sol)
-    assert.deepEqual(sourced.vacancies.map(x => [x.title, x.manages, x.sources]), [['Yard lead', false, true]])
-    assert.ok(!sourced.applications.length && !sourced.scorecards.length && !sourced.offers.length && !sourced.teamNotes.length)
+    assert.deepEqual(sourced.vacancies.map(x => [x.title, x.manages, x.sources, x.pipeline]), [['Yard lead', false, true, [{ candidateName: 'Tess Yardley', stage: 'Screen' }]]])
+    assert.ok(!sourced.applications.length && !sourced.candidates.length && !sourced.scorecards.length && !sourced.offers.length && !sourced.teamNotes.length)
+    for (const hidden of [yardApp.id, 'tess@example.test', 'Steady lead', 'YARD-NOTE', offer.id, 'Coordinator screened her']) assert.ok(!JSON.stringify(sourced).includes(hidden), hidden)
+    assert.equal((await send(`/api/lodge/download/activity/${yardApp.candidate}`, undefined, sol)).status, 404)
     assert.equal((await send('/api/lodge/command/candidate', { name: 'Sam Sourced', source: 'LinkedIn search', consentBasis: 'manual', vacancy: yard.id }, sol)).status, 200)
+    assert.deepEqual((await state(sol)).vacancies[0].pipeline.map(x => [x.candidateName, x.stage]), [['Sam Sourced', 'Applied'], ['Tess Yardley', 'Screen']])
+    assert.ok(!(await state(rory)).vacancies.find(x => x.id === yard.id).pipeline, 'the list is the sourcer’s view; the people who run the job see the applications')
     assert.equal((await send('/api/lodge/command/candidate', { name: 'Sam Elsewhere', source: 'LinkedIn search', consentBasis: 'manual', vacancy: dock.id }, sol)).status, 403)
     assert.equal((await send('/api/lodge/command/team-note', { application: yardApp.id, text: 'x' }, sol)).status, 404)
 
