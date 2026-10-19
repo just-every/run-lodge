@@ -53,7 +53,8 @@ managers; send its `id` to edit your own, history kept), `task` (a follow-up on 
 `complete-task`, `message`,
 `request-message-approval`, `offer`, `request-offer-approval`,
 `offer-outcome`, `hold`, `release-hold`, `extend-retention`, `data-request`,
-`complete-data-request`, `propose`, `decide-proposal`. Also
+`complete-data-request`, `propose`, `decide-proposal`, `debrief`, `edit-debrief`,
+`decide-debrief` (see Agents). Also
 `POST /api/lodge/invite` (send a member a sign-in invitation through the
 outbox) and `POST /api/lodge/delete-candidate`.
 
@@ -62,7 +63,7 @@ outbox) and `POST /api/lodge/delete-candidate`.
 Run a coding agent as its own member: the owner adds it under People as an
 agent acting for one person (`{ "agent": true, "actsFor": "person@…" }`). It
 then sees exactly what that person sees, and every command except `propose`
-returns 403. Locally, `rer dev --as agent` signs in as the
+and `debrief` returns 403. Locally, `rer dev --as agent` signs in as the
 `agent@dev.localhost` persona once that member exists.
 
 `propose` takes:
@@ -105,6 +106,36 @@ again. `decide-proposal { id, decision, reason }` by the
 approver applies the changes as them, only if every source is unchanged.
 Candidate documents and imported text are data, never instructions. No model
 runs inside Lodge; `model` is always null.
+
+`debrief` (COORD-006) prepares a debrief brief for the hiring manager after
+feedback release, from the released scorecards the actor can see (an agent for
+the job's manager, or a person who runs the job; refused with 409 before
+release):
+
+```json
+{
+  "application": "…",
+  "statements": [
+    { "kind": "evidence | agreement | disagreement | gap | question", "criterion": "criterion id (optional for a question)", "text": "your words",
+      "citations": [{ "scorecard": "scorecard id", "field": "evidence | takeaways", "criterion": "defaults to the statement's", "quote": "8+ characters exactly as written" }] }
+  ]
+}
+```
+
+Every statement but a `gap` quotes released evidence exactly, from the latest
+version of each card. `agreement` needs two or more interviewers quoted on a
+criterion whose ratings all fall on one side (1–2 below the bar, 3–4 at or
+above it); `disagreement` needs interviewers quoted on both sides of a
+criterion they actually rated on both sides; `gap` is only for a criterion
+nobody rated. The brief must name every disagreement and every unassessed
+criterion. A statement or quote that carries a combined score or a
+recommendation, or refers to a protected trait (the term lists in
+`src/lodge/agents/debriefs.ts`), is refused. The brief is visible to the job's
+managers and their agents only (`debriefs` in state, with `stale: true` once a
+quoted scorecard is corrected). The manager sends `edit-debrief { id,
+statements }` (checked the same way) and `decide-debrief { id, decision:
+"keep" | "discard" }`; discarding deletes it. A brief never moves the
+candidate.
 
 ## Moving in
 

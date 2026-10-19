@@ -29,5 +29,6 @@ export function commandBodies(h) {
     'data-request': { candidate: candidate.id, type: 'access', channel: 'email' }, 'complete-data-request': { id: h.request.id, outcome: 'Forbidden' },
     propose: { workflow: 'prepare-vacancy', approver: 'm1@example.test', summary: 'Forbidden source', sources: [{ kind: 'vacancy', id: vacancy.id }], changes: [{ op: 'vacancy', input: { ...vacancy, description: 'Forbidden' } }] },
     'decide-proposal': { id: h.proposal.id, decision: 'approved', reason: 'Forbidden' },
+    debrief: { application: app.id, statements: [{ kind: 'question', text: 'Forbidden', citations: [] }] }, 'edit-debrief': { id: 'no-such-brief', statements: [] }, 'decide-debrief': { id: 'no-such-brief', decision: 'keep' },
   }
 }

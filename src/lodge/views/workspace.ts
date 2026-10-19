@@ -13,6 +13,7 @@ import { coordination } from '../agents/coordination'
 import { activity } from './activity'
 import { businessToday } from '../records/tasks'
 import { interviewerActivity } from './reports'
+import { staleDebrief } from '../agents/debriefs'
 
 /**
  * The actor's whole permitted view. The app, search, exports and the agent
@@ -125,6 +126,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
     teamNotes, activity: activity(s, { applications: projected, messages, interviews, offers, teamNotes }),
     tasks,
+    // COORD-006 briefs, for the people who run the job (and their agents) only.
+    debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [
       ...tasks.filter(t => t.owner === scope(a) && t.status === 'open' && t.due <= today).map(t => ({ id: 'due:' + t.id, kind: 'task-due', task: t.id, application: t.application, candidate: t.candidate, by: t.createdBy, reason: t.note, at: t.due, overdue: t.due < today })),
       ...s.all('notification').filter(n => n.to === scope(a) && appIds.has(n.application)).sort((x, y) => y.at.localeCompare(x.at)),

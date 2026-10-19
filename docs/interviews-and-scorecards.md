@@ -36,4 +36,15 @@ needs a reason.
 
 The **Overview** shows who has not yet submitted under **Coordination**.
 
+## Debrief brief
+
+After release, your coding agent (or you) can prepare a debrief brief through
+the `debrief` command (the repository's `API.md` describes it). It lists, per
+criterion, where the interviewers agree or disagree, criteria nobody assessed and questions to
+resolve, each statement quoting the interviewers' own released words. Lodge
+refuses a statement it cannot match to a quote, a missed disagreement or gap,
+and any combined score, recommendation or protected-trait reference. It shows
+under **Scorecards** for the people who run the job; edit it, then keep or
+discard it. It never moves the candidate.
+
 Next: [Offers and the hire](offers.md).

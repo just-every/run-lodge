@@ -4,6 +4,7 @@ import { Icon } from '../icons'
 import { Avatar, type D } from '../shared'
 import { Interviews } from '../interviews'
 import { ScorecardForm, Scorecards } from '../scorecards'
+import { Debriefs } from '../debriefs'
 import { Messages, Offers } from '../decisions'
 import { Documents } from '../documents'
 import { Notes } from '../notes'
@@ -29,7 +30,7 @@ export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () 
       {tab === 'Overview' && <RecordOverview app={app} v={v} c={c} w={w} mutate={mutate} />}
       {tab === 'Notes' && <Notes app={app} w={w} mutate={mutate} />}
       {tab === 'Interviews' && <Interviews app={app} v={v} w={w} mutate={mutate} />}
-      {tab === 'Scorecards' && <><Scorecards app={app} v={v} w={w} mutate={mutate} /><ScorecardForm app={app} v={v} w={w} mutate={mutate} /></>}
+      {tab === 'Scorecards' && <><Scorecards app={app} v={v} w={w} mutate={mutate} /><Debriefs app={app} v={v} w={w} mutate={mutate} /><ScorecardForm app={app} v={v} w={w} mutate={mutate} /></>}
       {tab === 'Decisions' && <><Offers app={app} v={v} w={w} mutate={mutate} /><Messages app={app} w={w} mutate={mutate} /></>}
       {tab === 'Documents' && <Documents app={app} w={w} mutate={mutate} />}
     </div>

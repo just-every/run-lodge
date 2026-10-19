@@ -71,7 +71,7 @@ export function candidateRecords(s: State, candidateId: string) {
   const subjects = new Set([...offers, ...messages].map(r => r.id))
   const records: Record<string, Data[]> = {
     application: apps, 'stage-event': byApp('stage-event'), interview: byApp('interview'), scorecard: byApp('scorecard'),
-    'interview-note': byApp('interview-note'), notification: byApp('notification'), 'team-note': byApp('team-note'), task: byApp('task'), message: messages, offer: offers, receipt: byApp('receipt'), monitoring: byApp('monitoring'),
+    'interview-note': byApp('interview-note'), notification: byApp('notification'), 'team-note': byApp('team-note'), task: byApp('task'), debrief: byApp('debrief'), message: messages, offer: offers, receipt: byApp('receipt'), monitoring: byApp('monitoring'),
     approval: s.scan('approval').filter(x => subjects.has(x.subjectId)),
     document: byApp('document'),
     // Records merged into this person hold their old contact details too.

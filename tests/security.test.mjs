@@ -104,7 +104,7 @@ test('LDG-006/008/016 current roles and principals govern every private HTTP doo
   }
   for (const role of roles.filter(r => r.denied || r.agent || r.name === 'unassigned interviewer')) {
    for (const [op, body] of Object.entries(commandBodies(h))) {
-    if (role.agent && op === 'propose') continue // real allowed proposals are exercised separately
+    if (role.agent && (op === 'propose' || op === 'debrief')) continue // real allowed proposals and briefs are exercised separately
     const before = await snapshot(h), response = await h.send('/api/lodge/command/' + op, body, role.cookie)
     if (role.denied || role.agent) assert.equal(response.status, role.denied ?? 403, `${role.name}: ${op}`)
     else assert.ok([403, 404].includes(response.status), `${role.name}: ${op}: ${response.text}`)

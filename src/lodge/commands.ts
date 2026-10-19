@@ -15,6 +15,7 @@ import { kickoff, vacancyFromKickoff } from './records/kickoffs'
 import { offer, outcome, requestOfferApproval } from './records/offers'
 import { completeRequest, dataRequest, extendRetention, hold, releaseHold } from './records/retention'
 import { decideProposal, propose } from './agents/proposals'
+import { debrief, decideDebrief, editDebrief } from './agents/debriefs'
 
 export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
 
@@ -34,12 +35,15 @@ export const commands: Record<string, Command> = {
   message, 'request-message-approval': requestMessageApproval,
   offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome,
   hold, 'release-hold': releaseHold, 'extend-retention': extendRetention, 'data-request': dataRequest, 'complete-data-request': completeRequest,
-  propose, 'decide-proposal': decideProposal,
+  propose, 'decide-proposal': decideProposal, debrief, 'edit-debrief': editDebrief, 'decide-debrief': decideDebrief,
 }
+
+/** What an agent member may run: proposals, and debrief briefs, which change no hiring record and wait for the manager. */
+const AGENT_COMMANDS = new Set(['propose', 'debrief'])
 
 export async function run(s: State, a: Actor, op: string, body: Data) {
   const command = Object.hasOwn(commands, op) ? commands[op] : undefined
   if (!command) throw new Fault(404, 'Unknown action')
-  if (a.agent && op !== 'propose') throw new Fault(403, 'Agent members propose changes; a person approves and applies them')
+  if (a.agent && !AGENT_COMMANDS.has(op)) throw new Fault(403, 'Agent members propose changes; a person approves and applies them')
   return command(s, a, body)
 }
