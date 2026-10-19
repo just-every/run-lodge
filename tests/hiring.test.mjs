@@ -1755,15 +1755,17 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal(ev.report.attendees, 5)
   })
 
-  await t.test('DATA-003 reviewed bulk actions across two jobs: preview per item, apply only unchanged items with each outcome shown and audited, a resubmitted batch changes nothing, and a bulk rejection previews each recipient and schedules one email each', async () => {
-    const publishJob = async title => {
-      const v = await cmd('vacancy', { title, location: 'Queens, NY', headcount: 2, manager: 'morgan@example.test', compensation: RANGE, description: 'Bulk review job.' }, manager)
-      await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
-      await cmd('interview-plan', { id: v.id, plan: [{ name: 'Yard talk', stageName: 'Interview', durationMinutes: 30 }] }, manager)
-      await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
-      return cmd('publish', { id: v.id }, manager)
+  await t.test('DATA-003 reviewed bulk actions across two jobs: preview per item, apply only unchanged and still-authorized items with each outcome shown and audited, a resubmitted batch changes nothing; bulk rejection, archive, export and personalized message drafts', async () => {
+    const publishJob = async (title, lead = 'morgan@example.test', cookie = manager) => {
+      const v = await cmd('vacancy', { title, location: 'Queens, NY', headcount: 2, manager: lead, compensation: RANGE, description: 'Bulk review job.' }, cookie)
+      await cmd('rubric', { id: v.id, criteria: RUBRIC }, cookie)
+      await cmd('interview-plan', { id: v.id, plan: [{ name: 'Yard talk', stageName: 'Interview', durationMinutes: 30 }] }, cookie)
+      await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, cookie)).id)
+      return cmd('publish', { id: v.id }, cookie)
     }
-    const [welder, rigger] = [await publishJob('Bulk Welder'), await publishJob('Bulk Rigger')]
+    // Morgan runs the Welder job as its manager and the Rigger job through a recruiter grant (REQ-003).
+    const [welder, rigger] = [await publishJob('Bulk Welder'), await publishJob('Bulk Rigger', 'mona@example.test', owner)]
+    await cmd('hiring-team', { id: rigger.id, recruiters: ['morgan@example.test'] })
     const add = async (name, job) => (await cmd('candidate', { name, email: name.toLowerCase().replace(' ', '.') + '@bulk.example.test', source: 'Job board', consentBasis: 'application', vacancy: job.id }, manager)).application
     const [w1, r1, w2, r2] = [await add('Ola Fenn', welder), await add('Pim Varga', rigger), await add('Ruth Kemal', welder), await add('Saul Ito', rigger)]
     const bulk = (op, body, cookie = manager) => send('/api/lodge/command/' + op, body, cookie)
@@ -1812,6 +1814,44 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
       assert.deepEqual([w.applications.find(a => a.id === app.id).status, w.rejectionEmails.filter(m => m.application === app.id).map(m => [m.businessDays, m.state])], ['rejected', [[2, 'scheduled']]], 'one scheduled DISP-001 email each, even after resubmission')
       assert.equal(w.applications.find(a => a.id === app.id).history.at(-1).reason, 'Lacks required certification')
     }
+
+    // Archive closes with a listed reason (a "they withdrew" one closes as withdrawn) and never an email.
+    const archive = { kind: 'archive', closeReason: 'no-response', note: 'No reply in three weeks' }
+    const ap = (await bulk('bulk-preview', { items: [w1.id], action: archive })).value
+    await bulk('bulk-apply', { batch: 'bulk-archive-0001', items: [w1.id], action: archive, previewed: { [w1.id]: ap.items[0].seen } })
+    w = await state(manager)
+    const archived = w.applications.find(a => a.id === w1.id)
+    assert.deepEqual([archived.status, archived.history.at(-1).reason, w.rejectionEmails.filter(m => m.application === w1.id).length], ['withdrawn', 'Stopped responding', 0])
+
+    // Export hands back one file of the selected applications as Morgan's workspace shows them, audited with its digest; a replay hands back no second file.
+    const ep = (await bulk('bulk-preview', { items: [w1.id, r1.id], action: { kind: 'export' } })).value
+    const exportBody = { batch: 'bulk-export-0001', items: [w1.id, r1.id], action: { kind: 'export' }, previewed: Object.fromEntries(ep.items.map(i => [i.application, i.seen])) }
+    const exported = (await bulk('bulk-apply', exportBody)).value
+    assert.deepEqual([exported.file.format, exported.file.items.map(i => [i.candidate.name, i.vacancy.title, i.application.history.length > 1])], ['lodge-bulk-export-1', [['Ola Fenn', 'Bulk Welder', true], ['Pim Varga', 'Bulk Rigger', true]]])
+    assert.ok((await state()).audit.some(e => e.action === 'bulk-exported' && e.digest === exported.digest && e.applied === 2))
+    assert.deepEqual([(await bulk('bulk-apply', exportBody)).value.replayed, (await bulk('bulk-apply', exportBody)).value.file], [true, undefined])
+
+    // A personalized message: each preview shows the recipient and filled text; a candidate with no email on record is refused.
+    const [w3, r3] = [await add('Tova Lund', welder), await add('Uri Bass', rigger)]
+    const w4 = (await cmd('candidate', { name: 'Vic Nolan', source: 'Job board', consentBasis: 'application', vacancy: welder.id }, manager)).application
+    const note = { kind: 'message', purpose: 'other', subject: 'Next step for {job_title}', body: 'Hi {candidate_name}, can you talk this week? — {business_name}', approver: 'mona@example.test' }
+    assert.equal((await bulk('bulk-preview', { items: [w3.id], action: { ...note, body: 'Hi {first_name}' } })).status, 400, 'an unknown merge field is refused')
+    const mp = (await bulk('bulk-preview', { items: [w3.id, r3.id, w4.id], action: note })).value
+    assert.deepEqual(mp.items.map(i => i.ok ? [i.email.to, i.email.subject, i.email.body, i.email.sent] : i.refusal), [
+      ['tova.lund@bulk.example.test', 'Next step for Bulk Welder', 'Hi Tova Lund, can you talk this week? — Example Builders', false],
+      ['uri.bass@bulk.example.test', 'Next step for Bulk Rigger', 'Hi Uri Bass, can you talk this week? — Example Builders', false],
+      'This candidate has no email address'])
+    // Before apply the owner takes Morgan off the Rigger team: that item is refused, twice alike, and nothing is drafted for it.
+    await cmd('hiring-team', { id: rigger.id })
+    const messageSeen = Object.fromEntries(mp.items.filter(i => i.ok).map(i => [i.application, i.seen]))
+    for (let i = 0; i < 2; i++) {
+      const sent = (await bulk('bulk-apply', { batch: 'bulk-message-0001', items: [w3.id, r3.id], action: note, previewed: messageSeen })).value
+      assert.deepEqual([sent.applied, sent.refused, sent.items.map(x => x.ok), sent.items[1].refusal], [1, 1, [true, false], 'Application not found'])
+    }
+    const messages = (await state()).messages
+    assert.equal(messages.filter(m => m.application === r3.id).length, 0, 'no unauthorized change')
+    assert.deepEqual(messages.filter(m => m.application === w3.id).map(m => [m.to, m.body, m.downloads.length, m.approval.status, m.approval.approver]),
+      [['tova.lund@bulk.example.test', 'Hi Tova Lund, can you talk this week? — Example Builders', 0, 'pending', 'mona@example.test']], 'one draft awaiting exact approval, never sent, even after resubmission')
   })
 
   await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {

@@ -98,7 +98,7 @@ export function addBusinessDays(iso: string, days: number, zone: string) {
   return fromWall(wall, zone)
 }
 
-const fill = (template: string, values: Record<string, string>) => template.replace(/\{(candidate_name|job_title|business_name)\}/g, (_, k) => values[k])
+export const fill = (template: string, values: Record<string, string>) => template.replace(/\{(candidate_name|job_title|business_name)\}/g, (_, k) => values[k])
 
 /** What a close asks for: a reason from the list, an optional note, and for a rejection the email choice. */
 export interface CloseChoice { to: 'rejected' | 'withdrawn'; reason: Data; note: string; email: null | { template: Data; send: 'now' | 'delay'; businessDays: number } }

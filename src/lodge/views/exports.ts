@@ -79,3 +79,26 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
   s.audit(a, 'candidate-exported', 'candidate:' + id, { digest, request: requestId ?? null })
   return { body, digest }
 }
+
+/**
+ * DATA-003 bulk data export: the selected applications exactly as the
+ * requester's workspace shows them (restricted material, unreleased scorecards
+ * and private notes stay out as they do there). Document entries carry their
+ * details, not their bytes.
+ */
+export function bulkExport(w: Workspace, ids: string[]) {
+  const items = ids.map(id => {
+    const application = w.applications.find(x => x.id === id)
+    if (!application) throw new Fault(404, 'Application not found')
+    const forApp = (rows: Data[]) => rows.filter(r => r.application === id)
+    return {
+      application, vacancy: (v => ({ id: v.id, title: v.title, department: v.department, location: v.location }))(w.vacancies.find(v => v.id === application.vacancy)!),
+      candidate: w.candidates.find(c => c.id === application.candidate),
+      documents: w.documents.filter(d => d.application === id || (d.candidate === application.candidate && !d.application)),
+      interviews: forApp(w.interviews), scorecards: forApp(w.scorecards), messages: forApp(w.messages), offers: forApp(w.offers),
+      teamNotes: w.teamNotes.filter(n => n.application === id || (n.candidate === application.candidate && !n.application)),
+      activity: w.activity.filter(e => e.application === id),
+    }
+  })
+  return { format: 'lodge-bulk-export-1', exportedAt: now(), exportedBy: w.actor.email, items }
+}

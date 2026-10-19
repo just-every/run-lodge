@@ -5,8 +5,17 @@ import { call, Status, Table, type D } from '../shared'
 // DATA-003: select applications from this job's saved board view (the selection
 // carries across jobs), preview one action on each, then apply exactly that
 // preview. Each item shows its own outcome; a refused item never counts as done.
+// An export downloads once as a file; a personalized message becomes one draft
+// per candidate for exact approval (Lodge sends nothing).
 
-const KINDS = [['move', 'Move to a stage'], ['reject', 'Reject'], ['tag', 'Add a tag']]
+const KINDS = [['move', 'Move to a stage'], ['reject', 'Reject'], ['archive', 'Archive (close, no email)'], ['tag', 'Add a tag'], ['message', 'Personalized message (drafts)'], ['export', 'Export data']]
+
+function download(file: D) {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' }))
+  const link = Object.assign(document.createElement('a'), { href: url, download: 'lodge-bulk-export.json' })
+  link.click()
+  URL.revokeObjectURL(url)
+}
 
 export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w: D; reload: () => Promise<void>; selection: string[]; setSelection: (ids: string[]) => void }) {
   const b = board(w, v.id)
@@ -21,14 +30,19 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
     const f = new FormData(form), get = (k: string) => String(f.get(k) ?? '')
     const action: D = kind === 'move' ? { kind, stage: get('stage'), reason: get('reason') }
       : kind === 'tag' ? { kind, tag: get('tag') }
-        : { kind, closeReason: get('closeReason'), note: get('note'), send: get('send'), template: get('template') || undefined, businessDays: get('businessDays') || undefined }
+        : kind === 'archive' ? { kind, closeReason: get('closeReason'), note: get('note') }
+          : kind === 'export' ? { kind }
+            : kind === 'message' ? { kind, subject: get('subject'), body: get('body'), approver: get('approver') || undefined }
+              : { kind, closeReason: get('closeReason'), note: get('note'), send: get('send'), template: get('template') || undefined, businessDays: get('businessDays') || undefined }
     setError(''); setResult(null)
     try { setPreview({ action, ...await call('command/bulk-preview', { items: selection, action }) }); setBatch(crypto.randomUUID()) } catch (e) { setError((e as Error).message) }
   }
   async function apply() {
     const ok = preview!.items.filter((i: D) => i.ok)
     try {
-      setResult(await call('command/bulk-apply', { batch, items: ok.map((i: D) => i.application), action: preview!.action, previewed: Object.fromEntries(ok.map((i: D) => [i.application, i.seen])) }))
+      const done = await call('command/bulk-apply', { batch, items: ok.map((i: D) => i.application), action: preview!.action, previewed: Object.fromEntries(ok.map((i: D) => [i.application, i.seen])) })
+      if (done.file) download(done.file)
+      setResult(done)
       setPreview(null); setSelection([]); await reload()
     } catch (e) { setError((e as Error).message) }
   }
@@ -49,6 +63,14 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
           <label>Email template<select name="template"><option value="">None</option>{w.rejectionTemplates.filter((t: D) => !t.retired).map((t: D) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
           <label>Business days to wait<input name="businessDays" type="number" min="1" max="20" /></label>
           <label>Note (optional)<input name="note" /></label></>}
+        {kind === 'archive' && <>
+          <label>Reason<select name="closeReason" required><option value="">Choose…</option>{w.rejectionReasons.filter((r: D) => !r.retired).map((r: D) => <option key={r.id} value={r.id}>{r.group === 'withdrew' ? 'They withdrew: ' : 'We rejected them: '}{r.label}</option>)}</select></label>
+          <label>Note (optional)<input name="note" /></label></>}
+        {kind === 'message' && <>
+          <p className="muted">Merge fields: {'{candidate_name}'}, {'{job_title}'}, {'{business_name}'}. Each candidate gets a draft to approve and download; Lodge sends nothing.</p>
+          <label>Subject<input name="subject" required /></label>
+          <label>Message<textarea name="body" required rows={4} /></label>
+          <label>Approver (a hiring manager’s email, optional)<input name="approver" type="email" /></label></>}
         <button>Preview</button>
       </form></>}
     {error && <p role="alert">{error}</p>}
@@ -56,11 +78,11 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
       <p>{preview.ready} ready · {preview.refused} refused</p>
       <Table heads={['Candidate', 'Job', 'Outcome']}>{preview.items.map((i: D) => <tr key={i.application}>
         <td>{i.candidateName ?? name(i.application)}</td><td>{i.job ?? title(i.application)}</td>
-        <td>{i.ok ? <Status tone="good">Ready</Status> : <Status tone="alert">{i.refusal}</Status>}{i.email && <small>Email to {i.email.to}: “{i.email.subject}” — {i.email.body}</small>}</td>
+        <td>{i.ok ? <Status tone="good">Ready</Status> : <Status tone="alert">{i.refusal}</Status>}{i.email && <small>{i.email.sent === false ? 'Draft for' : 'Email to'} {i.email.to}: “{i.email.subject}” — {i.email.body}</small>}</td>
       </tr>)}</Table>
       {preview.ready > 0 && <button className="primary" onClick={apply}>Apply to {preview.ready}</button>}
     </section>}
-    {result && <section aria-label="Bulk result"><p role="status">{result.applied} applied · {result.refused} refused</p>
+    {result && <section aria-label="Bulk result"><p role="status">{result.applied} applied · {result.refused} refused{result.kind === 'export' && !result.replayed ? ' · export downloaded' : ''}{result.kind === 'message' ? ' · drafts saved, not sent' : ''}</p>
       {result.items.filter((i: D) => !i.ok).map((i: D) => <p key={i.application}><Status tone="alert">{name(i.application)}: {i.refusal}</Status></p>)}</section>}
   </details>
 }
