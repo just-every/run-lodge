@@ -79,7 +79,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "386f37a98c1ad73504788ed4127c1827a4382d93360a8c9a702ed367861f344e",
+      "sha256": "e07971559203084ab4184f465e64ff9aaa87edd66670308358de8eb1f34ee80c",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -103,7 +103,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "82f2583e5fe8b0b1db67faaf13486527f535e940e7604389f1d5b9b323f24ee8",
+      "sha256": "21b223a52228e37ab0a98020a6395078190917901b9040b3cba142c70e147932",
       "executable": false
     },
     "DEMO.md": {
@@ -818,8 +818,12 @@
       "sha256": "cab1184aa859f34ad0ff0b159b956e222586c43dab55a2cdb402661264dbed17",
       "executable": false
     },
+    "src/lodge/http/embed.ts": {
+      "sha256": "7c9ef4b002b09d1e8ed4ab666f11fe6b638e648d8dad41102b35b0959a335da4",
+      "executable": false
+    },
     "src/lodge/http/public.ts": {
-      "sha256": "ac4206f1d965b183ca9e11298e545d8c7fab76113a7ea4fed8a1c52bb69948a7",
+      "sha256": "e98979c7bd18a11a51e5d3b19d54b63c4384be017e661a911331bd93ac872ca6",
       "executable": false
     },
     "src/lodge/move-in/csv.ts": {
@@ -2631,7 +2635,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "11f7febf4f654e476eef8f11a039c8cc59b01f069d58909b640f4232d9e67449",
+      "sha256": "5c1001caf5010b43b683a48fde033c09e124ab8620bef1efd3cc9c125c47e388",
       "executable": false
     },
     "src/site/docs/content.ts": {
@@ -2819,7 +2823,7 @@
       "executable": false
     },
     "src/ui/job-board.tsx": {
-      "sha256": "b0c368a1d534bc0e69aec15ff4622eaad6519c547d2687a8f84965bc206a4151",
+      "sha256": "11dbab10c879ded08b8415dc07396ca0dad9472e6e5de2515c244db537f62af3",
       "executable": false
     },
     "src/ui/kickoffs.tsx": {
@@ -2959,7 +2963,7 @@
       "executable": false
     },
     "tests/board-page.mjs": {
-      "sha256": "bd5de35fd53b63f42ce9a379aa5a497fc7aa10b5e337c3845405421a991b74b5",
+      "sha256": "debfaaa5e3879ec3191c1c317c9b76987421778ee2f5a1b11deab91bf227c637",
       "executable": false
     },
     "tests/browser-journey.mjs": {
@@ -2971,7 +2975,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "c52451d146356013bd664d2806138dfaa4b07565a5759effee0caf2008e43427",
+      "sha256": "b857f4b5ee7bf8a5057dd7b063a5f9cddfbb6caab51959c5821219a010d36ff3",
       "executable": false
     },
     "tests/harness.mjs": {
@@ -2979,11 +2983,11 @@
       "executable": false
     },
     "tests/hiring.test.mjs": {
-      "sha256": "aea7eba6458db43fd56190a8aeaa0061eb80c97e8ddbd02b1e29e5737f1d859f",
+      "sha256": "971d1a081e0dce6c8683c046e4fa61a5a6312788e211e5e00f81dad3ce5314c8",
       "executable": false
     },
     "tests/lodge-worker.ts": {
-      "sha256": "7ee950bcfc6acea2f2caf92f98e520f8feaa7daa59d9625163f5909c947218a8",
+      "sha256": "63ee6d15058a4077c921b098ac3e99d6118c603e4d19c233743d26adffee7da0",
       "executable": false
     },
     "tests/mail-edge.mjs": {

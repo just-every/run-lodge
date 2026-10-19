@@ -3,6 +3,7 @@
 import { authResponse, type Bindings } from '../src/auth.server'
 import { api } from '../src/lodge/http/api'
 import { publicPages } from '../src/lodge/http/public'
+import { embedPages, isEmbedPage } from '../src/lodge/http/embed'
 
 export default {
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
@@ -10,6 +11,7 @@ export default {
     if (auth) return auth
     const path = new URL(request.url).pathname
     if (path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
+    if (isEmbedPage(path)) return embedPages.fetch(request, env, execution)
     return api.fetch(request, env, execution)
   },
 }

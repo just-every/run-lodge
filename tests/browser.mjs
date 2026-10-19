@@ -11,7 +11,7 @@ import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { command, freePort, fresh, report, start } from './browser-runtime.mjs'
 import { api, current, journey, screens, session } from './browser-journey.mjs'
-import { careersPage, careersSite } from './board-page.mjs'
+import { careersPage, careersSite, embedFallback, embedPage, embedRefused } from './board-page.mjs'
 import { folderEntries, zip } from './zip.mjs'
 
 const evidence = resolve(process.env.LODGE_EVIDENCE ?? '.cache/lodge-browser-proof')
@@ -46,7 +46,8 @@ try {
   for (const width of [1440, 390]) result.journeys.push(await journey(browser, root, server.origin, width, evidence))
 
   // ATTR-009: the example careers page, on its own origin, lists a published job from the public board and applies through it.
-  const site = await careersSite(root)
+  // ATTR-008: the embed snippet on that origin frames the board and form; an unlisted site cannot; without JavaScript it links to the hosted roles.
+  const site = await careersSite(root), unlisted = await careersSite(root)
   try {
     const run = (op, body, context = owner.context) => api(context, server.origin, op, body)
     const ops = await run('department', { name: 'Field operations' }), yard = await run('office', { name: 'Brooklyn yard' })
@@ -65,9 +66,15 @@ try {
       const w = await current(owner.context, server.origin)
       const landed = w.applications.find(a => w.receipts.some(r => r.id === receipt && r.application === a.id))
       assert.deepEqual([landed.source, landed.campaign], ['Careers page (API)', { utm_source: 'webflow', utm_campaign: 'careers-' + width }])
+      const framed = await embedPage(browser, { lodge: server.origin, site: site.origin, job: { title: 'Yard lead', departmentId: ops.id }, width, evidence, email: `wren${width}@example.test` })
+      const after = await current(owner.context, server.origin)
+      const embedded = after.applications.find(a => after.receipts.some(r => r.id === framed && r.application === a.id))
+      assert.deepEqual([embedded.source, embedded.campaign], ['Careers page (embedded)', { utm_source: 'webflow-embed' }])
     }
+    await embedRefused(browser, { lodge: server.origin, site: unlisted.origin })
+    await embedFallback(browser, { lodge: server.origin, site: site.origin, job: { title: 'Yard lead' }, email: 'noor@example.test' })
   } finally {
-    await site.close()
+    await site.close(); await unlisted.close()
   }
 
   // The Workable kit through its own page: preview, then commit that exact preview.

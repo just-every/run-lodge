@@ -8,7 +8,7 @@ import { businessZone, isZone, times } from '../core/time'
 import { load, save } from '../core/store'
 import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
-import { MONITORING_OPTIONS, interviewByToken, openVacancy, publicPosting, submit } from '../records/intake'
+import { APPLICATION_PAGE, MONITORING_OPTIONS, interviewByToken, openVacancy, publicPosting, submit, type Door } from '../records/intake'
 import { candidateAvailability } from '../records/interviews'
 import { jobForm } from '../records/questions'
 import { departmentPath, subtree } from '../records/org'
@@ -22,23 +22,29 @@ export const publicPages = new Hono<{ Bindings: Bindings }>()
 publicPages.onError(async error => error instanceof Fault ? page('Not accepted', `<h1>That did not go through</h1><p role="alert">${esc(error.message)}</p>`, error.status) : page('Error', '<h1>Something went wrong</h1><p>Nothing was saved. Please try again.</p>', 500))
 
 const theme = { href: '/rer-theme.css', productName: branding.name, accentColor: branding.primaryColor }
-const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
+export const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
 const paragraphs = (v: string) => esc(v).split(/\n{2,}/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')
 
-async function page(title: string, body: string, status = 200) {
+/**
+ * An applicant page. Hosted pages refuse every frame; an ATTR-008 embedded page
+ * may be framed only by the origins the admin listed, and loads the one script
+ * that tells the host page its height.
+ */
+export async function page(title: string, body: string, status = 200, embed?: { ancestors: string[] }) {
   const frame = await themeFrame(theme)
-  return new Response(`<!doctype html><html lang="en"${frame.htmlClass}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(branding.name)}</title>${fontHead}${frame.head}<link rel="stylesheet" href="/lodge-public.css"></head><body><main class="lodge-public">${frame.brand}${body}</main></body></html>`, {
-    status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'strict-origin', 'x-content-type-options': 'nosniff', 'content-security-policy': `default-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'; ${frame.policy}` },
+  const ancestors = embed?.ancestors.length ? embed.ancestors.join(' ') : "'none'"
+  return new Response(`<!doctype html><html lang="en"${frame.htmlClass}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(branding.name)}</title>${fontHead}${frame.head}<link rel="stylesheet" href="/lodge-public.css">${embed ? '<script src="/embed/frame.js" defer></script>' : ''}</head><body><main class="lodge-public${embed ? ' embedded' : ''}">${embed ? '' : frame.brand}${body}</main></body></html>`, {
+    status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'strict-origin', 'x-content-type-options': 'nosniff', 'content-security-policy': `default-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors ${ancestors}; ${embed ? "script-src 'self'; " : ''}${frame.policy}` },
   })
 }
 
 const notFound = () => page('Not found', '<h1>This page is not available</h1><p>The role may have closed. <a href="/jobs">See open roles</a>.</p>', 404)
 
-async function formBody(c: C) {
+export async function formBody(c: C) {
   try { return await c.req.formData() } catch { throw new Fault(400, 'Send this form from its page') }
 }
 
-function sameOrigin(c: C) {
+export function sameOrigin(c: C) {
   const origin = runtimeBindings(c.env).AUTH_ORIGIN
   if (new URL(c.req.url).origin !== origin || c.req.header('origin') !== origin) throw new Fault(403, 'Submit this form from its own page')
 }
@@ -79,7 +85,7 @@ function questionFields(questions: Data[], values: Data) {
   }).join('\n')
 }
 
-function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = []) {
+export function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = [], action = `/jobs/${v.slug}`, hidden: Record<string, string> = {}) {
   const notice = business.notices.at(-1)
   const pay = v.compensation ? payRange(v.compensation) : ''
   const field = (name: string, label: string, type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
@@ -87,7 +93,8 @@ function form(v: Data, business: Data, error = '', values: Data = {}, questions:
 ${error ? `<p role="alert" class="error">${esc(error)}</p>` : ''}
 <h2>Apply</h2>
 <p>Need an adjustment to apply or interview? Contact ${esc(business.accommodationContact)}, or describe it below. Only the hiring administrators see it.</p>
-<form method="post" enctype="multipart/form-data" action="/jobs/${esc(v.slug)}">
+<form method="post" enctype="multipart/form-data" action="${esc(action)}">
+${Object.entries(hidden).map(([name, value]) => `<input type="hidden" name="${esc(name)}" value="${esc(value)}">`).join('')}
 ${field('name', 'Full name', 'text', 'required autocomplete="name" maxlength="160"')}
 ${field('email', 'Email', 'email', 'required autocomplete="email"')}
 ${field('phone', 'Phone (optional)', 'tel', 'autocomplete="tel"')}
@@ -113,12 +120,19 @@ publicPages.get('/jobs/:slug', async c => {
   return page(shown.title, form(shown, s.get('business', 'main'), '', {}, jobForm(s, v)))
 })
 
-publicPages.post('/jobs/:slug', async c => {
+publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
+
+/**
+ * Take an application posted from a job's form (hosted, or ATTR-008 embedded with
+ * its own door, action and frame), and answer with the receipt or the form again
+ * with the refusal.
+ */
+export async function apply(c: C, door: Door, embed?: { ancestors: string[]; action: string; hidden: Record<string, string> }) {
   sameOrigin(c)
-  if (Number(c.req.header('content-length') ?? 0) > MAX_DOCUMENT_BYTES * 1.5) return page('Too large', '<h1>That upload is too large</h1><p>Files may be at most 1 MB. Go back and choose a smaller file.</p>', 413)
+  if (Number(c.req.header('content-length') ?? 0) > MAX_DOCUMENT_BYTES * 1.5) return page('Too large', '<h1>That upload is too large</h1><p>Files may be at most 1 MB. Go back and choose a smaller file.</p>', 413, embed)
   const s = await load(c.env.DB)
-  const v = openVacancy(s, c.req.param('slug'))
-  if (!v) return notFound()
+  const v = openVacancy(s, c.req.param('slug') ?? '')
+  if (!v || (embed && v.confidential)) return embed ? page('Not found', '<h1>This role is not available</h1>', 404, embed) : notFound()
   const data = await formBody(c)
   const values: Data = Object.fromEntries([...data.entries()].filter(([, x]) => typeof x === 'string'))
   const upload = async (file: FormDataEntryValue | null) => file && typeof file !== 'string' && file.size > 0 ? { name: file.name, mediaType: file.type, base64: bytesToBase64(new Uint8Array(await file.arrayBuffer())) } : null
@@ -130,15 +144,15 @@ publicPages.post('/jobs/:slug', async c => {
   }
   try {
     const resume = await upload(data.get('resume'))
-    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume, answers: given } as any)
+    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume, answers: given } as any, door)
     await save(c.env.DB, s, null)
-    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
+    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`, 200, embed)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     const shown = publicPosting(v)!
-    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions), error.status)
+    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden), error.status, embed)
   }
-})
+}
 
 publicPages.get('/availability/:token', async c => {
   const s = await load(c.env.DB)

@@ -1486,6 +1486,59 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.deepEqual([flood.slice(0, 10).every(s => s === 400), flood[10]], [true, 429])
   })
 
+  await t.test('ATTR-008 the embedded job board and form: framed only by listed sites, filtered, applied to inside the frame with the host page’s campaign', async () => {
+    const support = await cmd('department', { name: 'Customer support' })
+    const v = await cmd('vacancy', { title: 'Support specialist', departmentId: support.id, workMode: 'remote', location: 'Remote (US)', headcount: 1, manager: 'morgan@example.test', compensation: RANGE }, manager)
+    await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
+    await cmd('interview-plan', { id: v.id, plan: [{ name: 'Call', stageName: 'Interview', durationMinutes: 30 }] }, manager)
+    await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
+    const job = await cmd('publish', { id: v.id }, manager)
+    const roles = page => [...page.text.matchAll(/<li><a href="\/embed\/jobs\/([^"?]+)[^"]*">([^<]+)<\/a>/g)].map(m => m[2]).sort()
+
+    // Framing: only the board's listed origins may frame the embed; hosted pages refuse every frame.
+    const list = await send('/embed/jobs?utm_source=newsletter')
+    assert.equal(list.status, 200)
+    assert.match(list.headers.get('content-security-policy'), /frame-ancestors https:\/\/careers\.example\.test;/)
+    assert.match((await send('/jobs')).headers.get('content-security-policy'), /frame-ancestors 'none'/)
+    assert.match((await send('/embed.js')).text, /\/embed\/jobs/)
+    const titles = roles(list)
+    assert.ok(titles.includes('Support specialist') && titles.includes('Night loader'))
+    for (const hidden of ['Advisor', 'Counsel', 'Paralegal']) assert.equal(titles.includes(hidden), false, hidden + ' never renders in the embed')
+    // Filters: department (preset by the snippet's data-department), office and remote; links carry the campaign.
+    assert.deepEqual(roles(await send(`/embed/jobs?department=${support.id}`)), ['Support specialist'])
+    assert.ok(roles(await send('/embed/jobs?remote=true')).every(t => t !== 'Night loader') && roles(await send('/embed/jobs?remote=true')).includes('Support specialist'))
+    assert.match(list.text, new RegExp(`href="/embed/jobs/${job.slug}\\?utm_source=newsletter"`))
+
+    // The form inside the frame: labelled fields, notice, accommodation contact, and the campaign as hidden fields.
+    const detail = await send(`/embed/jobs/${job.slug}?utm_source=newsletter&utm_campaign=spring`)
+    assert.match(detail.headers.get('content-security-policy'), /frame-ancestors https:\/\/careers\.example\.test;.*script-src 'self'/)
+    for (const label of ['Full name', 'Email', 'Resume', 'Adjustments you need', 'I have read privacy notice']) assert.ok(detail.text.includes(label), label)
+    assert.match(detail.text, /action="\/embed\/jobs\/[^"]+"/)
+    assert.match(detail.text, /name="utm_source" value="newsletter"/)
+    assert.equal((await send(`/embed/jobs/${(await state()).vacancies.find(x => x.title === 'Counsel').slug}`)).status, 404, 'a confidential job never opens in the embed')
+    const notice = detail.text.match(/name="noticeVersion" value="(\d+)"/)[1]
+    const body = (version, email) => { const f = new FormData(); for (const [k, x] of Object.entries({ name: 'Wren Hale', email, noticeVersion: version, consent: 'yes', utm_source: 'newsletter', utm_campaign: 'spring', monitoring: 'Woman' })) f.set(k, x); f.set('resume', new Blob(['Wren Hale resume'], { type: 'text/plain' }), 'wren.txt'); return f }
+    const stale = await send(`/embed/jobs/${job.slug}`, body(String(Number(notice) + 1), 'wren@example.test'))
+    assert.equal(stale.status, 409, 'an older notice version is refused')
+    assert.match(stale.headers.get('content-security-policy'), /frame-ancestors https:\/\/careers\.example\.test/)
+    assert.equal((await send(`/embed/jobs/${job.slug}`, body(notice, 'wren@example.test'), '', { origin: 'https://careers.example.test' })).status, 403, 'the form posts only from its own frame')
+    const done = await send(`/embed/jobs/${job.slug}`, body(notice, 'wren@example.test'))
+    assert.equal(done.status, 200, done.text)
+    const receipt = done.text.match(/<dt>Receipt<\/dt><dd>(LDG-[0-9A-F]+)<\/dd>/)[1]
+    const view = await state()
+    const app = view.applications.find(a => view.receipts.some(r => r.id === receipt && r.application === a.id))
+    assert.deepEqual([app.source, app.campaign], ['Careers page (embedded)', { utm_source: 'newsletter', utm_campaign: 'spring' }])
+    assert.ok(view.restricted.some(m => m.application === app.id && m.type === 'voluntary-monitoring'), 'the voluntary answer stays restricted')
+    assert.deepEqual(view.sources.filter(x => x.name === 'Careers page (embedded)').map(x => [x.type, x.automatic]), [['careers-site', true]])
+    // The job's SCREEN-001 questions are asked in the frame and its SCREEN-002 rules run on the answers.
+    const loader = view.vacancies.find(x => x.title === 'Night loader'), lift = loader.questions[0].question
+    assert.match((await send(`/embed/jobs/${loader.slug}`)).text, new RegExp(`name="q-${lift}"`))
+    const answered = body(notice, 'yuki@example.test'); answered.set('name', 'Yuki Sato'); answered.set('q-' + lift, 'yes')
+    assert.equal((await send(`/embed/jobs/${loader.slug}`, answered)).status, 200)
+    const tagged = (await state()).applications.find(a => a.vacancy === loader.id && a.source === 'Careers page (embedded)')
+    assert.deepEqual([tagged.answers.map(a => a.value), tagged.tags], [['yes'], ['Can lift']])
+  })
+
   await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {
     const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
     const [authorized, relocate, cdl, story] = [q('Are you legally authorized to work in the US?'), q('Willing to relocate?'), q('Years holding a Class A CDL'), q('Tell us about a job you finished early')]

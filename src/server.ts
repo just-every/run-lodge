@@ -9,6 +9,7 @@ import { authResponse, runtimeBindings, type Bindings } from './auth.server'
 import { identity } from './identity'
 import { api } from './lodge/http/api'
 import { publicPages } from './lodge/http/public'
+import { embedPages, isEmbedPage } from './lodge/http/embed'
 
 // Applicant pages are plain server-rendered HTML; /api/* is Lodge's JSON API;
 // every other document (the /app workspace) is TanStack Start.
@@ -36,6 +37,7 @@ export default withDemo({
     const lobby = await lobbyResponse(request, runtimeBindings(env), identity)
     if (lobby) return lobby
     if (isPublicPage(new URL(request.url).pathname)) return publicPages.fetch(request, env, execution)
+    if (isEmbedPage(new URL(request.url).pathname)) return embedPages.fetch(request, env, execution)
     return dispatch(request, () => api.fetch(request, env, execution), async () => noTransform(await start.fetch(request)))
   },
 } satisfies ExportedHandler<Bindings>, { seed: seedDemo })
