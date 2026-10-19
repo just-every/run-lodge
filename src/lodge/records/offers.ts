@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { requireApplication, requireManages } from '../core/access'
 import { currency, date, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval } from './approvals'
+import { cancelTasks } from './tasks'
 
 // Flow 11: an offer record, its approval packet, the approval bound to the
 // exact terms, and the recorded outcome. Accepting records the hire and opens
@@ -65,6 +66,7 @@ export async function outcome(s: State, a: Actor, b: Data) {
     s.put('application', app.id, { ...app, status: 'hired', closedAt: now() })
     s.put('vacancy', vacancy.id, { ...vacancy, hires: (vacancy.hires ?? 0) + 1 })
     s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'hired', reason: 'Offer accepted: ' + reason, actor: a.email, at: now() })
+    cancelTasks(s, app.id, 'Application hired')
   }
   s.audit(a, 'offer-' + result, 'offer:' + o.id, { reason })
   return record

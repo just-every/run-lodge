@@ -19,6 +19,7 @@ export function commandBodies(h) {
     availability: { interview: interview.id, slots: [0] }, schedule: { interview: interview.id, slot: 0 }, 'cancel-interview': { interview: interview.id, reason: 'Forbidden' },
     scorecard: { application: app.id, ratings: {}, evidence: {}, recommendation: 'yes', takeaways: 'Forbidden', submit: true },
     'correct-scorecard': { scorecard: app.id + ':review:panel@example.test', reason: 'Forbidden' }, 'release-feedback': { application: app.id, reason: 'Forbidden' }, note: { application: app.id, text: 'Forbidden' }, 'team-note': { application: app.id, text: 'Forbidden' },
+    task: { application: app.id, note: 'Forbidden', due: '2026-12-01' }, 'complete-task': { id: 'no-such-task' },
     message: { application: app.id, purpose: 'other', subject: 'Forbidden', body: 'Forbidden' }, 'request-message-approval': { id: h.message.id, approver: 'owner@example.test' },
     offer: { application: app.id, salary: { currency: 'USD', amount: 100, period: 'year' }, startDate: '2026-12-10' },
     'request-offer-approval': { id: offer.id, approver: 'approve@example.test' }, 'offer-outcome': { id: offer.id, outcome: 'accepted', reason: 'Forbidden' },

@@ -323,8 +323,8 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 7 | 37 | 64 | 108 |
-| All | 24 | 37 | 64 | 125 |
+| Target and push further | 8 | 37 | 63 | 108 |
+| All | 25 | 37 | 63 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -404,7 +404,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `TEAM-002` | @mentions with access-checked notifications | target | missing |  | No @mentions or note notifications exist. |
 | `TEAM-003` | Personal notification subscriptions | target | missing |  | Members receive no email or in-app notifications about hiring events. |
 | `HOME-001` | Personal work dashboard | target | partial | `src/ui/overview.tsx`; `src/lodge/agents/coordination.ts` | Home counts approvals and unsubmitted scorecards and lists scorecards to write and coordination facts; upcoming interviews, review assignments, mentions, tasks, offers and per-item links across jobs are absent. |
-| `TASK-001` | Candidate follow-up reminders and personal tasks | target | missing |  | No follow-up reminders or member tasks exist. |
+| `TASK-001` | Candidate follow-up reminders and personal tasks | target | done | `src/lodge/records/tasks.ts`; `src/lodge/views/workspace.ts`; `src/ui/tasks.tsx`; `tests/hiring.test.mjs` |  |
 | `AUTO-001` | Owner-editable stage workflows and approval chains | target | partial | `src/lodge/records/pipeline.ts`; `src/lodge/records/approvals.ts`; `src/lodge/records/offers.ts` | Stage histories, plans and one exact-term approver exist; conditional workflows, assessments, multi-step and parallel routing, delegation and escalation are absent. |
 | `AUTO-002` | Persistent hiring reminders and escalation | target | partial | `src/lodge/agents/coordination.ts`; `src/lodge/agents/proposals.ts`; `tests/agents.test.mjs` | Outstanding availability/feedback and approved reminder proposals exist; durable schedules, actual delivery and escalation are absent. |
 | `OFFER-001` | Reusable US offer documents and compensation packets | target | partial | `src/lodge/records/offers.ts`; `src/lodge/views/offer-exports.ts`; `tests/hiring.test.mjs` | Structured title/pay/start and exact approval packets exist; reusable documents, richer compensation terms and document-bound approval are absent. |

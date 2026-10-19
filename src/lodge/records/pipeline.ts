@@ -1,6 +1,7 @@
 import type { State } from '../core/state'
 import { canReview, requireApplication, requireManages, requireMember } from '../core/access'
 import { holdsFor } from './retention'
+import { cancelTasks } from './tasks'
 import { email, list, now, requireThat, text, uid, type Actor, type Data } from '../core/types'
 
 // Flows 6 and 7: who reviews an application, and every stage move with its
@@ -36,6 +37,7 @@ export function move(s: State, a: Actor, b: Data) {
   }
   const record = s.put('application', app.id, next)
   s.put('stage-event', uid(), { application: app.id, from: app.stage, to, reason, actor: a.email, at: now() })
+  if (next.status !== 'active') cancelTasks(s, app.id, `Application ${to}`)
   s.audit(a, 'stage-moved', 'application:' + app.id, { to, reason })
   return record
 }
@@ -65,6 +67,7 @@ export function markSpam(s: State, a: Actor, b: Data) {
   const record = s.put('application', app.id, { ...rest, status: 'spam', spam: { reason, by: a.email, at: now(), stage: app.stage } })
   s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'spam', reason, actor: a.email, at: now() })
   cancelRejections(s, app.id, 'Marked as spam')
+  cancelTasks(s, app.id, 'Application marked as spam')
   s.audit(a, 'application-spam', 'application:' + app.id, { reason })
   return record
 }

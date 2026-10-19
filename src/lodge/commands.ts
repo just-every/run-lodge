@@ -10,6 +10,7 @@ import { availability, cancel, interview, reply, schedule } from './records/inte
 import { correct, note, releaseFeedback, scorecard } from './records/scorecards'
 import { message, requestMessageApproval } from './records/messages'
 import { teamNote } from './records/notes'
+import { completeTask, task } from './records/tasks'
 import { offer, outcome, requestOfferApproval } from './records/offers'
 import { completeRequest, dataRequest, extendRetention, hold, releaseHold } from './records/retention'
 import { decideProposal, propose } from './agents/proposals'
@@ -28,7 +29,7 @@ export const commands: Record<string, Command> = {
   candidate, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'assign-reviewers': assignReviewers, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
-  scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote,
+  scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
   message, 'request-message-approval': requestMessageApproval,
   offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome,
   hold, 'release-hold': releaseHold, 'extend-retention': extendRetention, 'data-request': dataRequest, 'complete-data-request': completeRequest,

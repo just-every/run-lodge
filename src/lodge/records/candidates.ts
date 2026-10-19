@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { canSeeContact, requireAdmin, requireApplication, requireManages, requireRole } from '../core/access'
 import { date, now, oneOf, optionalEmail, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { storeDocument } from './documents'
+import { cancelTasks } from './tasks'
 
 // Flows 4 and 5: candidates with source, consent and retention metadata; one
 // candidate linked to several applications; possible duplicates surfaced for a
@@ -94,6 +95,7 @@ export function transfer(s: State, a: Actor, b: Data) {
   const application = startApplication(s, a, person, target, source.source, { transferredFrom: source.id }, `Transferred from ${from.title}${note ? ': ' + note : ''}`)
   const reason = `Transferred to ${target.title}`
   s.put('application', source.id, { ...source, status: 'transferred', closedAt: now(), transferredTo: application.id })
+  cancelTasks(s, source.id, 'Application transferred')
   s.put('stage-event', uid(), { application: source.id, from: source.stage, to: 'transferred', reason: note ? `${reason}: ${note}` : reason, actor: a.email, at: now() })
   s.audit(a, 'application-transferred', 'application:' + source.id, { to: application.id, vacancy: target.id })
   return application

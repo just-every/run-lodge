@@ -11,6 +11,7 @@ import { retentionReview } from '../records/retention'
 import { missingTerms } from '../records/vacancies'
 import { coordination } from '../agents/coordination'
 import { activity } from './activity'
+import { businessToday } from '../records/tasks'
 
 /**
  * The actor's whole permitted view. The app, search, exports and the agent
@@ -88,6 +89,9 @@ export async function workspaceRecords(s: State, a: Actor) {
     return vacancy && managesVacancy(a, vacancy) ? i : { ...i, candidateToken: undefined }
   })
   const visibleCandidates = new Set(candidates.map(c => c.id))
+  // Follow-ups and tasks the reader owns or set, while what they point at stays in view.
+  const tasks = s.all('task').filter(t => (t.owner === scope(a) || t.createdBy === scope(a)) && (t.application ? appIds.has(t.application) : !t.candidate || visibleCandidates.has(t.candidate))).sort((x, y) => x.due.localeCompare(y.due))
+  const today = businessToday(s)
   const teamNotes = s.all('team-note').filter(n => visibleCandidates.has(n.candidate) && canSeeTeamNote(s, a, n)).sort((x, y) => x.at.localeCompare(y.at))
   return {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
@@ -104,7 +108,11 @@ export async function workspaceRecords(s: State, a: Actor) {
     scorecards: visibleCards,
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
     teamNotes, activity: activity(s, { applications: projected, messages, interviews, offers, teamNotes }),
-    notifications: s.all('notification').filter(n => n.to === scope(a) && appIds.has(n.application)).sort((x, y) => y.at.localeCompare(x.at)),
+    tasks,
+    notifications: [
+      ...tasks.filter(t => t.owner === scope(a) && t.status === 'open' && t.due <= today).map(t => ({ id: 'due:' + t.id, kind: 'task-due', task: t.id, application: t.application, candidate: t.candidate, by: t.createdBy, reason: t.note, at: t.due, overdue: t.due < today })),
+      ...s.all('notification').filter(n => n.to === scope(a) && appIds.has(n.application)).sort((x, y) => y.at.localeCompare(x.at)),
+    ],
     messages, offers, approvals,
     restricted: admin ? s.all('monitoring') : [],
     holds: admin ? s.all('hold') : [],

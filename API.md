@@ -37,7 +37,9 @@ state; nothing is retried automatically. Operations: `business`, `member`,
 interviewer's `can-cover` with an optional `freeAt`, each with a `note`), `scorecard`, `correct-scorecard` (the author's
 linked correction of a submitted `scorecard` id, with a `reason`), `release-feedback`, `note`, `team-note`
 (a shared candidate note: `candidate` or `application`, `text`, `private` for admins and the job's
-managers; send its `id` to edit your own, history kept), `message`,
+managers; send its `id` to edit your own, history kept), `task` (a follow-up on a `candidate` or
+`application`, or for admins and managers `kind: "task"`, with `note`, `due` date and `owner`),
+`complete-task`, `message`,
 `request-message-approval`, `offer`, `request-offer-approval`,
 `offer-outcome`, `hold`, `release-hold`, `extend-retention`, `data-request`,
 `complete-data-request`, `propose`, `decide-proposal`. Also

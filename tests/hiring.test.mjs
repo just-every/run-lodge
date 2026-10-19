@@ -550,6 +550,46 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     await cmd('move', { application: app.id, to: 'withdrawn', reason: 'Took another role' }, manager)
   })
 
+  await t.test('TASK-001 follow-ups and tasks reach their owner, come due, close with the application and move on deprovisioning', async () => {
+    const rhea = await h.signIn('rhea@example.test'), una = await h.signIn('una@example.test')
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: BUSINESS.timeZone })
+    const friday = new Date(Date.parse(today) + 86400000 * (((5 - new Date(Date.parse(today)).getUTCDay() + 7) % 7) || 7)).toISOString().slice(0, 10)
+    const { application: app } = await cmd('candidate', { name: 'Lena Brooks', email: 'lena@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
+    const followUp = await cmd('task', { application: app.id, note: 'Check in after her site visit', due: today }, manager)
+    const call = await cmd('task', { kind: 'task', candidate: app.candidate, note: 'Call references', due: friday, owner: 'rhea@example.test' }, manager)
+    const later = await cmd('task', { candidate: app.candidate, note: 'Ask about her start date', due: friday }, manager)
+    assert.equal((await send('/api/lodge/command/task', { candidate: app.candidate, note: 'Panel follow-up', due: friday }, ivy)).status, 404, 'an unassigned interviewer cannot reach the candidate')
+    await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test'] }, manager)
+    assert.equal((await send('/api/lodge/command/task', { kind: 'task', application: app.id, note: 'Panel task', due: friday }, ivy)).status, 403, 'tasks are for recruiters; panel members set follow-ups')
+    await cmd('task', { application: app.id, note: 'IVY-FOLLOWUP chase the portfolio', due: friday }, ivy)
+    assert.match((await send('/api/lodge/command/task', { application: app.id, note: 'Yours', due: friday, owner: 'una@example.test' }, manager)).value.error, /cannot see this candidate/)
+    assert.equal((await send('/api/lodge/command/task', { application: app.id, note: 'No date', due: 'Friday' }, manager)).status, 400)
+    // Each owner's home lists theirs; the follow-up due today notifies its owner, the Friday task does not yet.
+    const mine = await state(manager)
+    assert.deepEqual(mine.tasks.filter(x => x.candidate === app.candidate).map(x => [x.note, x.owner]).sort(), [['Ask about her start date', 'morgan@example.test'], ['Call references', 'rhea@example.test'], ['Check in after her site visit', 'morgan@example.test']])
+    assert.deepEqual(mine.notifications.filter(n => n.kind === 'task-due').map(n => n.task), [followUp.id])
+    const theirs = await state(rhea)
+    assert.deepEqual(theirs.tasks.map(x => x.id), [call.id])
+    assert.deepEqual(theirs.notifications.filter(n => n.kind === 'task-due'), [])
+    assert.ok(!JSON.stringify(await state(una)).includes('Call references'))
+    assert.ok(!JSON.stringify((await state(ivy)).tasks).includes('Call references'), 'a panel member sees only their own')
+    // Rejecting the application closes the follow-ups set on it; the candidate's own task stays open.
+    await cmd('move', { application: app.id, to: 'rejected', reason: 'Not progressing' }, manager)
+    const after = (await state(manager)).tasks
+    assert.deepEqual(after.filter(x => x.application === app.id).map(x => [x.status, x.closedReason]), [['cancelled', 'Application rejected']])
+    assert.equal(after.find(x => x.id === call.id).status, 'open')
+    assert.equal((await state(ivy)).tasks.find(x => x.note.startsWith('IVY-FOLLOWUP')).status, 'cancelled')
+    assert.deepEqual((await state(manager)).notifications.filter(n => n.kind === 'task-due'), [], 'a closed follow-up no longer notifies')
+    // Deprovisioning the colleague hands their task back to the person who set it.
+    await cmd('member', { email: 'rhea@example.test', name: 'Rhea Stone', roles: [], active: false })
+    const moved = (await state(manager)).tasks.find(x => x.id === call.id)
+    assert.deepEqual([moved.owner, moved.history.map(e => [e.from, e.to, e.reason])], ['morgan@example.test', [['rhea@example.test', 'morgan@example.test', 'Owner deprovisioned']]])
+    await cmd('complete-task', { id: moved.id }, manager)
+    // Erasing the candidate removes what is left of their follow-ups.
+    assert.equal((await send('/api/lodge/delete-candidate', { candidate: app.candidate, confirm: 'Lena Brooks', reason: 'Asked to be forgotten' }, owner)).status, 200)
+    assert.ok(!(await state(manager)).tasks.some(x => x.id === later.id || x.candidate === app.candidate))
+  })
+
   await t.test('SCORE-002 a correction is a linked version: the original stays, the manager hears, the packet goes stale', async () => {
     const { application: app } = await cmd('candidate', { name: 'Noor Haddad', email: 'noor@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
     await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)
