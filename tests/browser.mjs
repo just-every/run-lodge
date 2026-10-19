@@ -12,6 +12,7 @@ import { join, resolve } from 'node:path'
 import { command, freePort, fresh, report, start } from './browser-runtime.mjs'
 import { api, current, journey, screens, session } from './browser-journey.mjs'
 import { careersPage, careersSite, embedFallback, embedPage, embedRefused } from './board-page.mjs'
+import { documentsPage } from './document-page.mjs'
 import { postsPage } from './posts-page.mjs'
 import { eventsPage } from './events-page.mjs'
 import { bulkPage } from './bulk-page.mjs'
@@ -82,6 +83,7 @@ try {
     await eventsPage(browser, { root, origin: server.origin, job: { title: 'Yard lead' }, evidence })
     // DATA-003: one applicant on each of two jobs selected from their board views, a previewed bulk tag applied to both.
     await bulkPage(browser, { root, origin: server.origin, run, jobs: [lead, hand], evidence })
+    await documentsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   } finally {
     await site.close(); await unlisted.close()
   }

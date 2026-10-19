@@ -258,3 +258,13 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
 .bulk { margin: 1rem 0; }
 .bulk fieldset { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
 .bulk form { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: end; margin: 0.5rem 0; }
+
+/* DATA-006: the same scoped reader in review and beside feedback. */
+.document-and-scorecard { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1.25rem; align-items: start; }
+.inline-documents, .document-reader, .reading-page { min-width: 0; overflow-wrap: anywhere; }
+.inline-documents select, .document-reader input { width: 100%; max-width: 100%; }
+.document-reader { max-height: 70vh; overflow: auto; padding: .75rem; border: 1px solid var(--line); border-radius: .5rem; }
+.reading-page img { display: block; width: 100%; height: auto; }
+.document-text { white-space: pre-wrap; }
+.word-reading table { width: 100%; table-layout: fixed; }
+@media (max-width: 700px) { .document-and-scorecard { grid-template-columns: minmax(0, 1fr); } }

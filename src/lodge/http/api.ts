@@ -195,18 +195,22 @@ async function recorded(c: C, state: State, actor: Actor, response: Response) {
   return response
 }
 
-api.get('/api/lodge/download/document/:id', async c => {
+async function documentResponse(c: C, viewing: boolean) {
   const { state, actor } = await context(c)
   const doc = (await workspace(state, actor)).documents.find(d => d.id === c.req.param('id'))
   requireThat(doc, 'Document not found', 404)
   requireDocument(state, actor, doc.id)
+  if (viewing && c.req.query('access') === '1') return c.body(null, 204)
   const bytes = await readBlob(c.env.DB, doc.id)
   requireThat(bytes, 'The file bytes are missing', 404)
-  state.audit(actor, 'document-downloaded', 'document:' + doc.id)
+  state.audit(actor, viewing ? 'document-viewed' : 'document-downloaded', 'document:' + doc.id, viewing ? { restricted: doc.restricted } : {})
   const raw = atob(bytes.base64), data = new Uint8Array(raw.length)
   for (let i = 0; i < raw.length; i++) data[i] = raw.charCodeAt(i)
   return recorded(c, state, actor, attachment(data, doc.mediaType, doc.name))
-})
+}
+
+api.get('/api/lodge/download/document/:id', c => documentResponse(c, false))
+api.get('/api/lodge/view/document/:id', c => documentResponse(c, true))
 
 api.get('/api/lodge/download/calendar/:id', async c => {
   const { state, actor } = await context(c)

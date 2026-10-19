@@ -139,3 +139,28 @@ test('OPS-004 named permission levels on a job, a team role and a department gra
  const h = await fixture()
  try { await checkLevels(h) } finally { await h.close() }
 })
+
+test('DATA-006 inline originals and restricted-view audit obey live reviewer authorization', async () => {
+ const h = await fixture()
+ try {
+  const { readerFiles } = await import('./document-fixtures.mjs')
+  for (const file of readerFiles()) {
+   const doc = await h.command('document', { application: h.app.id, ...file, bytes: undefined, base64: file.bytes.toString('base64') }, h.manager)
+   const r = await h.mf.dispatchFetch(h.origin + '/api/lodge/view/document/' + doc.id, { headers: { cookie: h.panel } })
+   assert.equal(r.status, 200)
+   assert.deepEqual(Buffer.from(await r.arrayBuffer()), file.bytes, 'viewer receives the actual PDF, DOCX, text or image original')
+   assert.match(r.headers.get('cache-control'), /no-store/)
+   assert.equal((await h.send('/api/lodge/view/document/' + doc.id + '?access=1', undefined, h.panel)).status, 204)
+   assert.equal((await h.send('/api/lodge/view/document/' + doc.id, undefined, h.outsider)).status, 404)
+  }
+  assert.equal((await h.send('/api/lodge/view/document/' + h.restricted.id, undefined, h.panel)).status, 404)
+  assert.equal((await h.send('/api/lodge/view/document/' + h.restricted.id, undefined, h.owner)).status, 200)
+  const audit = await h.send('/api/lodge/audit', undefined, h.owner)
+  assert.ok(JSON.stringify(audit.value).includes('document-viewed'))
+  const events = (await h.db.prepare("SELECT value FROM l_records WHERE kind='audit'").all()).results.map(r => JSON.parse(r.value))
+  assert.ok(events.some(e => e.action === 'document-viewed' && JSON.stringify(e).includes(h.restricted.id)), 'restricted viewing has its own audit event')
+  await h.command('member', { email: 'panel@example.test', name: 'Revoked interviewer', roles: ['interviewer'], active: false })
+  for (const path of ['/view/document/', '/download/document/']) assert.equal((await h.send('/api/lodge' + path + h.document.id, undefined, h.panel)).status, 403)
+  assert.equal((await h.send('/api/lodge/view/document/' + h.document.id + '?access=1', undefined, h.panel)).status, 403)
+ } finally { await h.close() }
+})
