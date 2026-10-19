@@ -1,7 +1,8 @@
+import { OfferDocument, OfferForm } from './offer-form'
 import type { PageProps } from './app'
 import { day, money } from './format'
 import { person, sentence, tone } from './names'
-import { cents, Check, Field, fileFrom, Form, memberOptions, readFile, Status, type D } from './shared'
+import { Field, fileFrom, Form, memberOptions, readFile, Status, type D } from './shared'
 
 const purpose = (p: string) => sentence(p.replace(/-/g, ' '))
 
@@ -41,9 +42,11 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
       {o.rangeWarning && <p className="warn">{o.rangeWarning}.</p>}
       {o.conditional && <p className="hint">Conditional offer: any background check comes after it.</p>}
       {o.terms && <p className="pre">{o.terms}</p>}
+      <OfferDocument offer={o} app={app} v={v} w={w} mutate={mutate} />
       <p><a href={`/api/lodge/download/packet/${o.id}`}>Approval packet (JSON)</a>{o.status === 'accepted' && <> · <a href={`/api/lodge/download/handoff/${o.id}`}>HR handoff (JSON)</a></>}</p>
       {o.status === 'draft' && <>
-        {!o.approvedNow && <Form label="Request offer approval" compact onSubmit={x => mutate('request-offer-approval', { id: o.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} /></Form>}
+        {!o.approvedNow && o.document && <Form label="Request document approval" compact onSubmit={() => mutate('request-offer-approval', { id: o.id })}><p>Routed to {person(w, o.rangeWarning ? o.document.exceptionApprover : o.document.normalApprover)}{o.rangeWarning ? ' for the compensation exception' : ''}.</p></Form>}
+        {!o.approvedNow && !o.document && <Form label="Request offer approval" compact onSubmit={x => mutate('request-offer-approval', { id: o.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} /></Form>}
         <Form label="Record outcome" compact onSubmit={x => mutate('offer-outcome', { id: o.id, outcome: x.outcome, reason: x.reason })}>
           <Field label="Outcome" name="outcome" options={[{ value: 'accepted', label: 'Accepted' }, { value: 'declined', label: 'Declined' }, { value: 'withdrawn', label: 'Withdrawn by us' }]} />
           <Field label="Note" name="reason" />
@@ -62,15 +65,6 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
         </details>}
       </>}
     </article>)}
-    {app.status === 'active' && !list.some((o: D) => o.status === 'draft') && <details><summary>Prepare an offer</summary><Form label="Save offer" reset onSubmit={x => mutate('offer', { application: app.id, title: x.title, startDate: x.startDate, terms: x.terms, opening: x.opening || undefined, conditional: x.conditional === true, salary: { currency: x.currency.toUpperCase(), amount: cents(x.amount), period: x.period } })}>
-      <Field label="Job title" name="title" defaultValue={v?.title} />
-      <Field label="Start date" name="startDate" type="date" />
-      <Field label="Currency" name="currency" defaultValue={v?.compensation?.currency ?? 'USD'} />
-      <Field label="Pay" name="amount" type="number" />
-      <Field label="Pay period" name="period" defaultValue={v?.compensation?.period ?? 'year'} options={[{ value: 'year', label: 'per year' }, { value: 'month', label: 'per month' }, { value: 'hour', label: 'per hour' }]} />
-      <Field label="Other terms" name="terms" type="textarea" wide required={false} />
-      <Check name="conditional" label="Conditional offer: any background check comes after it" />
-      {(v?.openings ?? []).some((o: D) => o.status === 'open') && <Field label="Opening it fills" name="opening" defaultValue={v!.openings.find((o: D) => o.status === 'open').id} options={v!.openings.filter((o: D) => o.status === 'open').map((o: D) => ({ value: o.id, label: o.code }))} />}
-    </Form></details>}
+    {app.status === 'active' && !list.some((o: D) => o.status === 'draft') && <details><summary>Prepare an offer</summary><OfferForm app={app} v={v} w={w} mutate={mutate} /></details>}
   </section>
 }

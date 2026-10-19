@@ -16,7 +16,7 @@ export function terms(s: State, kind: Subject, record: Data): Data {
     const rubric = (record.rubrics ?? []).at(-1) ?? null
     return { title: record.title, department: record.department, departmentId: record.departmentId, officeId: record.officeId, locations: record.locations?.length ? record.locations : undefined, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan, kickoff: record.kickoff ? kickoffTerms(s.find('kickoff', record.kickoff)) : undefined }
   }
-  if (kind === 'offer') return { application: record.application, title: record.title, salary: record.salary, startDate: record.startDate, terms: record.terms, opening: record.opening, ...(record.conditional ? { conditional: true } : {}) }
+  if (kind === 'offer') return { application: record.application, title: record.title, salary: record.salary, startDate: record.startDate, terms: record.terms, opening: record.opening, ...(record.conditional ? { conditional: true } : {}), ...(record.document ? { document: record.document, location: record.location, employmentType: record.employmentType, bonus: record.bonus, equity: record.equity, contingencies: record.contingencies } : {}) }
   return { to: record.to, subject: record.subject, body: record.body, application: record.application ?? null }
 }
 
@@ -58,6 +58,10 @@ export async function decide(s: State, a: Actor, b: Data) {
   // OPS-004: deciding a job's terms or an offer needs "approve" on that job.
   const job = approval.subjectKind === 'vacancy' ? subject : approval.subjectKind === 'offer' ? s.get('vacancy', s.get('application', subject.application).vacancy) : null
   if (job) requireCan(s, a, job, 'approve')
+  if (approval.subjectKind === 'offer' && subject.document && subject.createdBy === a.email) {
+    const independent = s.scan('member').some(m => m.active && !m.agent && (m.owner || m.roles.includes('approver')) && m.email !== subject.createdBy)
+    requireThat(!independent, 'The preparer cannot approve this offer while an independent approver exists', 403)
+  }
   const current = await versionOf(s, approval.subjectKind, subject)
   // The approver must have reviewed the version that is current now.
   requireThat(b.version === current, 'This changed since you opened it; review the current version', 409)

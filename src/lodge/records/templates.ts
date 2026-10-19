@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { requireAdmin, requireManages, requireRole } from '../core/access'
 import { now, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { criteriaList, stageList, vacancy } from './vacancies'
+import { templateVersion } from './offer-templates'
 import { validTeam } from './team'
 
 // REQ-002: job templates and cloning. A template holds a job's setup: stages,
@@ -14,7 +15,7 @@ import { validTeam } from './team'
 /** What a job's setup carries: everything but its terms, its people's records and its approvals. */
 function setupOf(s: State, v: Data) {
   return {
-    stages: v.stages, criteria: (v.rubrics ?? []).at(-1)?.criteria ?? [], plan: v.plan ?? [], questions: v.questions ?? [], team: v.team ?? {},
+    stages: v.stages, criteria: (v.rubrics ?? []).at(-1)?.criteria ?? [], plan: v.plan ?? [], questions: v.questions ?? [], team: v.team ?? {}, offerTemplate: v.offerTemplate ?? null,
     rules: s.all('screening-rule').filter(r => r.vacancy === v.id && r.active).map(r => {
       const x = r.versions.at(-1)
       return { name: r.name, question: x.question, questionText: x.questionText, when: x.when, then: x.then, by: x.by }
@@ -42,8 +43,9 @@ export function jobTemplate(s: State, a: Actor, b: Data) {
   const current = b.id ? s.get('job-template', b.id, 'template') : null
   const name = text(b.name ?? current?.name, 'Template name', 120)
   requireThat(!s.scan('job-template').some(t => t.id !== current?.id && t.name.toLowerCase() === name.toLowerCase()), `A template named “${name}” already exists`, 409)
-  let setup: Data = current ? { stages: current.stages, criteria: current.rubrics.at(-1)?.criteria ?? [], plan: current.plan, questions: current.questions, team: current.team, rules: current.rules } : { stages: [], criteria: [], plan: [], questions: [], team: {}, rules: [] }
+  let setup: Data = current ? { stages: current.stages, criteria: current.rubrics.at(-1)?.criteria ?? [], plan: current.plan, questions: current.questions, team: current.team, rules: current.rules, offerTemplate: current.offerTemplate ?? null } : { stages: [], criteria: [], plan: [], questions: [], team: {}, rules: [] }
   if (b.fromVacancy) { const v = s.get('vacancy', b.fromVacancy); requireManages(a, v); setup = setupOf(s, v) }
+  if (b.offerTemplate !== undefined) { const chosen = b.offerTemplate ? templateVersion(s, b.offerTemplate) : null; setup.offerTemplate = chosen ? { id: chosen.templateId, version: chosen.version } : null }
   if (b.stages) setup.stages = stageList(b.stages)
   if (b.criteria) setup.criteria = criteriaList(b.criteria)
   if (b.team) setup.team = validTeam(s, b.team, '')
@@ -52,7 +54,7 @@ export function jobTemplate(s: State, a: Actor, b: Data) {
   const last = current?.rubrics.at(-1)
   const changed = !last || JSON.stringify(last.criteria) !== JSON.stringify(setup.criteria)
   const rubrics = [...(current?.rubrics ?? []), ...(changed ? [{ version: (last?.version ?? 0) + 1, criteria: setup.criteria, by: a.email, at: now() }] : [])]
-  const record = s.put('job-template', current?.id ?? uid(), { ...(current ?? { createdBy: a.email, createdAt: now() }), name, stages: setup.stages, rubrics, plan: setup.plan, questions: setup.questions, team: setup.team, rules: setup.rules, updatedBy: a.email, updatedAt: now() })
+  const record = s.put('job-template', current?.id ?? uid(), { ...(current ?? { createdBy: a.email, createdAt: now() }), name, stages: setup.stages, rubrics, plan: setup.plan, questions: setup.questions, team: setup.team, rules: setup.rules, offerTemplate: setup.offerTemplate ?? null, updatedBy: a.email, updatedAt: now() })
   s.audit(a, current ? 'template-updated' : 'template-created', 'job-template:' + record.id, { name, rubricVersion: rubrics.at(-1).version })
   return record
 }
@@ -60,7 +62,7 @@ export function jobTemplate(s: State, a: Actor, b: Data) {
 /** Give a new draft job a setup: its rubric starts at version 1, its rules at version 1 with no automatic-rejection approval. */
 function adopt(s: State, a: Actor, job: Data, setup: Data, from: Data) {
   const team = validTeam(s, setup.team ?? {}, job.manager)
-  const record = s.put('vacancy', job.id, { ...job, stages: setup.stages, rubrics: [{ version: 1, criteria: setup.criteria, by: a.email, at: now() }], plan: setup.plan, questions: setup.questions.filter((q: Data) => s.find('question', q.question)), team, ...from })
+  const record = s.put('vacancy', job.id, { ...job, stages: setup.stages, rubrics: [{ version: 1, criteria: setup.criteria, by: a.email, at: now() }], plan: setup.plan, questions: setup.questions.filter((q: Data) => s.find('question', q.question)), team, offerTemplate: setup.offerTemplate ?? null, ...from })
   for (const r of setup.rules) s.put('screening-rule', uid(), { vacancy: job.id, createdAt: now(), auto: null, name: r.name, active: true, versions: [{ version: 1, question: r.question, questionText: r.questionText, when: r.when, then: r.then, by: r.by, at: now(), copiedBy: a.email }] })
   return record
 }
@@ -70,7 +72,7 @@ export function vacancyFromTemplate(s: State, a: Actor, b: Data) {
   requireRole(a, 'admin', 'manager')
   const t = s.get('job-template', b.template, 'template')
   const job = vacancy(s, a, { ...b, id: undefined })
-  const record = adopt(s, a, job, consistent({ stages: t.stages, criteria: t.rubrics.at(-1).criteria, plan: t.plan, questions: t.questions, team: t.team, rules: t.rules }), { fromTemplate: { id: t.id, name: t.name, rubricVersion: t.rubrics.at(-1).version } })
+  const record = adopt(s, a, job, consistent({ stages: t.stages, criteria: t.rubrics.at(-1).criteria, plan: t.plan, questions: t.questions, team: t.team, rules: t.rules, offerTemplate: t.offerTemplate ?? null }), { fromTemplate: { id: t.id, name: t.name, rubricVersion: t.rubrics.at(-1).version } })
   s.audit(a, 'vacancy-from-template', 'vacancy:' + record.id, { template: t.id, rubricVersion: t.rubrics.at(-1).version })
   return record
 }

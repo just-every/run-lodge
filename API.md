@@ -312,3 +312,30 @@ and the job's SCREEN-002 rules run on its answers.
 `POST /api/lodge/import/preview { filename, base64 }`, then
 `/commit { filename, base64, fingerprint }`, `/status { id }`, `/resume { id }`,
 `/undo { id }`. Owner only. See IMPORTING.md.
+
+### Prepared offer documents (OFFER-001)
+
+`offer-template` (owner/hiring admin) saves a reviewed immutable version with `name`,
+`body`, `normalApprover`, `exceptionApprover`, employer-reviewed `contingencies`
+and `reviewed: true`; `id` appends a version. Body merge fields are
+`{{candidateName}}`, `{{title}}`, `{{location}}`, `{{employmentType}}`, `{{pay}}`,
+`{{startDate}}`, `{{bonus}}`, `{{equity}}`, `{{contingencies}}` and `{{terms}}`.
+A referenced empty value refuses preparation. Pay and bonus are whole USD cents,
+rendered as `USD 1234.56`; pay appends `per year`, `per month` or `per hour`.
+
+`job-offer-template` sets a job's default `offerTemplate: {id, version}` (or null).
+It travels through `job-template`, `vacancy-from-template` and `clone-vacancy`.
+`offer` accepts that reference explicitly or uses the job's selected version,
+plus `location`, `employmentType`, `bonus`, `equity` and `contingencies`.
+It stores the exact merged document and SHA-256. `request-offer-approval` routes
+to the template's normal approver, or its compensation-exception approver when
+the pay differs from the approved range or period. A supplied different approver
+refuses. The preparer cannot approve while an independent approver exists.
+
+The scoped workspace and approval packet show the prepared document. A current
+vacancy manager downloads `GET /api/lodge/download/prepared-offer/:id` only after
+approval of that exact document and all its terms. The bytes include the
+**PREPARED, UNSENT** label and match its SHA-256. Material edits require approval
+again; a stale release and a stale signed-outside attestation refuse. Downloading
+records an unsent release, never delivery. Provider sending/signature under
+COM-001 and OFFER-002–OFFER-005 must carry that approved document/hash.

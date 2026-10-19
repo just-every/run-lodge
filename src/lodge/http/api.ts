@@ -13,6 +13,7 @@ import { candidateActivity, candidateExport, vacancyHistory } from '../views/exp
 import { calendarFile } from '../records/interviews'
 import { emlFile } from '../records/messages'
 import { handoff, packet } from '../views/offer-exports'
+import { approvedNow } from '../records/approvals'
 import { kitView } from '../views/kits'
 import { board } from '../views/board'
 import { home } from '../views/home'
@@ -211,6 +212,18 @@ async function documentResponse(c: C, viewing: boolean) {
 
 api.get('/api/lodge/download/document/:id', c => documentResponse(c, false))
 api.get('/api/lodge/view/document/:id', c => documentResponse(c, true))
+
+// OFFER-001: a prepared unsent document is released only on the exact approved terms.
+api.get('/api/lodge/download/prepared-offer/:id', async c => {
+  const { state, actor } = await context(c)
+  person(actor)
+  const offer = (await workspace(state, actor)).offers.find(o => o.id === c.req.param('id'))
+  requireThat(offer?.document, 'Prepared offer document not found', 404)
+  const stored = state.get('offer', offer.id)
+  requireThat(await approvedNow(state, 'offer', stored), 'The offer document needs current approval before release; nothing was sent', 409)
+  state.audit(actor, 'unsent-offer-document-downloaded', 'offer:' + offer.id, { sha256: offer.document.sha256, sent: false })
+  return recorded(c, state, actor, attachment(offer.document.text, 'text/plain; charset=utf-8', 'prepared-unsent-offer.txt'))
+})
 
 api.get('/api/lodge/download/calendar/:id', async c => {
   const { state, actor } = await context(c)

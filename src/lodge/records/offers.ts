@@ -1,22 +1,26 @@
 import type { State } from '../core/state'
-import { requireApplication, requireCan, requireManages } from '../core/access'
+import { requireApplication, requireCan, requireManages, requireMember } from '../core/access'
 import { currency, date, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval, versionOf } from './approvals'
 import { storeDocument } from './documents'
 import { cancelTasks } from './tasks'
+import { templateVersion } from './offer-templates'
+import { renderOfferDocument } from '../views/offer-document'
 import { fill, namedOpening } from './openings'
 
 // Flow 11: an offer record, its approval packet, the approval bound to the
 // exact terms, and the recorded outcome. Accepting records the hire and opens
 // an HR handoff export. An offer record is not executed employment paperwork.
 
-export function offer(s: State, a: Actor, b: Data) {
+export async function offer(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   const vacancy = s.get('vacancy', app.vacancy)
   requireManages(a, vacancy)
   requireCan(s, a, vacancy, 'offers')
   requireThat(app.status === 'active', 'This application is closed', 409)
-  const fields = {
+  const current = b.id ? s.get('offer', b.id) : null
+  if (current) requireThat(current.application === app.id && current.status === 'draft', 'Only a draft offer can change', 409)
+  const fields: Data = {
     application: app.id, title: text(b.title ?? vacancy.title, 'Job title', 160),
     salary: { currency: currency(b.salary?.currency), amount: money(b.salary?.amount, 'Salary'), period: oneOf(b.salary?.period, ['year', 'month', 'hour'] as const, 'Pay period') },
     startDate: date(b.startDate, 'Start date'), terms: optionalText(b.terms, 'Other terms', 8000),
@@ -25,9 +29,18 @@ export function offer(s: State, a: Actor, b: Data) {
     // HIRE-007: an offer conditional on a background check; part of the approved terms.
     ...(b.conditional === true ? { conditional: true } : {}),
   }
-  if (b.id) {
-    const current = s.get('offer', b.id)
-    requireThat(current.application === app.id && current.status === 'draft', 'Only a draft offer can change', 409)
+  const reference = b.offerTemplate ?? current?.document?.template ?? vacancy.offerTemplate
+  if (reference) {
+    const snapshot = templateVersion(s, reference)
+    fields.location = text(b.location ?? current?.location ?? vacancy.location, 'Offer location', 160)
+    fields.employmentType = text(b.employmentType ?? current?.employmentType ?? vacancy.employmentType, 'Offer employment type', 80)
+    fields.bonus = money(b.bonus ?? current?.bonus ?? 0, 'Bonus')
+    fields.equity = optionalText(b.equity ?? current?.equity, 'Equity', 2000)
+    fields.contingencies = optionalText(b.contingencies ?? current?.contingencies ?? snapshot.contingencies, 'Employer-reviewed contingencies', 8000)
+    requireThat(fields.salary.currency === 'USD', 'Offer documents require USD pay')
+    fields.document = await renderOfferDocument(s, app, fields, snapshot)
+  }
+  if (current) {
     const { conditional, ...kept } = current
     const record = s.put('offer', current.id, { ...kept, ...fields, editedAt: now() })
     s.audit(a, 'offer-edited', 'offer:' + current.id)
@@ -55,7 +68,16 @@ export async function requestOfferApproval(s: State, a: Actor, b: Data) {
   requireManages(a, s.get('vacancy', app.vacancy))
   requireCan(s, a, s.get('vacancy', app.vacancy), 'offers')
   requireThat(o.status === 'draft', 'This offer is closed', 409)
-  return requestApproval(s, a, 'offer', o, b.approver)
+  let approver = b.approver
+  if (o.document) {
+    const expected = rangeCheck(s.get('vacancy', app.vacancy), o) ? o.document.exceptionApprover : o.document.normalApprover
+    requireMember(s, expected, 'approver')
+    requireThat(!approver || approver === expected, 'This offer must go to its configured ' + (rangeCheck(s.get('vacancy', app.vacancy), o) ? 'compensation exception approver' : 'normal approver'), 409)
+    const alternatives = s.scan('member').filter(m => m.active && !m.agent && (m.owner || m.roles.includes('approver')) && m.email !== o.createdBy)
+    requireThat(expected !== o.createdBy || !alternatives.length, 'Configure an independent approver for this template before requesting approval', 409)
+    approver = expected
+  }
+  return requestApproval(s, a, 'offer', o, approver)
 }
 
 export async function outcome(s: State, a: Actor, b: Data) {
