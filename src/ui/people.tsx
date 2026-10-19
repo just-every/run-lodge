@@ -1,6 +1,7 @@
 import type { PageProps } from './app'
 import { call, Check, Field, Form, Status, Table, type D } from './shared'
 import { Org } from './org'
+import { RejectionSettings } from './rejections'
 
 const ROLES = [['admin', 'Hiring admin'], ['manager', 'Hiring manager'], ['interviewer', 'Interviewer'], ['approver', 'Approver']]
 
@@ -38,6 +39,7 @@ export function People({ w, mutate, setNotice }: PageProps) {
       <fieldset className="wide"><legend>Roles</legend>{ROLES.map(([r, label]) => <Check key={r} name={'role-' + r} label={label} />)}<Check name="inactive" label="Deactivate (keeps their history, removes access)" />{w.actor.owner && <Check name="seePrivate" label="See private: confidential jobs and private candidates" />}</fieldset>
     </Form>
     {(w.actor.owner || w.actor.roles.includes('admin')) && <Org w={w} mutate={mutate} />}
+    {(w.actor.owner || w.actor.roles.includes('admin')) && <RejectionSettings w={w} mutate={mutate} />}
     <p className="hint">Interviewers see only the applications they are assigned to, without contact details. Restricted documents and voluntary monitoring answers stay with the owner and hiring admins.</p>
   </div>
 }

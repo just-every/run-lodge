@@ -9,6 +9,7 @@ import { applyRule, approveAutoReject, decideRuleMatches, previewRule, screening
 import { decide } from './records/approvals'
 import { apply, candidate, candidatePrivacy, correctCandidate, reviewDuplicate, transfer } from './records/candidates'
 import { addDocument } from './records/documents'
+import { rejectionReasons, rejectionTemplate } from './records/rejections'
 import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } from './records/pipeline'
 import { availability, cancel, interview, reply, schedule } from './records/interviews'
 import { correct, note, releaseFeedback, scorecard } from './records/scorecards'
@@ -39,6 +40,7 @@ export const commands: Record<string, Command> = {
   'screening-rule': screeningRule, 'approve-auto-reject': approveAutoReject, 'preview-rule': previewRule, 'apply-rule': applyRule, 'decide-rule-matches': decideRuleMatches,
   'decide-approval': decide,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
+  'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate,
   'assign-reviewers': assignReviewers, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,

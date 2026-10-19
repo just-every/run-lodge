@@ -175,7 +175,7 @@ test('COORD-006 a debrief brief quotes released scorecards only, names disagreem
     await cmd('decide-debrief', { id: second.id, decision: 'discard' }, morgan)
     assert.deepEqual((await state(morgan)).debriefs.map(d => [d.id, d.status]), [[made.value.id, 'kept']])
     // Erasing the candidate (LDG-012) deletes the kept brief with their other records.
-    await cmd('move', { application: application.id, to: 'rejected', reason: 'Went with another estimator' }, morgan)
+    await cmd('move', { application: application.id, to: 'rejected', closeReason: 'skills', reason: 'Went with another estimator' }, morgan)
     const erased = await send('/api/lodge/delete-candidate', { candidate: application.candidate, confirm: 'Riley Park', reason: 'Asked to be forgotten' }, h.owner)
     assert.equal(erased.status, 200, JSON.stringify(erased.value))
     assert.equal(erased.value.counts.debrief, 1)

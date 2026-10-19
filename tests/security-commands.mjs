@@ -18,7 +18,7 @@ export function commandBodies(h) {
     'correct-candidate': { id: candidate.id, name: 'Forbidden', reason: 'Forbidden' },
     apply: { candidate: candidate.id, vacancy: vacancy.id, source: 'Forbidden' }, 'review-duplicate': { keep: candidate.id, other: candidate.id, decision: 'merge', reason: 'Forbidden' },
     document: { application: app.id, name: 'x', base64: 'eA==' }, 'assign-reviewers': { application: app.id, reviewers: ['outside@example.test'] },
-    move: { application: app.id, to: 'withdrawn', reason: 'Forbidden' },
+    move: { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Forbidden' },
     reopen: { application: app.id, to: vacancy.stages[0].id, reason: 'Forbidden' }, transfer: { application: app.id, vacancy: h.otherVacancy.id, reason: 'Forbidden' },
     'mark-spam': { application: app.id, reason: 'Forbidden' }, 'unmark-spam': { application: app.id, reason: 'Forbidden' }, 'clear-spam-flag': { application: app.id, reason: 'Forbidden' },
     interview: { application: app.id, planItem: vacancy.plan[0].id, participants: ['outside@example.test'], slots: interview.slots },

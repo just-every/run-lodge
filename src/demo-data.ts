@@ -1,6 +1,7 @@
 import { State, type Row } from './lodge/core/state'
 import { terms, versionOf, type Subject } from './lodge/records/approvals'
 import type { Data } from './lodge/core/types'
+import { DEFAULT_REASONS } from './lodge/records/rejections'
 import { DELETED, demoAt, easternWeek, pastPanel, storyMorning, workAt, ZONE, type Spread } from './demo-activity'
 
 /** Fernway's people: Maya Torres runs hiring alone for a 60-person Columbus business; all addresses are reserved example domains. */
@@ -15,14 +16,15 @@ const L = 'LinkedIn', I = 'Indeed', A = 'Application page', R = 'Referral'
 // from LinkedIn 19, Indeed 12, the application page 11 and referrals 4. `days` is how long since the last move.
 const APPLIED: Seed[] = [['Avery Chen', L, 1, 'Product designer · 5 years'], ['Riley Park', I, 2, 'UX designer · 4 years'], ['Taylor Kim', A, 2, 'Product designer · 3 years'], ['Casey Nguyen', R, 3, 'Senior UX designer'], ['Harper Diaz', L, 3], ['Quinn Foster', I, 4], ['Rowan Mehta', L, 5], ['Sasha Ivanova', A, 5], ['Emery Walsh', L, 6]]
 const SCREEN: Seed[] = [['Marcus Webb', L, 4, 'Product designer · 7 years'], ['Elena Cruz', I, 5, 'Interaction designer · 6 years'], ['Noah Singh', A, 6, 'Product designer · 4 years'], ['Jamie Park', L, 6, 'UX designer · 5 years'], ['Leah Goldberg', I, 7], ['Omar Haddad', L, 7], ['Grace Liu', A, 8]]
-const CLOSED: [name: string, source: string, reason: string, withdrew?: boolean][] = [
-  ['Ethan Cole', L, 'No product work in the portfolio; mostly brand and print.'], ['Mia Robinson', L, 'Looking for a fully remote role; this one is hybrid in Columbus.'], ['Lucas Ward', A, 'Junior for this role; invited to the talent pool.'], ['Zoe Bennett', I, 'Pay expectation well above the approved range.'],
-  ['Henry Adams', L, 'No research or testing in the work shown.'], ['Chloe Rivera', A, 'Accepted another offer before the screen.', true], ['Jack Morales', I, 'Needs visa sponsorship, which this role cannot offer.'], ['Lily Turner', L, 'Portfolio is visual design only.'],
-  ['Mason Hughes', A, 'Not available until next summer.'], ['Ella Price', L, 'Strong screens, little systems work; kept for future roles.'], ['Logan Reed', I, 'No response to two scheduling requests.'], ['Aria Coleman', L, 'Junior for this role.'],
-  ['Wyatt Barnes', A, 'Applied for an engineering role by mistake.'], ['Nora Jenkins', R, 'Prefers a contract role.', true], ['Caleb Perry', L, 'No product work in the portfolio.'], ['Hazel Long', I, 'Pay expectation above the approved range.'],
-  ['Isaac Powell', A, 'Relocating to Seattle; withdrew.', true], ['Violet Butler', L, 'Little collaboration with engineering in the work shown.'], ['Owen Foster', I, 'Junior for this role.'], ['Stella Simmons', A, 'Looking for a fully remote role.'],
-  ['Levi Bryant', L, 'No research or testing in the work shown.'], ['Aurora Gray', I, 'Not authorized to work in the US.'], ['Julian Ross', L, 'Mostly marketing site work.'], ['Penelope Kelly', A, 'Applied twice; this copy closed as a duplicate.'], ['Hudson Ford', L, 'Pay expectation above the approved range.'],
+const CLOSED: [name: string, source: string, note: string, closeReason: string, withdrew?: boolean][] = [
+  ['Ethan Cole', L, 'No product work in the portfolio; mostly brand and print.', 'skills'], ['Mia Robinson', L, 'Looking for a fully remote role; this one is hybrid in Columbus.', 'availability'], ['Lucas Ward', A, 'Junior for this role; invited to the talent pool.', 'skills'], ['Zoe Bennett', I, 'Pay expectation well above the approved range.', 'pay-expectation'],
+  ['Henry Adams', L, 'No research or testing in the work shown.', 'skills'], ['Chloe Rivera', A, 'Accepted another offer before the screen.', 'other-offer', true], ['Jack Morales', I, 'Needs visa sponsorship, which this role cannot offer.', 'work-authorization'], ['Lily Turner', L, 'Portfolio is visual design only.', 'skills'],
+  ['Mason Hughes', A, 'Not available until next summer.', 'availability'], ['Ella Price', L, 'Strong screens, little systems work; kept for future roles.', 'skills'], ['Logan Reed', I, 'No response to two scheduling requests.', 'no-show'], ['Aria Coleman', L, 'Junior for this role.', 'skills'],
+  ['Wyatt Barnes', A, 'Applied for an engineering role by mistake.', 'skills'], ['Nora Jenkins', R, 'Prefers a contract role.', 'location', true], ['Caleb Perry', L, 'No product work in the portfolio.', 'skills'], ['Hazel Long', I, 'Pay expectation above the approved range.', 'pay-expectation'],
+  ['Isaac Powell', A, 'Relocating to Seattle; withdrew.', 'location', true], ['Violet Butler', L, 'Little collaboration with engineering in the work shown.', 'skills'], ['Owen Foster', I, 'Junior for this role.', 'skills'], ['Stella Simmons', A, 'Looking for a fully remote role.', 'availability'],
+  ['Levi Bryant', L, 'No research or testing in the work shown.', 'skills'], ['Aurora Gray', I, 'Not authorized to work in the US.', 'work-authorization'], ['Julian Ross', L, 'Mostly marketing site work.', 'skills'], ['Penelope Kelly', A, 'Applied twice; this copy closed as a duplicate.', 'position-closed'], ['Hudson Ford', L, 'Pay expectation above the approved range.', 'pay-expectation'],
 ]
+const REASON_LABELS: Record<string, string> = Object.fromEntries(DEFAULT_REASONS.map(r => [r.id, r.label]))
 const PLACES = ['Columbus, OH', 'Dublin, OH', 'Westerville, OH', 'Grandview Heights, OH', 'Worthington, OH', 'Cincinnati, OH', 'Cleveland, OH', 'Pittsburgh, PA']
 
 /** Fernway's hiring workspace on a Monday in October: four open jobs, one awaiting approval, and Thursday's panel to rebook. */
@@ -105,10 +107,10 @@ export async function demoRecords(ownerEmail: string, now: Date, spread: Spread)
     const app = apply(designer, person(name, source, days + 4, headline), 1, days, { reviewers: screeners })
     for (const author of screeners.slice(0, [2, 2, 1, 1, 2, 0, 1][i])) card(app, author, null, SCREEN_NOTES, 'yes', days - 1)
   })
-  CLOSED.forEach(([name, source, reason, withdrew], i) => {
+  CLOSED.forEach(([name, source, note, closeReason, withdrew], i) => {
     const days = 6 + (i % 9), c = person(name, source, days + 5)
     const app = apply(designer, c, 0, days + 5, { status: withdrew ? 'withdrawn' : 'rejected', closedAt: done(days, 'demo-application-' + c.id.slice(15)) })
-    put('stage-event', app.id + '-closed', { application: app.id, from: app.stage, to: withdrew ? 'withdrawn' : 'rejected', reason, actor: maya, at: app.closedAt })
+    put('stage-event', app.id + '-closed', { application: app.id, from: app.stage, to: withdrew ? 'withdrawn' : 'rejected', reason: REASON_LABELS[closeReason], note, closeReason, closeGroup: withdrew ? 'withdrew' : 'rejected', actor: maya, at: app.closedAt })
   })
 
   // The four panels. Jordan's Panel 1 is done with all three scorecards; Panel 2 is Thursday at 10:00 in Juniper,

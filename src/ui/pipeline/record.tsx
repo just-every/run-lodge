@@ -6,10 +6,11 @@ import { Field, Form, memberOptions, Status, type D } from '../shared'
 import { Exception } from './exception'
 import { Answers } from '../questions'
 import { lastMove, openProposals, proposalApplication, stageName } from './facts'
+import { CloseForm, RejectionEmails } from '../rejections'
 
 const OUTCOMES: D = { disqualified: 'disqualified', 'open-in-source': 'still open in Workable' }
 
-/** Advance to the next stage or reject, each with the reason the history keeps; any other move sits behind it. */
+/** Advance to the next stage with the reason the history keeps, or close with a DISP-001 reason; any other move sits behind it. */
 function Decide({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: PageProps['mutate'] }) {
   const [busy, setBusy] = useState(false), [error, setError] = useState('')
   const at = v?.stages.findIndex((s: D) => s.id === app.stage) ?? -1, next = v?.stages[at + 1]
@@ -24,11 +25,12 @@ function Decide({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: PageProps[
     <h3>Decide</h3>
     <form className="bare" onSubmit={submit}>
       <label>Reason (kept in the history)<input name="reason" required /></label>
-      <div className="form-end">{next && <button className="primary" name="to" value={next.id} disabled={busy}>Advance to {next.name}</button>}<button className="secondary" name="to" value="rejected" disabled={busy}>Reject</button>{error && <p role="alert">{error}</p>}</div>
+      <div className="form-end">{next && <button className="primary" name="to" value={next.id} disabled={busy}>Advance to {next.name}</button>}{error && <p role="alert">{error}</p>}</div>
     </form>
+    <CloseForm app={app} w={w} mutate={mutate} />
     <details><summary>Other moves</summary>
       <Form label="Move" compact reset onSubmit={x => mutate('move', { application: app.id, to: x.to, reason: x.reason })}>
-        <Field label="Move to" name="to" options={[...(v?.stages ?? []).filter((s: D) => s.id !== app.stage).map((s: D) => ({ value: s.id, label: s.name })), { value: 'rejected', label: 'Not progressing (close)' }, { value: 'withdrawn', label: 'Candidate withdrew (close)' }]} />
+        <Field label="Move to" name="to" options={(v?.stages ?? []).filter((s: D) => s.id !== app.stage).map((s: D) => ({ value: s.id, label: s.name }))} />
         <Field label="Reason (kept in the history)" name="reason" />
       </Form>
       <Form label="Mark as spam" compact reset onSubmit={x => mutate('mark-spam', { application: app.id, reason: x.reason })}>
@@ -64,8 +66,9 @@ export function RecordOverview({ app, v, c, w, mutate }: { app: D; v?: D; c: D; 
     {app.manages && app.status === 'spam' && <Form label="Not spam: restore" compact reset onSubmit={x => mutate('unmark-spam', { application: app.id, reason: x.reason })}>
       <Field label={`Marked as spam: ${app.spam.reason}. Reason to restore it`} name="reason" />
     </Form>}
+    <RejectionEmails app={app} w={w} />
     <h3>History</h3>
-    <ol className="history">{app.history.map((e: D) => <li key={e.id}><strong>{e.reopened ? 'Reopened into ' : ''}{stageName(v, e.to)}</strong><span>{when(e.at)} · {person(w, e.actor)}</span><span>{e.reason}</span></li>)}</ol>
+    <ol className="history">{app.history.map((e: D) => <li key={e.id}><strong>{e.reopened ? 'Reopened into ' : ''}{stageName(v, e.to)}</strong><span>{when(e.at)} · {person(w, e.actor)}</span><span>{[e.reason, e.note].filter(Boolean).join(' · ')}</span></li>)}</ol>
     {app.earlier?.map((x: D) => <details key={x.application}><summary>Earlier on {x.title}</summary><ol className="history">{x.history.map((e: D) => <li key={e.id}><strong>{stageName(w.vacancies.find((j: D) => j.id === x.vacancy), e.to)}</strong><span>{when(e.at)} · {person(w, e.actor)}</span><span>{e.reason}</span></li>)}</ol></details>)}
     {app.manages && active && <Form label="Save reviewers" compact onSubmit={x => mutate('assign-reviewers', { application: app.id, reviewers: x.reviewers.split(',').map((r: string) => r.trim()).filter(Boolean) })}>
       <Field label="Reviewers (emails, comma separated)" name="reviewers" required={false} defaultValue={app.reviewers.join(', ')} hint={'Interviewers available: ' + memberOptions(w.members, 'interviewer').map(m => m.value).join(', ')} />

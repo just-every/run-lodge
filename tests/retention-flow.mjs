@@ -89,7 +89,7 @@ export async function checkErasure(h, vacancy, manager) {
   assert.ok(retained.value.includes(marker),'the real transfer holds the person before deletion')
  }
  assert.ok((await h.db.prepare('SELECT data FROM rer_portability_segments').all()).results.some(row=>row.data.includes(marker)),'completed/staged archive parts hold personal bytes before deletion')
- for(const added of [a,b,c]) await cmd('move',{application:added.application.id,to:'withdrawn',reason:marker})
+ for(const added of [a,b,c]) await cmd('move',{application:added.application.id,to:'withdrawn',closeReason: 'other-offer', reason:marker})
  await cmd('review-duplicate',{keep:b.candidate.id,other:c.candidate.id,decision:'merge',reason:marker})
  await cmd('review-duplicate',{keep:a.candidate.id,other:b.candidate.id,decision:'merge',reason:marker})
  const exported=await h.send('/api/lodge/download/candidate/'+a.candidate.id,undefined,h.owner)

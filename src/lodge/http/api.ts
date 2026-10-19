@@ -15,6 +15,7 @@ import { emlFile } from '../records/messages'
 import { handoff, packet } from '../views/offer-exports'
 import { kitView } from '../views/kits'
 import { openingsReport } from '../views/openings-report'
+import { rejectionsReport } from '../views/rejections-report'
 import { deleteCandidate } from '../records/retention'
 import { erasureTransfers } from '../records/erasure-transfers'
 import { retentionUntil } from '../records/candidates'
@@ -94,6 +95,13 @@ api.get('/api/lodge/reports/openings', async c => {
   const { state, actor } = await context(c)
   const report = openingsReport(state, actor, await workspaceRecords(state, actor), { department: c.req.query('department') || undefined, office: c.req.query('office') || undefined })
   requireThat(report, 'Only admins and hiring managers see openings and funnels', 403)
+  return c.json(report)
+})
+
+api.get('/api/lodge/reports/rejections', async c => {
+  const { state, actor } = await context(c)
+  const report = rejectionsReport(state, actor, await workspaceRecords(state, actor))
+  requireThat(report, 'Only admins and hiring managers see rejection reasons', 403)
   return c.json(report)
 })
 

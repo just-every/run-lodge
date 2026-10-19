@@ -1,7 +1,7 @@
 import type { State } from '../core/state'
 import { isAdmin, managesVacancy, requireAdmin, requireManages, requireMember } from '../core/access'
 import { date, now, oneOf, requireThat, text, uid, type Actor, type Data } from '../core/types'
-import { cancelTasks } from './tasks'
+import { closeApplication, closeChoice } from './rejections'
 import { jobForm } from './questions'
 
 // SCREEN-002: rules on a job's objective screening answers (SCREEN-001). A rule
@@ -54,7 +54,11 @@ function action(s: State, v: Data, b: Data) {
   if (kind === 'route') { requireThat(v.stages.some((st: Data) => st.id === b.stage), 'Choose a stage of this job'); return { kind, stage: b.stage as string } }
   if (kind === 'assign') return { kind, reviewer: requireMember(s, text(b.reviewer, 'Reviewer').toLowerCase(), 'interviewer').email }
   if (kind === 'tag') return { kind, tag: text(b.tag, 'Tag', 60) }
-  return { kind, reason: text(b.reason, 'Rejection reason', 500) }
+  // DISP-001: the proposed rejection carries one of the employer's “we rejected them” reasons and its email choice
+  // (no email, now, or a template after business days), checked exactly as a person's rejection is.
+  const choice = closeChoice(s, 'rejected', { closeReason: b.closeReason, send: b.send, template: b.template, businessDays: b.businessDays })
+  const email = choice.email ? { send: choice.email.send, template: choice.email.template.id, templateName: choice.email.template.name, businessDays: choice.email.businessDays } : { send: 'none' }
+  return { kind, reason: text(b.reason, 'Rejection reason', 500), closeReason: choice.reason.id, ...email }
 }
 
 /** Author a rule on a job, or with `id` save its next version (which needs a fresh automatic-rejection approval). */
@@ -87,11 +91,9 @@ export function approveAutoReject(s: State, a: Actor, b: Data) {
 
 const autoFor = (rule: Data, version: Data, at: string) => rule.auto && rule.auto.version === version.version && at >= rule.auto.approvedAt ? rule.auto : null
 
-function reject(s: State, app: Data, reason: string, actor: string) {
-  const record = s.put('application', app.id, { ...app, status: 'rejected', closedAt: now() })
-  s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'rejected', reason, actor, at: now() })
-  cancelTasks(s, app.id, 'Application rejected')
-  return record
+/** Close as rejected with the rule's listed reason and email choice; the rule's own wording and how it was decided go in the note. */
+function reject(s: State, app: Data, then: Data, note: string, actor: string) {
+  return closeApplication(s, app, closeChoice(s, 'rejected', { closeReason: then.closeReason, send: then.send, template: then.template, businessDays: then.businessDays, reason: note }), actor)
 }
 
 /** Run one rule version on one application's answers; `live` is false for an explicit apply after a preview, which never rejects on its own. */
@@ -108,10 +110,10 @@ function act(s: State, rule: Data, version: Data, app: Data, path: string, live:
   if (then.kind === 'tag') return s.put('application', app.id, { ...app, tags: [...new Set([...(app.tags ?? []), then.tag])] })
   if (then.kind !== 'propose-reject') return app
   const auto = live ? autoFor(rule, version, app.submittedAt) : null
-  const match = { application: app.id, vacancy: app.vacancy, rule: rule.id, ruleName: rule.name, version: version.version, question: version.questionText, questionVersion: answer.version, answer: answer.value, intakePath: path, reason: then.reason, at: now() }
+  const match = { application: app.id, vacancy: app.vacancy, rule: rule.id, ruleName: rule.name, version: version.version, question: version.questionText, questionVersion: answer.version, answer: answer.value, intakePath: path, reason: then.reason, templateName: then.templateName ?? null, at: now() }
   if (auto) {
     s.put('rule-match', uid(), { ...match, status: 'auto-rejected', approvedBy: auto.approvedBy, decidedAt: now() })
-    return reject(s, app, `${then.reason} (automatic: ${by}, approved by ${auto.approvedBy})`, by)
+    return reject(s, app, then, `${then.reason} (automatic: ${by}, approved by ${auto.approvedBy})`, by)
   }
   if (!s.all('rule-match').some(m => m.application === app.id && m.rule === rule.id && m.version === version.version)) s.put('rule-match', uid(), { ...match, status: 'queued' })
   return app
@@ -159,7 +161,7 @@ export function decideRuleMatches(s: State, a: Actor, b: Data) {
     requireManages(a, v)
     requireThat(m.status === 'queued', 'This match was already decided', 409)
     const app = s.get('application', m.application)
-    if (decision === 'confirm' && app.status === 'active') reject(s, app, `${m.reason} (rule “${m.ruleName}” v${m.version}, confirmed)`, a.email)
+    if (decision === 'confirm' && app.status === 'active') reject(s, app, s.get('screening-rule', m.rule).versions.find((x: Data) => x.version === m.version).then, `${m.reason} (rule “${m.ruleName}” v${m.version}, confirmed)`, a.email)
     s.put('rule-match', m.id, { ...m, status: decision === 'confirm' ? (app.status === 'active' ? 'confirmed' : 'closed-already') : 'dismissed', decidedBy: a.email, decidedAt: now(), ...(note ? { note } : {}) })
   }
   s.audit(a, 'rule-matches-' + decision, 'vacancy:' + queue[0].vacancy, { count: queue.length })

@@ -19,6 +19,8 @@ cookie or sign-in URL in a task, log or source file.
 - `GET /api/lodge/reports/openings?department=&office=`: admins and hiring managers: the jobs they run
   (optionally in a department with its sub-departments, or an office), each opening's status and time to
   fill in whole days from its own open date, and the summed applications funnel.
+- `GET /api/lodge/reports/rejections`: admins and hiring managers: per job they run, closed applications
+  counted by the DISP-001 reason of their current close, grouped as rejected and withdrew.
 - `GET /api/lodge/reports/interviewers`: admins and hiring managers: per interviewer and job they run,
   interviews held, scorecards on time, late or missing against the business's `scorecardDueHours`
   (default 24), average hours to submit, released recommendations only, upcoming load, and each item.
@@ -51,7 +53,12 @@ lists; see REQ-003), `job-template` (admins: `name` with `fromVacancy` and/or `s
 `request-vacancy-approval`, `publish`, `unpublish`, `close-vacancy`,
 `decide-approval` (send the `version` you reviewed), `candidate`,
 `correct-candidate`, `apply`, `review-duplicate`, `document`,
-`assign-reviewers`, `move`, `interview`, `availability`, `schedule`,
+`assign-reviewers`, `move` (a stage move takes `to` and `reason`; a close takes `to: "rejected" | "withdrawn"`,
+`closeReason` (a current reason id of the matching group from `rejectionReasons`), an optional `reason` note
+and, for a rejection only, `send: none | now | delay` with `template` and `businessDays` 1–20),
+`rejection-reasons` (admins: the whole list `{ reasons: [{ id?, label, group: rejected | withdrew }] }`;
+left-out reasons are retired), `rejection-template` (admins: `{ id?, name, subject, body, retired? }`
+with merge fields `{candidate_name}`, `{job_title}`, `{business_name}`), `interview`, `availability`, `schedule`,
 `cancel-interview`, `interview-reply` (a panellist's `cannot-attend`, or another
 interviewer's `can-cover` with an optional `freeAt`, each with a `note`), `scorecard`, `correct-scorecard` (the author's
 linked correction of a submitted `scorecard` id, with a `reason`), `release-feedback`, `note`, `team-note`
@@ -68,7 +75,8 @@ type, options, required, help }`; with `id` it saves the next version), `job-que
 `office` (admins: `{ id?, name }`), `delete-org` (`{ kind: "department" | "office", id }`),
 `member-org` (admins: `{ email, department?, office?, grantDepartments, grantOffices }`;
 grants are for managers), `screening-rule` (admins: `{ vacancy, id?, name, question, when:
-{ equals | min, below | onOrAfter, onOrBefore }, then: { kind: route | assign | tag | propose-reject, ... } }`),
+{ equals | min, below | onOrAfter, onOrBefore }, then: { kind: route | assign | tag | propose-reject, ... } }`; a
+`propose-reject` takes `reason`, `closeReason` and the same `send`/`template`/`businessDays` as `move`),
 `approve-auto-reject`, `preview-rule`, `apply-rule` (`{ id, applications }` from the preview) and
 `decide-rule-matches` (`{ id | vacancy + all, decision: confirm | dismiss, reason }`). `vacancy` also takes `departmentId` and `officeId`, and `opening`
 takes `office`. Also

@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { canReview, requireApplication, requireManages, requireMember } from '../core/access'
 import { holdsFor } from './retention'
 import { cancelTasks } from './tasks'
+import { cancelRejectionEmails, closeApplication, closeChoice } from './rejections'
 import { email, list, now, requireThat, text, uid, type Actor, type Data } from '../core/types'
 
 // Flows 6 and 7: who reviews an application, and every stage move with its
@@ -20,24 +21,28 @@ export function assignReviewers(s: State, a: Actor, b: Data) {
   return record
 }
 
-/** Move to another stage, or close as rejected or withdrawn. A hire is recorded only through an accepted offer. */
+/**
+ * Move to another stage, or close as rejected or withdrawn with a DISP-001
+ * reason, an optional note and, for a rejection, the email choice. A hire is
+ * recorded only through an accepted offer.
+ */
 export function move(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   const vacancy = s.get('vacancy', app.vacancy)
   requireManages(a, vacancy)
   requireThat(app.status === 'active', 'This application is closed', 409)
-  const reason = text(b.reason, 'Reason for this decision', 2000)
   const to = b.to as string
-  let next: Data
-  if (to === 'rejected' || to === 'withdrawn') next = { ...app, status: to, closedAt: now() }
-  else {
-    requireThat(vacancy.stages.some((st: Data) => st.id === to), 'Choose a stage of this vacancy')
-    requireThat(to !== app.stage, 'The application is already in that stage', 409)
-    next = { ...app, stage: to }
+  if (to === 'rejected' || to === 'withdrawn') {
+    const choice = closeChoice(s, to, b)
+    const record = closeApplication(s, app, choice, a.email)
+    s.audit(a, 'stage-moved', 'application:' + app.id, { to, reason: choice.reason.label, closeReason: choice.reason.id, email: choice.email ? choice.email.send : 'none' })
+    return record
   }
-  const record = s.put('application', app.id, next)
+  const reason = text(b.reason, 'Reason for this decision', 2000)
+  requireThat(vacancy.stages.some((st: Data) => st.id === to), 'Choose a stage of this vacancy')
+  requireThat(to !== app.stage, 'The application is already in that stage', 409)
+  const record = s.put('application', app.id, { ...app, stage: to })
   s.put('stage-event', uid(), { application: app.id, from: app.stage, to, reason, actor: a.email, at: now() })
-  if (next.status !== 'active') cancelTasks(s, app.id, `Application ${to}`)
   s.audit(a, 'stage-moved', 'application:' + app.id, { to, reason })
   return record
 }
@@ -111,7 +116,7 @@ export function funnel(vacancy: Data, apps: Data[]) {
 /**
  * Reopen a rejected or withdrawn application into a chosen stage. The close and
  * the reopen both stay in its history; a rejection message not yet downloaded
- * is canceled. Erased people, held records and a second active application on
+ * and any scheduled rejection email (DISP-001) are canceled. Erased people, held records and a second active application on
  * the same job refuse it.
  */
 export function reopen(s: State, a: Actor, b: Data) {
@@ -129,6 +134,7 @@ export function reopen(s: State, a: Actor, b: Data) {
   const record = s.put('application', app.id, { ...open, status: 'active', stage: b.to, reopenedAt: now() })
   s.put('stage-event', uid(), { application: app.id, from: app.status, to: b.to, reason, actor: a.email, at: now(), reopened: true })
   cancelRejections(s, app.id, 'Application reopened')
+  cancelRejectionEmails(s, app.id, 'Application reopened')
   s.audit(a, 'application-reopened', 'application:' + app.id, { from: app.status, to: b.to, reason, closedAt })
   return record
 }

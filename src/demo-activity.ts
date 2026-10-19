@@ -134,7 +134,7 @@ export async function demoActivity(rows: Row[], ownerEmail: string, now: Date, s
   const applicationOf = (name: string) => { const c = s.all('candidate').find(x => x.name === name)!; return s.all('application').find(x => x.candidate === c.id)! }
   const sign = '\nBest,\nMaya Torres\nHead of Operations, Fernway'
 
-  await step(-17, () => run(s, owner, 'move', { application: 'demo-application-owen', to: 'withdrawn', reason: 'Accepted another offer before the screen.' }), 'demo-application-owen')
+  await step(-17, () => run(s, owner, 'move', { application: 'demo-application-owen', to: 'withdrawn', closeReason: 'other-offer', reason: 'Accepted another offer before the screen.' }), 'demo-application-owen')
   await step(-16, () => deleteCandidate(s, owner, { candidate: DELETED, confirm: 'Owen Hart', reason: 'Asked us to delete his application' }), 'demo-application-owen')
   await step(-10, () => run(s, owner, 'member', { email: agentEmail, name: 'Maya’s coordinator agent', agent: true, actsFor: ownerEmail }), 'agent')
   const ben = 'demo-candidate-ben', graceApp = applicationOf('Grace Liu'), grace = graceApp.candidate

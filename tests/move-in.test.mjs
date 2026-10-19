@@ -59,7 +59,7 @@ test('LDG-014 Workable package: preview writes nothing, commit is exact and repe
     assert.equal(s.importedHistory.notes[0].body, 'Strong references from two GCs.')
     assert.equal(s.members.length, 1, 'Workable team members get no Lodge access')
     assert.equal(s.importedHistory.members.length, 2)
-    assert.equal((await send('/api/lodge/command/move', { application: s.applications.find(a => a.candidate === dana.id).id, to: 'rejected', reason: 'x' }, owner)).status, 409, 'imported applications are history')
+    assert.equal((await send('/api/lodge/command/move', { application: s.applications.find(a => a.candidate === dana.id).id, to: 'rejected', closeReason: 'skills', reason: 'x' }, owner)).status, 409, 'imported applications are history')
 
     await addNativeDocument('after import')
 

@@ -14,9 +14,9 @@ export async function checkMerge(h, firstVacancy, secondVacancy) {
   assert.deepEqual(await recordSnapshot(h),before,'overlap refusal changes neither rows nor audits')
  }
  await refuse()
- await cmd('move',{application:apps[1].id,to:'withdrawn',reason:'Resolve first overlapping vacancy'})
+ await cmd('move',{application:apps[1].id,to:'withdrawn',closeReason: 'other-offer', reason:'Resolve first overlapping vacancy'})
  await refuse()
- await cmd('move',{application:apps[2].id,to:'rejected',reason:'Resolve second overlapping vacancy'})
+ await cmd('move',{application:apps[2].id,to:'rejected',closeReason: 'skills', reason:'Resolve second overlapping vacancy'})
  const historyBefore=(await recordSnapshot(h)).filter(r=>r.kind==='stage-event'&&apps.some(a=>a.id===JSON.parse(r.value).application))
  await cmd('review-duplicate',input)
  const current=(await h.state()).applications.filter(app=>app.candidate===a.id)
