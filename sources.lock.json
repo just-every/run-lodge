@@ -2839,7 +2839,7 @@
       "executable": false
     },
     "src/ui/document-rendering.ts": {
-      "sha256": "a388233a12bb7e37d4d8dc7f89ad394cacc937ee806af81caf9311ced034746f",
+      "sha256": "d955ba70c81f21c8a9ad6f67553339e09525f6a07a7426ebd9c60e1e40feee70",
       "executable": false
     },
     "src/ui/document-viewer.tsx": {
@@ -2855,7 +2855,7 @@
       "executable": false
     },
     "src/ui/external-document-types.d.ts": {
-      "sha256": "c156dcc2168aa3876b117362cfadcad34860ec365ee522a8e67a555054e2550b",
+      "sha256": "ca78d20a5003cfb47d959243fdf2a98738fb6790053d3ea31f7187d9788d4a2c",
       "executable": false
     },
     "src/ui/fair-chance.tsx": {
