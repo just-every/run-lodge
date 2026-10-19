@@ -39,3 +39,6 @@ html.rer-themed .lodge-public :is(input,textarea,select):focus{border-color:var(
 .lodge-public .roles span{color:var(--rer-muted);font-size:15px}
 .lodge-public .error{color:#9a2626}
 .lodge-public h2{margin:28px 0 8px;font-family:var(--rer-font-body);font-size:22px;font-weight:600}
+
+/* CRM-009: the event registration honeypot stays out of sight and out of the tab order. */
+.lodge-public .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }

@@ -1668,6 +1668,93 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.deepEqual((await state(manager)).vacancies.find(x => x.id === v.id).posts.map(p => p.status), ['closed', 'closed'])
   })
 
+  await t.test('CRM-009 a campus career fair: staff and QR captures join the event pool with source, notice and consent; a repeated sync adds nobody; duplicates go to review; nobody applies until a recruiter adds them; the report counts attendees and the hire with cost per hire', async () => {
+    const intern = await cmd('vacancy', { title: 'Summer Site Intern', location: 'Brooklyn, NY', headcount: 1, manager: 'morgan@example.test', compensation: { currency: 'USD', min: 4000000, max: 4500000, period: 'year' }, description: 'Ten weeks on site.' }, manager)
+    await cmd('rubric', { id: intern.id, criteria: RUBRIC }, manager)
+    await cmd('interview-plan', { id: intern.id, plan: [{ name: 'Campus chat', stageName: 'Interview', durationMinutes: 30 }] }, manager)
+    await approve((await cmd('request-vacancy-approval', { id: intern.id, approver: 'parker@example.test' }, manager)).id)
+    await cmd('publish', { id: intern.id }, manager)
+    const fair = await cmd('event', { name: 'State U spring career fair', kind: 'campus', date: '2026-11-04', location: 'State U student center', owner: 'morgan@example.test', jobs: [intern.id], budget: 300000 }, manager)
+    const source = 'Event: State U spring career fair', nv = (await state()).business.notices.at(-1).version
+    assert.deepEqual([fair.status, /^[a-f0-9]{48}$/.test(fair.token), (await state()).sources.find(x => x.name === source)?.type], ['open', true, 'event'], 'the event opens with its QR token and its own CRM-008 source')
+    assert.equal((await send('/api/lodge/command/event', { name: 'Other fair', kind: 'campus', date: '2026-11-05', location: 'Gym', jobs: [intern.id] }, approver)).status, 403, 'only recruiters create events')
+
+    // An attendee registers at the QR link: the current notice and its version, contact consent unchecked, a honeypot.
+    const page = await send('/events/' + fair.token)
+    assert.equal(page.status, 200)
+    assert.ok(page.text.includes(`name="noticeVersion" value="${nv}"`))
+    assert.match(page.text, /<input type="checkbox" name="consentToContact" value="yes"> You may contact me/)
+    assert.match(page.text, /name="website"/)
+    const form = fields => { const f = new FormData(); for (const [k, v] of Object.entries(fields)) f.append(k, v); return f }
+    const lena = { name: 'Priya Natarajan', email: 'priya.natarajan@example.test', interests: 'Civil engineering internships', noticeVersion: String(nv), noticeShown: 'yes', consentToContact: 'yes' }
+    assert.equal((await send('/events/' + fair.token, form({ ...lena, noticeVersion: '0' }))).status, 409, 'a stale notice is refused')
+    assert.equal((await send('/events/' + fair.token, form({ ...lena, noticeShown: '' }))).status, 400, 'the notice must be acknowledged')
+    assert.equal((await send('/events/' + fair.token, form({ ...lena, website: 'spam.example' }))).status, 400, 'the honeypot refuses bots')
+    assert.equal((await send('/events/' + fair.token, form(lena), '', { origin: 'https://elsewhere.example' })).status, 403, 'another site cannot post the form')
+    const registered = await send('/events/' + fair.token, form(lena))
+    assert.equal(registered.status, 200, registered.text.slice(0, 400))
+    assert.ok(registered.text.includes(`privacy notice version ${nv}`))
+
+    // Staff capture on a phone: one online with a resume photo, one made offline and synced twice (one person), one already a candidate.
+    const capture = (body, cookie = manager) => send('/api/lodge/command/event-capture', { event: fair.id, noticeVersion: nv, noticeShown: true, ...body }, cookie)
+    const jordan = await capture({ captureId: 'cap-online-0001', name: 'Jordan Bell', email: 'jordan.bell@example.test', interests: 'Site engineering', consentToContact: true, resume: { name: 'jordan-resume.jpg', mediaType: 'image/jpeg', base64: b64('a photo of a resume') } })
+    assert.equal(jordan.status, 200, JSON.stringify(jordan.value))
+    const offline = { captureId: 'cap-offline-0002', name: 'Theo Lindqvist', phone: '+1 555 0142', interests: 'Estimating', consentToContact: false }
+    const [first, again] = [await capture(offline), await capture(offline)]
+    assert.deepEqual([first.value.replayed, again.value.replayed, again.value.candidate], [false, true, first.value.candidate], 'a repeated sync of one capture adds nobody')
+    const dana = await capture({ captureId: 'cap-online-0003', name: 'Dana Whitfield', email: 'dana@example.test', consentToContact: true })
+    assert.equal(dana.status, 200)
+    assert.equal((await capture({ captureId: 'cap-online-0004', name: 'No Way To Reach' })).status, 400, 'a capture needs an email or a phone')
+    assert.equal((await capture({ captureId: 'cap-online-0005', name: 'Old Notice', email: 'old@example.test', noticeVersion: 0 })).status, 409)
+    for (const outsider of [approver, ivy]) assert.equal((await capture({ captureId: 'cap-outsider-01', name: 'Sneaky', email: 'sneak@example.test' }, outsider)).status, 404, 'an event outside the reader’s view is not found')
+
+    // After sync the pool holds four people with the event source, the notice version and their consent; nobody has an application.
+    let ev = (await state(manager)).events.find(e => e.id === fair.id)
+    assert.deepEqual(ev.pool.map(p => [p.name, p.source, p.consent.basis, p.consent.noticeVersion, p.consent.toContact, p.applications.length]).sort(), [
+      ['Dana Whitfield', source, 'event-capture', nv, true, 0], ['Jordan Bell', source, 'event-capture', nv, true, 0],
+      ['Priya Natarajan', source, 'event-capture', nv, true, 0], ['Theo Lindqvist', source, 'event-capture', nv, false, 0]])
+    assert.deepEqual([ev.report.attendees, ev.report.applications], [4, 0])
+    assert.equal(ev.pool.find(p => p.name === 'Priya Natarajan').by, 'attendee')
+    const photo = (await state(manager)).documents.find(d => d.candidate === jordan.value.candidate)
+    assert.deepEqual([photo.kind, photo.source, (await send('/api/lodge/download/document/' + photo.id, undefined, manager)).text], ['resume', source, 'a photo of a resume'])
+    // The existing candidate is offered for LDG-005 review, never merged.
+    const dup = (await state()).duplicates.find(d => [d.first, d.second].includes(dana.value.candidate))
+    assert.ok(dup?.reasons.includes('same email'), JSON.stringify((await state()).duplicates))
+    // The pool is the event owner's and the linked job's team's: a manager or interviewer outside them sees nobody.
+    for (const outsider of [approver, ivy]) {
+      const w = await state(outsider)
+      assert.deepEqual([w.events.length, w.candidates.some(c => ev.pool.some(p => p.candidate === c.id))], [0, false])
+    }
+
+    // Only a recruiter adds someone, and only to a linked job.
+    assert.equal((await send('/api/lodge/command/event-apply', { event: fair.id, candidate: jordan.value.candidate, vacancy: vacancy.id }, manager)).status, 409)
+    assert.equal((await send('/api/lodge/command/event-apply', { event: fair.id, candidate: jordan.value.candidate, vacancy: intern.id }, approver)).status, 404)
+    const app = await cmd('event-apply', { event: fair.id, candidate: jordan.value.candidate, vacancy: intern.id }, manager)
+    assert.deepEqual([app.source, app.event, app.status], [source, fair.id, 'active'])
+    const plan = (await state(manager)).vacancies.find(v => v.id === intern.id).plan
+    const iv = await cmd('interview', { application: app.id, planItem: plan[0].id, participants: ['ivy@example.test'], slots: [new Date(Date.now() + 5 * 86400000).toISOString()] }, manager)
+    await cmd('schedule', { interview: iv.id, slot: 0 }, manager)
+    const [opening] = (await state(manager)).vacancies.find(v => v.id === intern.id).openings
+    const offer = await cmd('offer', { application: app.id, title: 'Summer Site Intern', startDate: '2027-06-01', salary: { currency: 'USD', amount: 4200000, period: 'year' }, opening: opening.id }, manager)
+    await approve((await cmd('request-offer-approval', { id: offer.id, approver: 'parker@example.test' }, manager)).id)
+    await cmd('offer-outcome', { id: offer.id, outcome: 'accepted', reason: 'Accepted at the fair follow-up' }, manager)
+    await cmd('event-cost', { id: fair.id, label: 'Booth fee', amount: 120000 }, manager)
+    await cmd('event-cost', { id: fair.id, label: 'Travel', amount: 45001 }, manager)
+    assert.equal((await send('/api/lodge/command/event-cost', { id: fair.id, label: 'Lunch', amount: 100 }, approver)).status, 404, 'an event outside the reader’s view is not found')
+
+    // The event report: attendees, applications, interviews, the one hire, and recorded costs over hires (cents, half up).
+    const report = (await send('/api/lodge/reports/events', undefined, manager)).value.events.find(e => e.id === fair.id)
+    assert.deepEqual([report.attendees, report.applications, report.interviews, report.hires, report.costs, report.budget, report.costPerHire], [4, 1, 1, 1, 165001, 300000, 165001])
+    assert.deepEqual((await send('/api/lodge/reports/events', undefined, approver)).value.events, [])
+
+    // Closing registration closes the QR door; staff capture still syncs.
+    await cmd('event-status', { id: fair.id, status: 'closed' }, manager)
+    assert.deepEqual([(await send('/events/' + fair.token)).status, (await send('/events/' + fair.token, form({ ...lena, email: 'late@example.test' }))).status], [410, 410])
+    assert.equal((await capture({ captureId: 'cap-after-0006', name: 'Late Walk-up', email: 'walkup@example.test' })).status, 200)
+    ev = (await state(manager)).events.find(e => e.id === fair.id)
+    assert.equal(ev.report.attendees, 5)
+  })
+
   await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {
     const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
     const [authorized, relocate, cdl, story] = [q('Are you legally authorized to work in the US?'), q('Willing to relocate?'), q('Years holding a Class A CDL'), q('Tell us about a job you finished early')]

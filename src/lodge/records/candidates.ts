@@ -9,7 +9,7 @@ import { initialCredit } from './sources'
 // candidate linked to several applications; possible duplicates surfaced for a
 // person to decide, never merged automatically.
 
-export const CONSENT_BASES = ['application', 'talent-pool', 'referral', 'imported', 'manual'] as const
+export const CONSENT_BASES = ['application', 'talent-pool', 'referral', 'imported', 'manual', 'event-capture'] as const
 
 export function retentionUntil(s: State, days?: number) {
   const keep = days ?? s.find('business', 'main')?.retentionDays ?? 365
@@ -157,7 +157,7 @@ export function reviewDuplicate(s: State, a: Actor, b: Data) {
       requireThat(!vacancies.has(app.vacancy), 'Close the overlapping active applications before merging these candidates; each vacancy may have only one active application', 409)
       vacancies.add(app.vacancy)
     }
-    for (const kind of ['application', 'document', 'data-request', 'hold', 'team-note'])
+    for (const kind of ['application', 'document', 'data-request', 'hold', 'team-note', 'event-capture'])
       for (const row of s.all(kind).filter(r => r.candidate === other.id)) s.put(kind, row.id, { ...s.get(kind, row.id), candidate: keep.id, mergedFrom: other.id })
     s.put('candidate', keep.id, { ...keep, mergedFrom: [...(keep.mergedFrom ?? []), other.id], consent: { ...keep.consent, talentPool: keep.consent.talentPool && other.consent.talentPool } })
     s.put('candidate', other.id, { ...other, mergedInto: keep.id, mergedAt: now() })

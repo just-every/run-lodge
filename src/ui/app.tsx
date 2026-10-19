@@ -6,6 +6,7 @@ import { Overview } from './overview'
 import { Vacancies } from './vacancies'
 import { Applications } from './applications'
 import { Candidates } from './candidates'
+import { Events } from './events'
 import { Approvals } from './approvals'
 import { Proposals } from './proposals'
 import { Retention } from './retention'
@@ -58,6 +59,7 @@ export function App() {
     ...(manager ? [{ name: 'Vacancies', icon: 'vacancies', count: w.vacancies.filter((v: D) => v.status === 'open').length } as Tab] : []),
     ...(w.applications.length || manager ? [{ name: 'Applications', icon: 'applications', count: w.applications.filter((a: D) => a.status === 'active').length } as Tab] : []),
     ...(manager ? [{ name: 'Candidates', icon: 'candidates' } as Tab] : []),
+    ...(manager || w.events.length ? [{ name: 'Events', icon: 'pin', count: w.events.length } as Tab] : []),
     ...(w.approvals.length || actor.roles.includes('approver') ? [{ name: 'Approvals', icon: 'approvals', count: pending.length, urgent: pending.some((x: D) => x.approver === me) } as Tab] : []),
     { name: 'Proposals', icon: 'proposals', count: openProposals(w).length, urgent: openProposals(w).length > 0 },
     ...(admin ? [{ name: 'Retention', icon: 'retention', count: w.retention?.due.length } as Tab] : []),
@@ -80,6 +82,7 @@ export function App() {
         {!kit && tab === 'Vacancies' && <Vacancies {...props} />}
         {!kit && tab === 'Applications' && <Applications {...props} />}
         {!kit && tab === 'Candidates' && <Candidates {...props} />}
+        {!kit && tab === 'Events' && <Events {...props} />}
         {!kit && tab === 'Approvals' && <Approvals {...props} />}
         {!kit && tab === 'Proposals' && <Proposals {...props} />}
         {!kit && tab === 'Retention' && <Retention {...props} />}

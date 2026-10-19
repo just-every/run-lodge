@@ -132,6 +132,11 @@ api.get('/api/lodge/reports/sources', async c => {
   return c.json(report)
 })
 
+api.get('/api/lodge/reports/events', async c => {
+  const { state, actor } = await context(c)
+  return c.json({ events: (await workspaceRecords(state, actor)).events.map(e => ({ id: e.id, name: e.name, kind: e.kind, date: e.date, location: e.location, owner: e.owner, jobs: e.jobs, ...e.report })) })
+})
+
 api.get('/api/lodge/audit', async c => {
   const { state, actor } = await context(c)
   return c.json(auditTrail(state, actor, auditQuery(c.req.query())))

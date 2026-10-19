@@ -15,6 +15,7 @@ import { reviewDecision, reviewRecommendation } from './records/reviews'
 import { boardView } from './records/board-views'
 import { source, sourceCredit, sourceSettings } from './records/sources'
 import { boardKey, jobBoard, revokeBoardKey, rotateBoardKey } from './records/job-board'
+import { event, eventApply, eventCapture, eventCost, eventStatus } from './records/events'
 import { applyInternal, internalPolicy, reportsTo, vacancyInternal } from './records/internal'
 import { fairChancePlaces, fairChanceStep } from './records/fair-chance'
 import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } from './records/pipeline'
@@ -46,6 +47,7 @@ export const commands: Record<string, Command> = {
   department, office, 'delete-org': deleteOrg, 'member-org': memberOrg,
   'screening-rule': screeningRule, 'approve-auto-reject': approveAutoReject, 'preview-rule': previewRule, 'apply-rule': applyRule, 'decide-rule-matches': decideRuleMatches,
   'decide-approval': decide,
+  event, 'event-status': eventStatus, 'event-cost': eventCost, 'event-capture': eventCapture, 'event-apply': eventApply,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate, 'review-decision': reviewDecision, 'review-recommendation': reviewRecommendation,
   'assign-reviewers': assignReviewers, 'board-view': boardView, source, 'source-settings': sourceSettings, 'job-board': jobBoard, 'board-key': boardKey, 'revoke-board-key': revokeBoardKey, 'rotate-board-key': rotateBoardKey, 'vacancy-internal': vacancyInternal, 'internal-policy': internalPolicy, 'reports-to': reportsTo, 'apply-internal': applyInternal, 'source-credit': sourceCredit, 'fair-chance-places': fairChancePlaces, 'fair-chance-step': fairChanceStep, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,

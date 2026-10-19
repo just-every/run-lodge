@@ -197,15 +197,15 @@ export function campaign(value: unknown) {
  * client IP per clock hour (UTC). The IP is kept only as an HMAC digest under the
  * installation secret, and digests from earlier hours are deleted on the next attempt.
  */
-export async function countAttempt(s: State, secret: string, ip: string, at = new Date()) {
+export async function countAttempt(s: State, secret: string, ip: string, at = new Date(), kind = 'board-attempts', limit = SUBMITS_PER_HOUR) {
   const hour = at.toISOString().slice(0, 13)
-  for (const row of s.all('board-attempts')) if (row.hour !== hour) s.drop('board-attempts', row.id)
+  for (const row of s.all(kind)) if (row.hour !== hour) s.drop(kind, row.id)
   const keyBytes = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
   const digest = bytesToBase64(new Uint8Array(await crypto.subtle.sign('HMAC', keyBytes, new TextEncoder().encode(hour + '\u0000' + ip)))).replace(/[^A-Za-z0-9]/g, '').slice(0, 32)
-  const row = s.find('board-attempts', digest)
+  const row = s.find(kind, digest)
   const count = (row?.count ?? 0) + 1
-  s.put('board-attempts', digest, { hour, count })
-  return count <= SUBMITS_PER_HOUR
+  s.put(kind, digest, { hour, count })
+  return count <= limit
 }
 
 /** A submission repeated with the same idempotency key from the same caller within 24 hours gets the same receipt. */

@@ -243,3 +243,13 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
  .table-scroll td.note:empty{display:none}
  .page > .empty{padding:48px 16px}
 }
+
+/* CRM-009: events: the QR panel, the capture photo preview, the report figures and the sign-out warning. */
+.event-qr svg { display: block; max-width: 100%; height: auto; }
+.event-qr a { overflow-wrap: anywhere; }
+.capture-photo img { display: block; max-width: 100%; max-height: 240px; object-fit: contain; }
+.event-report { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0.75rem 0; }
+.event-report dt { font-size: 0.8rem; opacity: 0.75; }
+.event-report dd { margin: 0; font-weight: 600; }
+.sign-out { padding: 0 1rem 1rem; }
+.sign-out [role="alertdialog"] { display: grid; gap: 0.5rem; }

@@ -83,8 +83,20 @@ export function requireApplication(s: State, a: Actor, id: unknown): Data {
   return application
 }
 
+/** CRM-009: who sees an event and its pool: the owner and admins, the event's owner, and the hiring teams (REQ-003) of its linked jobs. */
+export function seesEvent(s: State, a: Actor, e: Data) {
+  if (!a.owner && !a.roles.length) return false
+  if (isAdmin(a)) return true
+  const who = scope(a)
+  return e.owner === who || (e.jobs ?? []).some((id: string) => { const v = s.find('vacancy', id); return !!v && onTeam(who, v) && cleared(a, v, 'confidential') })
+}
+
+/** A person in the pool of an event the reader sees. */
+const inSeenPool = (s: State, a: Actor, candidate: Data) => s.all('event-capture').some(r => r.candidate === candidate.id && seesEvent(s, a, s.get('event', r.event)))
+
 export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
   if (!cleared(a, candidate, 'private')) return false
+  if (inSeenPool(s, a, candidate)) return true
   const apps = s.all('application').filter(app => app.candidate === candidate.id)
   // Admins see every candidate except one known only through confidential jobs they are not cleared for.
   if (isAdmin(a)) return !apps.length || apps.some(app => cleared(a, s.find('vacancy', app.vacancy), 'confidential') || canSeeApplication(s, a, app))
@@ -95,6 +107,7 @@ export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
 export function canSeeContact(s: State, a: Actor, candidate: Data) {
   if (isAdmin(a)) return canSeeCandidate(s, a, candidate)
   if (!cleared(a, candidate, 'private')) return false
+  if (inSeenPool(s, a, candidate)) return true
   return s.all('application').some(app => {
     if (app.candidate !== candidate.id) return false
     s.get('application', app.id)

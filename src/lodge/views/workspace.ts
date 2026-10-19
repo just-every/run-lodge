@@ -23,6 +23,7 @@ import { mergeRule, sourceOf } from '../records/sources'
 import { boardSettings, publicSettings } from '../records/job-board'
 import { internalBoard, internalNotices } from '../records/internal'
 import { fairChanceView } from '../records/fair-chance'
+import { eventsView } from '../records/events'
 
 /**
  * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
@@ -180,6 +181,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     sources: s.all('source').sort((x, y) => x.type.localeCompare(y.type) || x.name.localeCompare(y.name)), sourceMergeRule: mergeRule(s),
     // ATTR-009: the public job board's token, allowed origins and keys (never a key's hash), for the people who administer it.
     jobBoard: admin && !a.agent ? publicSettings(boardSettings(s)) : null,
+    // CRM-009: the events the reader sees, with their pools (people they may see) and reports.
+    events: eventsView(s, a, c => canSeeCandidate(s, a, c)),
     // ATTR-005: the internal job board every person member sees, notices of a report's internal application, and the admins' policy.
     internalBoard: internalBoard(s, a), internalNotices: internalNotices(s, a), internalPolicy: admin ? s.find('internal-policy', 'main') ?? { notifyManager: false } : null,
     // COORD-006 briefs, for the people who run the job (and their agents) only.
