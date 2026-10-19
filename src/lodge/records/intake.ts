@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { Fault, about, email, now, optionalText, requireThat, sha256, canonical, text, uid, type Data } from '../core/types'
 import { candidateFields, retentionUntil, startApplication } from './candidates'
 import { storeDocument } from './documents'
+import { inCalifornia, requireCpraNotice } from './privacy'
 import { answers, type Answer } from './questions'
 import { evaluate } from './rules'
 import { ensureSource } from './sources'
@@ -21,7 +22,7 @@ export const MONITORING_OPTIONS = ['Prefer not to say', 'Woman', 'Man', 'Non-bin
 export interface Door { source: string; path: string; entry: string; campaign?: Data; oncePerJob?: boolean }
 export const APPLICATION_PAGE: Door = { source: 'Application page', path: 'Careers page', entry: 'Application page' }
 
-export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
+export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
 
 /** What the careers page shows of a job: a confidential one appears only under its neutral title, without its department; an internal-only one (ATTR-005) never. */
 export function publicPosting(v: Data): Data | null {
@@ -54,6 +55,9 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const notice = business.notices.at(-1)
   // The applicant must have been shown the current notice; a stale page is refused, not silently upgraded.
   about('noticeVersion', () => requireThat(String(input.noticeVersion) === String(notice.version), 'The privacy notice changed while this page was open; reload the page and review it again', 409))
+  // PRIV-001: a California job also shows the CPRA notice; its version is checked and recorded the same way.
+  const cpra = inCalifornia(s, vacancy, post) ? requireCpraNotice(s) : null
+  if (cpra) about('cpraNoticeVersion', () => requireThat(String(input.cpraNoticeVersion) === String(cpra.version), 'The California privacy notice changed while this page was open; reload the page and review it again', 409))
   about('consent', () => requireThat(input.consent === 'yes', 'Confirm you have read the privacy notice'))
   const address = about('email', () => email(input.email, 'Email'))
   const fields = candidateFields({ name: about('name', () => text(input.name, 'Full name', 160)), email: address, phone: about('phone', () => optionalText(input.phone, 'Phone', 40)), location: about('location', () => optionalText(input.location, 'Location', 160)) })
@@ -65,15 +69,15 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   // no application; it gets its own receipt and is recorded on the earlier one, so
   // the answer never tells a caller whether that email applied before.
   const earlier = door.oncePerJob && s.scan('application').find(x => x.vacancy === vacancy.id && x.status === 'active' && s.find('candidate', x.candidate)?.email === address)
-  if (earlier) return { receipt: await repeat(s, vacancy, earlier, door, notice.version, post), accommodationContact: business.accommodationContact }
+  if (earlier) return { receipt: await repeat(s, vacancy, earlier, door, notice.version, post, cpra?.version), accommodationContact: business.accommodationContact }
   const candidate = s.put('candidate', uid(), {
     ...fields, source: door.source, createdAt: now(), retainUntil: retentionUntil(s),
-    consent: { basis: 'application', noticeVersion: notice.version, talentPool, at: now(), recordedBy: 'applicant' },
+    consent: { basis: 'application', noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), talentPool, at: now(), recordedBy: 'applicant' },
   })
   const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
   const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
-  const application = startApplication(s, null, candidate, vacancy, door.source, { coverNote, fingerprint, ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
+  const application = startApplication(s, null, candidate, vacancy, door.source, { coverNote, fingerprint, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await stored('resume', () => storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume!.name, mediaType: input.resume!.mediaType, base64: input.resume!.base64, kind: 'resume', source: door.source }))
   if (answered.length) {
     for (const x of answered) if (x.type === 'file') {
@@ -91,7 +95,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   if (monitoring) s.put('monitoring', uid(), { application: application.id, type: 'voluntary-monitoring', answer: monitoring, at: now() })
   const code = 'LDG-' + uid().slice(0, 8).toUpperCase()
   const receipt = s.put('receipt', code, {
-    application: application.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion: notice.version, submittedAt: application.submittedAt,
+    application: application.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), submittedAt: application.submittedAt,
     digest: await sha256(canonical({ ...fields, coverNote: application.coverNote, resume: input.resume?.base64 ?? null, talentPool })),
   })
   s.audit(null, 'application-received', 'application:' + application.id, { receipt: code })
@@ -102,11 +106,11 @@ async function stored<T>(field: string, store: () => Promise<T>) {
   try { return await store() } catch (e) { if (e instanceof Fault) e.field ??= field; throw e }
 }
 
-async function repeat(s: State, vacancy: Data, earlier: Data, door: Door, noticeVersion: unknown, post: Data | null) {
+async function repeat(s: State, vacancy: Data, earlier: Data, door: Door, noticeVersion: unknown, post: Data | null, cpraNoticeVersion?: number) {
   const code = 'LDG-' + uid().slice(0, 8).toUpperCase()
   const at = now()
   s.put('application', earlier.id, { ...s.get('application', earlier.id), repeatSubmissions: [...(earlier.repeatSubmissions ?? []), { at, receipt: code, door: door.source, ...(post ? { post: post.id } : {}) }] })
-  const receipt = s.put('receipt', code, { application: earlier.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion, submittedAt: at, repeat: true })
+  const receipt = s.put('receipt', code, { application: earlier.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion, ...(cpraNoticeVersion ? { cpraNoticeVersion } : {}), submittedAt: at, repeat: true })
   s.audit(null, 'application-repeat', 'application:' + earlier.id, { receipt: code })
   return receipt
 }

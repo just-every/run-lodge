@@ -5,6 +5,7 @@ import { removeDocument } from './documents'
 import { mergedCandidates } from './candidate-lineage'
 import { eraseSharedHoldText, linkedAudits } from './erasure-history'
 import { forgetFill } from './openings'
+import { closeOnErasure } from './privacy'
 
 // Flow 12: retention review, legal holds, deletion with a receipt, and the
 // candidate's own access, export, correction and deletion requests.
@@ -122,6 +123,7 @@ export function deleteCandidate(s: State, a: Actor, b: Data) {
   const erasedApps = new Set(records.application.map(app => app.id))
   for (const id of vacancyIds) { const v = s.find('vacancy', id), kept = v && forgetFill(v, erasedApps); if (kept) s.put('vacancy', id, kept) }
   const receipt = s.put('deletion-receipt', uid(), { candidate: c.id, counts, by: a.email, at: now() })
+  closeOnErasure(s, records['data-request'], receipt.id)
   s.put('candidate', c.id, { deleted: true, deletedAt: receipt.at, receipt: receipt.id })
   s.audit(a, 'candidate-deleted', 'candidate:' + c.id, { receipt: receipt.id })
   return receipt

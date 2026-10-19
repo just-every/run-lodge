@@ -3,6 +3,7 @@ import { cleared, requireAdmin, requireManages, requireMember } from '../core/ac
 import { now, optionalEmail, requireThat, scope, uid, type Actor, type Data } from '../core/types'
 import { retentionUntil, startApplication } from './candidates'
 import { ensureSource } from './sources'
+import { cpraNotice, inCalifornia, requireCpraNotice } from './privacy'
 
 // ATTR-005: the internal job board. Every active person member is an employee
 // who sees published public and internal-only jobs in /app and applies with their
@@ -50,7 +51,7 @@ export function internalBoard(s: State, a: Actor) {
   if (!person(a)) return []
   const mine = s.all('application').filter(x => x.internal && x.memberEmail === scope(a))
   return s.all('vacancy').filter(v => v.status === 'open' && !v.imported && cleared(a, v, 'confidential')).sort((x, y) => x.title.localeCompare(y.title))
-    .map(v => ({ id: v.id, title: v.title, department: v.department, location: v.location, workMode: v.workMode, employmentType: v.employmentType, description: v.description, internalOnly: v.internalOnly === true, applied: mine.find(x => x.vacancy === v.id)?.submittedAt ?? null }))
+    .map(v => ({ id: v.id, title: v.title, department: v.department, location: v.location, workMode: v.workMode, employmentType: v.employmentType, description: v.description, internalOnly: v.internalOnly === true, applied: mine.find(x => x.vacancy === v.id)?.submittedAt ?? null, californiaNotice: inCalifornia(s, v) ? cpraNotice(s) : null }))
 }
 
 /** An employee applies with their member identity; a candidate with the same email is offered for LDG-005 review, never merged. */
@@ -62,12 +63,15 @@ export function applyInternal(s: State, a: Actor, b: Data) {
   requireThat(!s.scan('application').some(x => x.internal && x.memberEmail === me.email && x.vacancy === v.id), 'You have already applied to this job', 409)
   const business = s.get('business', 'main')
   const notice = business.notices.at(-1)
+  // PRIV-001: an employee applying to a California job confirms the CPRA notice version they were shown.
+  const cpra = inCalifornia(s, v) ? requireCpraNotice(s) : null
+  if (cpra) requireThat(String(b.cpraNoticeVersion) === String(cpra.version), `Read California privacy notice version ${cpra.version} before applying`, 409)
   ensureSource(s, INTERNAL_SOURCE, 'internal')
   const candidate = s.put('candidate', uid(), {
     name: me.name, email: me.email, phone: '', location: '', headline: '', skills: '', source: INTERNAL_SOURCE, internal: true, memberEmail: me.email, createdAt: now(), retainUntil: retentionUntil(s),
-    consent: { basis: 'internal application', noticeVersion: notice.version, talentPool: false, at: now(), recordedBy: me.email },
+    consent: { basis: 'internal application', noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), talentPool: false, at: now(), recordedBy: me.email },
   })
-  const application = startApplication(s, a, candidate, v, INTERNAL_SOURCE, { internal: true, memberEmail: me.email }, 'Internal application received')
+  const application = startApplication(s, a, candidate, v, INTERNAL_SOURCE, { internal: true, memberEmail: me.email, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}) }, 'Internal application received')
   s.audit(a, 'internal-application', 'application:' + application.id)
   const policy = s.find('internal-policy', 'main')
   if (policy?.notifyManager && me.reportsTo && s.find('member', me.reportsTo)?.active) {

@@ -27,7 +27,7 @@ const escape = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 const places = (s: State): Data[] => s.find('fair-chance', 'main')?.places ?? []
 
-function names(place: string, where: string) {
+export function names(place: string, where: string) {
   if (new RegExp(`(^|[^a-z])${escape(place.toLowerCase())}($|[^a-z])`).test(where.toLowerCase())) return true
   const abbr = ABBREVIATION[place.toLowerCase()] ?? (STATES[place.toUpperCase()] ? place.toUpperCase() : null)
   return !!abbr && (new RegExp(`(^|[,;(\\s])${abbr}($|[,;)\\s\\d])`).test(where) || where.toLowerCase().includes(STATES[abbr].toLowerCase()))

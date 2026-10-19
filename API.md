@@ -114,6 +114,8 @@ Events (CRM-009): `event { id?, name, kind: career-fair|campus|meetup|virtual, d
 
 Bulk actions (DATA-003): `bulk-preview { items: [applicationId], action }` runs each item's own command on a copy and returns per item `ok`, `refusal`, `seen` (the application and candidate revisions) and, for a rejection with an email, its `email { to, subject, body, sendAt }` (for a message draft, `email { to, subject, body, sent: false }`); nothing changes. `bulk-apply { batch, items, action, previewed: { [applicationId]: seen } }` applies each item still at its previewed revisions, refusing the rest with the reason; it returns `applied`, `refused` and each item, audits every refusal and the batch, and the same `batch` id again returns the first outcome (`replayed: true`) without changing anything. `action` is `{ kind: 'move', stage, reason }` (stage matched by name in each job), `{ kind: 'reject', closeReason, note?, send, template?, businessDays? }` (DISP-001), `{ kind: 'tag', tag }` `{ kind: 'archive', closeReason, note? }` (any listed DISP-001 reason, never an email), `{ kind: 'tag', tag }`, `{ kind: 'reviewers', reviewers }`, `{ kind: 'export' }` (the apply result carries `file`, format `lodge-bulk-export-1`, once, and `digest`; a replay has no file) or `{ kind: 'message', purpose?, subject, body, approver? }` (merge fields `{candidate_name}`, `{job_title}`, `{business_name}`; one LDG-010 draft per candidate, approval requested from `approver` when given; nothing is sent).
 
+California privacy (PRIV-001): `cpra-notice { categories: [{ category, collected, purposes, retention }], intro?, confirmStatement: true }` (owner) adopts or edits the CPRA notice, each change a new version; state's `cpraNotice` is the notice in force or Lodge's draft (`draft: true`). Requests from `/privacy-requests` appear in `dataRequests` with `requester`, `identity { method, verified }`, `dueOn`, `code` and `status` (`open`, `unverified`, `complete`, `refused`); `extend-data-request { id, days, reason }` extends an open request once by up to 45 days; `refuse-data-request { id, basis: 'legal-hold' | 'required-record', explanation }` refuses a deletion (a legal hold must cover the person).
+
 Internal job board (ATTR-005): `vacancy-internal { id, internalOnly }` (the people who run the job), `apply-internal { vacancy }` (any person member; `internalBoard` in the state lists what they may apply to and when they applied), `internal-policy { notifyManager }` and `reports-to { email, reportsTo }` (admins). An internal application is visible only to the owner, admins and the job's hiring team.
 
 ## Agents
@@ -224,7 +226,9 @@ under a neutral title, and only the fields below.
 - `GET /api/board/v1/{token}/offices` → `{ offices: [{ id, name, jobs }] }`:
   offices of listed jobs and of their open openings.
 - `POST /api/board/v1/{token}/jobs/{id}/applications` → `201 { receipt,
-  submittedAt, noticeVersion, accommodationContact }`. Send
+  submittedAt, noticeVersion, cpraNoticeVersion, accommodationContact }`. A job
+  in California carries `californiaNotice` (the adopted CPRA notice) in its
+  detail; send its version as `cpraNoticeVersion` (PRIV-001). Send
   `Authorization: Bearer <board key>` from a server, or call it from a browser
   on an allowed origin (CORS answers that origin only; preflight allows
   `content-type` and `idempotency-key`). An `Idempotency-Key` header repeated by

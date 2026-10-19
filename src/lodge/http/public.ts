@@ -13,6 +13,8 @@ import { listingBySlug, listings, shownJob } from '../records/posts'
 import { candidateAvailability } from '../records/interviews'
 import { jobForm } from '../records/questions'
 import { departmentPath, subtree } from '../records/org'
+import { cpraNotice, inCalifornia } from '../records/privacy'
+import type { Listing } from '../records/posts'
 
 // The pages applicants see: open roles, the application form (plain HTML that
 // works without JavaScript, every field labelled), the receipt, and the private
@@ -87,7 +89,14 @@ function questionFields(questions: Data[], values: Data) {
   }).join('\n')
 }
 
-export function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = [], action = `/jobs/${v.slug}`, hidden: Record<string, string> = {}) {
+/** PRIV-001: the CPRA notice a California job's form shows, or null. */
+export const cpraFor = (s: Parameters<typeof cpraNotice>[0], l: Listing) => inCalifornia(s, l.v, l.post) ? cpraNotice(s) : null
+
+/** The CPRA notice as the applicant reads it: each category with what, why and how long, then the sale and sharing statement. */
+export const cpraSection = (n: Data) => `<details><summary>California applicant privacy notice (version ${esc(n.version)})</summary>${n.intro ? paragraphs(n.intro) : ''}<dl>${n.categories.map((c: Data) => `<dt>${esc(c.category)}</dt><dd>${esc(c.collected)} Used for: ${esc(c.purposes)} ${esc(c.retention)}</dd>`).join('')}</dl><p>${esc(n.saleStatement)}</p><p>You may ask to see, correct or delete your information at <a href="/privacy-requests">/privacy-requests</a>.</p></details>
+<input type="hidden" name="cpraNoticeVersion" value="${esc(n.version)}">`
+
+export function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = [], action = `/jobs/${v.slug}`, hidden: Record<string, string> = {}, cpra: Data | null = null) {
   const notice = business.notices.at(-1)
   const pay = v.compensation ? payRange(v.compensation) : ''
   const field = (name: string, label: string, type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
@@ -108,7 +117,8 @@ ${questions.length ? `<fieldset><legend>Questions from the employer</legend>${qu
 <fieldset><legend>Voluntary equal-opportunity question (optional)</legend><p>How do you describe your gender? Your answer is kept apart from your application and never shown to the people assessing it.</p><label>Answer<select name="monitoring">${MONITORING_OPTIONS.map(o => `<option${values.monitoring === o ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label></fieldset>
 <details><summary>Privacy notice (version ${esc(notice.version)})</summary>${paragraphs(notice.text)}</details>
 <input type="hidden" name="noticeVersion" value="${esc(notice.version)}">
-<label><input type="checkbox" name="consent" value="yes" required> I have read privacy notice version ${esc(notice.version)}.</label>
+${cpra ? cpraSection(cpra) : ''}
+<label><input type="checkbox" name="consent" value="yes" required> I have read privacy notice version ${esc(notice.version)}${cpra ? ` and California notice version ${esc(cpra.version)}` : ''}.</label>
 <label><input type="checkbox" name="talentPool" value="yes"${values.talentPool === 'yes' ? ' checked' : ''}> You may contact me about other suitable roles while you keep my details.</label>
 <button type="submit">Submit application</button>
 </form>`
@@ -119,7 +129,7 @@ publicPages.get('/jobs/:slug', async c => {
   const l = listingBySlug(s, 'careers', c.req.param('slug'))
   if (!l) return notFound()
   const shown = shownJob(s, l)
-  return page(shown.title, form({ ...shown, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post)))
+  return page(shown.title, form({ ...shown, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)))
 })
 
 publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
@@ -148,13 +158,13 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   }
   try {
     const resume = await upload(data.get('resume'))
-    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume, answers: given } as any, door, l.post)
+    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given } as any, door, l.post)
     await save(c.env.DB, s, null)
-    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`, 200, embed)
+    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd>${receipt.cpraNoticeVersion ? `<dt>California privacy notice</dt><dd>Version ${esc(receipt.cpraNoticeVersion)}</dd>` : ''}</dl><p>To ask about adjustments, contact ${esc(accommodationContact)} and quote the receipt. To see, correct or delete your information, use <a href="/privacy-requests">/privacy-requests</a> with this receipt and your email.</p>`, 200, embed)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     const shown: Data = { ...shownJob(s, l), slug: l.slug }
-    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden), error.status, embed)
+    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden, cpraFor(s, l)), error.status, embed)
   }
 }
 

@@ -9,7 +9,7 @@ import { boardSettings } from '../records/job-board'
 import { listingBySlug, listings, shownJob, type Listing } from '../records/posts'
 import { departmentPath, subtree } from '../records/org'
 import { jobForm } from '../records/questions'
-import { apply, esc, form, page } from './public'
+import { apply, cpraFor, esc, form, page } from './public'
 
 // ATTR-008: the job board and application form inside the employer's own site.
 // The admin's snippet (People → Public job board) loads /embed.js, which frames
@@ -101,7 +101,7 @@ embedPages.get('/embed/jobs/:slug', async c => {
   const values = c.req.query(), campaign = campaignOf(values)
   const back = query(Object.fromEntries(FILTERS.concat(CAMPAIGN).filter(k => values[k]).map(k => [k, values[k]])))
   const v: Data = { ...shownJob(s, l), slug: l.slug }
-  return page(v.title, `<p><a href="/embed/jobs${esc(back)}">← All open roles</a></p>${form(v, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), `/embed/jobs/${l.slug}`, campaign)}`, 200, embed)
+  return page(v.title, `<p><a href="/embed/jobs${esc(back)}">← All open roles</a></p>${form(v, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), `/embed/jobs/${l.slug}`, campaign, cpraFor(s, l))}`, 200, embed)
 })
 
 embedPages.post('/embed/jobs/:slug', async c => {

@@ -24,6 +24,7 @@ import { boardSettings, publicSettings } from '../records/job-board'
 import { internalBoard, internalNotices } from '../records/internal'
 import { fairChanceView } from '../records/fair-chance'
 import { eventsView } from '../records/events'
+import { cpraDraft } from '../records/privacy'
 
 /**
  * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
@@ -197,7 +198,9 @@ export async function workspaceRecords(s: State, a: Actor) {
     fairChance: admin ? fairChanceView(s, a, appIds) : null,
     holds: admin ? s.all('hold').filter(h => !(h.candidate && hiddenCandidate(h.candidate)) && !(h.vacancy && hiddenVacancy(h.vacancy))) : [],
     retention: admin ? (r => ({ due: r.due.filter(x => !hiddenCandidate(x.candidate)), held: r.held.filter(x => !hiddenCandidate(x.candidate)) }))(retentionReview(s)) : null,
-    dataRequests: admin ? s.all('data-request').filter(r => !hiddenCandidate(r.candidate)) : [],
+    dataRequests: admin ? s.all('data-request').filter(r => !hiddenCandidate(r.candidate)).map(({ tokenHash, ...r }) => r) : [],
+    // PRIV-001: the current California notice, for the owner who edits it and the admins who answer requests.
+    cpraNotice: admin ? cpraDraft(s) : null,
     deletionReceipts: admin ? s.all('deletion-receipt') : [],
     duplicates: admin ? duplicateSuggestions(s).filter(d => !hiddenCandidate(d.first) && !hiddenCandidate(d.second)) : [],
     // Counts across the whole business, confidential jobs and private candidates included, without identity.

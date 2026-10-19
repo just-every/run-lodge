@@ -718,6 +718,95 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.ok(JSON.parse(after).events.some(e => e.action === 'candidate-deleted' && e.record === 'candidate:' + candidate.id))
   })
 
+  await t.test('PRIV-001 a California job shows and records the CPRA notice version; applicants verify by receipt and email, see acknowledgement, deadline and extension on their request page; access and correction are fulfilled and a held deletion is refused with its reason', async () => {
+    // Lodge drafts the notice from what it collects; a California job publishes only after the owner adopts it, confirming the sale and sharing statement.
+    const draft = (await state()).cpraNotice
+    assert.deepEqual([draft.draft, draft.categories.map(c => c.category).includes('Sensitive personal information'), draft.saleStatement.startsWith('We do not sell or share')], [true, true, true])
+    const v = await cmd('vacancy', { title: 'Coastal Surveyor', location: 'San Diego, CA', headcount: 1, manager: 'morgan@example.test', compensation: RANGE, description: 'Survey the coast.' }, manager)
+    await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
+    await cmd('interview-plan', { id: v.id, plan: [{ name: 'Site talk', stageName: 'Interview', durationMinutes: 30 }] }, manager)
+    await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
+    const early = await send('/api/lodge/command/publish', { id: v.id }, manager)
+    assert.deepEqual([early.status, /Adopt your California privacy notice first/.test(early.value.error)], [409, true])
+    const categories = [{ category: 'Identifiers', collected: 'Name, email and phone.', purposes: 'Evaluating your application.', retention: 'Kept one year.' }, { category: 'Sensitive personal information', collected: 'Adjustments and the voluntary gender answer.', purposes: 'Adjustments and monitoring only.', retention: 'Kept one year.' }]
+    assert.equal((await send('/api/lodge/command/cpra-notice', { categories: draft.categories, confirmStatement: true }, manager)).status, 403, 'only the owner adopts it')
+    assert.equal((await send('/api/lodge/command/cpra-notice', { categories: draft.categories }, owner)).status, 400, 'adopting confirms the statement')
+    assert.equal((await cmd('cpra-notice', { categories: draft.categories, confirmStatement: true })).version, 1)
+    assert.equal((await cmd('cpra-notice', { categories, confirmStatement: true })).version, 2, 'an edit is a new version')
+    const ca = await cmd('publish', { id: v.id }, manager)
+    const page = (await send('/jobs/' + ca.slug)).text
+    assert.match(page, /California applicant privacy notice \(version 2\)/)
+    assert.match(page, /We do not sell or share your personal information/)
+    assert.match(page, /name="cpraNoticeVersion" value="2"/)
+    assert.doesNotMatch((await send('/jobs/' + slug)).text, /California applicant privacy notice/, 'a New York job shows only the general notice')
+    const general = page.match(/name="noticeVersion" value="(\d+)"/)[1]
+    const form = fields => { const f = new FormData(); for (const [k, x] of Object.entries(fields)) f.append(k, x); return f }
+    const applicant = { name: 'Cora Vance', email: 'cora@example.test', phone: '+1 555 0142', noticeVersion: general, consent: 'yes' }
+    assert.deepEqual([(await send('/jobs/' + ca.slug, form(applicant))).status, (await send('/jobs/' + ca.slug, form({ ...applicant, cpraNoticeVersion: '1' }))).status], [409, 409], 'the current California notice must have been shown')
+    const applied = await send('/jobs/' + ca.slug, form({ ...applicant, cpraNoticeVersion: '2' }))
+    assert.match(applied.text, /California privacy notice<\/dt><dd>Version 2/)
+    const receipt = applied.text.match(/<dt>Receipt<\/dt><dd>(LDG-[A-Z0-9]+)/)[1]
+    let w = await state()
+    const cora = w.candidates.find(c => c.email === 'cora@example.test')
+    assert.deepEqual([cora.consent.cpraNoticeVersion, w.applications.find(a => a.candidate === cora.id).cpraNoticeVersion], [2, 2])
+    // The other intake doors that exist today conform: an internal application and an event capture in California record the version too.
+    assert.equal((await state(ivy)).internalBoard.find(j => j.id === ca.id).californiaNotice.version, 2)
+    assert.equal((await send('/api/lodge/command/apply-internal', { vacancy: ca.id }, ivy)).status, 409)
+    await cmd('apply-internal', { vacancy: ca.id, cpraNoticeVersion: 2 }, ivy)
+    const fairCa = await cmd('event', { name: 'San Diego trades fair', kind: 'career-fair', date: '2026-11-20', location: 'San Diego, CA', owner: 'morgan@example.test', jobs: [ca.id], budget: 100000 }, manager)
+    const capture = body => send('/api/lodge/command/event-capture', { event: fairCa.id, noticeVersion: general, noticeShown: true, ...body }, manager)
+    assert.equal((await capture({ captureId: 'cap-ca-00001', name: 'Rio Banks', email: 'rio@example.test' })).status, 409)
+    assert.equal((await capture({ captureId: 'cap-ca-00002', name: 'Rio Banks', email: 'rio@example.test', cpraNoticeVersion: 2 })).status, 200)
+    w = await state()
+    assert.deepEqual([w.candidates.find(c => c.internal && c.email === 'ivy@example.test'), w.candidates.find(c => c.event === fairCa.id)].map(c => c.consent.cpraNoticeVersion), [2, 2])
+
+    // Requests through /privacy-requests: verified by receipt code + email on record, acknowledged on their own page with the deadline.
+    assert.match((await send('/privacy-requests')).text, /<label>Application receipt code/)
+    const ask = async fields => { const r = await send('/privacy-requests', form(fields)); return { ...r, token: r.text.match(/\/privacy-requests\/([a-f0-9]{48})/)?.[1] } }
+    const access = await ask({ type: 'access', name: 'Cora Vance', email: 'CORA@example.test', receipt })
+    assert.equal(access.status, 200)
+    for (const text of [/Verified by receipt code and email on record/, /<dt>Acknowledged<\/dt>/, /How it will be processed/, /Being processed/]) assert.match(access.text, text)
+    const unverified = await ask({ type: 'access', name: 'Cora Vance', email: 'someone@example.test', receipt })
+    assert.match(unverified.text, /Not verified/)
+    assert.equal((await send('/privacy-requests', form({ type: 'access', name: 'Bot', email: 'bot@example.test', website: 'x' }))).status, 400, 'the honeypot refuses')
+    w = await state()
+    const requests = w.dataRequests.filter(r => r.californiaRequest)
+    const accessRequest = requests.find(r => r.status === 'open' && r.type === 'access')
+    const due = new Date(Date.parse(accessRequest.receivedAt + 'T00:00:00Z') + 45 * 86400000).toISOString().slice(0, 10)
+    assert.deepEqual([accessRequest.candidate, accessRequest.dueOn, requests.find(r => r.status === 'unverified').candidate], [cora.id, due, null], 'an unverified request releases nothing and links to no one')
+    assert.match((await send('/privacy-requests/' + access.token)).text, new RegExp('Answer due by</dt><dd>' + due))
+    // An extension, once, with the reason the requester sees.
+    await cmd('extend-data-request', { id: accessRequest.id, days: 45, reason: 'Records are held in two systems' })
+    assert.equal((await send('/api/lodge/command/extend-data-request', { id: accessRequest.id, days: 10, reason: 'again' }, owner)).status, 409)
+    const extended = (await send('/privacy-requests/' + access.token)).text
+    assert.match(extended, /Extended by 45 days<\/dt><dd>Records are held in two systems/)
+    assert.match(extended, new RegExp('Answer due by</dt><dd>' + new Date(Date.parse(due + 'T00:00:00Z') + 45 * 86400000).toISOString().slice(0, 10)))
+    // Fulfilled through the LDG-012 export.
+    assert.equal((await send(`/api/lodge/download/candidate/${cora.id}?request=${accessRequest.id}`, undefined, owner)).status, 200)
+    assert.match((await send('/privacy-requests/' + access.token)).text, /Completed[\s\S]*Export provided \(sha256 [0-9a-f]{64}\)/)
+
+    // Correction: verified, corrected, completed with what changed.
+    const correction = await ask({ type: 'correction', name: 'Cora Vance', email: 'cora@example.test', receipt, details: 'My phone is +1 555 0199' })
+    const correctionRequest = (await state()).dataRequests.find(r => r.type === 'correction' && r.californiaRequest)
+    assert.match(correction.text, new RegExp('Verified by receipt code and email on record[\\s\\S]*Answer due by</dt><dd>' + correctionRequest.dueOn))
+    await cmd('correct-candidate', { id: cora.id, name: 'Cora Vance', email: 'cora@example.test', phone: '+1 555 0199', reason: 'Privacy request ' + correctionRequest.code })
+    await cmd('complete-data-request', { id: correctionRequest.id, outcome: 'Phone corrected to +1 555 0199' })
+    assert.match((await send('/privacy-requests/' + correction.token)).text, /Completed[\s\S]*Phone corrected/)
+
+    // Deletion of a held record: erasure is refused, and so is the request, with the documented reason.
+    const deletion = await ask({ type: 'deletion', name: 'Cora Vance', email: 'cora@example.test', receipt })
+    const deletionRequest = (await state()).dataRequests.find(r => r.type === 'deletion' && r.californiaRequest)
+    assert.equal((await send('/api/lodge/command/refuse-data-request', { id: deletionRequest.id, basis: 'legal-hold', explanation: 'x' }, owner)).status, 409, 'no hold, no hold refusal')
+    await cmd('hold', { candidate: cora.id, reason: 'Pending wage claim' })
+    assert.equal((await send('/api/lodge/delete-candidate', { candidate: cora.id, confirm: 'Cora Vance', reason: 'Privacy request' }, owner)).status, 409)
+    await cmd('refuse-data-request', { id: deletionRequest.id, basis: 'legal-hold', explanation: 'A wage claim is pending; we keep your application until it is resolved.' })
+    const refusedPage = (await send('/privacy-requests/' + deletion.token)).text
+    assert.match(refusedPage, /Refused[\s\S]*A legal hold requires us to keep these records \(LDG-012\)\. A wage claim is pending/)
+    let limited = 0
+    for (let i = 0; i < 12 && !limited; i++) if ((await send('/privacy-requests', form({ type: 'access', name: 'Bot', email: 'bot@example.test', website: 'x' }))).status === 429) limited = i
+    assert.ok(limited > 0, 'at most 10 attempts per connection per hour')
+  })
+
   await t.test('HIRE-007 fair-chance places: no criminal-history question before a conditional offer, then assessment, notice and a waiting period, restricted to admins', async () => {
     assert.equal((await send('/api/lodge/command/fair-chance-places', { places: [{ place: 'California' }] }, manager)).status, 403)
     await cmd('fair-chance-places', { places: [{ place: 'California', waitingDays: 5 }] })

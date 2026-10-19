@@ -5,6 +5,7 @@ import { approvedNow, requestApproval } from './approvals'
 import { approvedOpenings, requestedOpening } from './openings'
 import { departmentPath, departmentRef, officeRef } from './org'
 import { approvedOffices, closePosts } from './posts'
+import { inCalifornia, requireCpraNotice } from './privacy'
 
 // Flows 1 and 2: a vacancy with its compensation range, manager and headcount
 // approval, and the stages, rubric and interview plan agreed before anyone is
@@ -180,6 +181,8 @@ export async function publish(s: State, a: Actor, b: Data) {
   const v = editable(s, a, b.id)
   const business = s.get('business', 'main', 'business settings')
   requireThat(await approvedNow(s, 'vacancy', v), 'Publishing needs a current approval of these exact terms', 409)
+  // PRIV-001: a California job publishes only once the owner has adopted the CPRA notice.
+  if (inCalifornia(s, v)) requireCpraNotice(s)
   const slug = v.slug ?? `${v.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || 'role'}-${uid().slice(0, 6)}`
   const record = s.put('vacancy', v.id, { ...v, status: 'open', slug, publishedAt: now(), noticeVersion: business.notices.at(-1).version })
   s.audit(a, 'vacancy-published', 'vacancy:' + v.id, { slug })

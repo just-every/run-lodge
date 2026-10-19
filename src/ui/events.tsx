@@ -72,7 +72,7 @@ function Capture({ e, w, reload }: { e: D; w: D; reload: () => Promise<void> }) 
     <p aria-live="polite" className="unsynced"><strong>{left ?? '…'}</strong> captured on this device, not synced yet{left ? <> · <button className="link" onClick={push}>Sync now</button></> : null}</p>
     <Form label="Save capture" reset onSubmit={async x => {
       const resume = photo ? { name: photo.name, mediaType: photo.blob.type || 'application/octet-stream', base64: await base64(photo.blob) } : undefined
-      await keep({ captureId: crypto.randomUUID(), member: me, event: e.id, eventName: e.name, at: new Date().toISOString(), body: { name: x.capName, email: x.capEmail, phone: x.capPhone, interests: x.capInterests, noticeVersion: e.noticeVersion, noticeShown: x.noticeShown === true, consentToContact: x.toContact === true, resume } })
+      await keep({ captureId: crypto.randomUUID(), member: me, event: e.id, eventName: e.name, at: new Date().toISOString(), body: { name: x.capName, email: x.capEmail, phone: x.capPhone, interests: x.capInterests, noticeVersion: e.noticeVersion, cpraNoticeVersion: e.californiaNotice?.version, noticeShown: x.noticeShown === true, consentToContact: x.toContact === true, resume } })
       if (photo) URL.revokeObjectURL(photo.url)
       setPhoto(null)
       await push()
@@ -83,7 +83,8 @@ function Capture({ e, w, reload }: { e: D; w: D; reload: () => Promise<void> }) 
       <label className="wide">Resume file or a photo of it<input type="file" name="capResume" accept="image/*,.pdf,.doc,.docx,.txt,.rtf,.odt" onChange={ev => chosen(ev.currentTarget.files?.[0])} /></label>
       {photo && <figure className="wide capture-photo">{photo.blob.type.startsWith('image/') && <img src={photo.url} alt="The resume photo as it will be stored" />}<figcaption>Will be stored as {photo.name}, {Math.ceil(photo.blob.size / 1000)} KB (limit {FILE_LIMIT / 1_000_000} MB)</figcaption></figure>}
       <details className="wide"><summary>Privacy notice (version {e.noticeVersion}) to show them</summary><p>{w.business?.notices?.at(-1)?.text}</p></details>
-      <Check name="noticeShown" label={`They were shown privacy notice version ${e.noticeVersion}`} />
+      {e.californiaNotice && <details className="wide"><summary>California applicant privacy notice (version {e.californiaNotice.version}) to show them</summary><dl>{e.californiaNotice.categories.map((c: D) => <div key={c.category}><dt>{c.category}</dt><dd>{c.collected} Used for: {c.purposes} {c.retention}</dd></div>)}</dl><p>{e.californiaNotice.saleStatement}</p></details>}
+      <Check name="noticeShown" label={`They were shown privacy notice version ${e.noticeVersion}${e.californiaNotice ? ` and California notice version ${e.californiaNotice.version}` : ''}`} />
       <Check name="toContact" label="They agree to be contacted about suitable roles" />
     </Form>
     {problem && <p role="alert">{problem}</p>}

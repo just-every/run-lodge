@@ -5,7 +5,8 @@ import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
 import { REGISTRATIONS_PER_HOUR, eventByToken, selfRegister } from '../records/events'
 import { countAttempt } from '../records/job-board'
-import { esc, formBody, page, sameOrigin } from './public'
+import { cpraNotice, inCalifornia } from '../records/privacy'
+import { cpraSection, esc, formBody, page, sameOrigin } from './public'
 
 // CRM-009: the page an attendee opens from the event's QR code. Plain HTML that
 // works without JavaScript, every field labelled, the current privacy notice and
@@ -20,7 +21,7 @@ const KIND: Data = { 'career-fair': 'Career fair', campus: 'Campus visit', meetu
 const closed = () => page('Registration closed', '<h1>Registration for this event is closed</h1><p>Thank you for your interest. <a href="/jobs">See open roles</a>.</p>', 410)
 const notFound = () => page('Not found', '<h1>This page is not available</h1>', 404)
 
-function form(e: Data, business: Data, error = '', values: Data = {}) {
+function form(e: Data, business: Data, error = '', values: Data = {}, cpra: Data | null = null) {
   const notice = business.notices.at(-1)
   const field = (name: string, label: string, type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
   return `<h1>${esc(e.name)}</h1><p class="meta">${esc([KIND[e.kind], e.date, e.location].join(' · '))}</p>
@@ -35,7 +36,8 @@ ${field('phone', 'Phone (optional)', 'tel', 'autocomplete="tel"')}
 <label class="trap" aria-hidden="true">Leave this empty<input name="website" type="text" tabindex="-1" autocomplete="off"></label>
 <details><summary>Privacy notice (version ${esc(notice.version)})</summary>${esc(notice.text).split(/\n{2,}/).map(p => `<p>${p}</p>`).join('')}</details>
 <input type="hidden" name="noticeVersion" value="${esc(notice.version)}">
-<label><input type="checkbox" name="noticeShown" value="yes" required> I have read privacy notice version ${esc(notice.version)}.</label>
+${cpra ? cpraSection(cpra) : ''}
+<label><input type="checkbox" name="noticeShown" value="yes" required> I have read privacy notice version ${esc(notice.version)}${cpra ? ` and California notice version ${esc(cpra.version)}` : ''}.</label>
 <label><input type="checkbox" name="consentToContact" value="yes"${values.consentToContact === 'yes' ? ' checked' : ''}> You may contact me about suitable roles while you keep my details.</label>
 <button type="submit">Register</button>
 </form>`
@@ -46,7 +48,7 @@ eventPages.get('/events/:token', async c => {
   let e: Data
   try { e = eventByToken(s, c.req.param('token')) } catch { return notFound() }
   if (e.status !== 'open') return closed()
-  return page(e.name, form(e, s.get('business', 'main')))
+  return page(e.name, form(e, s.get('business', 'main'), '', {}, inCalifornia(s, e) ? cpraNotice(s) : null))
 })
 
 eventPages.post('/events/:token', async c => {
@@ -67,11 +69,11 @@ eventPages.post('/events/:token', async c => {
   const file = data.get('resume')
   try {
     const resume = file && typeof file !== 'string' && file.size > 0 ? { name: file.name, mediaType: file.type, base64: bytesToBase64(new Uint8Array(await file.arrayBuffer())) } : null
-    const { noticeVersion } = await selfRegister(s, c.req.param('token'), { name: values.name, email: values.email, phone: values.phone, interests: values.interests, noticeVersion: values.noticeVersion, noticeShown: values.noticeShown, consentToContact: values.consentToContact, resume })
+    const { noticeVersion } = await selfRegister(s, c.req.param('token'), { name: values.name, email: values.email, phone: values.phone, interests: values.interests, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, noticeShown: values.noticeShown, consentToContact: values.consentToContact, resume })
     await save(c.env.DB, s, null)
     return page('Registered', `<h1>Thank you, you are registered</h1><p>${esc(e.name)} · ${esc(e.date)}</p><p>Your details are kept under privacy notice version ${esc(noticeVersion)}. A recruiter will be in touch if a role fits.</p>`)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
-    return page(e.name, form(e, s.get('business', 'main'), error.message, values), error.status)
+    return page(e.name, form(e, s.get('business', 'main'), error.message, values, inCalifornia(s, e) ? cpraNotice(s) : null), error.status)
   }
 })

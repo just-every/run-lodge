@@ -122,11 +122,11 @@ boardApi.post('/v1/:token/jobs/:id/applications', async c => {
   const answers: Data = b.answers && typeof b.answers === 'object' && !Array.isArray(b.answers) ? b.answers : {}
   const source = typeof b.source === 'string' && b.source.trim() ? b.source.trim().slice(0, 120) : BOARD_SOURCE
   const { receipt, accommodationContact } = await submit(fresh, v, {
-    name: b.name, email: b.email, phone: b.phone, location: b.location, coverNote: b.coverNote, noticeVersion: b.noticeVersion,
+    name: b.name, email: b.email, phone: b.phone, location: b.location, coverNote: b.coverNote, noticeVersion: b.noticeVersion, cpraNoticeVersion: b.cpraNoticeVersion,
     consent: b.consent === true || b.consent === 'yes' ? 'yes' : 'no', talentPool: b.talentPool === true || b.talentPool === 'yes' ? 'yes' : 'no',
     accommodation: b.accommodation, monitoring: b.monitoring, resume: resumeFile(b.resume), answers,
   }, { source, path: BOARD_SOURCE, entry: BOARD_SOURCE, campaign: campaign(b.campaign), oncePerJob: true }, l.post)
   rememberReceipt(fresh, once, receipt.id)
   await save(c.env.DB, fresh, null)
-  return c.json({ receipt: receipt.id, submittedAt: receipt.submittedAt, noticeVersion: receipt.noticeVersion, accommodationContact }, 201, headers)
+  return c.json({ receipt: receipt.id, submittedAt: receipt.submittedAt, noticeVersion: receipt.noticeVersion, cpraNoticeVersion: receipt.cpraNoticeVersion ?? null, accommodationContact }, 201, headers)
 })

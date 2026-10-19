@@ -4,6 +4,7 @@ import { date, email, integer, list, money, now, oneOf, optionalEmail, optionalT
 import { candidateFields, retentionUntil, startApplication } from './candidates'
 import { storeDocument } from './documents'
 import { ensureSource, initialCredit } from './sources'
+import { cpraNotice, inCalifornia, requireCpraNotice } from './privacy'
 
 // CRM-009: recruiting events. Recruiters create an event with its date, place,
 // owner, linked jobs and USD budget, and record its costs. People join the
@@ -81,7 +82,7 @@ export function eventCost(s: State, a: Actor, b: Data) {
   return record
 }
 
-export interface Capture { name: unknown; email?: unknown; phone?: unknown; interests?: unknown; noticeVersion: unknown; noticeShown: unknown; consentToContact: unknown; resume?: { name: string; mediaType: string; base64: string } | null }
+export interface Capture { name: unknown; email?: unknown; phone?: unknown; interests?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; noticeShown: unknown; consentToContact: unknown; resume?: { name: string; mediaType: string; base64: string } | null }
 
 /**
  * Add one person to the event's pool: a new candidate with the event source,
@@ -94,13 +95,16 @@ async function capture(s: State, e: Data, input: Capture, by: string, captureId:
   if (earlier) return { candidate: s.find('candidate', earlier.candidate), replayed: true }
   const notice = s.get('business', 'main').notices.at(-1)
   requireThat(String(input.noticeVersion) === String(notice.version), 'The privacy notice changed since this was captured; show the current notice and capture again', 409)
+  // PRIV-001: at an event in California the person is also shown the CPRA notice, and its version is recorded.
+  const cpra = inCalifornia(s, e) ? requireCpraNotice(s) : null
+  if (cpra) requireThat(String(input.cpraNoticeVersion) === String(cpra.version), 'The California privacy notice changed since this was captured; show the current notice and capture again', 409)
   requireThat(input.noticeShown === true || input.noticeShown === 'yes', by === 'attendee' ? 'Confirm you have read the privacy notice' : 'Confirm the person was shown the privacy notice')
   const fields = candidateFields({ name: input.name, email: optionalEmail(input.email, 'Email'), phone: input.phone })
   requireThat(fields.email || fields.phone, 'Give an email address or a phone number so the recruiter can reach them')
   const source = eventSource(e)
   const candidate = s.put('candidate', uid(), {
     ...fields, interests: optionalText(input.interests, 'Interests', 1000), source, event: e.id, createdAt: now(), retainUntil: retentionUntil(s),
-    consent: { basis: 'event-capture', noticeVersion: notice.version, talentPool: input.consentToContact === true || input.consentToContact === 'yes', at: now(), recordedBy: by },
+    consent: { basis: 'event-capture', noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), talentPool: input.consentToContact === true || input.consentToContact === 'yes', at: now(), recordedBy: by },
   })
   if (input.resume) await storeDocument(s, { candidate: candidate.id, application: null, name: input.resume.name, mediaType: input.resume.mediaType, base64: input.resume.base64, kind: 'resume', source })
   s.put('event-capture', key, { event: e.id, captureId, candidate: candidate.id, by, at: now() })
@@ -176,7 +180,7 @@ export function eventsView(s: State, a: Actor, canSee: (candidate: Data) => bool
     const spent = (e.costs ?? []).reduce((sum: number, c: Data) => sum + c.amount, 0)
     const runs = runsEvent(a, e)
     return {
-      ...e, token: runs ? e.token : undefined, runs, noticeVersion: notice,
+      ...e, token: runs ? e.token : undefined, runs, noticeVersion: notice, californiaNotice: inCalifornia(s, e) ? cpraNotice(s) : null,
       pool: [...people.values()].filter(p => p.visible).map(({ visible, ...p }) => ({ ...p, applications: s.all('application').filter(x => x.candidate === p.candidate).map(x => ({ id: x.id, vacancy: x.vacancy, status: x.status })) })),
       report: {
         attendees: people.size, applications: apps.length,

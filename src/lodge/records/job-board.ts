@@ -7,6 +7,7 @@ import { MONITORING_OPTIONS } from './intake'
 import { listings, type Listing } from './posts'
 import { jobForm } from './questions'
 import { departmentPath } from './org'
+import { cpraNotice, inCalifornia } from './privacy'
 
 // ATTR-009: the employer's public job board for their own careers page. An admin
 // names the board's token, lists the browser origins that may submit, and keeps
@@ -146,6 +147,8 @@ export function boardJob(s: State, l: Listing, origin: string, token: string, co
     questions: jobForm(s, v, l.post).map((q: Data) => ({ id: q.question, text: q.text, type: q.type, required: !!q.required, options: q.options ?? [], help: q.help || null, ...(q.type === 'file' ? { maxBytes: MAX_DOCUMENT_BYTES } : {}) })),
     voluntaryQuestions: [{ id: 'monitoring', text: 'How do you describe your gender?', options: MONITORING_OPTIONS, required: false, note: 'Kept apart from the application and never shown to the people assessing it.' }],
     privacyNotice: { version: notice.version, text: notice.text },
+    // PRIV-001: a California job carries the CPRA notice; submit its version as cpraNoticeVersion.
+    californiaNotice: inCalifornia(s, v, l.post) ? cpraNotice(s) : null,
     accommodationContact: business.accommodationContact,
   }
 }

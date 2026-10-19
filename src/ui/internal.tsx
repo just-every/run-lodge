@@ -14,7 +14,8 @@ export function InternalJobs({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
     <h2>Internal jobs</h2>
     <p className="hint">Open roles you can apply to as an employee. Only the job’s hiring team and the hiring admins see your application.</p>
     <ul className="list rich internal-jobs">{jobs.map(j => <li key={j.id}><span><strong>{j.title}</strong><small>{[j.department, j.location, j.internalOnly ? 'Internal only' : 'Also on the careers page', j.applied ? `You applied ${when(j.applied)}` : ''].filter(Boolean).join(' · ')}</small></span>
-      {!j.applied && <Form label={'Apply to ' + j.title} compact onSubmit={() => mutate('apply-internal', { vacancy: j.id })} />}</li>)}</ul>
+      {!j.applied && j.californiaNotice && <details><summary>California applicant privacy notice (version {j.californiaNotice.version})</summary><dl>{j.californiaNotice.categories.map((c: D) => <div key={c.category}><dt>{c.category}</dt><dd>{c.collected} Used for: {c.purposes} {c.retention}</dd></div>)}</dl><p>{j.californiaNotice.saleStatement}</p></details>}
+      {!j.applied && <Form label={'Apply to ' + j.title} compact onSubmit={() => mutate('apply-internal', { vacancy: j.id, cpraNoticeVersion: j.californiaNotice?.version })} />}</li>)}</ul>
     {notices.length > 0 && <><h3>Your reports’ internal applications</h3><ul className="plain">{notices.map(n => <li key={n.id}>{n.who} applied to {n.title} · {when(n.at)}</li>)}</ul></>}
   </section>
 }
