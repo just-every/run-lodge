@@ -5,7 +5,7 @@ import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
 
-/** A job approved for two offices; at each width a new post goes live through the app and opens from /jobs. */
+/** A job approved for two offices; at each width a new post goes live through the app and opens from /jobs. Returns the job. */
 export async function postsPage(browser, { root, origin, run, offices, evidence }) {
   const job = await run('vacancy', { title: 'Yard hand', officeId: offices[0].id, locations: [offices[1].id], headcount: 2, manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 4200000, max: 4800000, period: 'year' }, description: 'Load and stack.' })
   await run('rubric', { id: job.id, criteria: [{ name: 'Safety', description: 'Works safely around loaders' }] })
@@ -47,4 +47,5 @@ export async function postsPage(browser, { root, origin, run, offices, evidence 
       await page.screenshot({ path: join(evidence, `job-post-page-${width}.png`), fullPage: true })
     } finally { await visitor.close() }
   }
+  return job
 }
