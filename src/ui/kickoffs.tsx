@@ -13,16 +13,16 @@ function KickoffForm({ k, w, mutate }: { k?: D; w: D; mutate: PageProps['mutate'
     plan: lines(x.plan).map(l => { const [name, people = ''] = l.split('|'); return { name: name.trim(), interviewers: people.split(',').map(p => p.trim()).filter(Boolean) } }),
     payRange: { currency: 'USD', min: cents(x.min), max: cents(x.max), period: x.period }, headcount: x.headcount, targetStart: x.targetStart,
   })}>
-    <Field label="Role" name="title" defaultValue={k?.title} />
+    <Field label="Role asked for" name="title" defaultValue={k?.title} />
     <Field label="What the role is for" name="purpose" type="textarea" wide defaultValue={k?.purpose} />
-    <Field label="Must-have criteria, one per line" name="mustHave" type="textarea" defaultValue={k?.mustHave.join('\n')} />
-    <Field label="Nice-to-have criteria, one per line" name="niceToHave" type="textarea" required={false} defaultValue={k?.niceToHave.join('\n')} />
-    <Field label="Proposed interviews, one per line as “Name | interviewer email, email”" name="plan" type="textarea" wide defaultValue={k?.plan.map((p: D) => `${p.name} | ${p.interviewers.join(', ')}`).join('\n')} hint={panel.length ? 'Interviewers: ' + panel.map(p => p.value).join(', ') : undefined} />
-    <Field label="Minimum pay (USD)" name="min" type="number" defaultValue={k ? k.payRange.min / 100 : ''} />
-    <Field label="Maximum pay (USD)" name="max" type="number" defaultValue={k ? k.payRange.max / 100 : ''} />
-    <Field label="Pay period" name="period" defaultValue={k?.payRange.period ?? 'year'} options={[{ value: 'year', label: 'per year' }, { value: 'hour', label: 'per hour' }]} />
-    <Field label="Headcount" name="headcount" type="number" defaultValue={k?.headcount ?? 1} />
-    <Field label="Target start date" name="targetStart" type="date" defaultValue={k?.targetStart} />
+    <Field label="Must-have criteria (one on each line)" name="mustHave" type="textarea" defaultValue={k?.mustHave.join('\n')} />
+    <Field label="Nice-to-have criteria (one on each line)" name="niceToHave" type="textarea" required={false} defaultValue={k?.niceToHave.join('\n')} />
+    <Field label="Proposed interview plan (each line “Name | interviewer email, email”)" name="plan" type="textarea" wide defaultValue={k?.plan.map((p: D) => `${p.name} | ${p.interviewers.join(', ')}`).join('\n')} hint={panel.length ? 'Interviewers: ' + panel.map(p => p.value).join(', ') : undefined} />
+    <Field label="Requested pay from (USD)" name="min" type="number" defaultValue={k ? k.payRange.min / 100 : ''} />
+    <Field label="Requested pay up to (USD)" name="max" type="number" defaultValue={k ? k.payRange.max / 100 : ''} />
+    <Field label="Requested pay basis" name="period" defaultValue={k?.payRange.period ?? 'year'} options={[{ value: 'year', label: 'per year' }, { value: 'hour', label: 'per hour' }]} />
+    <Field label="Requested openings" name="headcount" type="number" defaultValue={k?.headcount ?? 1} />
+    <Field label="Target first day" name="targetStart" type="date" defaultValue={k?.targetStart} />
   </Form>
 }
 
@@ -37,7 +37,7 @@ export function Kickoffs({ w, mutate, select }: { w: D; mutate: PageProps['mutat
       {k.vacancy && <button className="link" onClick={() => select(k.vacancy)}>Open the job</button>}
       {(k.author === me || admin) && <details><summary>Edit kickoff</summary><KickoffForm k={k} w={w} mutate={mutate} /></details>}
       {admin && !k.vacancy && <details><summary>Create the job draft</summary><Form label="Create job draft" onSubmit={async x => { const v = await mutate('vacancy-from-kickoff', { kickoff: k.id, title: x.title, location: x.location, department: x.department }); select(v.id) }}>
-        <Field label="Job title" name="title" defaultValue={k.title} /><Field label="Location" name="location" /><Field label="Department" name="department" required={false} />
+        <Field label="Title of the job" name="title" defaultValue={k.title} /><Field label="Where the job is" name="location" /><Field label="Team or department" name="department" required={false} />
       </Form></details>}
     </article></li>)}</ul>
   </section>
