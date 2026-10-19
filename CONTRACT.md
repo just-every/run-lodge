@@ -323,8 +323,8 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 11 | 36 | 61 | 108 |
-| All | 28 | 36 | 61 | 125 |
+| Target and push further | 12 | 35 | 61 | 108 |
+| All | 29 | 35 | 61 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -425,7 +425,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `REPORT-002` | US EEO and OFCCP recruiting records | target | partial | `src/lodge/records/intake.ts`; `src/lodge/core/access.ts`; `tests/hiring.test.mjs` | Generic restricted voluntary monitoring and privacy versions exist; US-specific questionnaires, compliance role, self-identification invitations for non-form intake and EEO/OFCCP reporting are absent. |
 | `REPORT-003` | Scheduled private recruiting reports | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `REPORT-004` | Candidate experience surveys | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
-| `REPORT-006` | Interviewer activity and scorecard timeliness report | target | partial | `src/lodge/agents/coordination.ts`; `src/ui/overview.tsx` | Missing-scorecard facts with their waiting time are listed; a per-interviewer timeliness, load and released-recommendation report is absent. |
+| `REPORT-006` | Interviewer activity and scorecard timeliness report | target | done | `src/lodge/views/reports.ts`; `src/lodge/records/people.ts`; `src/ui/activity-report.tsx`; `tests/hiring.test.mjs` |  |
 | `COLLAB-001` | Slack and Teams hiring collaboration | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `INT-001` | Public recruiting API, webhooks and Zapier | target | partial | `src/lodge/http/api.ts`; `API.md`; `tests/security.test.mjs` | Authenticated command/read API exists; public app credentials, event webhooks, Zapier and provider ecosystem are absent. |
 | `INT-002` | Connector administration and honest execution | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |

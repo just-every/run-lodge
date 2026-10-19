@@ -82,6 +82,13 @@ api.get('/api/lodge/kit/:id', async c => {
   return c.json(kitView(await workspace(state, actor), c.req.param('id')))
 })
 
+api.get('/api/lodge/reports/interviewers', async c => {
+  const { state, actor } = await context(c)
+  const report = (await workspace(state, actor)).interviewerActivity
+  requireThat(report, 'Only admins and hiring managers see interviewer activity', 403)
+  return c.json(report)
+})
+
 api.get('/api/lodge/talent', async c => {
   const { state, actor } = await context(c)
   return c.json({ matches: talentPool(state, actor, c.req.query('q')) })

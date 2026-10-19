@@ -17,6 +17,7 @@ export function BusinessForm({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
     <Field label="Accommodation contact (email or phone shown to applicants)" name="accommodationContact" defaultValue={b.accommodationContact} />
     <Field label="Time zone your business works in" name="timeZone" defaultValue={zone} options={zones(zone)} hint="Interviews, history and applicant receipts read in this zone, wherever they are opened." />
     <Field label="Keep candidate records for (days)" name="retentionDays" type="number" defaultValue={b.retentionDays ?? 365} />
+    <Field label="Scorecards fall due (hours after the interview ends)" name="scorecardDueHours" type="number" defaultValue={b.scorecardDueHours ?? 24} />
     <Field label="Jurisdiction note (where you hire, for your legal review)" name="jurisdiction" required={false} defaultValue={b.jurisdiction} />
     <Field label="Applicant privacy notice" name="privacyNotice" type="textarea" wide defaultValue={b.notices?.at(-1)?.text} hint="Each change becomes a new version; every application records the version the applicant saw." />
   </Form>

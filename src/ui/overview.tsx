@@ -6,6 +6,7 @@ import { Avatar, Status, type D } from './shared'
 import { BusinessForm } from './people'
 import { columns, openProposals, proposalApplication } from './pipeline/facts'
 import { Tasks } from './tasks'
+import { InterviewerActivity } from './activity-report'
 
 /** Each application waiting on the actor's scorecard: the interview it is for (or the screen), when, and how late. */
 function scorecardsToWrite(w: D): { a: D; job?: string; what: string; at: string; late: number }[] {
@@ -58,6 +59,7 @@ export function Overview({ w, mutate, go }: PageProps) {
       <div>
         {w.notifications.length > 0 && <section className="card"><h2>For your attention</h2><ul className="list rich">{w.notifications.map((n: D) => <li key={n.id}><button onClick={() => n.application ? go('Applications', { app: n.application, job: undefined }) : undefined}><Icon name="clock" /><span><strong>{n.kind === 'task-due' ? `${n.overdue ? 'Overdue' : 'Due today'}: ${n.reason}` : `${person(w, n.by)} corrected a released scorecard`}</strong><small>{[n.application ? w.applications.find((a: D) => a.id === n.application)?.candidateName : w.candidates.find((c: D) => c.id === n.candidate)?.name, n.kind === 'task-due' ? (n.by !== w.actor.email ? 'set by ' + person(w, n.by) : '') : n.reason, n.kind === 'task-due' ? n.at : recent(n.at)].filter(Boolean).join(' · ')}</small></span></button></li>)}</ul></section>}
         <Tasks w={w} mutate={mutate} go={go} />
+        <InterviewerActivity w={w} go={go} />
         {decisions.length > 0 && <section className="card"><h2>Waiting for your decision</h2><ul className="list rich">{decisions.map(id => {
           const a = w.applications.find((x: D) => x.id === id), ps = openProposals(w).filter((p: D) => proposalApplication(p) === id)
           return a && <li key={id}><button onClick={() => go('Applications', { app: id, job: a.vacancy })}><Avatar name={a.candidateName} size="sm" /><span><strong>{a.candidateName}</strong><small>{count(ps.length, 'option')} from {person(w, ps[0].proposedBy)} · {recent(ps[0].proposedAt)}</small></span><Status tone="alert">your decision</Status></button></li>

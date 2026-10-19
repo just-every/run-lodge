@@ -706,6 +706,36 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     await cmd('close-vacancy', { id: job.id, reason: 'Kit journey done' }, manager)
   })
 
+  await t.test('REPORT-006 interviewer timeliness: on time, late and missing against the due time, with released calls only', async () => {
+    const v = (await state(manager)).vacancies.find(x => x.id === vacancy.id), [safety] = v.rubrics[0].criteria
+    const { application: app } = await cmd('candidate', { name: 'Remi Duval', email: 'remi@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
+    const at = hours => new Date(Date.now() + hours * 3600000).toISOString()
+    const held = async (start, who = 'ivy@example.test') => { const iv = await cmd('interview', { application: app.id, planItem: v.plan[0].id, participants: [who], slots: [start], durationMinutes: 60 }, manager); await cmd('schedule', { interview: iv.id, slot: 0 }, manager); return iv }
+    // Due 24 hours after each interview ends: two within it, two past it, one never scored, one still ahead.
+    const [soon, recent, old1, old2, never, ahead] = [await held(at(-3)), await held(at(-5)), await held(at(-72)), await held(at(-80)), await held(at(-90)), await held(at(48))]
+    const score = (iv, recommendation) => cmd('scorecard', { application: app.id, interview: iv.id, ratings: { [safety.id]: 3 }, evidence: { [safety.id]: 'Clear on permits' }, recommendation, takeaways: 'REMI-UNRELEASED notes', submit: true }, ivy)
+    const cards = [[soon, await score(soon, 'yes')], [recent, await score(recent, 'yes')], [old1, await score(old1, 'no')], [old2, await score(old2, 'strong-yes')]]
+    assert.equal((await send('/api/lodge/reports/interviewers', undefined, ivy)).status, 403, 'interviewers do not see the report')
+    const read = async who => (await send('/api/lodge/reports/interviewers', undefined, who)).value
+    let report = await read(manager), row = report.rows.find(r => r.interviewer === 'ivy@example.test' && r.vacancy === vacancy.id)
+    const mine = row.items.filter(i => i.application === app.id)
+    assert.deepEqual([report.dueHours, mine.filter(i => i.status !== 'upcoming').length, mine.filter(i => i.status === 'on-time').length, mine.filter(i => i.status === 'late').length, mine.filter(i => i.status === 'missing').map(i => i.interview), mine.filter(i => i.status === 'upcoming').map(i => i.interview)], [24, 5, 2, 2, [never.id], [ahead.id]])
+    assert.ok(row.conducted >= 5 && row.late >= 2 && row.missing >= 1 && row.upcoming >= 1)
+    for (const [iv, c] of cards) assert.equal(mine.find(i => i.interview === iv.id).hoursToSubmit, Math.round((Date.parse(c.submittedAt) - (Date.parse(iv.slots[0]) + 3600000)) / 3600000 * 10) / 10, 'hours to submit follow the recorded submission time')
+    assert.equal(typeof row.averageHoursToSubmit, 'number')
+    // Before release the report holds no recommendation or content from these cards; after release it counts them.
+    assert.ok(!JSON.stringify(report).includes('REMI-UNRELEASED'))
+    const before = { ...row.releasedRecommendations }
+    await cmd('release-feedback', { application: app.id, reason: 'Calibration' }, manager)
+    row = (await read(owner)).rows.find(r => r.interviewer === 'ivy@example.test' && r.vacancy === vacancy.id)
+    assert.deepEqual(['yes', 'no', 'strong-yes'].map(r => row.releasedRecommendations[r] - before[r]), [2, 1, 1])
+    assert.ok(!JSON.stringify(row).includes('REMI-UNRELEASED'))
+    // The missing scorecard drills to its interview, which the manager can open; the overview shows it.
+    assert.equal(row.items.find(i => i.status === 'missing' && i.application === app.id).interview, never.id)
+    assert.ok((await state(manager)).interviewerActivity.rows.some(r => r.items.some(i => i.interview === never.id && i.status === 'missing')))
+    await cmd('move', { application: app.id, to: 'withdrawn', reason: 'Report journey done' }, manager)
+  })
+
   await t.test('SCORE-002 a correction is a linked version: the original stays, the manager hears, the packet goes stale', async () => {
     const { application: app } = await cmd('candidate', { name: 'Noor Haddad', email: 'noor@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
     await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)

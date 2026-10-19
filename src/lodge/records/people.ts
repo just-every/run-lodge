@@ -20,6 +20,8 @@ export function business(s: State, a: Actor, b: Data) {
     jurisdiction: optionalText(b.jurisdiction, 'Jurisdiction note', 500),
     // Every time Lodge shows or writes (interviews, history, receipts) reads in this zone, wherever it is opened.
     timeZone: zone(b.timeZone),
+    // When a scorecard falls due after its interview ends; the interviewer activity report measures against it.
+    scorecardDueHours: integer(b.scorecardDueHours ?? current?.scorecardDueHours ?? 24, 'Scorecard due (hours after the interview)', 1, 336),
     notices,
   })
   // The owner always appears as a member so they can be chosen as manager, approver or interviewer.

@@ -12,6 +12,7 @@ import { missingTerms } from '../records/vacancies'
 import { coordination } from '../agents/coordination'
 import { activity } from './activity'
 import { businessToday } from '../records/tasks'
+import { interviewerActivity } from './reports'
 
 /**
  * The actor's whole permitted view. The app, search, exports and the agent
@@ -152,7 +153,7 @@ export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
 
 export async function workspace(s: State, a: Actor) {
   const records = await workspaceRecords(s, a)
-  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)) }
+  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)), interviewerActivity: interviewerActivity(s, a, records) }
 }
 
 export type Workspace = Awaited<ReturnType<typeof workspace>>

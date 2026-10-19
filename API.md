@@ -16,6 +16,9 @@ cookie or sign-in URL in a task, log or source file.
 - `GET /api/lodge/search?q=`: matches within that same workspace.
 - `GET /api/lodge/talent?q=`: owner/admin: prior candidates with current
   permission to be contacted whose own words match; matched fields shown, no score.
+- `GET /api/lodge/reports/interviewers`: admins and hiring managers: per interviewer and job they run,
+  interviews held, scorecards on time, late or missing against the business's `scorecardDueHours`
+  (default 24), average hours to submit, released recommendations only, upcoming load, and each item.
 - `GET /api/lodge/kit/:interviewId`: the interview's kit (purpose, focus criteria, questions, resume,
   released feedback, your scorecard) for its panel and the job's managers; invitations link `/app?kit=:id`.
 - Downloads: `/api/lodge/download/document/:id` (original bytes),
