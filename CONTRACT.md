@@ -397,7 +397,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `CAL-005` | Organization-wide calendar connection | target | missing |  | Calendars are not connected at all today; interviewers enter availability by hand (LDG-008). |
 | `KIT-001` | Interview kits with questions and focus attributes | target | partial | `src/lodge/records/vacancies.ts`; `src/ui/scorecards.tsx` | The interview plan, rubric criteria with evidence descriptions and the scorecard form exist; per-interview kits, questions, focus-attribute selection and kit links in invites are absent. |
 | `SCORE-001` | Overall recommendation, key take-aways and released panel summary | target | done | `src/lodge/records/scorecards.ts`; `src/lodge/views/workspace.ts`; `src/ui/scorecards.tsx`; `tests/hiring.test.mjs` |  |
-| `SCORE-002` | Scorecard corrections as linked versions | target | missing |  | A submitted scorecard is final; no correction path exists. |
+| `SCORE-002` | Scorecard corrections as linked versions | target | done | `src/lodge/records/scorecards.ts`; `src/lodge/views/offer-exports.ts`; `src/ui/scorecards.tsx`; `tests/hiring.test.mjs` |  |
 | `ASSESS-001` | Native take-home tests | target | missing |  | No take-home or assessment flow exists. |
 | `ASSESS-002` | CoderPad and TestGorilla assessments | target | missing |  | No assessment provider connection exists. |
 | `TEAM-001` | Shared candidate notes and activity feed | target | missing |  | Only private interviewer notes exist; there is no shared note or candidate activity feed. |

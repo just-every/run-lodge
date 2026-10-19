@@ -18,7 +18,7 @@ export function commandBodies(h) {
     interview: { application: app.id, planItem: vacancy.plan[0].id, participants: ['outside@example.test'], slots: interview.slots },
     availability: { interview: interview.id, slots: [0] }, schedule: { interview: interview.id, slot: 0 }, 'cancel-interview': { interview: interview.id, reason: 'Forbidden' },
     scorecard: { application: app.id, ratings: {}, evidence: {}, recommendation: 'yes', takeaways: 'Forbidden', submit: true },
-    'release-feedback': { application: app.id, reason: 'Forbidden' }, note: { application: app.id, text: 'Forbidden' },
+    'correct-scorecard': { scorecard: app.id + ':review:panel@example.test', reason: 'Forbidden' }, 'release-feedback': { application: app.id, reason: 'Forbidden' }, note: { application: app.id, text: 'Forbidden' },
     message: { application: app.id, purpose: 'other', subject: 'Forbidden', body: 'Forbidden' }, 'request-message-approval': { id: h.message.id, approver: 'owner@example.test' },
     offer: { application: app.id, salary: { currency: 'USD', amount: 100, period: 'year' }, startDate: '2026-12-10' },
     'request-offer-approval': { id: offer.id, approver: 'approve@example.test' }, 'offer-outcome': { id: offer.id, outcome: 'accepted', reason: 'Forbidden' },

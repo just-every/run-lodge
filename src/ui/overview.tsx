@@ -55,6 +55,7 @@ export function Overview({ w, mutate, go }: PageProps) {
     </p>}
     <div className="pair">
       <div>
+        {w.notifications.length > 0 && <section className="card"><h2>For your attention</h2><ul className="list rich">{w.notifications.map((n: D) => <li key={n.id}><button onClick={() => go('Applications', { app: n.application, job: undefined })}><Icon name="clock" /><span><strong>{person(w, n.by)} corrected a released scorecard</strong><small>{w.applications.find((a: D) => a.id === n.application)?.candidateName} · {n.reason} · {recent(n.at)}</small></span></button></li>)}</ul></section>}
         {decisions.length > 0 && <section className="card"><h2>Waiting for your decision</h2><ul className="list rich">{decisions.map(id => {
           const a = w.applications.find((x: D) => x.id === id), ps = openProposals(w).filter((p: D) => proposalApplication(p) === id)
           return a && <li key={id}><button onClick={() => go('Applications', { app: id, job: a.vacancy })}><Avatar name={a.candidateName} size="sm" /><span><strong>{a.candidateName}</strong><small>{count(ps.length, 'option')} from {person(w, ps[0].proposedBy)} · {recent(ps[0].proposedAt)}</small></span><Status tone="alert">your decision</Status></button></li>

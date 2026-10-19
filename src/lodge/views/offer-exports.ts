@@ -4,6 +4,7 @@ import { Fault, now, requireThat, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { history } from '../records/pipeline'
 import { rangeCheck } from '../records/offers'
+import { latest } from '../records/scorecards'
 
 function offerContext(w: Workspace, id: string) {
   const offer = w.offers.find(o => o.id === id)
@@ -32,8 +33,16 @@ export async function packet(s: State, w: Workspace, id: string) {
   return packetOf(offer, { ...app, history: history(s, app.id) }, vacancy, s.get('candidate', app.candidate), released, s.all('interview'), w.approvals)
 }
 
-function packetOf(offer: Data, app: Data, vacancy: Data, candidate: Data, scorecards: Data[], interviews: Data[], approvals: Data[]) {
+/**
+ * The packet shows each scorecard's latest version. One corrected after the packet was compiled (when the offer
+ * went for approval, or was last drafted) makes the packet out of date until approval is requested again.
+ */
+function packetOf(offer: Data, app: Data, vacancy: Data, candidate: Data, cards: Data[], interviews: Data[], approvals: Data[]) {
+  const scorecards = latest(cards).map((c): Data => ({ ...c, corrected: !!c.corrects }))
+  const compiledAt = offer.approval?.requestedAt ?? offer.editedAt ?? offer.createdAt
+  const correctedSince = scorecards.filter(c => c.corrects && c.submittedAt > compiledAt).map(c => ({ scorecard: c.id, corrects: c.corrects, author: c.author, reason: c.correctionReason, at: c.submittedAt }))
   return {
+    compiledAt, correctedSince, staleEvidence: correctedSince.length ? 'A scorecard was corrected after this packet was compiled; request approval again on the corrected evidence' : null,
     offer, rangeWarning: offer.rangeWarning, candidate: { id: candidate.id, name: candidate.name },
     vacancy: { id: vacancy.id, title: vacancy.title, compensation: vacancy.compensation, headcount: vacancy.headcount, hires: vacancy.hires ?? 0, manager: vacancy.manager },
     rubric: vacancy.rubrics.find((r: { version: number }) => r.version === app.rubricVersion), history: app.history,

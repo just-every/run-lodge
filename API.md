@@ -33,7 +33,8 @@ state; nothing is retried automatically. Operations: `business`, `member`,
 `correct-candidate`, `apply`, `review-duplicate`, `document`,
 `assign-reviewers`, `move`, `interview`, `availability`, `schedule`,
 `cancel-interview`, `interview-reply` (a panellist's `cannot-attend`, or another
-interviewer's `can-cover` with an optional `freeAt`, each with a `note`), `scorecard`, `release-feedback`, `note`, `message`,
+interviewer's `can-cover` with an optional `freeAt`, each with a `note`), `scorecard`, `correct-scorecard` (the author's
+linked correction of a submitted `scorecard` id, with a `reason`), `release-feedback`, `note`, `message`,
 `request-message-approval`, `offer`, `request-offer-approval`,
 `offer-outcome`, `hold`, `release-hold`, `extend-retention`, `data-request`,
 `complete-data-request`, `propose`, `decide-proposal`. Also

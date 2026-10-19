@@ -502,6 +502,49 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.ok((await state()).retention.due.some(r => r.candidate === again.candidate))
   })
 
+  await t.test('SCORE-002 a correction is a linked version: the original stays, the manager hears, the packet goes stale', async () => {
+    const { application: app } = await cmd('candidate', { name: 'Noor Haddad', email: 'noor@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
+    await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)
+    const [safety, scheduling] = (await state(manager)).vacancies.find(x => x.id === vacancy.id).rubrics[0].criteria
+    const rated = (s1, s2, e1) => ({ ratings: { [safety.id]: s1, [scheduling.id]: s2 }, evidence: { [safety.id]: e1, [scheduling.id]: 'Recovered a slipped pour' } })
+    const fix = (card, body, who = ivy) => send('/api/lodge/command/correct-scorecard', { scorecard: card.id, ...body }, who)
+    const first = await cmd('scorecard', { application: app.id, ...rated(2, 3, 'Unsure on permits'), recommendation: 'no', takeaways: 'NOOR-V1 not yet', submit: true }, ivy)
+    assert.equal((await fix(first, rated(3, 3, 'Held the permits'))).status, 400, 'a correction needs a reason')
+    assert.equal((await fix(first, { reason: 'Mine now' }, ian)).status, 404, 'a colleague cannot reach it before release')
+    const v2 = await cmd('correct-scorecard', { scorecard: first.id, ...rated(3, 3, 'Checked: she held the permits'), recommendation: 'yes', takeaways: 'NOOR-V2 solid', reason: 'Misread my permit notes' }, ivy)
+    assert.deepEqual([v2.corrects, v2.version, v2.rubricVersion, v2.correctionReason], [first.id, 2, first.rubricVersion, 'Misread my permit notes'])
+    assert.equal((await fix(first, { reason: 'Again' })).status, 409, 'only the latest version takes a correction')
+    // Blinding is unchanged: the correction is as private as the card, and nobody is told before release.
+    for (const who of [ian, manager]) assert.ok(!JSON.stringify(await state(who)).includes('NOOR-V'))
+    assert.deepEqual((await state(manager)).notifications.filter(n => n.application === app.id), [])
+    const offer = await cmd('offer', { application: app.id, title: 'Site supervisor', startDate: '2027-01-04', salary: { currency: 'USD', amount: 10000000, period: 'year' } }, manager)
+    await cmd('scorecard', { application: app.id, ...rated(3, 2, 'Solid permits answer'), recommendation: 'no', takeaways: 'Ian: scheduling thin', submit: true }, ian)
+    await cmd('release-feedback', { application: app.id }, manager)
+    let packet = (await send('/api/lodge/download/packet/' + offer.id, undefined, manager)).value
+    assert.equal(packet.staleEvidence, null, 'the pre-release correction came before the packet was compiled')
+    assert.deepEqual(packet.scorecards.filter(c => c.author === 'ivy@example.test').map(c => [c.id, c.corrected]), [[v2.id, true]])
+    const v3 = await cmd('correct-scorecard', { scorecard: v2.id, ...rated(3, 4, 'Checked: she held the permits'), reason: 'Forgot her second schedule recovery' }, ivy)
+    const seen = await state(ian)
+    const versions = seen.scorecards.filter(c => c.application === app.id && c.author === 'ivy@example.test').sort((x, y) => (x.version ?? 1) - (y.version ?? 1))
+    assert.deepEqual(versions.map(c => [c.version ?? 1, c.ratings[safety.id], c.ratings[scheduling.id], c.supersededBy ?? null]), [[1, 2, 3, v2.id], [2, 3, 3, v3.id], [3, 3, 4, null]])
+    assert.deepEqual([versions[0].takeaways, versions[0].recommendation], ['NOOR-V1 not yet', 'no'], 'the original stays as submitted')
+    const summary = seen.applications.find(a => a.id === app.id).scorecardSummary
+    assert.deepEqual(summary.counts, { 'strong-no': 0, no: 1, yes: 1, 'strong-yes': 0 }, 'released views count the latest version')
+    const marked = summary.interviews[0].cards.find(c => c.author === 'ivy@example.test')
+    assert.deepEqual([marked.corrected, marked.version, marked.ratings[scheduling.id], marked.takeaways], [true, 3, 4, 'NOOR-V2 solid'])
+    assert.deepEqual((await state(manager)).notifications.filter(n => n.application === app.id).map(n => [n.kind, n.by, n.scorecard, n.reason]), [['scorecard-corrected', 'ivy@example.test', v3.id, 'Forgot her second schedule recovery']])
+    packet = (await send('/api/lodge/download/packet/' + offer.id, undefined, manager)).value
+    assert.match(packet.staleEvidence, /corrected after this packet was compiled/)
+    assert.deepEqual(packet.correctedSince.map(c => [c.scorecard, c.corrects]), [[v3.id, v2.id]])
+    // Asking for approval again compiles the packet on the corrected evidence.
+    await cmd('request-offer-approval', { id: offer.id, approver: 'parker@example.test' }, manager)
+    assert.equal((await send('/api/lodge/download/packet/' + offer.id, undefined, approver)).value.staleEvidence, null)
+    await cmd('close-vacancy', { id: vacancy.id, reason: 'Role filled' }, manager)
+    const closed = await fix(v3, { reason: 'One more thought' })
+    assert.equal(closed.status, 409)
+    assert.match(closed.value.error, /job is closed/)
+  })
+
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {
     assert.equal((await send('/api/lodge/state')).status, 401)
     assert.equal((await send('/api/lodge/state', undefined, owner, { 'sec-fetch-site': 'cross-site' })).status, 403)

@@ -1,10 +1,10 @@
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
 import { canSeeApproval, canSeeNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
-import { type Actor, type Data } from '../core/types'
+import { scope, type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { duplicateSuggestions, transferredFrom } from '../records/candidates'
-import { panel, summary } from '../records/scorecards'
+import { panel, summary, versioned } from '../records/scorecards'
 import { funnel, history } from '../records/pipeline'
 import { rangeCheck } from '../records/offers'
 import { retentionReview } from '../records/retention'
@@ -67,7 +67,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     approvals.push({ ...x, currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
   }
 
-  const visibleCards = s.all('scorecard').filter(c => canSeeScorecard(s, a, c))
+  const visibleCards = versioned(s.all('scorecard').filter(c => canSeeScorecard(s, a, c)))
   return {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
@@ -98,6 +98,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     }),
     scorecards: visibleCards,
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
+    notifications: s.all('notification').filter(n => n.to === scope(a) && appIds.has(n.application)).sort((x, y) => y.at.localeCompare(x.at)),
     messages, offers, approvals,
     restricted: admin ? s.all('monitoring') : [],
     holds: admin ? s.all('hold') : [],
