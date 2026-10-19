@@ -70,7 +70,8 @@ managers; send its `id` to edit your own, history kept), `task` (a follow-up on 
 `application`, or for admins and managers `kind: "task"`, with `note`, `due` date and `owner`),
 `complete-task`, `message`,
 `request-message-approval`, `offer`, `request-offer-approval`,
-`offer-outcome`, `hold`, `release-hold`, `extend-retention`, `data-request`,
+`offer-outcome`, `offer-signed-outside` (OFFER-006: `{ id, attest: true, method: hris | paper | other-tool,
+differences?, name, mediaType, base64 }` for an offer whose exact terms are approved now), `hold`, `release-hold`, `extend-retention`, `data-request`,
 `complete-data-request`, `propose`, `decide-proposal`, `debrief`, `edit-debrief`,
 `decide-debrief` (see Agents), `question` (admins: a screening question `{ id?, text,
 type, options, required, help }`; with `id` it saves the next version), `job-questions`

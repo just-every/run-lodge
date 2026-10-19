@@ -79,7 +79,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "8b3a15f60144d0f03a231cdbbe0a2b51f8c6ee9bde39260c8f7bfb0d2ad5f369",
+      "sha256": "d46ac958772e1f164574e2d9ae96d49f7e6667a0ef29ede672b51d49c0c37de0",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -91,7 +91,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "d13225a062c150e5a2cf211f7bdc3783e1e2874718fe3b7f694c357d3cc6c423",
+      "sha256": "cd73cebde995764f54655cf45ba56a06ac47629bafef83e6acd8ea6b7851ba85",
       "executable": false
     },
     "base-copies.json": {
@@ -103,7 +103,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "5b3026f9623d2edff9a60125b788eb0d6a89dfd6cc78467509e490eabb33146c",
+      "sha256": "c7c557984a95e12cdf08ca92fe9891d68a05779ee9b681664dafbf1279aa5986",
       "executable": false
     },
     "DEMO.md": {
@@ -771,7 +771,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "d6488db0f3f9e28e282d10184e4744d07f5d5ffe3d48646652b48122c07789fb",
+      "sha256": "110e09ec5b3074b312fa8b455666d0723122b42ff8871bc998bc5d78f130bf99",
       "executable": false
     },
     "src/lodge/core/access.ts": {
@@ -879,7 +879,7 @@
       "executable": false
     },
     "src/lodge/records/offers.ts": {
-      "sha256": "f8e59358536dd74e378384cfe39e6843f7193820a9c5165280c7b1e3a7991fe9",
+      "sha256": "20e41a5d78594882e9f749170c0f1ea5501c12c78b72a2ebd76534587e0fc3f9",
       "executable": false
     },
     "src/lodge/records/openings.ts": {
@@ -951,7 +951,7 @@
       "executable": false
     },
     "src/lodge/views/offer-exports.ts": {
-      "sha256": "fb1b6efb37bbb7a5bbd8b63517df87025534da1a9d432fcaf8d281eef5e933c8",
+      "sha256": "84ed939e3e8642069fa3a407dd3147203ddf60f3a80e4e3c41987f1900126207",
       "executable": false
     },
     "src/lodge/views/openings-report.ts": {
@@ -2755,7 +2755,7 @@
       "executable": false
     },
     "src/ui/decisions.tsx": {
-      "sha256": "d085baf5e9f9322113e6c84c4628877b116359f3c16e89b8548dd39a44bbaad5",
+      "sha256": "bb47aac6ca4c16892b241c1f3b99f51fce0d52aaaefc6180b17e8fe49a8b87cf",
       "executable": false
     },
     "src/ui/documents.tsx": {
@@ -2919,7 +2919,7 @@
       "executable": false
     },
     "tests/hiring.test.mjs": {
-      "sha256": "4bc14ab9962d66374aebfc20c5fca4be8c910cce816d33d883790a8728cad612",
+      "sha256": "5371b2416bb9318ce153ccb732d8511f242fd46f9bc8ec14f7a8e421bd6a9f0f",
       "executable": false
     },
     "tests/lodge-worker.ts": {

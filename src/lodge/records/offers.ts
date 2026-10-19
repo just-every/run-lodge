@@ -1,7 +1,8 @@
 import type { State } from '../core/state'
 import { requireApplication, requireManages } from '../core/access'
 import { currency, date, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
-import { approvedNow, requestApproval } from './approvals'
+import { approvedNow, requestApproval, versionOf } from './approvals'
+import { storeDocument } from './documents'
 import { cancelTasks } from './tasks'
 import { fill, namedOpening } from './openings'
 
@@ -64,14 +65,46 @@ export async function outcome(s: State, a: Actor, b: Data) {
   const reason = text(b.reason, 'Reason or note', 2000)
   // Making or accepting an offer needs the approval to match these exact terms now.
   if (result !== 'withdrawn') requireThat(await approvedNow(s, 'offer', o), 'The offer needs a current approval of these exact terms', 409)
-  const filled = result === 'accepted' ? fill(vacancy, o, app.id) : vacancy
+  if (result === 'accepted') return accept(s, a, o, app, vacancy, reason)
   const record = s.put('offer', o.id, { ...o, status: result, outcomeReason: reason, outcomeBy: a.email, outcomeAt: now() })
-  if (result === 'accepted') {
-    s.put('application', app.id, { ...app, status: 'hired', closedAt: now() })
-    s.put('vacancy', vacancy.id, { ...filled, hires: (vacancy.hires ?? 0) + 1 })
-    s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'hired', reason: 'Offer accepted: ' + reason, actor: a.email, at: now() })
-    cancelTasks(s, app.id, 'Application hired')
-  }
   s.audit(a, 'offer-' + result, 'offer:' + o.id, { reason })
   return record
+}
+
+/** Acceptance records the hire: the application closes as hired, the named opening fills and its tasks are canceled. */
+function accept(s: State, a: Actor, o: Data, app: Data, vacancy: Data, reason: string, extra: Data = {}) {
+  const filled = fill(vacancy, o, app.id)
+  const record = s.put('offer', o.id, { ...o, status: 'accepted', outcomeReason: reason, outcomeBy: a.email, outcomeAt: now(), ...extra })
+  s.put('application', app.id, { ...app, status: 'hired', closedAt: now() })
+  s.put('vacancy', vacancy.id, { ...filled, hires: (vacancy.hires ?? 0) + 1 })
+  s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'hired', reason: 'Offer accepted: ' + reason, actor: a.email, at: now() })
+  cancelTasks(s, app.id, 'Application hired')
+  s.audit(a, 'offer-accepted', 'offer:' + o.id, { reason, ...(extra.signature ? { signature: 'outside', sha256: extra.signature.sha256 } : {}) })
+  return record
+}
+
+export const OUTSIDE_LABEL = 'accepted, signed outside Lodge (not provider-verified)'
+export const SIGNING_METHODS = ['hris', 'paper', 'other-tool'] as const
+
+/**
+ * OFFER-006: someone who runs the job uploads the original signed outside Lodge and attests it is the signed
+ * version of the approved offer, naming the method and any differences. The bytes and their SHA-256 are bound to
+ * the approved terms' version; the offer reads "accepted, signed outside Lodge (not provider-verified)" and the
+ * hire is recorded, as an accepted outcome is. Only an offer whose exact terms are approved now can be signed.
+ */
+export async function signedOutside(s: State, a: Actor, b: Data) {
+  const o = s.get('offer', b.id)
+  const app = requireApplication(s, a, o.application)
+  const vacancy = s.get('vacancy', app.vacancy)
+  requireManages(a, vacancy)
+  requireThat(o.status === 'draft', 'This offer already has an outcome', 409)
+  requireThat(app.status === 'active', 'This application is closed', 409)
+  requireThat(await approvedNow(s, 'offer', o), 'Only an offer whose exact terms are approved now can be recorded as signed', 409)
+  requireThat(b.attest === true, 'Attest that the file is the signed version of the approved offer')
+  const method = oneOf(b.method, SIGNING_METHODS, 'How it was signed')
+  const differences = optionalText(b.differences, 'Differences from the approved offer', 2000)
+  const doc = await storeDocument(s, { candidate: app.candidate, application: app.id, name: b.name, mediaType: b.mediaType, base64: b.base64, kind: 'offer', source: 'signed original uploaded by ' + a.email })
+  const signature = { kind: 'outside', label: OUTSIDE_LABEL, method, differences, document: doc.id, sha256: doc.sha256, termsVersion: await versionOf(s, 'offer', o), attestedBy: a.email, attestedAt: now(), providerVerified: false }
+  s.audit(a, 'document-added', 'document:' + doc.id, { kind: doc.kind, restricted: doc.restricted })
+  return accept(s, a, o, app, vacancy, `signed outside Lodge (${method})${differences ? '; differences: ' + differences : ''}`, { signature })
 }

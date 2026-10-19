@@ -485,6 +485,38 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await queueOf(manager)).remaining, 0)
   })
 
+  await t.test('OFFER-006 a recruiter records an offer signed outside Lodge: bytes bound to the approved terms, hire recorded, honest label', async () => {
+    const job = await openJob('Glazier')
+    const rosa = await h.member('rosa@example.test', ['manager'], 'Rosa Pike')
+    await cmd('hiring-team', { id: job.id, recruiters: ['rosa@example.test'] })
+    const { application: app } = await cmd('candidate', { name: 'Gus Hale', email: 'gus.glass@example.test', source: 'Careers page', consentBasis: 'application', vacancy: job.id }, manager)
+    await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test'] }, manager)
+    const [opening] = (await state(manager)).vacancies.find(v => v.id === job.id).openings
+    const offer = await cmd('offer', { application: app.id, title: 'Glazier', startDate: '2026-12-07', salary: { currency: 'USD', amount: 9500000, period: 'year' }, opening: opening.id }, rosa)
+    const scan = '%PDF-1.4 scanned offer letter signed by Gus Hale on paper'
+    const upload = (body, cookie = rosa) => send('/api/lodge/command/offer-signed-outside', { id: offer.id, method: 'paper', attest: true, name: 'signed-offer.pdf', mediaType: 'application/pdf', base64: b64(scan), ...body }, cookie)
+    assert.equal((await upload({})).status, 409, 'an offer whose terms are not approved cannot be recorded as signed')
+    await approve((await cmd('request-offer-approval', { id: offer.id, approver: 'parker@example.test' }, rosa)).id)
+    assert.equal((await upload({}, ivy)).status, 403, 'the interviewer reviewing the application is refused')
+    assert.equal((await upload({ attest: false })).status, 400, 'the attestation is required')
+    assert.equal((await upload({ method: 'fax' })).status, 400)
+    const signed = await upload({ differences: 'Start date initialled as Dec 7' })
+    assert.equal(signed.status, 200, signed.text)
+
+    const s = await state(rosa)
+    const o = s.offers.find(x => x.id === offer.id)
+    assert.deepEqual([o.status, o.signature.label, o.signature.method, o.signature.differences, o.signature.attestedBy, o.signature.providerVerified], ['accepted', 'accepted, signed outside Lodge (not provider-verified)', 'paper', 'Start date initialled as Dec 7', 'rosa@example.test', false])
+    assert.equal(o.signature.sha256, createHash('sha256').update(scan).digest('hex'))
+    assert.equal(o.signature.termsVersion, o.approval.version, 'bound to the approved terms')
+    assert.equal(s.applications.find(x => x.id === app.id).status, 'hired')
+    assert.equal(s.vacancies.find(v => v.id === job.id).openings.find(x => x.id === opening.id).status, 'filled')
+    assert.equal((await send('/api/lodge/download/document/' + o.signature.document, undefined, rosa)).text, scan, 'the signed original keeps its bytes')
+    // The HR handoff, the door HIRE-001–HIRE-005 previews read, carries the outside signature.
+    const handoff = (await send('/api/lodge/download/handoff/' + offer.id, undefined, rosa)).value
+    assert.deepEqual([handoff.signature.label, handoff.signature.sha256, handoff.signature.providerVerified], [o.signature.label, o.signature.sha256, false])
+    assert.equal((await upload({})).status, 409, 'an offer with an outcome is not signed again')
+  })
+
   await t.test('DISP-002 a rejected application reopens into a chosen stage with its whole history', async () => {
     const job = await openJob('Yard lead')
     const interviewStage = job.stages.find(st => st.name === 'Interview').id

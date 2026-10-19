@@ -1,7 +1,7 @@
 import type { PageProps } from './app'
 import { day, money } from './format'
 import { person, sentence, tone } from './names'
-import { cents, Field, Form, memberOptions, Status, type D } from './shared'
+import { cents, Field, fileFrom, Form, memberOptions, readFile, Status, type D } from './shared'
 
 const purpose = (p: string) => sentence(p.replace(/-/g, ' '))
 
@@ -36,7 +36,8 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
   return <section className="card">
     <h3>Offer</h3>
     {list.map((o: D) => <article key={o.id} className="card">
-      <h4>{o.title} · {money(o.salary)} · starts {day(o.startDate)}{o.opening && ` · opening ${v?.openings?.find((x: D) => x.id === o.opening)?.code ?? ''}`} {o.status === 'draft' ? approvalState(o, w) : <Status tone={tone(o.status)}>{o.status}</Status>}</h4>
+      <h4>{o.title} · {money(o.salary)} · starts {day(o.startDate)}{o.opening && ` · opening ${v?.openings?.find((x: D) => x.id === o.opening)?.code ?? ''}`} {o.status === 'draft' ? approvalState(o, w) : <Status tone={tone(o.status)}>{o.signature?.label ?? o.status}</Status>}</h4>
+      {o.signature && <p className="hint">Signed original <a href={`/api/lodge/download/document/${o.signature.document}`}>on file</a> ({o.signature.method === 'hris' ? 'signed in the HR system' : o.signature.method === 'paper' ? 'signed on paper' : 'signed in another tool'}), SHA-256 {o.signature.sha256.slice(0, 12)}…, attested by {person(w, o.signature.attestedBy)}{o.signature.differences ? `; differences: ${o.signature.differences}` : '; no differences named'}.</p>}
       {o.rangeWarning && <p className="warn">{o.rangeWarning}.</p>}
       {o.terms && <p className="pre">{o.terms}</p>}
       <p><a href={`/api/lodge/download/packet/${o.id}`}>Approval packet (JSON)</a>{o.status === 'accepted' && <> · <a href={`/api/lodge/download/handoff/${o.id}`}>HR handoff (JSON)</a></>}</p>
@@ -46,6 +47,18 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
           <Field label="Outcome" name="outcome" options={[{ value: 'accepted', label: 'Accepted' }, { value: 'declined', label: 'Declined' }, { value: 'withdrawn', label: 'Withdrawn by us' }]} />
           <Field label="Note" name="reason" />
         </Form>
+        {o.approvedNow && <details><summary>Signed outside Lodge</summary>
+          <Form label="Record the signed original" compact onSubmit={async (x, form) => {
+            const file = fileFrom(form, 'signed')
+            if (!file) throw new Error('Choose the signed file')
+            await mutate('offer-signed-outside', { id: o.id, method: x.method, differences: x.differences, attest: x.attest === true, ...await readFile(file) })
+          }}>
+            <label>Signed original (file)<input type="file" name="signed" required /></label>
+            <Field label="How it was signed" name="method" options={[{ value: 'paper', label: 'On paper' }, { value: 'hris', label: 'In the HR system' }, { value: 'other-tool', label: 'In another tool' }]} />
+            <Field label="Differences from the approved offer (optional)" name="differences" required={false} />
+            <label className="check"><input type="checkbox" name="attest" required /> I attest this file is the signed version of the approved offer</label>
+          </Form>
+        </details>}
       </>}
     </article>)}
     {app.status === 'active' && !list.some((o: D) => o.status === 'draft') && <details><summary>Prepare an offer</summary><Form label="Save offer" reset onSubmit={x => mutate('offer', { application: app.id, title: x.title, startDate: x.startDate, terms: x.terms, opening: x.opening || undefined, salary: { currency: x.currency.toUpperCase(), amount: cents(x.amount), period: x.period } })}>

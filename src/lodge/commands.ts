@@ -20,7 +20,7 @@ import { completeTask, task } from './records/tasks'
 import { team } from './records/team'
 import { cloneVacancy, jobTemplate, vacancyFromTemplate } from './records/templates'
 import { kickoff, vacancyFromKickoff } from './records/kickoffs'
-import { offer, outcome, requestOfferApproval } from './records/offers'
+import { offer, outcome, requestOfferApproval, signedOutside } from './records/offers'
 import { completeRequest, dataRequest, extendRetention, hold, releaseHold } from './records/retention'
 import { decideProposal, propose } from './agents/proposals'
 import { debrief, decideDebrief, editDebrief } from './agents/debriefs'
@@ -46,7 +46,7 @@ export const commands: Record<string, Command> = {
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
   message, 'request-message-approval': requestMessageApproval,
-  offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome,
+  offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome, 'offer-signed-outside': signedOutside,
   hold, 'release-hold': releaseHold, 'extend-retention': extendRetention, 'data-request': dataRequest, 'complete-data-request': completeRequest,
   propose, 'decide-proposal': decideProposal, debrief, 'edit-debrief': editDebrief, 'decide-debrief': decideDebrief,
 }
