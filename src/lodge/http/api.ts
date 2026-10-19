@@ -19,6 +19,7 @@ import { home } from '../views/home'
 import { openingsReport } from '../views/openings-report'
 import { rejectionsReport } from '../views/rejections-report'
 import { sourcesReport } from '../views/sources-report'
+import { auditQuery, auditTrail } from '../views/audit'
 import { deleteCandidate } from '../records/retention'
 import { erasureTransfers } from '../records/erasure-transfers'
 import { retentionUntil } from '../records/candidates'
@@ -127,6 +128,11 @@ api.get('/api/lodge/reports/sources', async c => {
   return c.json(report)
 })
 
+api.get('/api/lodge/audit', async c => {
+  const { state, actor } = await context(c)
+  return c.json(auditTrail(state, actor, auditQuery(c.req.query())))
+})
+
 api.get('/api/lodge/talent', async c => {
   const { state, actor } = await context(c)
   return c.json({ matches: talentPool(state, actor, c.req.query('q')) })
@@ -138,7 +144,17 @@ api.post('/api/lodge/invite', async c => {
   requireThat(actor.owner, 'Only the owner can invite people to sign in', 403); person(actor)
   const b = await body(c), member = state.get('member', String(b.email ?? '').toLowerCase())
   requireThat(member.active && !member.owner, 'Invite an active member', 409)
-  return c.json(await invite(c.req.raw, c.env, state, actor, member))
+  // OPS-001: each provider attempt is audited as handed to the mail provider or failed, never as delivered.
+  const provider = c.env.MAIL_PROVIDER ?? 'not configured'
+  try {
+    const result = await invite(c.req.raw, c.env, state, actor, member)
+    state.audit(actor, 'invitation-handed-to-mail-provider', 'member:' + member.email, { provider, outcome: result?.status ?? 'accepted' })
+    return recorded(c, state, actor, c.json(result))
+  } catch (error) {
+    const failed = await load(c.env.DB)
+    failed.audit(actor, 'invitation-failed', 'member:' + member.email, { provider, error: error instanceof Fault ? error.message : 'Mail provider error' })
+    try { await save(c.env.DB, failed, actor) } finally { throw error }
+  }
 })
 
 api.post('/api/lodge/import/:op', async c => {
@@ -210,6 +226,15 @@ api.get('/api/lodge/download/message/:id', async c => {
 api.get('/api/lodge/download/packet/:id', async c => {
   const { state, actor } = await context(c)
   return json(await packet(state, await workspace(state, actor), c.req.param('id')), 'offer-approval-packet.json')
+})
+
+api.get('/api/lodge/download/audit', async c => {
+  const { state, actor } = await context(c)
+  const trail = auditTrail(state, actor, auditQuery(c.req.query()))
+  // The export is itself an event, recorded after the events it contains.
+  state.audit(actor, 'audit-exported', 'audit:export', { period: trail.period, filters: trail.filters, events: trail.total })
+  const name = `lodge-audit-${trail.period.from ?? 'start'}-to-${trail.period.to ?? 'now'}.json`
+  return recorded(c, state, actor, json({ exportedAt: new Date().toISOString(), exportedBy: actor.email, ...trail }, name))
 })
 
 api.get('/api/lodge/download/handoff/:id', async c => {

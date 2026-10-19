@@ -43,6 +43,8 @@ test('LDG-014 Workable package: preview writes nothing, commit is exact and repe
     assert.equal((await send('/api/lodge/import/commit', { ...pkg, fingerprint: 'not-the-preview' }, owner)).status, 409)
     const committed = await send('/api/lodge/import/commit', { ...pkg, fingerprint: plan.fingerprint }, owner)
     assert.equal(committed.status, 200, JSON.stringify(committed.value))
+    // OPS-001: the import is in the complete audit.
+    assert.equal((await send('/api/lodge/audit?action=import-commit', undefined, owner)).value.total, 1)
     const job = committed.value.job
     assert.equal(job.state, 'completed')
 

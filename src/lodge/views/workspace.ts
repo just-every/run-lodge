@@ -35,6 +35,26 @@ function sourcingList(s: State, a: Actor, v: Data) {
 }
 
 /**
+ * What a confidential job or private candidate hides from this reader in
+ * admin-wide lists (audit, holds, retention): records they are not cleared for,
+ * and records about those.
+ */
+export function concealer(s: State, a: Actor, appIds: Set<string>) {
+  const hiddenCandidate = (id: string) => { const c = s.find('candidate', id); return !!c && !canSeeCandidate(s, a, c) }
+  const hiddenVacancy = (id: string) => !cleared(a, s.find('vacancy', id), 'confidential')
+  const hiddenApp = (id: string) => { const app = s.find('application', id); return !!app && !appIds.has(id) && (hiddenVacancy(app.vacancy) || hiddenCandidate(app.candidate)) }
+  const concealed = (record: string) => {
+    const [kind, id] = [record.slice(0, record.indexOf(':')), record.slice(record.indexOf(':') + 1)]
+    if (kind === 'vacancy') return hiddenVacancy(id)
+    if (kind === 'candidate') return hiddenCandidate(id)
+    if (kind === 'application') return hiddenApp(id)
+    const subject = (kind === 'offer' || kind === 'message') && s.find(kind, id)
+    return !!subject && hiddenApp(subject.application)
+  }
+  return { hiddenCandidate, hiddenVacancy, hiddenApp, concealed }
+}
+
+/**
  * The actor's whole permitted view. The app, search, exports and the agent
  * command surface all read this same projection, so what a person cannot see
  * here they cannot reach any other way.
@@ -115,18 +135,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     return vacancy && managesVacancy(a, vacancy) ? i : { ...i, candidateToken: undefined }
   })
   const visibleCandidates = new Set(candidates.map(c => c.id))
-  // Admin-wide lists leave out what a confidential job or private candidate hides from this reader.
-  const hiddenCandidate = (id: string) => { const c = s.find('candidate', id); return !!c && !canSeeCandidate(s, a, c) }
-  const hiddenVacancy = (id: string) => !cleared(a, s.find('vacancy', id), 'confidential')
-  const hiddenApp = (id: string) => { const app = s.find('application', id); return !!app && !appIds.has(id) && (hiddenVacancy(app.vacancy) || hiddenCandidate(app.candidate)) }
-  const concealed = (record: string) => {
-    const [kind, id] = [record.slice(0, record.indexOf(':')), record.slice(record.indexOf(':') + 1)]
-    if (kind === 'vacancy') return hiddenVacancy(id)
-    if (kind === 'candidate') return hiddenCandidate(id)
-    if (kind === 'application') return hiddenApp(id)
-    const subject = (kind === 'offer' || kind === 'message') && s.find(kind, id)
-    return !!subject && hiddenApp(subject.application)
-  }
+  const { hiddenCandidate, hiddenVacancy, hiddenApp, concealed } = concealer(s, a, appIds)
   const live = s.all('vacancy').filter(v => !v.imported), active = s.all('application').filter(x => x.status === 'active')
   // Follow-ups and tasks the reader owns or set, while what they point at stays in view.
   const tasks = s.all('task').filter(t => (t.owner === scope(a) || t.createdBy === scope(a)) && (t.application ? appIds.has(t.application) : !t.candidate || visibleCandidates.has(t.candidate))).sort((x, y) => x.due.localeCompare(y.due))

@@ -21,6 +21,10 @@ cookie or sign-in URL in a task, log or source file.
   fill in whole days from its own open date, and the summed applications funnel.
 - `GET /api/lodge/reports/rejections`: admins and hiring managers: per job they run, closed applications
   counted by the DISP-001 reason of their current close, grouped as rejected and withdrew.
+- `GET /api/lodge/audit?from=&to=&q=&action=&actor=`: owner and hiring admins: every audit event of the period
+  (whole days in the business's time zone, both ends included), oldest first, never capped, without events
+  about a confidential job or private candidate they are not cleared for (OPS-001).
+  `GET /api/lodge/download/audit` with the same query exports them as JSON and records the export.
 - `GET /api/lodge/reports/sources`: admins and hiring managers: over the jobs they run, applications and hires
   by source list entry (unmapped texts as themselves) and hires by credit (sourcer, recruiter, referring
   employee, agency), each hire attributed by the admin's merge rule (`own` or `first-touch`) (CRM-008).

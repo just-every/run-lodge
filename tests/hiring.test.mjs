@@ -672,6 +672,52 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     await cmd('source-settings', { onMerge: 'own' })
   })
 
+  await t.test('OPS-001 the complete audit: every event in a period, searched and exported whole by admins; corrections are new events; erasure leaves no personal text', async () => {
+    const day = d => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10), period = `?from=${day(-1)}&to=${day(1)}`
+    // A stage move, an approval, a provider attempt, a role revocation, a correction and an erasure, all through public doors.
+    const job = await openJob('Audit glazier')
+    const { application, candidate } = await cmd('candidate', { name: 'Zed Quill', email: 'zed.quill@example.test', source: 'Careers page', consentBasis: 'manual', vacancy: job.id }, manager)
+    await cmd('move', { application: application.id, to: job.stages[1].id, reason: 'AUDITMOVE strong portfolio' }, manager)
+    await h.member('tom@example.test', ['interviewer'], 'Tom Ash')
+    await cmd('member', { email: 'tom@example.test', name: 'Tom Ash', roles: ['interviewer'], active: false })
+    const trail = async (query = period, cookie = owner) => { const r = await send('/api/lodge/audit' + query, undefined, cookie); assert.equal(r.status, 200, JSON.stringify(r.value)); return r.value }
+    assert.equal((await send('/api/lodge/audit' + period, undefined, manager)).status, 403, 'admins only')
+    assert.equal((await send('/api/lodge/download/audit', undefined, manager)).status, 403)
+    assert.equal((await send('/api/lodge/audit?from=19-10-2026', undefined, owner)).status, 400)
+    let r = await trail()
+    const one = (action, record) => r.events.filter(e => e.action === action && (!record || e.record === record))
+    assert.equal(one('stage-moved', 'application:' + application.id)[0].reason, 'AUDITMOVE strong portfolio')
+    assert.equal(one('approval-approved', 'vacancy:' + job.id).length, 1)
+    assert.deepEqual(one('invitation-handed-to-mail-provider', 'member:tom@example.test').map(e => [e.provider, e.outcome]), [['development', 'accepted']], 'the provider attempt, never called delivered')
+    assert.deepEqual(one('member-updated', 'member:tom@example.test').map(e => e.active), [false], 'the access revocation')
+    // Nothing is capped: the whole period comes back, oldest first, beyond the 300 the workspace shows.
+    for (let i = 1; i <= 8; i++) await cmd('correct-candidate', { id: candidate.id, name: 'Zed Quill', email: 'zed.quill@example.test', reason: 'Routine check ' + i })
+    const everything = await trail('')
+    const stored = (await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='audit'").first()).n
+    assert.ok(everything.total > 300 && everything.events.length === everything.total && everything.total === stored, `${everything.total} of ${stored}`)
+    assert.equal((await state()).audit.length, 300, 'the workspace shows only the latest 300')
+    assert.ok(everything.events.every((e, i, all) => !i || all[i - 1].at <= e.at), 'oldest first')
+    assert.equal((await trail(`?from=${day(3)}&to=${day(4)}`)).total, 0, 'a later period holds nothing yet')
+    assert.deepEqual((await trail(period + '&q=AUDITMOVE')).events.map(e => e.record), ['application:' + application.id])
+    // A correction is a new event; the earlier one is unchanged.
+    const added = one('candidate-added', 'candidate:' + candidate.id)[0]
+    await cmd('correct-candidate', { id: candidate.id, name: 'Zed Quill', email: 'zed.q@example.test', reason: 'Typo in email' })
+    r = await trail()
+    assert.deepEqual(one('candidate-added', 'candidate:' + candidate.id), [added])
+    assert.deepEqual(one('candidate-corrected', 'candidate:' + candidate.id).map(e => e.reason).slice(-2), ['Routine check 8', 'Typo in email'])
+    // The export holds every event of the period and is itself recorded afterwards.
+    const exported = await send('/api/lodge/download/audit' + period, undefined, owner)
+    assert.equal(exported.status, 200); assert.match(exported.headers.get('content-disposition'), /attachment; filename="lodge-audit-/)
+    assert.deepEqual([exported.value.total, exported.value.events.map(e => e.id)], [r.total, r.events.map(e => e.id)])
+    assert.deepEqual((await trail()).events.at(-1).action, 'audit-exported')
+    // Erasure keeps the receipt event and removes every event that carried the person's text.
+    await cmd('move', { application: application.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Audit test done' }, manager)
+    assert.equal((await send('/api/lodge/delete-candidate', { candidate: candidate.id, confirm: 'Zed Quill', reason: 'Asked to be forgotten' }, owner)).status, 200)
+    const after = (await send('/api/lodge/download/audit' + period, undefined, owner)).text
+    for (const personal of ['Zed Quill', 'zed.q', 'AUDITMOVE']) assert.ok(!after.includes(personal), personal + ' is gone from the audit')
+    assert.ok(JSON.parse(after).events.some(e => e.action === 'candidate-deleted' && e.record === 'candidate:' + candidate.id))
+  })
+
   await t.test('OFFER-006 a recruiter records an offer signed outside Lodge: bytes bound to the approved terms, hire recorded, honest label', async () => {
     const job = await openJob('Glazier')
     const rosa = await h.member('rosa@example.test', ['manager'], 'Rosa Pike')
@@ -984,6 +1030,9 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal(raeView.totals.activeApplications, raeView.applications.filter(a => a.status === 'active').length + 1)
     assert.equal((await send('/api/lodge/download/candidate/' + app.candidate, undefined, rae)).status, 404)
     assert.equal((await send('/api/lodge/command/move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Probe' }, rae)).status, 404)
+    // OPS-001: the complete audit and its export leave the job and the candidate out for her too; the owner's include them.
+    for (const path of ['/api/lodge/audit', '/api/lodge/download/audit']) assert.ok(!(await send(path, undefined, rae)).text.includes(job.id))
+    assert.ok((await send('/api/lodge/audit', undefined, owner)).value.events.some(e => e.record === 'vacancy:' + job.id))
     // The job's manager, the named admin, a see-private holder and the owner see both.
     for (const who of [manager, nia, sam, owner]) {
       const view = await state(who)
