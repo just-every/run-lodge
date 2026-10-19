@@ -590,6 +590,33 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.ok(!(await state(manager)).tasks.some(x => x.id === later.id || x.candidate === app.candidate))
   })
 
+  await t.test('REQ-005 a hiring manager kickoff becomes the job draft; changing its pay or headcount after approval makes the approval stale', async () => {
+    const kickoff = { title: 'Concrete foreman', purpose: 'Run pours on our two Queens sites', mustHave: ['OSHA 30', 'Formwork crew lead'], niceToHave: ['Spanish'], plan: [{ name: 'Site walk', interviewers: ['ivy@example.test', 'ian@example.test'] }], payRange: { currency: 'USD', min: 8500000, max: 9500000, period: 'year' }, headcount: 2, targetStart: '2027-03-01' }
+    assert.equal((await send('/api/lodge/command/kickoff', kickoff, ivy)).status, 403, 'interviewers do not start jobs')
+    assert.equal((await send('/api/lodge/command/kickoff', { ...kickoff, payRange: { ...kickoff.payRange, currency: 'EUR' } }, manager)).status, 400, 'the pay request is in USD')
+    assert.equal((await send('/api/lodge/command/kickoff', { ...kickoff, plan: [{ name: 'Walk', interviewers: ['parker@example.test'] }] }, manager)).status, 400, 'proposed interviewers hold the role')
+    const k = await cmd('kickoff', kickoff, manager)
+    assert.equal((await send('/api/lodge/command/vacancy-from-kickoff', { kickoff: k.id, location: 'Queens, NY' }, manager)).status, 403, 'a recruiter turns it into the job')
+    const job = await cmd('vacancy-from-kickoff', { kickoff: k.id, location: 'Queens, NY' })
+    assert.equal((await send('/api/lodge/command/vacancy-from-kickoff', { kickoff: k.id, location: 'Queens, NY' }, owner)).status, 409, 'one job per kickoff')
+    let s = await state(manager), v = s.vacancies.find(x => x.id === job.id)
+    assert.deepEqual([v.title, v.manager, v.compensation, v.headcount, v.kickoff, v.description], ['Concrete foreman', 'morgan@example.test', kickoff.payRange, 2, k.id, kickoff.purpose])
+    assert.deepEqual(v.rubrics[0].criteria.map(c => [c.name, c.description]), [['OSHA 30', 'Must have: OSHA 30'], ['Formwork crew lead', 'Must have: Formwork crew lead'], ['Spanish', 'Nice to have: Spanish']])
+    assert.deepEqual(v.plan.map(p => [p.name, v.stages.find(st => st.id === p.stage).name]), [['Site walk', 'Interview']])
+    assert.deepEqual([s.kickoffs.find(x => x.id === k.id).vacancy, s.kickoffs.find(x => x.id === k.id).status], [job.id, 'converted'], 'the kickoff stays linked')
+    await approve((await cmd('request-vacancy-approval', { id: job.id, approver: 'parker@example.test' }, manager)).id)
+    assert.equal((await state(manager)).vacancies.find(x => x.id === job.id).approvedNow, true)
+    // The manager raises the requested range afterward: the approval no longer matches and publishing is refused.
+    await cmd('kickoff', { ...kickoff, id: k.id, payRange: { ...kickoff.payRange, max: 10500000 } }, manager)
+    s = await state(manager)
+    assert.equal(s.vacancies.find(x => x.id === job.id).approvedNow, false)
+    assert.deepEqual(s.kickoffs.find(x => x.id === k.id).changes.map(c => c.payRange.max), [9500000])
+    assert.equal((await send('/api/lodge/command/publish', { id: job.id }, manager)).status, 409)
+    await approve((await cmd('request-vacancy-approval', { id: job.id, approver: 'parker@example.test' }, manager)).id)
+    assert.equal((await cmd('publish', { id: job.id }, manager)).status, 'open')
+    await cmd('close-vacancy', { id: job.id, reason: 'Kickoff journey done' }, manager)
+  })
+
   await t.test('SCORE-002 a correction is a linked version: the original stays, the manager hears, the packet goes stale', async () => {
     const { application: app } = await cmd('candidate', { name: 'Noor Haddad', email: 'noor@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
     await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)

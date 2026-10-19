@@ -28,7 +28,10 @@ cookie or sign-in URL in a task, log or source file.
 `POST /api/lodge/command/:op` with a JSON object. A 409 means a record you read
 or your access changed, or a precondition failed: read the message and fresh
 state; nothing is retried automatically. Operations: `business`, `member`,
-`vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
+`kickoff` (a hiring manager's job intake: `title`, `purpose`, `mustHave`, `niceToHave`,
+`plan` of `{ name, interviewers }`, USD `payRange`, `headcount`, `targetStart`; send its `id` to edit),
+`vacancy-from-kickoff` (admins: the job draft from a `kickoff`, whose pay and headcount join the
+approved terms), `vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
 `request-vacancy-approval`, `publish`, `unpublish`, `close-vacancy`,
 `decide-approval` (send the `version` you reviewed), `candidate`,
 `correct-candidate`, `apply`, `review-duplicate`, `document`,

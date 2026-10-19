@@ -323,8 +323,8 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 8 | 37 | 63 | 108 |
-| All | 25 | 37 | 63 | 125 |
+| Target and push further | 9 | 37 | 62 | 108 |
+| All | 26 | 37 | 62 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -349,7 +349,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `REQ-002` | Job templates and cloning | target | missing |  | No job templates or cloning exist; every vacancy is configured from scratch. |
 | `REQ-003` | Per-job hiring team roles | target | partial | `src/lodge/records/vacancies.ts`; `src/lodge/records/pipeline.ts`; `src/lodge/core/access.ts` | One hiring manager per vacancy and per-application reviewers exist; named recruiter, coordinator and sourcer roles per job and role-driven routing are absent. |
 | `REQ-004` | Departments and offices | target | partial | `src/lodge/records/vacancies.ts`; `src/lodge/http/public.ts` | Free-text department and location fields exist on vacancies and the job page; a managed hierarchy used by permissions, careers filters and reports is absent. |
-| `REQ-005` | Hiring kickoff and job intake | target | missing |  | No kickoff form exists; recruiters create vacancies directly. |
+| `REQ-005` | Hiring kickoff and job intake | target | done | `src/lodge/records/kickoffs.ts`; `src/lodge/records/approvals.ts`; `src/ui/kickoffs.tsx`; `tests/hiring.test.mjs` |  |
 | `ATTR-001` | Branded careers and complete application forms | target | partial | `src/lodge/http/public.ts`; `src/lodge/records/intake.ts`; `tests/browser.mjs` | Basic business-named jobs and receipt intake exist; custom domains with verified TLS, logo and color branding, career filters, configurable questions and save/resume are absent. |
 | `ATTR-002` | Named job distribution and source attribution | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `ATTR-003` | Named free job-board feeds | target | missing |  | No job feed or free-board listing exists; jobs are reachable only on the installation's /jobs pages. |

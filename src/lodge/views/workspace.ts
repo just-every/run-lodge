@@ -98,6 +98,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     business: s.all('business')[0] ?? null,
     members: s.all('member').map(m => admin ? m : { email: m.email, name: m.name, roles: m.roles, active: m.active }),
     vacancies,
+    // Kickoffs: admins see all; a manager sees their own and those behind the jobs they run.
+    kickoffs: s.all('kickoff').filter(k => admin || k.author === scope(a) || managed.some(v => v.id === k.vacancy)),
     applications: projected,
     candidates,
     mergedCandidates: admin ? s.all('candidate').filter(c => c.mergedInto) : [],

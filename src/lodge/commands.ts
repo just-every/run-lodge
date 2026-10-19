@@ -11,6 +11,7 @@ import { correct, note, releaseFeedback, scorecard } from './records/scorecards'
 import { message, requestMessageApproval } from './records/messages'
 import { teamNote } from './records/notes'
 import { completeTask, task } from './records/tasks'
+import { kickoff, vacancyFromKickoff } from './records/kickoffs'
 import { offer, outcome, requestOfferApproval } from './records/offers'
 import { completeRequest, dataRequest, extendRetention, hold, releaseHold } from './records/retention'
 import { decideProposal, propose } from './agents/proposals'
@@ -24,7 +25,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  */
 export const commands: Record<string, Command> = {
   business, member,
-  vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close,
+  kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close,
   'decide-approval': decide,
   candidate, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'assign-reviewers': assignReviewers, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,

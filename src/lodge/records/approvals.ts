@@ -1,6 +1,7 @@
 import type { State } from '../core/state'
 import { requireMember, requireRole } from '../core/access'
 import { canonical, now, oneOf, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
+import { kickoffTerms } from './kickoffs'
 
 // Approvals bind a person's decision to the exact version of what they saw.
 // Changing the subject afterwards makes the approval stale: it no longer
@@ -12,7 +13,7 @@ export type Subject = 'vacancy' | 'offer' | 'message'
 export function terms(s: State, kind: Subject, record: Data): Data {
   if (kind === 'vacancy') {
     const rubric = (record.rubrics ?? []).at(-1) ?? null
-    return { title: record.title, department: record.department, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan }
+    return { title: record.title, department: record.department, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan, kickoff: record.kickoff ? kickoffTerms(s.find('kickoff', record.kickoff)) : undefined }
   }
   if (kind === 'offer') return { application: record.application, title: record.title, salary: record.salary, startDate: record.startDate, terms: record.terms }
   return { to: record.to, subject: record.subject, body: record.body, application: record.application ?? null }

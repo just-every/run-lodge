@@ -5,6 +5,7 @@ import { Icon } from './icons'
 import { person } from './names'
 import { cents, Empty, Field, Form, memberOptions, Status, Table, type D } from './shared'
 import { columns } from './pipeline/facts'
+import { Kickoffs } from './kickoffs'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -65,6 +66,7 @@ function Detail({ v, w, mutate, go }: { v: D } & Pick<PageProps, 'w' | 'mutate' 
   return <section className="record card" aria-label={v.title}>
     <header className="record-head"><h2>{v.title}</h2><VacancyStatus v={v} />{apps.length > 0 && <button className="secondary" onClick={() => go('Applications', { job: v.id, app: null })}><Icon name="applications" size={18} />Open pipeline</button>}</header>
     <p className="meta">{[...vacancyFacts(v), pay(v.compensation), `headcount ${v.headcount ?? 'not set'}`, `hires ${v.hires ?? 0}`, `manager ${person(w, v.manager) || 'none'}`].join(' · ')}</p>
+    {v.kickoff && (k => k && <p className="hint">From {person(w, k.author)}’s kickoff: {pay(k.payRange)}, headcount {k.headcount}, start {k.targetStart}. Its pay and headcount are part of the approved terms.</p>)(w.kickoffs.find((x: D) => x.id === v.kickoff))}
     {v.imported && <p className="hint">Imported from Workable ({v.sourceState || 'unknown state'}). Kept as history; it cannot be reopened.</p>}
     {v.status === 'open' && <p className="page-link"><Icon name="external" size={18} />Application page: <a href={`/jobs/${v.slug}`}>/jobs/{v.slug}</a> · {apps.length} applications</p>}
     {v.missing?.length > 0 && !v.imported && <p className="warn">Before approval, add: {v.missing.join(', ')}.</p>}
@@ -98,5 +100,6 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
           <td>{apps.length ? <span className="split" title={stages.map(c => `${c.name} ${c.apps.length}`).join(', ')}>{stages.map(c => c.apps.length).join(' · ')}</span> : <small>{x.status === 'open' ? 'None yet' : '—'}</small>}</td>
           <td>{apps.length}{apps.some((a: D) => a.status !== 'active') && <small>{apps.filter((a: D) => a.status !== 'active').length} closed</small>}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>
       })}</Table>}
+    <Kickoffs w={w} mutate={mutate} select={select} />
   </div>
 }
