@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { email, now, optionalText, requireThat, sha256, canonical, text, uid, type Data } from '../core/types'
 import { candidateFields, retentionUntil, startApplication } from './candidates'
 import { storeDocument } from './documents'
+import { answers, type Answer } from './questions'
 
 // Flow 3: the public application page. The applicant sees the privacy notice
 // and accommodation contact; each submission records the notice version and
@@ -10,7 +11,7 @@ import { storeDocument } from './documents'
 
 export const MONITORING_OPTIONS = ['Prefer not to say', 'Woman', 'Man', 'Non-binary', 'Another description']
 
-export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; resume?: { name: string; mediaType: string; base64: string } | null }
+export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
 
 /** What the careers page shows of a job: a confidential one appears only under its neutral title, without its department. */
 export function publicPosting(v: Data): Data | null {
@@ -48,6 +49,8 @@ export async function submit(s: State, vacancy: Data, input: Submission) {
   requireThat(String(input.noticeVersion) === String(notice.version), 'The privacy notice changed while this page was open; reload the page and review it again', 409)
   requireThat(input.consent === 'yes', 'Confirm you have read the privacy notice')
   const fields = candidateFields({ name: input.name, email: email(input.email, 'Email'), phone: input.phone, location: input.location })
+  // SCREEN-001: each answer keeps the question version the applicant was shown.
+  const answered = answers(s, vacancy, input.answers ?? {})
   const talentPool = input.talentPool === 'yes'
   const candidate = s.put('candidate', uid(), {
     ...fields, source: 'Application page', createdAt: now(), retainUntil: retentionUntil(s),
@@ -58,6 +61,14 @@ export async function submit(s: State, vacancy: Data, input: Submission) {
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
   const application = startApplication(s, null, candidate, vacancy, 'Application page', { coverNote, fingerprint, ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume.name, mediaType: input.resume.mediaType, base64: input.resume.base64, kind: 'resume', source: 'Application page' })
+  if (answered.length) {
+    for (const x of answered) if (x.type === 'file') {
+      const file = x.value as { name: string; mediaType: string; base64: string }
+      const doc = await storeDocument(s, { candidate: candidate.id, application: application.id, name: file.name, mediaType: file.mediaType, base64: file.base64, kind: 'other', source: 'Application page: ' + x.text })
+      x.value = { document: doc.id, name: doc.name }
+    }
+    s.put('application', application.id, { ...s.get('application', application.id), answers: answered })
+  }
   const accommodation = optionalText(input.accommodation, 'Accommodation request', 4000)
   const monitoring = typeof input.monitoring === 'string' && MONITORING_OPTIONS.includes(input.monitoring) && input.monitoring !== 'Prefer not to say' ? input.monitoring : ''
   if (accommodation) s.put('monitoring', uid(), { application: application.id, type: 'accommodation', answer: accommodation, at: now() })

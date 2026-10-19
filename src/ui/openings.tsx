@@ -17,7 +17,7 @@ export function Openings({ v, w, mutate }: { v: D } & Pick<PageProps, 'w' | 'mut
       {openings.map(o => <tr key={o.id}>
         <td>{o.code}</td><td>{o.targetStart ? day(o.targetStart) : 'not set'}</td>
         <td><Status tone={TONE[o.status]}>{o.status === 'requested' ? 'waiting on headcount approval' : o.status}</Status>{o.status === 'filled' && (hiredBy(o) ? ` by ${hiredBy(o)}` : o.filledBy ? ` (${o.filledBy})` : '')}{o.closeReason ? ` · ${o.closeReason}` : ''}</td>
-        <td>{day((o.filledAt ?? o.closedAt ?? o.refusedAt ?? o.openedAt ?? o.requestedAt)?.slice(0, 10))}</td>
+        <td>{day(o.filledAt ?? o.closedAt ?? o.refusedAt ?? o.openedAt ?? o.requestedAt)}</td>
       </tr>)}
     </Table>
     {live && openings.filter(o => ['open', 'requested'].includes(o.status)).map(o => <details key={o.id}><summary>Change opening {o.code}</summary>

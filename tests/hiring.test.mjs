@@ -15,7 +15,7 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
   const h = await harness()
   t.after(() => h.close())
   const { command: cmd, send, state, owner } = h
-  let manager, approver, ivy, ian, vacancy, publicApp, staffApp, staffCandidate, slug
+  let manager, approver, ivy, ian, vacancy, publicApp, staffApp, staffCandidate, slug, carpenter
 
   await cmd('business', BUSINESS)
   manager = await h.member('morgan@example.test', ['manager'], 'Morgan Lee')
@@ -781,7 +781,7 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
   })
 
   await t.test('REQ-001 one opening per approved headcount, filled by a named accepted offer, closed with a reason, added only with approval', async () => {
-    const job = await cmd('vacancy', { title: 'Carpenter', location: 'Queens, NY', headcount: 3, manager: 'morgan@example.test', compensation: RANGE }, manager)
+    const job = carpenter = await cmd('vacancy', { title: 'Carpenter', location: 'Queens, NY', headcount: 3, manager: 'morgan@example.test', compensation: RANGE }, manager)
     await cmd('rubric', { id: job.id, criteria: RUBRIC }, manager)
     await cmd('interview-plan', { id: job.id, plan: [{ name: 'Shop test', stageName: 'Interview', durationMinutes: 60 }] }, manager)
     const asked = await cmd('request-vacancy-approval', { id: job.id, approver: 'parker@example.test' }, manager)
@@ -838,6 +838,57 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     await cmd('decide-approval', { id: refusal.id, decision: 'rejected', reason: 'No budget', version: (await state(approver)).approvals.find(x => x.id === refusal.id).currentVersion }, approver)
     v = await read()
     assert.deepEqual([v.headcount, v.openings.at(-1).status, v.approvedNow], [4, 'refused', true])
+  })
+
+  await t.test('SCREEN-001 a versioned question library: typed answers on the job, kept on the version answered; protected traits refused', async () => {
+    const ask = (body, cookie = owner) => send('/api/lodge/command/question', body, cookie)
+    const authorized = await cmd('question', { text: 'Are you legally authorized to work in the US?', type: 'yes-no' })
+    const relocate = await cmd('question', { text: 'Willing to relocate?', type: 'single-choice', options: ['Yes', 'No', 'Within New York'] })
+    const cdl = await cmd('question', { text: 'Years holding a Class A CDL', type: 'number' })
+    const trades = await cmd('question', { text: 'Which trades have you worked?', type: 'multiple-choice', options: ['Framing', 'Finish carpentry', 'Concrete forms'], required: false })
+    const ticket = await cmd('question', { text: 'Your OSHA 30 card', type: 'file', required: false })
+    const story = await cmd('question', { text: 'Tell us about a job you finished early', type: 'long-text', required: false })
+    assert.deepEqual([authorized, relocate, cdl, trades, story].map(q => q.versions[0].objective), [true, true, true, true, false], 'free text never drives a rule')
+    for (const [body, pattern] of [[{ text: 'What is your age?', type: 'number' }, /protected trait/], [{ text: 'How old are you?', type: 'number' }, /protected trait/], [{ text: 'What is your date of birth?', type: 'date' }, /protected trait/], [{ text: 'Your current salary?', type: 'number' }, /salary-history/], [{ text: 'Pick one', type: 'single-choice', options: ['Only one'] }, /two different choices/]]) {
+      const refused = await ask(body)
+      assert.equal(refused.status, 400, body.text); assert.match(refused.value.error, pattern)
+    }
+    assert.equal((await ask({ text: 'Do you have a CDL?', type: 'yes-no' }, manager)).status, 403, 'admins keep the library')
+    const attach = questions => send('/api/lodge/command/job-questions', { id: carpenter.id, questions }, manager)
+    assert.equal((await send('/api/lodge/command/job-questions', { id: carpenter.id, questions: [{ question: cdl.id }] }, ivy)).status, 403)
+    assert.equal((await attach([{ question: cdl.id }, { question: cdl.id }])).status, 400)
+    assert.equal((await attach([{ question: authorized.id }, { question: relocate.id }, { question: cdl.id }, { question: trades.id }, { question: ticket.id }, { question: story.id, required: true }])).status, 200)
+
+    const { slug: jobSlug } = (await state(manager)).vacancies.find(v => v.id === carpenter.id)
+    const page = await send('/jobs/' + jobSlug)
+    for (const q of ['Are you legally authorized to work in the US?', 'Willing to relocate?', 'Years holding a Class A CDL', 'Which trades have you worked? (optional)']) assert.ok(page.text.includes(q), q)
+    assert.match(page.text, new RegExp(`name="q-${cdl.id}" type="number"`))
+    const notice = page.text.match(/name="noticeVersion" value="(\d+)"/)[1]
+    const apply = (name, email, answers, file) => {
+      const f = new FormData()
+      for (const [k, v] of Object.entries({ name, email, noticeVersion: notice, consent: 'yes' })) f.append(k, v)
+      for (const [id, v] of Object.entries(answers)) for (const x of [v].flat()) f.append('q-' + id, x)
+      if (file) f.append('q-' + ticket.id, new Blob([file], { type: 'text/plain' }), 'osha30.txt')
+      return send('/jobs/' + jobSlug, f)
+    }
+    const first = { [authorized.id]: 'yes', [relocate.id]: 'Within New York', [cdl.id]: '4', [trades.id]: ['Framing', 'Concrete forms'], [story.id]: 'Closed out a framing job a week early.' }
+    assert.equal((await apply('Vic Moreno', 'vic@example.test', { ...first, [cdl.id]: '' })).status, 400, 'a required answer is missing')
+    assert.equal((await apply('Vic Moreno', 'vic@example.test', { ...first, [cdl.id]: 'four' })).status, 400, 'a number is a number')
+    assert.equal((await apply('Vic Moreno', 'vic@example.test', { ...first, [relocate.id]: 'Anywhere' })).status, 400, 'a choice is one of the choices')
+    const received = await apply('Vic Moreno', 'vic@example.test', first, 'OSHA 30 card 2024')
+    assert.equal(received.status, 200, received.text.slice(0, 600))
+
+    // Editing a question saves a new version; the earlier application keeps the version it answered.
+    await cmd('question', { id: cdl.id, text: 'Years holding a Class A commercial driver’s license', type: 'number' })
+    assert.equal((await apply('Wren Ito', 'wren@example.test', { ...first, [authorized.id]: 'no', [cdl.id]: '0.5', [trades.id]: [] })).status, 200)
+    const apps = (await state(manager)).applications.filter(x => x.vacancy === carpenter.id)
+    const answer = (who, q) => apps.find(x => x.candidateName === who).answers.find(a => a.question === q.id)
+    assert.deepEqual((({ version, text, value }) => [version, text, value])(answer('Vic Moreno', cdl)), [1, 'Years holding a Class A CDL', 4])
+    assert.deepEqual((({ version, text, value }) => [version, text, value])(answer('Wren Ito', cdl)), [2, 'Years holding a Class A commercial driver’s license', 0.5])
+    assert.deepEqual([answer('Vic Moreno', authorized).value, answer('Wren Ito', authorized).value, answer('Vic Moreno', trades).value], ['yes', 'no', ['Framing', 'Concrete forms']])
+    assert.equal(answer('Wren Ito', trades), undefined, 'an optional question left blank is not an answer')
+    const file = answer('Vic Moreno', ticket).value
+    assert.equal((await send('/api/lodge/download/document/' + file.document, undefined, manager)).text, 'OSHA 30 card 2024')
   })
 
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {

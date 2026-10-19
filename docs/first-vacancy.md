@@ -48,6 +48,13 @@ its own opening ID (change it to your own under **Change opening**) and target
 first day. Close an opening you will not fill with a reason. **Add an opening**
 raises the headcount by one; the new opening waits until the approver agrees.
 
+Under **Screening questions**, choose which questions applicants answer on this
+job and whether each is required. Admins keep the **Question library**: each
+question has an answer type (yes or no, choices, number, date, file or text),
+and each edit saves a new version while earlier applications keep the version
+they answered. Lodge refuses questions about protected traits and salary
+history.
+
 Once approved, press **Publish application page**. The vacancy shows its address,
 for example `/jobs/product-designer`, and anyone can apply there. Stages, rubric
 and plan cannot change while the page is published. **Unpublish** and **Close

@@ -10,6 +10,7 @@ import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
 import { MONITORING_OPTIONS, interviewByToken, openVacancy, publicPosting, submit } from '../records/intake'
 import { candidateAvailability } from '../records/interviews'
+import { jobForm } from '../records/questions'
 
 // The pages applicants see: open roles, the application form (plain HTML that
 // works without JavaScript, every field labelled), the receipt, and the private
@@ -48,7 +49,26 @@ publicPages.get('/jobs', async c => {
   return page('Open roles', `<h1>Open roles${business ? ' at ' + esc(business.name) : ''}</h1>${open.length ? `<ul class="roles">${open.map(v => `<li><a href="/jobs/${esc(v.slug)}">${esc(v.title)}</a><span>${esc(vacancyFacts(v, false).join(' · '))}</span></li>`).join('')}</ul>` : '<p>There are no open roles right now.</p>'}`)
 })
 
-function form(v: Data, business: Data, error = '', values: Data = {}) {
+/** SCREEN-001: the job's screening questions, each labelled, named q-<question id>. */
+function questionFields(questions: Data[], values: Data) {
+  return questions.map(q => {
+    const name = 'q-' + q.question, label = esc(q.text) + (q.required ? '' : ' (optional)'), req = q.required ? ' required' : ''
+    const help = q.help ? `<small>${esc(q.help)}</small>` : ''
+    const picked = (o: string) => values[name] === o || (Array.isArray(values[name]) && values[name].includes(o))
+    switch (q.type) {
+      case 'yes-no': return `<fieldset><legend>${label}</legend>${help}${['yes', 'no'].map(o => `<label><input type="radio" name="${name}" value="${o}"${picked(o) ? ' checked' : ''}${req}> ${o === 'yes' ? 'Yes' : 'No'}</label>`).join('')}</fieldset>`
+      case 'single-choice': return `<label>${label}${help}<select name="${name}"${req}><option value="">Choose…</option>${q.options.map((o: string) => `<option${picked(o) ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`
+      case 'multiple-choice': return `<fieldset><legend>${label}</legend>${help}${q.options.map((o: string) => `<label><input type="checkbox" name="${name}" value="${esc(o)}"${picked(o) ? ' checked' : ''}> ${esc(o)}</label>`).join('')}</fieldset>`
+      case 'number': return `<label>${label}${help}<input name="${name}" type="number" step="any" value="${esc(values[name])}"${req}></label>`
+      case 'date': return `<label>${label}${help}<input name="${name}" type="date" value="${esc(values[name])}"${req}></label>`
+      case 'file': return `<label>${label}${help}<input name="${name}" type="file"${req}></label>`
+      case 'long-text': return `<label>${label}${help}<textarea name="${name}" rows="4" maxlength="8000"${req}>${esc(values[name])}</textarea></label>`
+      default: return `<label>${label}${help}<input name="${name}" type="text" maxlength="300" value="${esc(values[name])}"${req}></label>`
+    }
+  }).join('\n')
+}
+
+function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = []) {
   const notice = business.notices.at(-1)
   const pay = v.compensation ? payRange(v.compensation) : ''
   const field = (name: string, label: string, type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
@@ -62,6 +82,7 @@ ${field('email', 'Email', 'email', 'required autocomplete="email"')}
 ${field('phone', 'Phone (optional)', 'tel', 'autocomplete="tel"')}
 ${field('location', 'Where you are based (optional)', 'text', 'autocomplete="address-level2"')}
 <label>Resume (optional, PDF, Word or text, up to 1 MB)<input name="resume" type="file" accept=".pdf,.doc,.docx,.txt,.rtf,.odt"></label>
+${questions.length ? `<fieldset><legend>Questions from the employer</legend>${questionFields(questions, values)}</fieldset>` : ''}
 <label>Cover note (optional)<textarea name="coverNote" rows="5" maxlength="8000">${esc(values.coverNote)}</textarea></label>
 <label>Adjustments you need (optional)<textarea name="accommodation" rows="3" maxlength="4000">${esc(values.accommodation)}</textarea></label>
 <fieldset><legend>Voluntary equal-opportunity question (optional)</legend><p>How do you describe your gender? Your answer is kept apart from your application and never shown to the people assessing it.</p><label>Answer<select name="monitoring">${MONITORING_OPTIONS.map(o => `<option${values.monitoring === o ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label></fieldset>
@@ -78,7 +99,7 @@ publicPages.get('/jobs/:slug', async c => {
   const v = openVacancy(s, c.req.param('slug'))
   if (!v) return notFound()
   const shown = publicPosting(v)!
-  return page(shown.title, form(shown, s.get('business', 'main')))
+  return page(shown.title, form(shown, s.get('business', 'main'), '', {}, jobForm(s, v)))
 })
 
 publicPages.post('/jobs/:slug', async c => {
@@ -89,16 +110,22 @@ publicPages.post('/jobs/:slug', async c => {
   if (!v) return notFound()
   const data = await formBody(c)
   const values: Data = Object.fromEntries([...data.entries()].filter(([, x]) => typeof x === 'string'))
-  const file = data.get('resume')
+  const upload = async (file: FormDataEntryValue | null) => file && typeof file !== 'string' && file.size > 0 ? { name: file.name, mediaType: file.type, base64: bytesToBase64(new Uint8Array(await file.arrayBuffer())) } : null
+  const questions = jobForm(s, v), given: Data = {}
+  for (const q of questions) {
+    const name = 'q-' + q.question
+    given[q.question] = q.type === 'file' ? await upload(data.get(name)) : q.type === 'multiple-choice' ? data.getAll(name).map(String) : values[name]
+    if (q.type === 'multiple-choice') values[name] = given[q.question]
+  }
   try {
-    const resume = file && typeof file !== 'string' && file.size > 0 ? { name: file.name, mediaType: file.type, base64: bytesToBase64(new Uint8Array(await file.arrayBuffer())) } : null
-    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume } as any)
+    const resume = await upload(data.get('resume'))
+    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume, answers: given } as any)
     await save(c.env.DB, s, null)
     return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     const shown = publicPosting(v)!
-    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values), error.status)
+    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions), error.status)
   }
 })
 

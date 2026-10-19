@@ -9,6 +9,7 @@ export function commandBodies(h) {
     rubric: { id: vacancy.id, criteria: [{ name: 'Criterion', description: 'Evidence' }] }, 'interview-plan': { id: vacancy.id, plan: vacancy.plan }, 'interview-kit': { id: vacancy.id, item: vacancy.plan[0].id, purpose: 'Forbidden' },
     'request-vacancy-approval': { id: h.pendingVacancy.id, approver: 'approve@example.test' }, publish: { id: h.pendingVacancy.id },
     unpublish: { id: vacancy.id, reason: 'Forbidden' }, 'close-vacancy': { id: vacancy.id, reason: 'Forbidden' },
+    question: { text: 'Forbidden?', type: 'yes-no' }, 'job-questions': { id: vacancy.id, questions: [] },
     'request-opening': { id: vacancy.id, approver: 'approve@example.test' }, opening: { vacancy: vacancy.id, opening: vacancy.openings[0].id, code: 'FORBIDDEN-1' }, 'close-opening': { vacancy: vacancy.id, opening: vacancy.openings[0].id, reason: 'Forbidden' },
     'decide-approval': { id: h.pending.id, decision: 'approved', reason: 'Forbidden', version: h.pending.version },
     candidate: { name: 'Forbidden', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id },

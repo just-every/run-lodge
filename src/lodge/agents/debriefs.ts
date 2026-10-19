@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { canSeeScorecard, managesVacancy, requireApplication } from '../core/access'
 import { Fault, now, oneOf, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { latest } from '../records/scorecards'
+import { protectedTerm } from '../core/protected'
 
 // COORD-006: a debrief brief for the hiring manager, prepared by their agent
 // (or by a person) after feedback release. Lodge runs no model: the brief is the
@@ -16,14 +17,13 @@ const MIN_QUOTE = 8
 
 // Words a brief never uses, in a statement or a quote: a combined score or a
 // recommendation (the panel's own recommendations stay on their scorecards), and
-// protected traits. Matched case-insensitively as whole words.
+// protected traits (core/protected.ts). Matched case-insensitively as whole words.
 const VERDICT = /\b(recommend\w*|strong[\s-]?(yes|no)|overall|average\w*|scor(e|es|ed|ing)|no[\s-]hire|verdict)\b/i
-const PROTECTED = /\b(age|aged|years old|race|racial|ethnic\w*|religio\w*|pregnan\w*|maternity|gender|sex|sexual\w*|disab\w*|national origin|nationality|citizenship|immigra\w*|accent|married|marital|children|veteran|genetic\w*)\b/i
 
 function clean(value: string, label: string) {
-  const verdict = value.match(VERDICT), trait = value.match(PROTECTED)
+  const verdict = value.match(VERDICT), trait = protectedTerm(value)
   requireThat(!verdict, `${label} uses “${verdict?.[0]}”: a brief carries no combined score or recommendation`)
-  requireThat(!trait, `${label} refers to “${trait?.[0]}”: a brief never refers to a protected trait`)
+  requireThat(!trait, `${label} refers to “${trait}”: a brief never refers to a protected trait`)
   return value
 }
 

@@ -54,7 +54,9 @@ managers; send its `id` to edit your own, history kept), `task` (a follow-up on 
 `request-message-approval`, `offer`, `request-offer-approval`,
 `offer-outcome`, `hold`, `release-hold`, `extend-retention`, `data-request`,
 `complete-data-request`, `propose`, `decide-proposal`, `debrief`, `edit-debrief`,
-`decide-debrief` (see Agents). Also
+`decide-debrief` (see Agents), `question` (admins: a screening question `{ id?, text,
+type, options, required, help }`; with `id` it saves the next version), `job-questions`
+(`{ id: vacancy, questions: [{ question, required }] }`). Also
 `POST /api/lodge/invite` (send a member a sign-in invitation through the
 outbox) and `POST /api/lodge/delete-candidate`.
 
@@ -130,7 +132,7 @@ criterion they actually rated on both sides; `gap` is only for a criterion
 nobody rated. The brief must name every disagreement and every unassessed
 criterion. A statement or quote that carries a combined score or a
 recommendation, or refers to a protected trait (the term lists in
-`src/lodge/agents/debriefs.ts`), is refused. The brief is visible to the job's
+`src/lodge/agents/debriefs.ts` and `src/lodge/core/protected.ts`), is refused. The brief is visible to the job's
 managers and their agents only (`debriefs` in state, with `stale: true` once a
 quoted scorecard is corrected). The manager sends `edit-debrief { id,
 statements }` (checked the same way) and `decide-debrief { id, decision:

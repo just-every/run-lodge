@@ -7,6 +7,7 @@ import { cents, Check, Empty, Field, Form, memberOptions, Status, Table, type D 
 import { columns } from './pipeline/facts'
 import { Kickoffs } from './kickoffs'
 import { Openings } from './openings'
+import { JobQuestions } from './questions'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -75,6 +76,7 @@ function Detail({ v, w, mutate, go }: { v: D } & Pick<PageProps, 'w' | 'mutate' 
     {v.imported && <p className="hint">Imported from Workable ({v.sourceState || 'unknown state'}). Kept as history; it cannot be reopened.</p>}
     {v.status === 'open' && <p className="page-link"><Icon name="external" size={18} />Application page: <a href={`/jobs/${v.slug}`}>/jobs/{v.slug}</a> · {apps.length} applications</p>}
     {!v.imported && <Openings v={v} w={w} mutate={mutate} />}
+    {!v.imported && v.manages && <JobQuestions v={v} w={w} mutate={mutate} />}
     {v.missing?.length > 0 && !v.imported && <p className="warn">Before approval, add: {v.missing.join(', ')}.</p>}
     {v.status === 'draft' && !v.imported && <details><summary>Edit terms</summary><Terms v={v} w={w} mutate={mutate} /></details>}
     {!v.imported && <Setup v={v} w={w} mutate={mutate} />}

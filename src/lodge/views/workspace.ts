@@ -14,6 +14,7 @@ import { activity } from './activity'
 import { businessToday } from '../records/tasks'
 import { interviewerActivity } from './reports'
 import { staleDebrief } from '../agents/debriefs'
+import { library } from '../records/questions'
 
 /**
  * The actor's whole permitted view. The app, search, exports and the agent
@@ -126,6 +127,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
     teamNotes, activity: activity(s, { applications: projected, messages, interviews, offers, teamNotes }),
     tasks,
+    // SCREEN-001: the question library, for admins who keep it and managers who attach it.
+    questions: library(s, a),
     // COORD-006 briefs, for the people who run the job (and their agents) only.
     debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [
