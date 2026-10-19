@@ -440,6 +440,51 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.deepEqual((await state()).rejectionEmails.filter(m => m.application === third.id), [])
   })
 
+  await t.test('REVIEW-001 a review queue of new applications: the manager advances, rejects and skips; a reviewer only recommends', async () => {
+    const job = await openJob('Roofer')
+    const apps = []
+    for (const name of ['Ada Brook', 'Ben Cruz', 'Cal Dunn', 'Dee Ewing', 'Eve Frost']) apps.push((await cmd('candidate', { name, email: name.split(' ')[0].toLowerCase() + '.roof@example.test', source: 'Careers page', consentBasis: 'application', vacancy: job.id }, manager)).application)
+    for (const app of apps.slice(3)) await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test'] }, manager)
+    const queueOf = async cookie => (await state(cookie)).reviewQueues.find(q => q.vacancy === job.id)
+    let q = await queueOf(manager)
+    assert.deepEqual([q.manages, q.remaining, q.queue], [true, 5, apps.map(a => a.id)], 'oldest first, one at a time')
+
+    // The manager advances two, rejects one with a DISP-001 reason and skips one.
+    const decide = (app, body, cookie = manager) => send('/api/lodge/command/review-decision', { application: app.id, ...body }, cookie)
+    for (const app of apps.slice(0, 2)) assert.equal((await decide(app, { decision: 'advance' })).status, 200)
+    assert.equal((await decide(apps[2], { decision: 'reject' })).status, 400, 'a rejection needs a listed reason')
+    assert.equal((await decide(apps[2], { decision: 'reject', closeReason: 'skills', reason: 'No roofing work' })).status, 200)
+    assert.equal((await decide(apps[3], { decision: 'skip' })).status, 200)
+    assert.equal((await decide(apps[0], { decision: 'advance' })).status, 409, 'an advanced application has left the queue')
+    q = await queueOf(manager)
+    assert.deepEqual([q.remaining, q.queue], [2, [apps[4].id, apps[3].id]], 'the skipped application waits at the back')
+    let s = await state(manager)
+    const last = id => s.applications.find(a => a.id === id).history.at(-1)
+    assert.deepEqual(apps.slice(0, 2).map(a => [last(a.id).to, last(a.id).reason, last(a.id).actor]), apps.slice(0, 2).map(() => [job.stages[1].id, 'Advanced from the review queue', 'morgan@example.test']))
+    assert.deepEqual([last(apps[2].id).to, last(apps[2].id).reason, last(apps[2].id).note], ['rejected', 'Skills or experience do not match', 'No roofing work'])
+    assert.equal(last(apps[3].id).to, job.stages[0].id, 'a skip changes nothing')
+
+    // An assigned interviewer reviewer sees only their applications and records recommendations; advance is refused.
+    q = await queueOf(ivy)
+    assert.deepEqual([q.manages, q.remaining, q.queue.sort()], [false, 2, [apps[3].id, apps[4].id].sort()])
+    assert.equal((await decide(apps[3], { decision: 'advance' }, ivy)).status, 403)
+    assert.equal((await send('/api/lodge/command/review-recommendation', { application: apps[3].id, recommendation: 'yes' }, ian)).status, 404, 'an unassigned interviewer cannot see it')
+    assert.equal((await send('/api/lodge/command/review-recommendation', { application: apps[3].id, recommendation: 'yes' }, manager)).status, 409, 'the manager decides instead')
+    await cmd('review-recommendation', { application: apps[3].id, recommendation: 'maybe', note: 'Some flat-roof work' }, ivy)
+    q = await queueOf(ivy)
+    assert.deepEqual([q.remaining, q.queue, q.reviews.map(r => [r.application, r.recommendation])], [1, [apps[4].id], [[apps[3].id, 'maybe']]])
+    assert.equal(last(apps[3].id).to, job.stages[0].id, 'a recommendation moves nothing')
+    // The manager sees who reviewed what; the queue count is what their home shows.
+    q = await queueOf(manager)
+    assert.deepEqual(q.reviews.map(r => [r.application, r.by, r.decision ?? r.recommendation]), [[apps[0].id, 'morgan@example.test', 'advance'], [apps[1].id, 'morgan@example.test', 'advance'], [apps[2].id, 'morgan@example.test', 'reject'], [apps[3].id, 'morgan@example.test', 'skip'], [apps[3].id, 'ivy@example.test', 'maybe']])
+    assert.equal(q.remaining, 2)
+    await cmd('review-recommendation', { application: apps[4].id, recommendation: 'no' }, ivy)
+    assert.equal((await queueOf(ivy)).remaining, 0, 'nothing left on the reviewer’s home')
+    assert.equal((await state(ian)).reviewQueues.some(x => x.vacancy === job.id), false)
+    for (const app of apps.slice(3)) await cmd('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Queue test done' }, manager)
+    assert.equal((await queueOf(manager)).remaining, 0)
+  })
+
   await t.test('DISP-002 a rejected application reopens into a chosen stage with its whole history', async () => {
     const job = await openJob('Yard lead')
     const interviewStage = job.stages.find(st => st.name === 'Interview').id

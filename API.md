@@ -56,6 +56,9 @@ lists; see REQ-003), `job-template` (admins: `name` with `fromVacancy` and/or `s
 `assign-reviewers`, `move` (a stage move takes `to` and `reason`; a close takes `to: "rejected" | "withdrawn"`,
 `closeReason` (a current reason id of the matching group from `rejectionReasons`), an optional `reason` note
 and, for a rejection only, `send: none | now | delay` with `template` and `businessDays` 1–20),
+`review-decision` (REVIEW-001, people who run the job: `{ application, decision: advance | reject | skip }`;
+advance takes an optional `reason`, reject the `move` close fields), `review-recommendation` (an assigned
+reviewer who does not run the job: `{ application, recommendation: yes | no | maybe, note? }`),
 `rejection-reasons` (admins: the whole list `{ reasons: [{ id?, label, group: rejected | withdrew }] }`;
 left-out reasons are retired), `rejection-template` (admins: `{ id?, name, subject, body, retired? }`
 with merge fields `{candidate_name}`, `{job_title}`, `{business_name}`), `interview`, `availability`, `schedule`,

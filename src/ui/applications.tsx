@@ -7,6 +7,7 @@ import { Board } from './pipeline/board'
 import { Activity } from './pipeline/activity'
 import { ApplicationPanel } from './pipeline/panel'
 import { Empty, type D } from './shared'
+import { ReviewQueue } from './review-queue'
 
 /** The job a board opens on: the one with a decision waiting, else the busiest open job, else any with applications. */
 function defaultJob(w: D) {
@@ -34,6 +35,7 @@ export function Applications(props: PageProps) {
     <div className="pipeline-main">
       <JobHeader v={job} apps={apps} {...props} />
       <Coordinator v={job} apps={apps} w={w} go={go} open={open} />
+      <ReviewQueue v={job} w={w} mutate={props.mutate} open={open} />
       <Board v={job} apps={apps} w={w} selected={app?.id} open={open} />
       <Activity v={job} apps={apps} w={w} open={open} />
     </div>

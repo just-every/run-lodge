@@ -17,6 +17,7 @@ import { staleDebrief } from '../agents/debriefs'
 import { library } from '../records/questions'
 import { rulesView } from '../records/rules'
 import { rejectionsView } from '../records/rejections'
+import { reviewQueues } from '../records/reviews'
 
 /**
  * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
@@ -155,6 +156,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     ...rulesView(s, a, appIds),
     // DISP-001: the reason list for everyone; templates and scheduled rejection emails for the people who run the job.
     ...rejectionsView(s, a, appIds),
+    // REVIEW-001: the reader's review queues, shown on their home (HOME-001) and the job's board.
+    reviewQueues: reviewQueues(s, a, applications),
     // COORD-006 briefs, for the people who run the job (and their agents) only.
     debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [
