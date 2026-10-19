@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { isAdmin, managesVacancy, requireAdmin, requireManages, requireMember } from '../core/access'
+import { isAdmin, managesVacancy, requireAdmin, requireCan, requireManages, requireMember } from '../core/access'
 import { date, now, oneOf, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { closeApplication, closeChoice } from './rejections'
 import { jobForm } from './questions'
@@ -159,6 +159,7 @@ export function decideRuleMatches(s: State, a: Actor, b: Data) {
   for (const m of queue) {
     const v = s.get('vacancy', m.vacancy)
     requireManages(a, v)
+    if (decision === 'confirm') requireCan(s, a, v, 'reject')
     requireThat(m.status === 'queued', 'This match was already decided', 409)
     const app = s.get('application', m.application)
     if (decision === 'confirm' && app.status === 'active') reject(s, app, s.get('screening-rule', m.rule).versions.find((x: Data) => x.version === m.version).then, `${m.reason} (rule “${m.ruleName}” v${m.version}, confirmed)`, a.email)

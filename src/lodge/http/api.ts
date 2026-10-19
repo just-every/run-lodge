@@ -2,7 +2,7 @@ import { Hono, type Context } from 'hono'
 import type { Bindings } from '../../auth.server'
 import { runtimeBindings } from '../../auth.server'
 import { actorFor, load, readBlob, save, signedIn } from '../core/store'
-import { managesVacancy, onPanel, requireApplication, requireDocument } from '../core/access'
+import { can, canSeeApplication, isAdmin, managesVacancy, onPanel, requireApplication, requireDocument } from '../core/access'
 import { Fault, requireThat, type Actor, type Data } from '../core/types'
 import type { State } from '../core/state'
 import { run } from '../commands'
@@ -263,6 +263,9 @@ api.get('/api/lodge/download/vacancy/:id', async c => {
 api.get('/api/lodge/download/activity/:id', async c => {
   const { state, actor } = await context(c)
   const result = candidateActivity(await workspace(state, actor), c.req.param('id'))
+  // OPS-004: a level without "export" on every job through which the reader sees the candidate refuses the download.
+  const through = state.all('application').filter(app => app.candidate === c.req.param('id') && canSeeApplication(state, actor, app))
+  requireThat(isAdmin(actor) || !through.length || through.some(app => can(state, actor, state.get('vacancy', app.vacancy), 'export')), 'Your permission level does not let you export this candidate', 403)
   state.audit(actor, 'activity-exported', 'candidate:' + c.req.param('id'))
   return recorded(c, state, actor, json(result, 'candidate-activity.json'))
 })

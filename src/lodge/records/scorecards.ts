@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { assignedTo, canSeeScorecard, hiringManagers, managesVacancy, requireApplication, requireManages } from '../core/access'
+import { assignedTo, canSeeScorecard, hiringManagers, managesVacancy, requireApplication, requireCan, requireManages } from '../core/access'
 import { now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 
 // Flow 9: each interviewer writes their own scorecard against the rubric
@@ -128,6 +128,7 @@ export function correct(s: State, a: Actor, b: Data) {
 export function releaseFeedback(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  requireCan(s, a, s.get('vacancy', app.vacancy), 'scorecards')
   requireThat(!app.feedbackReleased, 'Feedback is already visible to the panel', 409)
   const submitted = new Set(s.all('scorecard').filter(c => c.application === app.id && c.status === 'submitted').map(c => c.author))
   const waiting = panel(s, app).filter(p => !submitted.has(p))

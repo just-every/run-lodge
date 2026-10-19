@@ -1,6 +1,7 @@
 import type { State } from '../core/state'
 import { requireAdmin } from '../core/access'
 import { list, now, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { grantLevels } from './levels'
 
 // REQ-004: the business's department hierarchy and its US office list. Jobs,
 // openings and members attach to them; the careers page filters by them.
@@ -90,8 +91,8 @@ export function memberOrg(s: State, a: Actor, b: Data) {
   const grantDepartments = list(b.grantDepartments ?? [], 'Granted departments', 50, x => s.get('department', x).id as string)
   const grantOffices = list(b.grantOffices ?? [], 'Granted offices', 50, x => s.get('office', x).id as string)
   requireThat(!(grantDepartments.length || grantOffices.length) || (m.roles.includes('manager') && !m.agent), 'Department and office grants are for managers', 409)
-  const record = s.put('member', m.email, { ...m, departmentId: b.department ? s.get('department', b.department).id : undefined, officeId: b.office ? s.get('office', b.office).id : undefined, grantDepartments: [...new Set(grantDepartments)], grantOffices: [...new Set(grantOffices)] })
-  s.audit(a, 'member-org', 'member:' + m.email, { department: record.departmentId ?? null, office: record.officeId ?? null, grantDepartments: record.grantDepartments, grantOffices: record.grantOffices })
+  const record = s.put('member', m.email, { ...m, departmentId: b.department ? s.get('department', b.department).id : undefined, officeId: b.office ? s.get('office', b.office).id : undefined, grantDepartments: [...new Set(grantDepartments)], grantOffices: [...new Set(grantOffices)], grantLevels: grantLevels(s, b.grantLevels, [...grantDepartments, ...grantOffices]) })
+  s.audit(a, 'member-org', 'member:' + m.email, { department: record.departmentId ?? null, office: record.officeId ?? null, grantDepartments: record.grantDepartments, grantOffices: record.grantOffices, grantLevels: record.grantLevels })
   return record
 }
 

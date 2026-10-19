@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { cleared, requireAdmin, requireManages, requireMember } from '../core/access'
+import { cleared, requireAdmin, requireCan, requireManages, requireMember } from '../core/access'
 import { now, optionalEmail, requireThat, scope, uid, type Actor, type Data } from '../core/types'
 import { retentionUntil, startApplication } from './candidates'
 import { ensureSource } from './sources'
@@ -20,6 +20,7 @@ export const INTERNAL_SOURCE = 'Internal'
 export function vacancyInternal(s: State, a: Actor, b: Data) {
   const v = s.get('vacancy', b.id)
   requireManages(a, v)
+  requireCan(s, a, v, 'settings')
   requireThat(!v.imported && v.status !== 'closed', 'Only a live job can change who sees it', 409)
   const record = s.put('vacancy', v.id, { ...v, internalOnly: b.internalOnly === true })
   s.audit(a, record.internalOnly ? 'vacancy-internal-only' : 'vacancy-public', 'vacancy:' + v.id)

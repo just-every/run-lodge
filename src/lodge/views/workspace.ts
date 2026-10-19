@@ -1,6 +1,6 @@
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
-import { cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
+import { cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy, can, permissionsOn, SEEDED_LEVELS } from '../core/access'
 import { scope, type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { duplicateSuggestions, transferredFrom } from '../records/candidates'
@@ -79,11 +79,11 @@ export async function workspaceRecords(s: State, a: Actor) {
     if (managesVacancy(a, v)) {
       const approval = latestApproval(s, 'vacancy', v.id)
       const version = await versionOf(s, 'vacancy', v)
-      vacancies.push({ ...v, manages: true, version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
+      vacancies.push({ ...v, manages: true, permissions: [...permissionsOn(s, a, v)], version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
     } else {
       // Panel members see the role, its stages and the rubric they score against.
       const sources = teamOf(v, 'sourcers').includes(scope(a))
-      vacancies.push({ id: v.id, title: v.title, department: v.department, location: v.location, status: v.status, stages: v.stages, rubrics: v.rubrics, plan: v.plan, manages: false, sources, ...(sources ? { pipeline: sourcingList(s, a, v) } : {}) })
+      vacancies.push({ id: v.id, title: v.title, department: v.department, location: v.location, status: v.status, stages: v.stages, rubrics: v.rubrics, plan: v.plan, manages: false, permissions: [...permissionsOn(s, a, v)], sources, ...(sources ? { pipeline: sourcingList(s, a, v) } : {}) })
     }
   }
 
@@ -98,7 +98,8 @@ export async function workspaceRecords(s: State, a: Actor) {
   for (const o of s.all('offer').filter(o => appIds.has(o.application))) {
     const app = applications.find(x => x.id === o.application)!
     const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
-    if (!vacancy || !managesVacancy(a, vacancy)) continue
+    // OPS-004: offers stay with the people whose level on the job creates and sees them.
+    if (!vacancy || !managesVacancy(a, vacancy) || !can(s, a, vacancy, 'offers')) continue
     const approval = latestApproval(s, 'offer', o.id), version = await versionOf(s, 'offer', o)
     offers.push({ ...o, version, approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, rangeWarning: rangeCheck(vacancy, o) })
   }
@@ -201,6 +202,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     dataRequests: admin ? s.all('data-request').filter(r => !hiddenCandidate(r.candidate)).map(({ tokenHash, ...r }) => r) : [],
     // PRIV-001: the current California notice, for the owner who edits it and the admins who answer requests.
     cpraNotice: admin ? cpraDraft(s) : null,
+    // OPS-004: the permission levels admins assign (Lodge's seeded ones first).
+    permissionLevels: admin ? [...SEEDED_LEVELS, ...s.all('permission-level').sort((x, y) => x.name.localeCompare(y.name))] : [],
     deletionReceipts: admin ? s.all('deletion-receipt') : [],
     duplicates: admin ? duplicateSuggestions(s).filter(d => !hiddenCandidate(d.first) && !hiddenCandidate(d.second)) : [],
     // Counts across the whole business, confidential jobs and private candidates included, without identity.

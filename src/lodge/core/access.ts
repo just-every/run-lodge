@@ -51,11 +51,63 @@ const granted = (a: Actor, vacancy: Data) => !!a.grants && ((!!vacancy.departmen
 export function managesVacancy(a: Actor, vacancy: Data) {
   if (isAdmin(a) && cleared(a, vacancy, 'confidential')) return true
   if (!a.roles.includes('manager')) return false
-  return runsJob(scope(a), vacancy) || (granted(a, vacancy) && cleared(a, vacancy, 'confidential'))
+  return runsJob(scope(a), vacancy) || !!vacancy.levels?.members?.[scope(a)] || (granted(a, vacancy) && cleared(a, vacancy, 'confidential'))
 }
 
 export function requireManages(a: Actor, vacancy: Data) {
   if (!managesVacancy(a, vacancy)) throw new Fault(403, 'This vacancy belongs to another hiring manager')
+}
+
+/**
+ * OPS-004: named permission levels. A level is a set of these permissions; the
+ * owner and hiring admins hold all of them business-wide. A level assigned to a
+ * member on a job wins; else the levels of their REQ-003 team roles on the job;
+ * else their department and office levels (REQ-004 grants), combined. Anyone
+ * without an assigned level keeps Lodge's seeded rights: the people who run a
+ * job hold the manager set, the approver role approves, "see private" holders
+ * (and only they, among admins) see private candidates, and assigned reviewers read released scorecards and
+ * export the activity they see. Monitoring and accommodation answers are never
+ * a level's to grant.
+ */
+export const PERMISSIONS = ['contact', 'scorecards', 'move', 'reject', 'offers', 'approve', 'private', 'export', 'settings'] as const
+export type Permission = typeof PERMISSIONS[number]
+export const MANAGER_PERMISSIONS: Permission[] = ['contact', 'scorecards', 'move', 'reject', 'offers', 'export', 'settings']
+export const SEEDED_LEVELS: Data[] = [
+  { id: 'lodge-manager', name: 'Hiring manager (Lodge default)', permissions: MANAGER_PERMISSIONS, seeded: true },
+  { id: 'lodge-interviewer', name: 'Interviewer (Lodge default)', permissions: ['scorecards', 'export'], seeded: true },
+  { id: 'lodge-approver', name: 'Approver (Lodge default)', permissions: ['approve'], seeded: true },
+]
+export const levelById = (s: State, id: string): Data | undefined => SEEDED_LEVELS.find(l => l.id === id) ?? s.find('permission-level', id)
+
+/** The levels assigned to this person for this job, by precedence; null when none applies. */
+function assignedLevels(s: State, a: Actor, vacancy: Data): Data[] | null {
+  const who = scope(a), on = vacancy.levels ?? {}
+  if (on.members?.[who]) return [levelById(s, on.members[who])].filter(Boolean) as Data[]
+  const roles = TEAM_ROLES.filter(r => teamOf(vacancy, r).includes(who) || (r === 'hiringManagers' && vacancy.manager === who))
+  const byRole = roles.map(r => on.roles?.[r]).filter(Boolean)
+  if (byRole.length) return byRole.map(id => levelById(s, id)).filter(Boolean) as Data[]
+  const byPlace = [...(vacancy.departmentId ? a.grants?.levels?.[vacancy.departmentId] ?? [] : []), ...(vacancy.officeId ? a.grants?.levels?.[vacancy.officeId] ?? [] : [])]
+  if (byPlace.length && granted(a, vacancy)) return byPlace.map(id => levelById(s, id)).filter(Boolean) as Data[]
+  return null
+}
+
+/** What this person may do on this job (OPS-004), read from the saved records on every request. */
+export function permissionsOn(s: State, a: Actor, vacancy: Data): Set<Permission> {
+  // Admins hold every permission business-wide; seeing private candidates stays with the owner and "see private" holders (OPS-005).
+  if (isAdmin(a) && cleared(a, vacancy, 'confidential')) return new Set(PERMISSIONS.filter(p => p !== 'private' || a.owner || a.seePrivate))
+  const levels = assignedLevels(s, a, vacancy)
+  if (levels) return new Set(levels.flatMap(l => l.permissions))
+  const seeded = new Set<Permission>(managesVacancy(a, vacancy) ? MANAGER_PERMISSIONS : ['scorecards', 'export'])
+  if (has(a, 'approver')) seeded.add('approve')
+  if (a.seePrivate) seeded.add('private')
+  return seeded
+}
+
+export const can = (s: State, a: Actor, vacancy: Data, p: Permission) => permissionsOn(s, a, vacancy).has(p)
+
+const NEEDS: Record<Permission, string> = { contact: 'see contact details', scorecards: 'read and release scorecards', move: 'move stages', reject: 'reject', offers: 'create and see offers', approve: 'approve', private: 'see private candidates', export: 'export', settings: 'edit job settings' }
+export function requireCan(s: State, a: Actor, vacancy: Data, p: Permission) {
+  if (!can(s, a, vacancy, p)) throw new Fault(403, `Your permission level on this job does not let you ${NEEDS[p]}`)
 }
 
 /** Interviewers see an application only when assigned to review it or invited to one of its interviews. */
@@ -69,8 +121,9 @@ export function canSeeApplication(s: State, a: Actor, application: Data) {
   // A deactivated member keeps their history but loses every view at once.
   if (!a.owner && !a.roles.length) return false
   s.get('application', application.id)
-  if (!cleared(a, s.find('candidate', application.candidate), 'private')) return false
   const vacancy = s.find('vacancy', application.vacancy)
+  // OPS-004: a level with "see private candidates" clears the private candidates of that job only.
+  if (!cleared(a, s.find('candidate', application.candidate), 'private') && !(vacancy && managesVacancy(a, vacancy) && can(s, a, vacancy, 'private'))) return false
   // ATTR-005: an internal application reaches only the owner, admins and the job's hiring team.
   if (application.internal && !(vacancy && ((isAdmin(a) && cleared(a, vacancy, 'confidential')) || onTeam(scope(a), vacancy)))) return false
   return (vacancy && managesVacancy(a, vacancy)) || assignedTo(s, a, application)
@@ -94,8 +147,11 @@ export function seesEvent(s: State, a: Actor, e: Data) {
 /** A person in the pool of an event the reader sees. */
 const inSeenPool = (s: State, a: Actor, candidate: Data) => s.all('event-capture').some(r => r.candidate === candidate.id && seesEvent(s, a, s.get('event', r.event)))
 
+/** OPS-004: a private candidate is cleared for someone whose level on one of the candidate's jobs sees private candidates. */
+const privateByLevel = (s: State, a: Actor, candidate: Data) => s.all('application').some(app => { const v = app.candidate === candidate.id && s.find('vacancy', app.vacancy); return !!v && managesVacancy(a, v) && can(s, a, v, 'private') })
+
 export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
-  if (!cleared(a, candidate, 'private')) return false
+  if (!cleared(a, candidate, 'private') && !privateByLevel(s, a, candidate)) return false
   if (inSeenPool(s, a, candidate)) return true
   const apps = s.all('application').filter(app => app.candidate === candidate.id)
   // Admins see every candidate except one known only through confidential jobs they are not cleared for.
@@ -106,13 +162,14 @@ export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
 /** Contact details stay with the people who run the vacancy; interviewers see names. */
 export function canSeeContact(s: State, a: Actor, candidate: Data) {
   if (isAdmin(a)) return canSeeCandidate(s, a, candidate)
-  if (!cleared(a, candidate, 'private')) return false
+  if (!cleared(a, candidate, 'private') && !privateByLevel(s, a, candidate)) return false
   if (inSeenPool(s, a, candidate)) return true
   return s.all('application').some(app => {
     if (app.candidate !== candidate.id) return false
     s.get('application', app.id)
     const vacancy = s.find('vacancy', app.vacancy)
-    return vacancy ? managesVacancy(a, vacancy) : false
+    // OPS-004: the job's level decides whether contact details show.
+    return vacancy ? managesVacancy(a, vacancy) && can(s, a, vacancy, 'contact') : false
   })
 }
 
@@ -145,8 +202,8 @@ export function requireDocument(s: State, a: Actor, id: unknown): Data {
 export function canSeeScorecard(s: State, a: Actor, card: Data) {
   if (card.author === scope(a)) { const app = s.find('application', card.application); return !!app && canSeeApplication(s, a, app) }
   if (card.status !== 'submitted') return false
-  const app = s.find('application', card.application)
-  return !!app && app.feedbackReleased === true && canSeeApplication(s, a, app)
+  const app = s.find('application', card.application), vacancy = app && s.find('vacancy', app.vacancy)
+  return !!app && app.feedbackReleased === true && canSeeApplication(s, a, app) && !!vacancy && can(s, a, vacancy, 'scorecards')
 }
 
 export function requireMember(s: State, emailAddress: string, role?: Role) {
@@ -189,5 +246,5 @@ export function canSeeApproval(s: State, a: Actor, approval: Data) {
   const subject = s.find(approval.subjectKind, approval.subjectId)
   const app = subject?.application && s.find('application', subject.application)
   const vacancy = approval.subjectKind === 'vacancy' ? subject : app && s.find('vacancy', app.vacancy)
-  return !!vacancy && managesVacancy(a, vacancy)
+  return !!vacancy && managesVacancy(a, vacancy) && (approval.subjectKind !== 'offer' || can(s, a, vacancy, 'offers'))
 }

@@ -1,6 +1,7 @@
 import type { PageProps } from './app'
 import { people } from './names'
 import { Field, Form, type D } from './shared'
+import { JobLevels } from './levels'
 
 // REQ-003: a job's hiring team by role. Everyone who runs the job sees it; the
 // owner and hiring admins change it, and the change reaches every door at once.
@@ -28,6 +29,7 @@ export function Team({ v, w, mutate }: { v: D; w: D; mutate: PageProps['mutate']
       <Form label="Save hiring team" onSubmit={x => mutate('hiring-team', { id: v.id, ...Object.fromEntries(ROLES.map(([key]) => [key, split(x[key])])) })}>
         {ROLES.map(([key, , label]) => <Field key={key} label={label} name={key} required={false} defaultValue={(team[key] ?? []).join(', ')} />)}
       </Form></details>}
+    {admin && v.status !== 'closed' && <JobLevels v={v} w={w} mutate={mutate} />}
   </section>
 }
 

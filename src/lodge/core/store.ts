@@ -67,8 +67,18 @@ export async function signedIn(request: Request, original: Bindings): Promise<Se
 function grantsOf(state: State, m: Data) {
   if (!m.grantDepartments?.length && !m.grantOffices?.length) return undefined
   const departments = new Set<string>(m.grantDepartments ?? [])
-  for (let grew = true; grew;) { grew = false; for (const d of state.all('department')) if (d.parent && departments.has(d.parent) && !departments.has(d.id)) { departments.add(d.id); grew = true } }
-  return { departments: [...departments], offices: [...(m.grantOffices ?? [])] }
+  // OPS-004: a granted department's level reaches its sub-departments; levels met twice combine.
+  const levels: Record<string, string[]> = {}
+  const add = (id: string, level?: string) => { if (level && !(levels[id] ??= []).includes(level)) levels[id].push(level) }
+  for (const id of [...departments, ...(m.grantOffices ?? [])]) add(id, m.grantLevels?.[id])
+  for (let grew = true; grew;) {
+    grew = false
+    for (const d of state.all('department')) if (d.parent && departments.has(d.parent)) {
+      if (!departments.has(d.id)) { departments.add(d.id); grew = true }
+      for (const l of levels[d.parent] ?? []) if (!(levels[d.id] ?? []).includes(l)) { add(d.id, l); grew = true }
+    }
+  }
+  return { departments: [...departments], offices: [...(m.grantOffices ?? [])], levels }
 }
 
 /** Lodge capabilities come from the saved member record, never from the request body. */

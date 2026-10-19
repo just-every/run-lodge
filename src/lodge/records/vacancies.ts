@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { managesVacancy, requireAdmin, requireManages, requireMember, requireRole } from '../core/access'
+import { managesVacancy, requireAdmin, requireCan, requireManages, requireMember, requireRole } from '../core/access'
 import { currency, email, integer, list, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval } from './approvals'
 import { approvedOpenings, requestedOpening } from './openings'
@@ -43,6 +43,7 @@ function otherOffices(s: State, value: unknown, officeId: string | undefined) {
 function editable(s: State, a: Actor, id: unknown) {
   const v = s.get('vacancy', id)
   requireManages(a, v)
+  requireCan(s, a, v, 'settings')
   requireThat(!v.imported, 'Imported vacancies are kept as history; create a new vacancy to hire again', 409)
   requireThat(v.status !== 'open', 'This vacancy is published; unpublish it before changing approved terms', 409)
   requireThat(v.status !== 'closed', 'This vacancy is closed', 409)

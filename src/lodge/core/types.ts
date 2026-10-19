@@ -36,7 +36,7 @@ export interface Actor {
   /** Holds the "see private" permission: confidential jobs and private candidates are visible to them. */
   seePrivate?: boolean
   /** REQ-004: a manager's department (expanded to sub-departments) and office grants; they also run those jobs. */
-  grants?: { departments: string[]; offices: string[] }
+  grants?: { departments: string[]; offices: string[]; /** OPS-004: the levels each granted department (and its sub-departments) or office carries. */ levels?: Record<string, string[]> }
   /** For an agent member: the person whose view it shares (their email). */
   scopeAs?: string
   /** Saved authorization revisions, also used by Base import and invitation batches. */

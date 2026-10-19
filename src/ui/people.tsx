@@ -1,6 +1,7 @@
 import type { PageProps } from './app'
 import { call, Check, Field, Form, Status, Table, type D } from './shared'
 import { Org } from './org'
+import { Levels } from './levels'
 import { RejectionSettings } from './rejections'
 import { SourceSettings } from './sources'
 import { JobBoardSettings } from './job-board'
@@ -43,6 +44,7 @@ export function People({ w, mutate, setNotice }: PageProps) {
       <fieldset className="wide"><legend>Roles</legend>{ROLES.map(([r, label]) => <Check key={r} name={'role-' + r} label={label} />)}<Check name="inactive" label="Deactivate (keeps their history, removes access)" />{w.actor.owner && <Check name="seePrivate" label="See private: confidential jobs and private candidates" />}</fieldset>
     </Form>
     {(w.actor.owner || w.actor.roles.includes('admin')) && <Org w={w} mutate={mutate} />}
+    {(w.actor.owner || w.actor.roles.includes('admin')) && <Levels w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <RejectionSettings w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <SourceSettings w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <JobBoardSettings w={w} mutate={mutate} />}

@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { requireManages } from '../core/access'
+import { requireCan, requireManages } from '../core/access'
 import { list, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { publicPosting } from './intake'
 import { attachable } from './questions'
@@ -30,6 +30,7 @@ const slugOf = (title: string) => `${title.toLowerCase().replace(/[^a-z0-9]+/g, 
 function live(s: State, a: Actor, id: unknown) {
   const v = s.get('vacancy', id)
   requireManages(a, v)
+  requireCan(s, a, v, 'settings')
   requireThat(!v.imported, 'Imported vacancies are kept as history', 409)
   requireThat(v.status !== 'closed', 'This vacancy is closed', 409)
   return v

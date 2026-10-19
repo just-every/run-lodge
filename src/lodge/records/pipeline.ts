@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { canReview, requireApplication, requireManages, requireMember } from '../core/access'
+import { canReview, requireApplication, requireCan, requireManages, requireMember } from '../core/access'
 import { holdsFor } from './retention'
 import { cancelTasks } from './tasks'
 import { cancelRejectionEmails, closeApplication, closeChoice } from './rejections'
@@ -32,6 +32,7 @@ export function move(s: State, a: Actor, b: Data) {
   requireManages(a, vacancy)
   requireThat(app.status === 'active', 'This application is closed', 409)
   const to = b.to as string
+  requireCan(s, a, vacancy, to === 'rejected' || to === 'withdrawn' ? 'reject' : 'move')
   if (to === 'rejected' || to === 'withdrawn') {
     const choice = closeChoice(s, to, b)
     const record = closeApplication(s, app, choice, a.email)
@@ -65,7 +66,7 @@ function requireNoOtherActive(s: State, app: Data) {
  */
 export function markSpam(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
-  requireManages(a, s.get('vacancy', app.vacancy))
+  requireCan(s, a, s.get('vacancy', app.vacancy), 'reject')
   requireThat(app.status === 'active', 'Only an open application can be marked as spam', 409)
   const reason = text(b.reason, 'Why this is spam', 1000)
   const { likelySpam, ...rest } = app
@@ -79,7 +80,7 @@ export function markSpam(s: State, a: Actor, b: Data) {
 
 export function unmarkSpam(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
-  requireManages(a, s.get('vacancy', app.vacancy))
+  requireCan(s, a, s.get('vacancy', app.vacancy), 'reject')
   requireThat(app.status === 'spam', 'This application is not marked as spam', 409)
   requireNoOtherActive(s, app)
   const reason = text(b.reason, 'Why this is not spam', 1000)
@@ -123,6 +124,7 @@ export function reopen(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   const vacancy = s.get('vacancy', app.vacancy)
   requireManages(a, vacancy)
+  requireCan(s, a, vacancy, 'reject')
   requireThat(app.status === 'rejected' || app.status === 'withdrawn', 'Only a rejected or withdrawn application can be reopened', 409)
   const person = s.get('candidate', app.candidate)
   requireThat(!person.deleted && !person.mergedInto, 'This candidate record is closed', 409)

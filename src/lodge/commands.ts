@@ -31,6 +31,7 @@ import { kickoff, vacancyFromKickoff } from './records/kickoffs'
 import { offer, outcome, requestOfferApproval, signedOutside } from './records/offers'
 import { completeRequest, dataRequest, extendRetention, hold, releaseHold } from './records/retention'
 import { extendRequest, refuseRequest, saveCpraNotice } from './records/privacy'
+import { deletePermissionLevel, jobLevels, permissionLevel } from './records/levels'
 import { decideProposal, propose } from './agents/proposals'
 import { debrief, decideDebrief, editDebrief } from './agents/debriefs'
 
@@ -58,7 +59,7 @@ export const commands: Record<string, Command> = {
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
   message, 'request-message-approval': requestMessageApproval,
   offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome, 'offer-signed-outside': signedOutside,
-  hold, 'release-hold': releaseHold, 'extend-retention': extendRetention, 'data-request': dataRequest, 'complete-data-request': completeRequest, 'extend-data-request': extendRequest, 'refuse-data-request': refuseRequest, 'cpra-notice': saveCpraNotice,
+  hold, 'release-hold': releaseHold, 'extend-retention': extendRetention, 'data-request': dataRequest, 'complete-data-request': completeRequest, 'extend-data-request': extendRequest, 'refuse-data-request': refuseRequest, 'cpra-notice': saveCpraNotice, 'permission-level': permissionLevel, 'delete-permission-level': deletePermissionLevel, 'job-levels': jobLevels,
   propose, 'decide-proposal': decideProposal, debrief, 'edit-debrief': editDebrief, 'decide-debrief': decideDebrief,
 }
 

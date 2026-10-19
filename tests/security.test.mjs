@@ -7,6 +7,7 @@ import { checkFeedback } from './security-feedback.mjs'
 import { checkImportedHistory } from './security-history.mjs'
 import { checkRaces } from './security-races.mjs'
 import { commandBodies } from './security-commands.mjs'
+import { checkLevels } from './security-levels.mjs'
 
 const snapshot = async h => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
 
@@ -132,4 +133,9 @@ test('LDG-006/008/016 current roles and principals govern every private HTTP doo
   await checkImportedHistory(h, panelAgent)
   await checkRaces(h)
  } finally { await h.close() }
+})
+
+test('OPS-004 named permission levels on a job, a team role and a department grant govern the app, API, exports and agent reads at once', async () => {
+ const h = await fixture()
+ try { await checkLevels(h) } finally { await h.close() }
 })

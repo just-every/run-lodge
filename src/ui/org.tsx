@@ -1,5 +1,6 @@
 import type { PageProps } from './app'
 import { Check, Field, Form, Table, type D } from './shared'
+import { levelOptions } from './levels'
 
 /** "Operations › Warehouse" from the workspace's department list. */
 export function pathOf(w: D, id?: string) {
@@ -27,11 +28,15 @@ export function Org({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
       <Field label="Office (a US city, or Remote (US))" name="name" />
       <Field label="Rename an existing office (optional)" name="id" required={false} options={officeOptions(w)} />
     </Form>
-    <Form label="Save home department and office" onSubmit={x => mutate('member-org', { email: x.who, department: x.department || undefined, office: x.office || undefined, grantDepartments: (w.departments ?? []).filter((d: D) => x['gd-' + d.id]).map((d: D) => d.id), grantOffices: (w.offices ?? []).filter((o: D) => x['go-' + o.id]).map((o: D) => o.id) })}>
+    <Form label="Save home department and office" onSubmit={x => {
+      const grantDepartments = (w.departments ?? []).filter((d: D) => x['gd-' + d.id]).map((d: D) => d.id), grantOffices = (w.offices ?? []).filter((o: D) => x['go-' + o.id]).map((o: D) => o.id)
+      return mutate('member-org', { email: x.who, department: x.department || undefined, office: x.office || undefined, grantDepartments, grantOffices, grantLevels: x.grantLevel ? Object.fromEntries([...grantDepartments, ...grantOffices].map(id => [id, x.grantLevel])) : {} })
+    }}>
       <Field label="Team member" name="who" options={w.members.filter((m: D) => m.active).map((m: D) => ({ value: m.email, label: m.name }))} />
       <Field label="Home department" name="department" required={false} options={departmentOptions(w)} />
       <Field label="Home office" name="office" required={false} options={officeOptions(w)} />
       {(w.departments?.length > 0 || w.offices?.length > 0) && <fieldset className="wide"><legend>A manager also runs every job in</legend>{departmentOptions(w).map((d: D) => <Check key={d.value} name={'gd-' + d.value} label={d.label} />)}{officeOptions(w).map((o: D) => <Check key={o.value} name={'go-' + o.value} label={o.label} />)}</fieldset>}
+      {(w.departments?.length > 0 || w.offices?.length > 0) && <Field label="Their permission level in those (blank: Lodge’s manager rights)" name="grantLevel" required={false} options={levelOptions(w)} />}
     </Form>
   </>
 }

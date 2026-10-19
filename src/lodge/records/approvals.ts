@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { requireMember, requireRole } from '../core/access'
+import { requireCan, requireMember, requireRole } from '../core/access'
 import { canonical, now, oneOf, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { kickoffTerms } from './kickoffs'
 import { settleOpenings } from './openings'
@@ -55,6 +55,9 @@ export async function decide(s: State, a: Actor, b: Data) {
   const decision = oneOf(b.decision, ['approved', 'rejected'] as const, 'Decision')
   const reason = text(b.reason, 'Reason', 2000)
   const subject = s.get(approval.subjectKind, approval.subjectId)
+  // OPS-004: deciding a job's terms or an offer needs "approve" on that job.
+  const job = approval.subjectKind === 'vacancy' ? subject : approval.subjectKind === 'offer' ? s.get('vacancy', s.get('application', subject.application).vacancy) : null
+  if (job) requireCan(s, a, job, 'approve')
   const current = await versionOf(s, approval.subjectKind, subject)
   // The approver must have reviewed the version that is current now.
   requireThat(b.version === current, 'This changed since you opened it; review the current version', 409)

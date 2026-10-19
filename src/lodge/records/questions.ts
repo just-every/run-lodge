@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { isAdmin, requireAdmin, requireManages } from '../core/access'
+import { isAdmin, requireAdmin, requireCan, requireManages } from '../core/access'
 import { protectedTerm } from '../core/protected'
 import { CRIMINAL_HISTORY, fairChancePlace } from './fair-chance'
 import { about, date, list, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
@@ -66,6 +66,7 @@ export function attachable(s: State, v: Data, value: unknown) {
 export function jobQuestions(s: State, a: Actor, b: Data) {
   const v = s.get('vacancy', b.id)
   requireManages(a, v)
+  requireCan(s, a, v, 'settings')
   requireThat(!v.imported && v.status !== 'closed', 'Questions go on a live job only', 409)
   const attached = attachable(s, v, b.questions ?? [])
   const record = s.put('vacancy', v.id, { ...v, questions: attached })

@@ -13,6 +13,7 @@ import { workspace, type Workspace } from './workspace'
 export function vacancyHistory(w: Workspace, id: string) {
   const vacancy = w.vacancies.find(v => v.id === id)
   if (!vacancy || !vacancy.manages) throw new Fault(404, 'Vacancy not found')
+  if (!vacancy.permissions.includes('export')) throw new Fault(403, 'Your permission level on this job does not let you export')
   const applications = w.applications.filter(x => x.vacancy === id)
   const appIds = new Set(applications.map(x => x.id)), candidateIds = new Set(applications.map(x => x.candidate))
   const forApp = (rows: Data[]) => rows.filter(r => appIds.has(r.application))

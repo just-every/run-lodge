@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { requireApplication, requireManages } from '../core/access'
+import { requireApplication, requireCan, requireManages } from '../core/access'
 import { currency, date, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval, versionOf } from './approvals'
 import { storeDocument } from './documents'
@@ -14,6 +14,7 @@ export function offer(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   const vacancy = s.get('vacancy', app.vacancy)
   requireManages(a, vacancy)
+  requireCan(s, a, vacancy, 'offers')
   requireThat(app.status === 'active', 'This application is closed', 409)
   const fields = {
     application: app.id, title: text(b.title ?? vacancy.title, 'Job title', 160),
@@ -52,6 +53,7 @@ export async function requestOfferApproval(s: State, a: Actor, b: Data) {
   const o = s.get('offer', b.id)
   const app = requireApplication(s, a, o.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  requireCan(s, a, s.get('vacancy', app.vacancy), 'offers')
   requireThat(o.status === 'draft', 'This offer is closed', 409)
   return requestApproval(s, a, 'offer', o, b.approver)
 }
@@ -61,6 +63,7 @@ export async function outcome(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, o.application)
   const vacancy = s.get('vacancy', app.vacancy)
   requireManages(a, vacancy)
+  requireCan(s, a, vacancy, 'offers')
   requireThat(o.status === 'draft', 'This offer already has an outcome', 409)
   const result = oneOf(b.outcome, ['accepted', 'declined', 'withdrawn'] as const, 'Outcome')
   // A closed application keeps its close; only withdrawing its leftover draft is still allowed.
@@ -100,6 +103,7 @@ export async function signedOutside(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, o.application)
   const vacancy = s.get('vacancy', app.vacancy)
   requireManages(a, vacancy)
+  requireCan(s, a, vacancy, 'offers')
   requireThat(o.status === 'draft', 'This offer already has an outcome', 409)
   requireThat(app.status === 'active', 'This application is closed', 409)
   requireThat(await approvedNow(s, 'offer', o), 'Only an offer whose exact terms are approved now can be recorded as signed', 409)

@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { requireApplication, requireManages } from '../core/access'
+import { requireApplication, requireCan, requireManages } from '../core/access'
 import { Fault, canonical, list, now, oneOf, optionalText, requireThat, sha256, text, type Actor, type Data } from '../core/types'
 import { bulkExport } from '../views/exports'
 import { workspace } from '../views/workspace'
@@ -68,7 +68,7 @@ async function runOne(s: State, a: Actor, act: Data, application: string) {
   if (act.kind === 'reviewers') return assignReviewers(s, a, { application, reviewers: act.reviewers })
   const app = requireApplication(s, a, application), vacancy = s.get('vacancy', app.vacancy)
   requireManages(a, vacancy)
-  if (act.kind === 'export') return app
+  if (act.kind === 'export') { requireCan(s, a, vacancy, 'export'); return app }
   // The contact preference Lodge holds today is the email on record (COM-002 opt-outs inherit this refusal).
   const candidate = s.get('candidate', app.candidate)
   requireThat(candidate.email, 'This candidate has no email address', 409)
