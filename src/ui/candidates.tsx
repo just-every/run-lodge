@@ -46,6 +46,14 @@ export function Candidates({ w, mutate, go }: PageProps) {
           <Field label="Decision" name="decision" options={[{ value: 'distinct', label: 'Different people' }, { value: 'merge', label: `Same person: merge into ${name(d.first)}` }]} />
           <Field label="Reason" name="reason" />
         </Form></article>)}</>}
+    {admin && w.candidates.length > 0 && <details><summary>Private candidates</summary>
+      <p className="hint">A private candidate (for example an internal executive) is seen only by the people you name, the owner and holders of “see private”, in every list, search, export and agent read.</p>
+      <Form label="Save privacy" reset onSubmit={x => mutate('candidate-privacy', { id: x.candidate, private: x.private === true, namedPeople: x.namedPeople.split(',').map((e: string) => e.trim()).filter(Boolean) })}>
+        <Field label="Candidate" name="candidate" options={w.candidates.map((c: D) => ({ value: c.id, label: c.name + (c.private ? ' (private)' : '') }))} />
+        <Field label="Named people (emails, comma-separated)" name="namedPeople" required={false} />
+        <Check name="private" label="Private" />
+      </Form>
+    </details>}
     {openVacancies.length > 0 && w.candidates.length > 0 && <details><summary>Link a candidate to a vacancy</summary>
       <Form label="Link" reset onSubmit={x => mutate('apply', { candidate: x.candidate, vacancy: x.vacancy, source: 'Linked by ' + w.actor.email })}>
         <Field label="Candidate" name="candidate" options={w.candidates.map((c: D) => ({ value: c.id, label: c.name }))} />

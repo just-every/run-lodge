@@ -12,8 +12,14 @@ export const MONITORING_OPTIONS = ['Prefer not to say', 'Woman', 'Man', 'Non-bin
 
 export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; resume?: { name: string; mediaType: string; base64: string } | null }
 
+/** What the careers page shows of a job: a confidential one appears only under its neutral title, without its department. */
+export function publicPosting(v: Data): Data | null {
+  if (!v.confidential) return v
+  return v.publicTitle ? { ...v, title: v.publicTitle, department: '' } : null
+}
+
 export function openVacancy(s: State, slug: string) {
-  const vacancy = s.all('vacancy').find(v => v.slug === slug && v.status === 'open')
+  const vacancy = s.all('vacancy').find(v => v.slug === slug && v.status === 'open' && publicPosting(v))
   return vacancy ? s.get('vacancy', vacancy.id) : null
 }
 
@@ -58,7 +64,7 @@ export async function submit(s: State, vacancy: Data, input: Submission) {
   if (monitoring) s.put('monitoring', uid(), { application: application.id, type: 'voluntary-monitoring', answer: monitoring, at: now() })
   const code = 'LDG-' + uid().slice(0, 8).toUpperCase()
   const receipt = s.put('receipt', code, {
-    application: application.id, vacancy: vacancy.id, vacancyTitle: vacancy.title, noticeVersion: notice.version, submittedAt: application.submittedAt,
+    application: application.id, vacancy: vacancy.id, vacancyTitle: publicPosting(vacancy)!.title, noticeVersion: notice.version, submittedAt: application.submittedAt,
     digest: await sha256(canonical({ ...fields, coverNote: application.coverNote, resume: input.resume?.base64 ?? null, talentPool })),
   })
   s.audit(null, 'application-received', 'application:' + application.id, { receipt: code })

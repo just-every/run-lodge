@@ -18,9 +18,20 @@ export function requireAdmin(a: Actor) {
   if (!isAdmin(a)) throw new Fault(403, 'Only the owner or a hiring admin can do this')
 }
 
-/** Managers run their own vacancies; admins and the owner run all of them. */
+/**
+ * A confidential job or a private candidate is visible only to the owner, holders
+ * of the "see private" permission and the people named on it (a job's own
+ * hiring manager is always named). Everything else is unaffected.
+ */
+export function cleared(a: Actor, record: Data | undefined, flag: 'confidential' | 'private') {
+  if (!record?.[flag]) return true
+  const who = scope(a)
+  return a.owner || a.seePrivate === true || (record.namedPeople ?? []).includes(who) || (flag === 'confidential' && record.manager === who)
+}
+
+/** Managers run their own vacancies; admins and the owner run all of them, except confidential ones they are not cleared for. */
 export function managesVacancy(a: Actor, vacancy: Data) {
-  return isAdmin(a) || (a.roles.includes('manager') && vacancy.manager === scope(a))
+  return (isAdmin(a) && cleared(a, vacancy, 'confidential')) || (a.roles.includes('manager') && vacancy.manager === scope(a))
 }
 
 export function requireManages(a: Actor, vacancy: Data) {
@@ -38,6 +49,7 @@ export function canSeeApplication(s: State, a: Actor, application: Data) {
   // A deactivated member keeps their history but loses every view at once.
   if (!a.owner && !a.roles.length) return false
   s.get('application', application.id)
+  if (!cleared(a, s.find('candidate', application.candidate), 'private')) return false
   const vacancy = s.find('vacancy', application.vacancy)
   return (vacancy && managesVacancy(a, vacancy)) || assignedTo(s, a, application)
 }
@@ -50,13 +62,17 @@ export function requireApplication(s: State, a: Actor, id: unknown): Data {
 }
 
 export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
-  if (isAdmin(a)) return true
-  return s.all('application').some(app => app.candidate === candidate.id && canSeeApplication(s, a, app))
+  if (!cleared(a, candidate, 'private')) return false
+  const apps = s.all('application').filter(app => app.candidate === candidate.id)
+  // Admins see every candidate except one known only through confidential jobs they are not cleared for.
+  if (isAdmin(a)) return !apps.length || apps.some(app => cleared(a, s.find('vacancy', app.vacancy), 'confidential') || canSeeApplication(s, a, app))
+  return apps.some(app => canSeeApplication(s, a, app))
 }
 
 /** Contact details stay with the people who run the vacancy; interviewers see names. */
 export function canSeeContact(s: State, a: Actor, candidate: Data) {
-  if (isAdmin(a)) return true
+  if (isAdmin(a)) return canSeeCandidate(s, a, candidate)
+  if (!cleared(a, candidate, 'private')) return false
   return s.all('application').some(app => {
     if (app.candidate !== candidate.id) return false
     s.get('application', app.id)
@@ -70,9 +86,8 @@ export function canSeeContact(s: State, a: Actor, candidate: Data) {
  * anything marked restricted) are visible to the owner and hiring admins only.
  */
 export function canSeeDocument(s: State, a: Actor, doc: Data) {
-  if (isAdmin(a)) return true
-  if (doc.restricted) return false
-  if (doc.application) {
+  if (doc.restricted && !isAdmin(a)) return false
+  if (doc.application && s.find('application', doc.application)) {
     // A transferred application carries its source's attachments to the new job's team.
     for (let app = s.find('application', doc.application), hops = 0; app && hops < 20; app = app.transferredTo && s.find('application', app.transferredTo), hops++)
       if (canSeeApplication(s, a, app)) return true
@@ -127,7 +142,13 @@ export function canSeeTeamNote(s: State, a: Actor, note: Data) {
 
 /** Approval terms have their own assigned reviewer grant, independent of application visibility. */
 export function canSeeApproval(s: State, a: Actor, approval: Data) {
-  if (isAdmin(a)) return true
+  if (isAdmin(a)) {
+    const subject = s.find(approval.subjectKind, approval.subjectId)
+    if (!subject) return true
+    if (approval.subjectKind === 'vacancy') return cleared(a, subject, 'confidential')
+    const app = subject.application && s.find('application', subject.application)
+    return !app || canSeeApplication(s, a, app)
+  }
   if (approval.approver === scope(a) && has(a, approval.subjectKind === 'message' ? 'manager' : 'approver')) return true
   if (approval.requestedBy !== scope(a)) return false
   const subject = s.find(approval.subjectKind, approval.subjectId)

@@ -30,10 +30,10 @@ export function People({ w, mutate, setNotice }: PageProps) {
     <Table heads={['Name', 'Email', 'Roles', 'Status', '']} empty="No members yet.">{w.members.map((m: D) => <tr key={m.email}><td>{m.name}</td><td>{m.email}</td><td>{m.owner ? 'owner (all roles)' : m.roles.join(', ')}</td><td><Status tone={m.active ? 'good' : 'neutral'}>{m.active ? 'active' : 'inactive'}</Status></td>
       <td>{w.actor.owner && !m.owner && m.active && <button onClick={async () => { await call('invite', { email: m.email }); setNotice(`Sign-in invitation accepted for ${m.email}.`) }}>Invite to sign in</button>}</td></tr>)}</Table>
     <h3>Add or change a member</h3>
-    <Form label="Save member" reset onSubmit={v => mutate('member', { email: v.email, name: v.name, roles: ROLES.filter(([r]) => v['role-' + r]).map(([r]) => r), active: !v.inactive })}>
+    <Form label="Save member" reset onSubmit={v => mutate('member', { email: v.email, name: v.name, roles: ROLES.filter(([r]) => v['role-' + r]).map(([r]) => r), active: !v.inactive, seePrivate: v.seePrivate === true })}>
       <Field label="Email" name="email" type="email" />
       <Field label="Name" name="name" />
-      <fieldset className="wide"><legend>Roles</legend>{ROLES.map(([r, label]) => <Check key={r} name={'role-' + r} label={label} />)}<Check name="inactive" label="Deactivate (keeps their history, removes access)" /></fieldset>
+      <fieldset className="wide"><legend>Roles</legend>{ROLES.map(([r, label]) => <Check key={r} name={'role-' + r} label={label} />)}<Check name="inactive" label="Deactivate (keeps their history, removes access)" />{w.actor.owner && <Check name="seePrivate" label="See private: confidential jobs and private candidates" />}</fieldset>
     </Form>
     <p className="hint">Interviewers see only the applications they are assigned to, without contact details. Restricted documents and voluntary monitoring answers stay with the owner and hiring admins.</p>
   </div>

@@ -40,8 +40,8 @@ export function Overview({ w, mutate, go }: PageProps) {
   ]
   const others = [...new Set(pending.filter((x: D) => x.approver !== actor.email).map((x: D) => person(w, x.approver)))]
   const tiles: [string, number, IconName, string][] = [
-    ['Open vacancies', open.length, 'vacancies', count(w.vacancies.filter((v: D) => v.status === 'draft' && !v.imported).length, 'draft')],
-    ['Active applications', w.applications.filter((a: D) => a.status === 'active').length, 'applications', count(w.applications.filter((a: D) => a.status === 'active' && daysSince(a.submittedAt) < 7).length, 'new this week', 'new this week')],
+    ['Open vacancies', w.totals?.openVacancies ?? open.length, 'vacancies', count(w.vacancies.filter((v: D) => v.status === 'draft' && !v.imported).length, 'draft')],
+    ['Active applications', w.totals?.activeApplications ?? w.applications.filter((a: D) => a.status === 'active').length, 'applications', count(w.applications.filter((a: D) => a.status === 'active' && daysSince(a.submittedAt) < 7).length, 'new this week', 'new this week')],
     ['Approvals pending', pending.length, 'approvals', mine.length ? `${mine.length} with you` : others.length ? `with ${others.join(', ')}` : 'none waiting'],
     ['Scorecards to write', toScore.length, 'clock', count(toScore.filter(x => x.late > 0).length, 'overdue', 'overdue')],
   ]

@@ -3,7 +3,7 @@ import { EMPLOYMENT_TYPES, vacancyFacts } from '../lodge/core/labels'
 import { pay, payShort, since } from './format'
 import { Icon } from './icons'
 import { person } from './names'
-import { cents, Empty, Field, Form, memberOptions, Status, Table, type D } from './shared'
+import { cents, Check, Empty, Field, Form, memberOptions, Status, Table, type D } from './shared'
 import { columns } from './pipeline/facts'
 import { Kickoffs } from './kickoffs'
 
@@ -79,6 +79,13 @@ function Detail({ v, w, mutate, go }: { v: D } & Pick<PageProps, 'w' | 'mutate' 
         : <Form label="Request approval" compact onSubmit={x => mutate('request-vacancy-approval', { id: v.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} /></Form>}
     </section>}
     {v.status === 'open' && <Form label="Unpublish" compact onSubmit={x => mutate('unpublish', { id: v.id, reason: x.reason })}><Field label="Reason for unpublishing" name="reason" /></Form>}
+    {(w.actor.owner || w.actor.roles.includes('admin')) && !v.imported && <details><summary>{v.confidential ? 'Confidential job' : 'Make confidential'}</summary>
+      <p className="hint">Only the people you name, its hiring manager, the owner and holders of “see private” see a confidential job and its candidates. It stays off the careers page unless you give a neutral title.</p>
+      <Form label="Save confidentiality" onSubmit={x => mutate('vacancy-privacy', { id: v.id, confidential: x.confidential === true, publicTitle: x.publicTitle, namedPeople: x.namedPeople.split(',').map((e: string) => e.trim()).filter(Boolean) })}>
+        <Check name="confidential" label="Confidential" defaultChecked={v.confidential} />
+        <Field label="Named people (emails, comma-separated)" name="namedPeople" required={false} defaultValue={(v.namedPeople ?? []).join(', ')} />
+        <Field label="Neutral title for the careers page (blank keeps it off)" name="publicTitle" required={false} defaultValue={v.publicTitle} />
+      </Form></details>}
     {v.status !== 'closed' && !v.imported && <Form label="Close vacancy" compact onSubmit={x => mutate('close-vacancy', { id: v.id, reason: x.reason })}><Field label="Reason for closing" name="reason" /></Form>}
     <p><a href={`/api/lodge/download/vacancy/${v.id}`}>Export this vacancy’s whole history (JSON)</a></p>
   </section>

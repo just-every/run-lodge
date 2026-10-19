@@ -617,6 +617,56 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     await cmd('close-vacancy', { id: job.id, reason: 'Kickoff journey done' }, manager)
   })
 
+  await t.test('OPS-005 a confidential job and a private candidate reach only the people named and see-private holders', async () => {
+    const rae = await h.member('rae@example.test', ['admin'], 'Rae Kim'), nia = await h.member('nia@example.test', ['admin'], 'Nia Patel')
+    const sam = await h.member('sam@example.test', ['admin'], 'Sam Ortiz', { seePrivate: true })
+    const raeAgent = await h.member('rae-agent@example.test', [], 'Rae’s coding agent', { agent: true, actsFor: 'rae@example.test' })
+    const job = await cmd('vacancy', { title: 'Head of Operations', department: 'Leadership', location: 'Brooklyn, NY', headcount: 1, manager: 'morgan@example.test', compensation: RANGE }, manager)
+    await cmd('rubric', { id: job.id, criteria: RUBRIC }, manager)
+    await cmd('interview-plan', { id: job.id, plan: [{ name: 'Board panel', stage: job.stages[2].id, durationMinutes: 60 }] }, manager)
+    await approve((await cmd('request-vacancy-approval', { id: job.id, approver: 'parker@example.test' }, manager)).id)
+    assert.equal((await send('/api/lodge/command/vacancy-privacy', { id: job.id, confidential: true }, manager)).status, 403, 'admins mark a job confidential')
+    await cmd('vacancy-privacy', { id: job.id, confidential: true, namedPeople: ['nia@example.test'] })
+    const { slug } = await cmd('publish', { id: job.id }, manager)
+    const { application: app } = await cmd('candidate', { name: 'Quinn Avery', email: 'quinn@example.test', source: 'Internal', consentBasis: 'referral', vacancy: job.id }, manager)
+    // Off the careers page, unless posted under a neutral title.
+    assert.ok(!(await send('/jobs')).text.includes('Head of Operations'))
+    assert.equal((await send('/jobs/' + slug)).status, 404)
+    await cmd('vacancy-privacy', { id: job.id, confidential: true, namedPeople: ['nia@example.test'], publicTitle: 'Operations leader' })
+    const listed = (await send('/jobs')).text, posted = await send('/jobs/' + slug)
+    assert.ok(listed.includes('Operations leader') && !listed.includes('Head of Operations'))
+    assert.equal(posted.status, 200)
+    assert.ok(!posted.text.includes('Head of Operations') && !posted.text.includes('Leadership'))
+    // A regular recruiter and their agent find neither the job nor its candidate anywhere; the totals still count both.
+    for (const who of [rae, raeAgent]) {
+      const view = await state(who)
+      assert.ok(!view.vacancies.some(v => v.id === job.id) && !view.candidates.some(c => c.id === app.candidate))
+      assert.ok(!JSON.stringify(view).includes('Quinn Avery') && !JSON.stringify(view).includes('Head of Operations'))
+      for (const q of ['Quinn', 'Head of Operations']) assert.deepEqual((await send('/api/lodge/search?q=' + encodeURIComponent(q), undefined, who)).value.results, [])
+      for (const path of ['/api/lodge/download/vacancy/' + job.id, '/api/lodge/download/activity/' + app.candidate]) assert.equal((await send(path, undefined, who)).status, 404)
+    }
+    const raeView = await state(rae)
+    assert.equal(raeView.totals.openVacancies, raeView.vacancies.filter(v => v.status === 'open').length + 1)
+    assert.equal(raeView.totals.activeApplications, raeView.applications.filter(a => a.status === 'active').length + 1)
+    assert.equal((await send('/api/lodge/download/candidate/' + app.candidate, undefined, rae)).status, 404)
+    assert.equal((await send('/api/lodge/command/move', { application: app.id, to: 'withdrawn', reason: 'Probe' }, rae)).status, 404)
+    // The job's manager, the named admin, a see-private holder and the owner see both.
+    for (const who of [manager, nia, sam, owner]) {
+      const view = await state(who)
+      assert.ok(view.vacancies.some(v => v.id === job.id) && view.candidates.some(c => c.id === app.candidate))
+    }
+    assert.deepEqual((await send('/api/lodge/search?q=Quinn', undefined, sam)).value.results.map(r => r.id), [app.candidate])
+    // A private candidate on an ordinary job disappears even for that job's manager unless named.
+    const { application: ellis } = await cmd('candidate', { name: 'Ellis Grant', email: 'ellis@example.test', source: 'Internal', consentBasis: 'referral', vacancy: vacancy.id }, manager)
+    await cmd('candidate-privacy', { id: ellis.candidate, private: true, namedPeople: ['nia@example.test'] })
+    for (const [who, sees] of [[manager, false], [rae, false], [raeAgent, false], [nia, true], [sam, true]]) {
+      const view = await state(who)
+      assert.equal(view.candidates.some(c => c.id === ellis.candidate) || view.applications.some(a => a.id === ellis.id), sees)
+      assert.equal(JSON.stringify(view).includes('Ellis Grant'), sees)
+    }
+    assert.equal((await state(rae)).totals.candidates, (await state(sam)).totals.candidates, 'aggregate counts include private people')
+  })
+
   await t.test('SCORE-002 a correction is a linked version: the original stays, the manager hears, the packet goes stale', async () => {
     const { application: app } = await cmd('candidate', { name: 'Noor Haddad', email: 'noor@example.test', source: 'Referral', consentBasis: 'referral', vacancy: vacancy.id }, manager)
     await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)

@@ -8,7 +8,7 @@ import { businessZone, isZone, times } from '../core/time'
 import { load, save } from '../core/store'
 import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
-import { MONITORING_OPTIONS, interviewByToken, openVacancy, submit } from '../records/intake'
+import { MONITORING_OPTIONS, interviewByToken, openVacancy, publicPosting, submit } from '../records/intake'
 import { candidateAvailability } from '../records/interviews'
 
 // The pages applicants see: open roles, the application form (plain HTML that
@@ -44,7 +44,7 @@ function sameOrigin(c: C) {
 publicPages.get('/jobs', async c => {
   const s = await load(c.env.DB)
   const business = s.all('business')[0]
-  const open = s.all('vacancy').filter(v => v.status === 'open').sort((x, y) => x.title.localeCompare(y.title))
+  const open = s.all('vacancy').filter(v => v.status === 'open').map(publicPosting).filter((v): v is Data => !!v).sort((x, y) => x.title.localeCompare(y.title))
   return page('Open roles', `<h1>Open roles${business ? ' at ' + esc(business.name) : ''}</h1>${open.length ? `<ul class="roles">${open.map(v => `<li><a href="/jobs/${esc(v.slug)}">${esc(v.title)}</a><span>${esc(vacancyFacts(v, false).join(' · '))}</span></li>`).join('')}</ul>` : '<p>There are no open roles right now.</p>'}`)
 })
 
@@ -77,7 +77,8 @@ publicPages.get('/jobs/:slug', async c => {
   const s = await load(c.env.DB)
   const v = openVacancy(s, c.req.param('slug'))
   if (!v) return notFound()
-  return page(v.title, form(v, s.get('business', 'main')))
+  const shown = publicPosting(v)!
+  return page(shown.title, form(shown, s.get('business', 'main')))
 })
 
 publicPages.post('/jobs/:slug', async c => {
@@ -96,7 +97,8 @@ publicPages.post('/jobs/:slug', async c => {
     return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
-    return page(v.title, form(v, s.get('business', 'main'), error.message, values), error.status)
+    const shown = publicPosting(v)!
+    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values), error.status)
   }
 })
 

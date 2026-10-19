@@ -26,6 +26,8 @@ export interface Actor {
   roles: Role[]
   /** An agent member reads within its roles but can only propose; people apply changes. */
   agent: boolean
+  /** Holds the "see private" permission: confidential jobs and private candidates are visible to them. */
+  seePrivate?: boolean
   /** For an agent member: the person whose view it shares (their email). */
   scopeAs?: string
   /** Saved authorization revisions, also used by Base import and invitation batches. */

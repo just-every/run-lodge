@@ -1,6 +1,6 @@
 import type { State } from '../core/state'
-import { managesVacancy, requireManages, requireMember, requireRole } from '../core/access'
-import { currency, integer, list, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { managesVacancy, requireAdmin, requireManages, requireMember, requireRole } from '../core/access'
+import { currency, email, integer, list, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval } from './approvals'
 
 // Flows 1 and 2: a vacancy with its compensation range, manager and headcount
@@ -127,6 +127,22 @@ export function unpublish(s: State, a: Actor, b: Data) {
   requireThat(v.status === 'open', 'Only a published vacancy can be unpublished', 409)
   const record = s.put('vacancy', v.id, { ...v, status: 'draft' })
   s.audit(a, 'vacancy-unpublished', 'vacancy:' + v.id, { reason: text(b.reason, 'Reason', 500) })
+  return record
+}
+
+/**
+ * An admin marks a job confidential: only the people named, its hiring manager,
+ * the owner and "see private" holders see it, and the careers page shows it only
+ * under a neutral title, if one is given.
+ */
+export function privacy(s: State, a: Actor, b: Data) {
+  requireAdmin(a)
+  const v = s.get('vacancy', b.id)
+  requireManages(a, v)
+  const confidential = b.confidential === true
+  const namedPeople = list(b.namedPeople ?? [], 'Named people', 20, x => requireMember(s, email(x, 'Named person')).email)
+  const record = s.put('vacancy', v.id, { ...v, confidential, namedPeople: confidential ? [...new Set(namedPeople)] : [], publicTitle: confidential ? optionalText(b.publicTitle, 'Neutral public title', 160) : '' })
+  s.audit(a, confidential ? 'vacancy-confidential' : 'vacancy-not-confidential', 'vacancy:' + v.id, { namedPeople: record.namedPeople, publicTitle: record.publicTitle })
   return record
 }
 

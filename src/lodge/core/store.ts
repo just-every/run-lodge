@@ -79,8 +79,8 @@ export function actorFor(session: Session, state: State): Actor {
     memberships.push({ email: principal.email, revision: state.revisionOf('member', principal.email) })
     const roles: Role[] = principal.owner ? all : principal.roles
     requireThat(roles.length, 'Active Lodge principal capability required', 403)
-    return { ...base, roles, agent: true, scopeAs: principal?.email }
+    return { ...base, roles, agent: true, scopeAs: principal?.email, seePrivate: principal.owner === true || principal.seePrivate === true }
   }
   requireThat(owner || member?.roles?.length, 'Active Lodge capability required', 403)
-  return { ...base, roles: owner ? all : member!.roles, agent: false }
+  return { ...base, roles: owner ? all : member!.roles, agent: false, seePrivate: member?.seePrivate === true }
 }

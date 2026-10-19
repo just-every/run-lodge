@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { requireAdmin } from '../core/access'
+import { canSeeCandidate, requireAdmin } from '../core/access'
 import { requireThat, type Actor, type Data } from '../core/types'
 import type { Workspace } from './workspace'
 
@@ -32,7 +32,7 @@ export function talentPool(s: State, a: Actor, q: unknown) {
   requireAdmin(a)
   const words = terms(q), today = new Date().toISOString().slice(0, 10)
   return s.all('candidate')
-    .filter(c => !c.deleted && !c.mergedInto && c.consent?.talentPool === true && c.retainUntil >= today)
+    .filter(c => !c.deleted && !c.mergedInto && c.consent?.talentPool === true && c.retainUntil >= today && canSeeCandidate(s, a, c))
     .map(c => ({ c, f: matches(c, ['headline', 'skills', 'location', 'name'], words) }))
     .filter(x => x.f)
     .map(({ c, f }) => ({ candidate: c.id, name: c.name, matchedFields: f, evidence: Object.fromEntries(f!.map(k => [k, c[k]])), permission: { basis: c.consent.basis, talentPool: true, retainUntil: c.retainUntil }, applications: s.all('application').filter(x => x.candidate === c.id).map(x => ({ vacancy: x.vacancy, status: x.status })) }))

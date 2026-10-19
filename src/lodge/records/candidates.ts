@@ -1,6 +1,6 @@
 import type { State } from '../core/state'
-import { canSeeContact, requireAdmin, requireApplication, requireManages, requireRole } from '../core/access'
-import { date, now, oneOf, optionalEmail, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { canSeeCandidate, canSeeContact, requireAdmin, requireApplication, requireManages, requireMember, requireRole } from '../core/access'
+import { date, email, list, now, oneOf, optionalEmail, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { storeDocument } from './documents'
 import { cancelTasks } from './tasks'
 
@@ -53,6 +53,18 @@ export async function candidate(s: State, a: Actor, b: Data) {
   if (vacancy) application = startApplication(s, a, record, vacancy, record.source)
   if (b.resume) await storeDocument(s, { candidate: record.id, application: application?.id ?? null, name: b.resume.name, mediaType: b.resume.mediaType, base64: b.resume.base64, kind: 'resume', source: 'uploaded by ' + a.email })
   return { candidate: record, application }
+}
+
+/** An admin marks a candidate private: only the people named, the owner and "see private" holders see them anywhere. */
+export function candidatePrivacy(s: State, a: Actor, b: Data) {
+  requireAdmin(a)
+  const c = s.find('candidate', b.id)
+  requireThat(c && !c.deleted && !c.mergedInto && canSeeCandidate(s, a, c), 'Candidate not found', 404)
+  const isPrivate = b.private === true
+  const namedPeople = list(b.namedPeople ?? [], 'Named people', 20, x => requireMember(s, email(x, 'Named person')).email)
+  const record = s.put('candidate', c.id, { ...c, private: isPrivate, namedPeople: isPrivate ? [...new Set(namedPeople)] : [] })
+  s.audit(a, isPrivate ? 'candidate-private' : 'candidate-not-private', 'candidate:' + c.id, { namedPeople: record.namedPeople })
+  return record
 }
 
 export function correctCandidate(s: State, a: Actor, b: Data) {

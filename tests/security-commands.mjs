@@ -3,6 +3,7 @@ export function commandBodies(h) {
   const { vacancy, candidate, app, interview, offer } = h
   return {
     kickoff: { title: 'Forbidden' }, 'vacancy-from-kickoff': { kickoff: 'no-such-kickoff', location: 'Forbidden' },
+    'vacancy-privacy': { id: vacancy.id, confidential: true }, 'candidate-privacy': { id: candidate.id, private: true },
     business: { name: 'Forbidden' }, member: { email: 'new@example.test', name: 'New', roles: ['admin'] },
     vacancy: { title: 'Forbidden', manager: 'outside@example.test' }, 'vacancy-stages': { id: vacancy.id, stages: vacancy.stages },
     rubric: { id: vacancy.id, criteria: [{ name: 'Criterion', description: 'Evidence' }] }, 'interview-plan': { id: vacancy.id, plan: vacancy.plan },

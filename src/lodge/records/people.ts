@@ -51,8 +51,10 @@ export function member(s: State, a: Actor, b: Data) {
   requireThat(!agent || !existing || existing.agent, 'An agent needs its own email address, not a person’s', 409)
   // Only the owner can create or change another admin.
   requireThat(a.owner || (!roles.includes('admin') && !existing?.roles?.includes('admin')), 'Only the owner can manage hiring admins', 403)
-  const record = s.put('member', address, { email: address, name: text(b.name, 'Member name', 120), roles: [...new Set(roles)], active: b.active !== false, owner: false, agent, actsFor })
+  // Only the owner grants the "see private" permission (confidential jobs, private candidates).
+  const seePrivate = !agent && (a.owner ? b.seePrivate === true : existing?.seePrivate === true)
+  const record = s.put('member', address, { email: address, name: text(b.name, 'Member name', 120), roles: [...new Set(roles)], active: b.active !== false, owner: false, agent, actsFor, seePrivate })
   if (existing?.active && !record.active) reassignTasks(s, a, address)
-  s.audit(a, existing ? 'member-updated' : 'member-added', 'member:' + address, { roles: record.roles, active: record.active, agent, actsFor })
+  s.audit(a, existing ? 'member-updated' : 'member-added', 'member:' + address, { roles: record.roles, active: record.active, agent, actsFor, seePrivate })
   return record
 }

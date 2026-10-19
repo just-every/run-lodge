@@ -323,8 +323,8 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 9 | 37 | 62 | 108 |
-| All | 26 | 37 | 62 | 125 |
+| Target and push further | 10 | 37 | 61 | 108 |
+| All | 27 | 37 | 61 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -445,7 +445,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `OPS-002` | Team administration and enterprise identity | target | partial | `src/lodge/records/people.ts`; `src/lodge/core/access.ts`; `tests/security.test.mjs` | Native members, roles, invitations and live revocation exist; SSO (Okta, Entra, Google Workspace), SCIM and Google Directory sync, previewed bulk invitations, compliance/agency roles and owned-work reassignment are absent. |
 | `OPS-003` | Recruiting workflow sandbox and transparent setup | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `OPS-004` | Custom permission levels | target | partial | `src/lodge/core/access.ts`; `src/lodge/records/people.ts`; `tests/security.test.mjs` | Fixed owner, admin, manager, approver and interviewer roles with per-vacancy manager scope exist; named custom levels with granular permissions are absent. |
-| `OPS-005` | Confidential jobs and private candidates | target | missing |  | Every vacancy and candidate is visible to all admins and the vacancy's managers; no confidential mode exists. |
+| `OPS-005` | Confidential jobs and private candidates | target | done | `src/lodge/core/access.ts`; `src/lodge/views/workspace.ts`; `src/lodge/records/intake.ts`; `src/ui/vacancies.tsx`; `tests/hiring.test.mjs` |  |
 | `PRIV-001` | California applicant privacy notice and requests | target | partial | `src/lodge/records/people.ts`; `src/lodge/records/intake.ts`; `src/lodge/records/retention.ts`; `tests/retention-flow.mjs` | Versioned privacy notices, recorded notice versions, access exports and erasure exist; California notice content, applicant-submitted request intake, verification and deadline tracking are absent. |
 | `COORD-001` | Own stalled hiring coordination to completion | push-further | partial | `src/lodge/agents/coordination.ts`; `src/lodge/agents/proposals.ts`; `tests/agents.test.mjs` | Stall facts and source-bound reminder proposals exist; connected monitoring, durable ownership, delivered follow-through and verified completion are absent. |
 | `COORD-002` | Diagnose avoidable hiring-process delays | push-further | partial | `src/lodge/records/pipeline.ts`; `src/lodge/records/offers.ts` | Stage and offer outcomes exist; joined delay/survey analysis, cited diagnosis and controlled process trials are absent. |

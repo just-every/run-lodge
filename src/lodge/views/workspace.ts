@@ -1,6 +1,6 @@
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
-import { canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
+import { cleared, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
 import { scope, type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { duplicateSuggestions, transferredFrom } from '../records/candidates'
@@ -89,6 +89,19 @@ export async function workspaceRecords(s: State, a: Actor) {
     return vacancy && managesVacancy(a, vacancy) ? i : { ...i, candidateToken: undefined }
   })
   const visibleCandidates = new Set(candidates.map(c => c.id))
+  // Admin-wide lists leave out what a confidential job or private candidate hides from this reader.
+  const hiddenCandidate = (id: string) => { const c = s.find('candidate', id); return !!c && !canSeeCandidate(s, a, c) }
+  const hiddenVacancy = (id: string) => !cleared(a, s.find('vacancy', id), 'confidential')
+  const hiddenApp = (id: string) => { const app = s.find('application', id); return !!app && !appIds.has(id) && (hiddenVacancy(app.vacancy) || hiddenCandidate(app.candidate)) }
+  const concealed = (record: string) => {
+    const [kind, id] = [record.slice(0, record.indexOf(':')), record.slice(record.indexOf(':') + 1)]
+    if (kind === 'vacancy') return hiddenVacancy(id)
+    if (kind === 'candidate') return hiddenCandidate(id)
+    if (kind === 'application') return hiddenApp(id)
+    const subject = (kind === 'offer' || kind === 'message') && s.find(kind, id)
+    return !!subject && hiddenApp(subject.application)
+  }
+  const live = s.all('vacancy').filter(v => !v.imported), active = s.all('application').filter(x => x.status === 'active')
   // Follow-ups and tasks the reader owns or set, while what they point at stays in view.
   const tasks = s.all('task').filter(t => (t.owner === scope(a) || t.createdBy === scope(a)) && (t.application ? appIds.has(t.application) : !t.candidate || visibleCandidates.has(t.candidate))).sort((x, y) => x.due.localeCompare(y.due))
   const today = businessToday(s)
@@ -102,9 +115,9 @@ export async function workspaceRecords(s: State, a: Actor) {
     kickoffs: s.all('kickoff').filter(k => admin || k.author === scope(a) || managed.some(v => v.id === k.vacancy)),
     applications: projected,
     candidates,
-    mergedCandidates: admin ? s.all('candidate').filter(c => c.mergedInto) : [],
-    receipts: admin ? s.all('receipt') : [],
-    duplicateReviews: admin ? s.all('duplicate-review') : [],
+    mergedCandidates: admin ? s.all('candidate').filter(c => c.mergedInto && !hiddenCandidate(c.mergedInto)) : [],
+    receipts: admin ? s.all('receipt').filter(r => !hiddenApp(r.application)) : [],
+    duplicateReviews: admin ? s.all('duplicate-review').filter(r => !hiddenCandidate(r.first) && !hiddenCandidate(r.second)) : [],
     documents: s.all('document').filter(d => canSeeDocument(s, a, s.get('document', d.id))),
     interviews,
     scorecards: visibleCards,
@@ -116,12 +129,14 @@ export async function workspaceRecords(s: State, a: Actor) {
       ...s.all('notification').filter(n => n.to === scope(a) && appIds.has(n.application)).sort((x, y) => y.at.localeCompare(x.at)),
     ],
     messages, offers, approvals,
-    restricted: admin ? s.all('monitoring') : [],
-    holds: admin ? s.all('hold') : [],
-    retention: admin ? retentionReview(s) : null,
-    dataRequests: admin ? s.all('data-request') : [],
+    restricted: admin ? s.all('monitoring').filter(m => !hiddenApp(m.application)) : [],
+    holds: admin ? s.all('hold').filter(h => !(h.candidate && hiddenCandidate(h.candidate)) && !(h.vacancy && hiddenVacancy(h.vacancy))) : [],
+    retention: admin ? (r => ({ due: r.due.filter(x => !hiddenCandidate(x.candidate)), held: r.held.filter(x => !hiddenCandidate(x.candidate)) }))(retentionReview(s)) : null,
+    dataRequests: admin ? s.all('data-request').filter(r => !hiddenCandidate(r.candidate)) : [],
     deletionReceipts: admin ? s.all('deletion-receipt') : [],
-    duplicates: admin ? duplicateSuggestions(s) : [],
+    duplicates: admin ? duplicateSuggestions(s).filter(d => !hiddenCandidate(d.first) && !hiddenCandidate(d.second)) : [],
+    // Counts across the whole business, confidential jobs and private candidates included, without identity.
+    totals: admin ? { openVacancies: live.filter(v => v.status === 'open').length, draftVacancies: live.filter(v => v.status === 'draft').length, activeApplications: active.length, candidates: s.all('candidate').filter(c => !c.deleted && !c.mergedInto && !c.imported).length } : null,
     importedHistory: {
       notes: s.all('imported-note').filter(n => appIds.has(n.application)),
       ratings: s.all('imported-rating').filter(n => appIds.has(n.application)),
@@ -129,7 +144,7 @@ export async function workspaceRecords(s: State, a: Actor) {
       members: admin ? s.all('source-member') : [],
     },
     coordination: coordination(s, a),
-    audit: admin ? s.all('audit').sort((x, y) => y.at.localeCompare(x.at)).slice(0, 300) : [],
+    audit: admin ? s.all('audit').filter(e => !concealed(e.record ?? '')).sort((x, y) => y.at.localeCompare(x.at)).slice(0, 300) : [],
   }
 }
 

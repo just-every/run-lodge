@@ -31,7 +31,9 @@ state; nothing is retried automatically. Operations: `business`, `member`,
 `kickoff` (a hiring manager's job intake: `title`, `purpose`, `mustHave`, `niceToHave`,
 `plan` of `{ name, interviewers }`, USD `payRange`, `headcount`, `targetStart`; send its `id` to edit),
 `vacancy-from-kickoff` (admins: the job draft from a `kickoff`, whose pay and headcount join the
-approved terms), `vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
+approved terms), `vacancy-privacy` and `candidate-privacy` (admins: `confidential` or `private` with
+`namedPeople`, and a job's neutral `publicTitle` for the careers page; only the named, the job's
+manager, the owner and members the owner gave `seePrivate` see them), `vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
 `request-vacancy-approval`, `publish`, `unpublish`, `close-vacancy`,
 `decide-approval` (send the `version` you reviewed), `candidate`,
 `correct-candidate`, `apply`, `review-duplicate`, `document`,
