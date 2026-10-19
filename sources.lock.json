@@ -79,7 +79,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3d8ff6852d2e5ce004e9249308692225f462aee67f1c2dd21b26d27852056e50",
+      "sha256": "0df317dfd83b712d9efb6466ca954db97dcb4732a69c399a664626bf51075cf1",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -91,7 +91,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "6a377baaa6babc263fb2503424d0acc2ba2478b1d3a5ddabfca3e3be10fcc9cf",
+      "sha256": "90c53b05f62748179bc3c257c76301e6493b17f071c9cc500569d992a6df7d99",
       "executable": false
     },
     "base-copies.json": {
@@ -103,7 +103,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "b73bbc271a6c84d5290d767f1c9dd37205b93df6a331d397a8941070a374d34a",
+      "sha256": "45917a86bb97b820f71438a5c546cdbb5d37db8c3afbfa877289b98518845cfa",
       "executable": false
     },
     "DEMO.md": {
@@ -771,11 +771,11 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "6e163779a5061e4367f2c4e1e2761d3c0defca45013323e68ac04604ee19e6bd",
+      "sha256": "17ab691e9651182cf622bd9d0b7bbff96bd8a48028f18a67c11001694a55204b",
       "executable": false
     },
     "src/lodge/core/access.ts": {
-      "sha256": "8f5a1a9cd9a1ec633487aef7517bd80aa67ad5608e18016eeac3fb239b8008c8",
+      "sha256": "681316c4987c57a21e6b0e6e95cb9fa247bbc8c27af50cb37847bcb4eb098a9c",
       "executable": false
     },
     "src/lodge/core/invitation.ts": {
@@ -843,7 +843,7 @@
       "executable": false
     },
     "src/lodge/records/candidates.ts": {
-      "sha256": "9dce405758320c1e2c6bd79960d1b16d9955d015c55f27d0e3d85baf42b4e677",
+      "sha256": "ff3d1e1d1fca75d8293d84a8ce3b476e821a9a8b75032c2f89c33a0e1e46cc00",
       "executable": false
     },
     "src/lodge/records/documents.ts": {
@@ -911,11 +911,15 @@
       "executable": false
     },
     "src/lodge/records/scorecards.ts": {
-      "sha256": "28c5949ac793f1ce71685f9d51f9da4d051c8343df38fb53a5afa1dbc2634f7b",
+      "sha256": "87571556c617a5d286c793ac9587457d0e6cf73cdd0b84584f81a0446ab3ea64",
       "executable": false
     },
     "src/lodge/records/tasks.ts": {
       "sha256": "c4fb85ce4682a227628ea398426afeac052073b4c94b011182469920c03a8de3",
+      "executable": false
+    },
+    "src/lodge/records/team.ts": {
+      "sha256": "32ab137bd677a26ebc32fffdcde926ce0fa2defa65f5189ec0672b962c24a0eb",
       "executable": false
     },
     "src/lodge/records/vacancies.ts": {
@@ -955,7 +959,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "e7fee5f88f239bfb9e093b86dd18052ee402798de32863a4058d601f74da58c9",
+      "sha256": "a4865d973903a26735f06e74ad6f05a366d82a9fdeaea0b4c558449c5f40ebbb",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -2727,7 +2731,7 @@
       "executable": false
     },
     "src/ui/candidates.tsx": {
-      "sha256": "6caa23f198e4832b280b91c55aaacb798bd2e9854a764d81de5eb01ea82e4fd0",
+      "sha256": "718825fde79d0afd3847c612747137bb91b7ab609e979ce77800f7593c8b0fec",
       "executable": false
     },
     "src/ui/debriefs.tsx": {
@@ -2858,8 +2862,12 @@
       "sha256": "c372fb4597e1401a3a106e27285c0b47a333ab1386211e22cae31cd3d4efa7e5",
       "executable": false
     },
+    "src/ui/team.tsx": {
+      "sha256": "0a696f439e5be83b021e095bfa1fd7a43cc78eb312731cbd420aec7ebf27a618",
+      "executable": false
+    },
     "src/ui/vacancies.tsx": {
-      "sha256": "ec6a3bdee7d110fa88f735f5f1abbe47541f57a2cb523ef90610dbf25ebd2ee2",
+      "sha256": "30672ec24942c6593f8c63db741c982bd3f48d9ce3d16f2cdab833c01c01833f",
       "executable": false
     },
     "tests/agents.test.mjs": {
@@ -2883,7 +2891,7 @@
       "executable": false
     },
     "tests/hiring.test.mjs": {
-      "sha256": "e8b6ccf02c18b78bd65d2710965852045f22c1a02d843bc06c88c4013e338804",
+      "sha256": "35e49de61601136c95d181199189d3c1b45e3b4a31fcdf76eeaf7fded6a84d15",
       "executable": false
     },
     "tests/lodge-worker.ts": {

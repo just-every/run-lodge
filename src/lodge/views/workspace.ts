@@ -1,6 +1,6 @@
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
-import { cleared, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
+import { cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy } from '../core/access'
 import { scope, type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { duplicateSuggestions, transferredFrom } from '../records/candidates'
@@ -28,7 +28,9 @@ export async function workspaceRecords(s: State, a: Actor) {
   const appIds = new Set(applications.map(x => x.id))
   const myApprovals = s.all('approval').filter(x => canSeeApproval(s, a, x))
   const managed = s.all('vacancy').filter(v => managesVacancy(a, s.get('vacancy', v.id)))
-  const visibleVacancyIds = new Set([...managed.map(v => v.id), ...applications.map(x => x.vacancy)])
+  // REQ-003: a job's sourcers and interview pool see its role, stages and rubric; the people who run it see it all.
+  const pooled = (v: Data) => !v.imported && v.status !== 'closed' && (teamOf(v, 'sourcers').includes(scope(a)) || teamOf(v, 'interviewers').includes(scope(a))) && cleared(a, v, 'confidential')
+  const visibleVacancyIds = new Set([...managed.map(v => v.id), ...applications.map(x => x.vacancy), ...s.all('vacancy').filter(pooled).map(v => v.id)])
 
   const vacancies: Data[] = []
   for (const v of s.all('vacancy').filter(v => visibleVacancyIds.has(v.id))) {
@@ -38,7 +40,7 @@ export async function workspaceRecords(s: State, a: Actor) {
       vacancies.push({ ...v, manages: true, version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
     } else {
       // Panel members see the role, its stages and the rubric they score against.
-      vacancies.push({ id: v.id, title: v.title, department: v.department, location: v.location, status: v.status, stages: v.stages, rubrics: v.rubrics, plan: v.plan, manages: false })
+      vacancies.push({ id: v.id, title: v.title, department: v.department, location: v.location, status: v.status, stages: v.stages, rubrics: v.rubrics, plan: v.plan, manages: false, sources: teamOf(v, 'sourcers').includes(scope(a)) })
     }
   }
 

@@ -1007,6 +1007,84 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await state(manager)).applications.find(x => x.id === wren.id).status, 'rejected')
   })
 
+  await t.test('REQ-003 a job names its hiring team; each sees and hears only that job, and a swap moves reminders and access at once', async () => {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: BUSINESS.timeZone })
+    const job = async (title, manager) => {
+      const v = await cmd('vacancy', { title, location: 'Newark, NJ', headcount: 1, manager, compensation: RANGE })
+      await cmd('rubric', { id: v.id, criteria: RUBRIC })
+      await cmd('interview-plan', { id: v.id, plan: [{ name: 'Walk', stageName: 'Interview', durationMinutes: 45 }] })
+      await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' })).id)
+      return cmd('publish', { id: v.id })
+    }
+    const yard = await job('Yard lead', 'morgan@example.test'), dock = await job('Dock clerk', 'mona@example.test')
+    const team = []
+    for (const [n, roles] of [['rory', ['manager']], ['coco', ['manager']], ['cleo', ['manager']], ['hal', ['manager']], ['sol', ['interviewer']], ['neve', ['manager']]]) team.push(await h.member(`${n}@example.test`, roles, n[0].toUpperCase() + n.slice(1) + ' Team'))
+    const [rory, coco, cleo, hal, sol, neve] = team
+    const mona = await h.signIn('mona@example.test')
+    const { application: yardApp } = await cmd('candidate', { name: 'Tess Yardley', email: 'tess@example.test', source: 'Referral', consentBasis: 'referral', vacancy: yard.id })
+    const { application: dockApp } = await cmd('candidate', { name: 'Dov Clerkson', email: 'dov@example.test', source: 'Referral', consentBasis: 'referral', vacancy: dock.id })
+    const setTeam = (body, cookie = owner) => send('/api/lodge/command/hiring-team', { id: yard.id, ...body }, cookie)
+    assert.equal((await setTeam({ recruiters: ['rory@example.test'] }, manager)).status, 403, 'the owner and hiring admins set the team')
+    assert.match((await setTeam({ recruiters: ['ivy@example.test'] })).value.error, /needs the manager or admin role/)
+    await cmd('hiring-team', { id: yard.id, recruiters: ['rory@example.test'], coordinators: ['coco@example.test'], hiringManagers: ['hal@example.test'], sourcers: ['sol@example.test'] })
+
+    // A recruiter, a coordinator and two hiring managers each see this job's items and none of the other job's, through state and search.
+    for (const who of [rory, coco, hal, manager]) {
+      const view = await state(who)
+      assert.ok(view.applications.some(x => x.id === yardApp.id && x.manages), 'the yard team runs the yard job')
+      assert.ok(!view.applications.some(x => x.id === dockApp.id) && !JSON.stringify(view).includes('Dov Clerkson'))
+      assert.deepEqual((await send('/api/lodge/search?q=Clerkson', undefined, who)).value.results, [])
+    }
+    assert.ok(!JSON.stringify(await state(mona)).includes('Tess Yardley'), 'the other job’s manager sees nothing of this one')
+    await cmd('move', { application: yardApp.id, to: yard.stages[1].id, reason: 'Coordinator screened her' }, coco)
+    // Notified only about this job: each reminder reaches its owner, and a scorecard correction reaches both hiring managers.
+    const remind = await cmd('task', { application: yardApp.id, note: 'Confirm her yard walk', due: today, owner: 'coco@example.test' }, rory)
+    const chase = await cmd('task', { application: yardApp.id, note: 'Chase her references', due: today, owner: 'hal@example.test' }, rory)
+    await cmd('task', { application: dockApp.id, note: 'Dock reminder', due: today }, mona)
+    assert.match((await send('/api/lodge/command/task', { application: yardApp.id, note: 'x', due: today, owner: 'neve@example.test' }, rory)).value.error, /cannot see this candidate/)
+    const due = async who => (await state(who)).notifications.filter(n => n.kind === 'task-due').map(n => n.task)
+    assert.deepEqual([await due(coco), await due(hal), await due(rory)], [[remind.id], [chase.id], []])
+    await cmd('assign-reviewers', { application: yardApp.id, reviewers: ['ivy@example.test'] }, coco)
+    const criteria = (await state(manager)).vacancies.find(x => x.id === yard.id).rubrics[0].criteria
+    const rated = { ratings: Object.fromEntries(criteria.map(c => [c.id, 3])), evidence: Object.fromEntries(criteria.map(c => [c.id, 'Ran the yard'])) }
+    const card = await cmd('scorecard', { application: yardApp.id, ...rated, recommendation: 'yes', takeaways: 'Steady lead', submit: true }, ivy)
+    await cmd('release-feedback', { application: yardApp.id }, hal)
+    await cmd('correct-scorecard', { scorecard: card.id, ...rated, reason: 'Added the forklift answer' }, ivy)
+    const told = async who => (await state(who)).notifications.filter(n => n.kind === 'scorecard-corrected' && n.application === yardApp.id).length
+    assert.deepEqual([await told(manager), await told(hal), await told(rory), await told(coco), await told(mona)], [1, 1, 0, 0, 0], 'notices go to each hiring manager on the job')
+    // Running the job stops at approving offers and terms, which stay with the approver role.
+    const offer = await cmd('offer', { application: yardApp.id, title: 'Yard lead', startDate: '2027-02-01', salary: { currency: 'USD', amount: 10000000, period: 'year' } }, rory)
+    assert.match((await send('/api/lodge/command/request-offer-approval', { id: offer.id, approver: 'rory@example.test' }, rory)).value.error, /approver role/)
+    // A sourcer sees the job and adds candidates to it, but reads no application, scorecard, note or offer.
+    const sourced = await state(sol)
+    assert.deepEqual(sourced.vacancies.map(x => [x.title, x.manages, x.sources]), [['Yard lead', false, true]])
+    assert.ok(!sourced.applications.length && !sourced.scorecards.length && !sourced.offers.length && !sourced.teamNotes.length)
+    assert.equal((await send('/api/lodge/command/candidate', { name: 'Sam Sourced', source: 'LinkedIn search', consentBasis: 'manual', vacancy: yard.id }, sol)).status, 200)
+    assert.equal((await send('/api/lodge/command/candidate', { name: 'Sam Elsewhere', source: 'LinkedIn search', consentBasis: 'manual', vacancy: dock.id }, sol)).status, 403)
+    assert.equal((await send('/api/lodge/command/team-note', { application: yardApp.id, text: 'x' }, sol)).status, 404)
+
+    // Swap the coordinator: the pending reminder moves to the new one, and the old one loses access at once through the app, API, search and export.
+    await cmd('hiring-team', { id: yard.id, recruiters: ['rory@example.test'], coordinators: ['cleo@example.test'], hiringManagers: ['hal@example.test'], sourcers: ['sol@example.test'] })
+    const moved = (await state(cleo)).tasks.find(x => x.id === remind.id)
+    assert.deepEqual([moved.owner, moved.history.map(e => [e.from, e.to])], ['cleo@example.test', [['coco@example.test', 'cleo@example.test']]])
+    assert.deepEqual(await due(cleo), [remind.id])
+    const old = await state(coco)
+    assert.ok(!old.vacancies.length && !old.applications.length && !old.tasks.length && !JSON.stringify(old).includes('Tess Yardley'), 'the app')
+    assert.equal((await send('/api/lodge/command/move', { application: yardApp.id, to: yard.stages[2].id, reason: 'x' }, coco)).status, 404, 'the API')
+    assert.deepEqual((await send('/api/lodge/search?q=Yardley', undefined, coco)).value.results, [], 'search')
+    for (const path of [`/api/lodge/download/vacancy/${yard.id}`, `/api/lodge/download/activity/${yardApp.candidate}`]) assert.equal((await send(path, undefined, coco)).status, 404, 'export')
+    // Taking someone off without a replacement hands their reminders to the first recruiter, then to the hiring manager.
+    await cmd('hiring-team', { id: yard.id, recruiters: ['rory@example.test'], coordinators: ['cleo@example.test'], sourcers: ['sol@example.test'] })
+    assert.equal((await state(rory)).tasks.find(x => x.id === chase.id).owner, 'rory@example.test')
+    await cmd('hiring-team', { id: yard.id, coordinators: ['cleo@example.test'] })
+    assert.equal((await state(manager)).tasks.find(x => x.id === chase.id).owner, 'morgan@example.test')
+    assert.ok(!(await state(sol)).vacancies.length, 'a removed sourcer no longer sees the job')
+    // On a confidential job the hiring team counts as named.
+    await cmd('vacancy-privacy', { id: yard.id, confidential: true, namedPeople: [] })
+    assert.ok((await state(cleo)).vacancies.some(x => x.id === yard.id && x.manages))
+    assert.ok(!(await state(neve)).vacancies.some(x => x.id === yard.id))
+  })
+
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {
     assert.equal((await send('/api/lodge/state')).status, 401)
     assert.equal((await send('/api/lodge/state', undefined, owner, { 'sec-fetch-site': 'cross-site' })).status, 403)

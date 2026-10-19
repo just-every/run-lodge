@@ -1,6 +1,6 @@
 import type { State } from '../core/state'
-import { canSeeCandidate, canSeeContact, requireAdmin, requireApplication, requireManages, requireMember, requireRole } from '../core/access'
-import { date, email, list, now, oneOf, optionalEmail, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { canSeeCandidate, canSeeContact, requireAdmin, requireApplication, requireManages, requireMember, requireRole, teamOf } from '../core/access'
+import { date, email, list, now, oneOf, optionalEmail, optionalText, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { storeDocument } from './documents'
 import { cancelTasks } from './tasks'
 
@@ -37,10 +37,13 @@ export function startApplication(s: State, actor: Actor | null, candidate: Data,
 
 /** Staff add a candidate with where they came from and on what basis Lodge keeps them. */
 export async function candidate(s: State, a: Actor, b: Data) {
-  requireRole(a, 'admin', 'manager')
   const vacancy = b.vacancy ? s.get('vacancy', b.vacancy) : null
-  if (vacancy) requireManages(a, vacancy)
-  else requireAdmin(a)
+  // REQ-003: a sourcer on the job adds candidates to it without running it.
+  if (!vacancy || !teamOf(vacancy, 'sourcers').includes(scope(a))) {
+    requireRole(a, 'admin', 'manager')
+    if (vacancy) requireManages(a, vacancy)
+    else requireAdmin(a)
+  }
   const fields = candidateFields(b)
   const basis = oneOf(b.consentBasis, CONSENT_BASES, 'Consent basis')
   const record = s.put('candidate', uid(), {

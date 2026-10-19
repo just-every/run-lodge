@@ -18,29 +18,40 @@ export function requireAdmin(a: Actor) {
   if (!isAdmin(a)) throw new Fault(403, 'Only the owner or a hiring admin can do this')
 }
 
+/** REQ-003: a job's hiring team by role. The job's own hiring manager (`manager`) is always one of its hiring managers. */
+export const TEAM_ROLES = ['recruiters', 'coordinators', 'hiringManagers', 'sourcers', 'interviewers'] as const
+export type TeamRole = typeof TEAM_ROLES[number]
+export const teamOf = (vacancy: Data, role: TeamRole): string[] => vacancy.team?.[role] ?? []
+/** Recruiters, coordinators and hiring managers run the job. */
+export const runsJob = (who: string, vacancy: Data) => vacancy.manager === who || (['recruiters', 'coordinators', 'hiringManagers'] as const).some(r => teamOf(vacancy, r).includes(who))
+export const onTeam = (who: string, vacancy: Data) => TEAM_ROLES.some(r => teamOf(vacancy, r).includes(who)) || vacancy.manager === who
+/** The job's hiring managers, its own first. */
+export const hiringManagers = (vacancy: Data) => [vacancy.manager, ...teamOf(vacancy, 'hiringManagers')].filter(Boolean) as string[]
+
 /**
  * A confidential job or a private candidate is visible only to the owner, holders
- * of the "see private" permission and the people named on it (a job's own
- * hiring manager is always named). Everything else is unaffected.
+ * of the "see private" permission and the people named on it (a job's hiring
+ * team, its own hiring manager included, is always named). Everything else is unaffected.
  */
 export function cleared(a: Actor, record: Data | undefined, flag: 'confidential' | 'private') {
   if (!record?.[flag]) return true
   const who = scope(a)
-  return a.owner || a.seePrivate === true || (record.namedPeople ?? []).includes(who) || (flag === 'confidential' && record.manager === who)
+  return a.owner || a.seePrivate === true || (record.namedPeople ?? []).includes(who) || (flag === 'confidential' && onTeam(who, record))
 }
 
 /** REQ-004: a manager's department or office grant covers the job. */
 const granted = (a: Actor, vacancy: Data) => !!a.grants && ((!!vacancy.departmentId && a.grants.departments.includes(vacancy.departmentId)) || (!!vacancy.officeId && a.grants.offices.includes(vacancy.officeId)))
 
 /**
- * Managers run their own vacancies and, with department or office grants, every
- * job in them; admins and the owner run all of them, except confidential ones
- * they are not cleared for.
+ * Managers run their own vacancies, the jobs whose hiring team names them as a
+ * recruiter, coordinator or hiring manager (REQ-003) and, with department or
+ * office grants, every job in them; admins and the owner run all of them,
+ * except confidential ones they are not cleared for.
  */
 export function managesVacancy(a: Actor, vacancy: Data) {
   if (isAdmin(a) && cleared(a, vacancy, 'confidential')) return true
   if (!a.roles.includes('manager')) return false
-  return vacancy.manager === scope(a) || (granted(a, vacancy) && cleared(a, vacancy, 'confidential'))
+  return runsJob(scope(a), vacancy) || (granted(a, vacancy) && cleared(a, vacancy, 'confidential'))
 }
 
 export function requireManages(a: Actor, vacancy: Data) {

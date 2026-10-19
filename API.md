@@ -42,7 +42,9 @@ state; nothing is retried automatically. Operations: `business`, `member`,
 approved terms), `interview-kit` (a draft plan item's `purpose` and `questions` of `{ text, guidance }`;
 an interview's scorecard rates only its plan item's criteria), `vacancy-privacy` and `candidate-privacy` (admins: `confidential` or `private` with
 `namedPeople`, and a job's neutral `publicTitle` for the careers page; only the named, the job's
-manager, the owner and members the owner gave `seePrivate` see them), `vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
+hiring team, the owner and members the owner gave `seePrivate` see them), `hiring-team` (admins: a
+live job's `recruiters`, `coordinators`, `hiringManagers`, `sourcers` and `interviewers` as email
+lists; see REQ-003), `vacancy`, `vacancy-stages`, `rubric`, `interview-plan`,
 `request-vacancy-approval`, `publish`, `unpublish`, `close-vacancy`,
 `decide-approval` (send the `version` you reviewed), `candidate`,
 `correct-candidate`, `apply`, `review-duplicate`, `document`,

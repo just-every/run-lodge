@@ -20,7 +20,7 @@ function nextStep(w: D, app: D) {
 
 export function Candidates({ w, mutate, go }: PageProps) {
   const admin = w.actor.owner || w.actor.roles.includes('admin')
-  const openVacancies = w.vacancies.filter((v: D) => v.manages && v.status === 'open')
+  const openVacancies = w.vacancies.filter((v: D) => (v.manages || v.sources) && v.status === 'open')
   const name = (id: string) => w.candidates.find((c: D) => c.id === id)?.name ?? id
   return <div className="page">
     <h1>Candidates</h1>

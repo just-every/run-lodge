@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { assignedTo, canSeeScorecard, managesVacancy, requireApplication, requireManages } from '../core/access'
+import { assignedTo, canSeeScorecard, hiringManagers, managesVacancy, requireApplication, requireManages } from '../core/access'
 import { now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 
 // Flow 9: each interviewer writes their own scorecard against the rubric
@@ -98,7 +98,7 @@ export const latest = (cards: Data[]): Data[] => versioned(cards).filter(c => !c
  * While the job is open the author files a correction to their submitted card
  * with a reason: a new linked version against the same rubric version. The
  * original stays as submitted; blinding and release are unchanged, and a
- * correction after release tells the hiring manager.
+ * correction after release tells the job's hiring managers.
  */
 export function correct(s: State, a: Actor, b: Data) {
   const card = s.find('scorecard', b.scorecard)
@@ -118,7 +118,8 @@ export function correct(s: State, a: Actor, b: Data) {
     application: app.id, interview: card.interview, author: a.email, rubricVersion: card.rubricVersion, ratings, evidence, recommendation, takeaways,
     notes: optionalText(input.notes, 'Notes', 8000), status: 'submitted', submittedAt: now(), updatedAt: now(), original, corrects: card.id, version, correctionReason: reason,
   })
-  if (app.feedbackReleased) s.put('notification', uid(), { to: vacancy.manager, kind: 'scorecard-corrected', application: app.id, scorecard: record.id, by: a.email, reason, at: now() })
+  // REQ-003: every hiring manager on the job hears.
+  if (app.feedbackReleased) for (const to of hiringManagers(vacancy)) s.put('notification', uid(), { to, kind: 'scorecard-corrected', application: app.id, scorecard: record.id, by: a.email, reason, at: now() })
   s.audit(a, 'scorecard-corrected', 'application:' + app.id, { scorecard: record.id, corrects: card.id, reason, afterRelease: app.feedbackReleased === true })
   return record
 }

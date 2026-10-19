@@ -10,6 +10,7 @@ import { Openings } from './openings'
 import { JobQuestions } from './questions'
 import { Rules } from './rules'
 import { departmentOptions, officeOptions } from './org'
+import { Team } from './team'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -80,6 +81,7 @@ function Detail({ v, w, mutate, go }: { v: D } & Pick<PageProps, 'w' | 'mutate' 
     {v.imported && <p className="hint">Imported from Workable ({v.sourceState || 'unknown state'}). Kept as history; it cannot be reopened.</p>}
     {v.status === 'open' && <p className="page-link"><Icon name="external" size={18} />Application page: <a href={`/jobs/${v.slug}`}>/jobs/{v.slug}</a> · {apps.length} applications</p>}
     {!v.imported && <Openings v={v} w={w} mutate={mutate} />}
+    {!v.imported && v.manages && <Team v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <JobQuestions v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <Rules v={v} w={w} mutate={mutate} />}
     {v.missing?.length > 0 && !v.imported && <p className="warn">Before approval, add: {v.missing.join(', ')}.</p>}
@@ -93,7 +95,7 @@ function Detail({ v, w, mutate, go }: { v: D } & Pick<PageProps, 'w' | 'mutate' 
     </section>}
     {v.status === 'open' && <Form label="Unpublish" compact onSubmit={x => mutate('unpublish', { id: v.id, reason: x.reason })}><Field label="Reason for unpublishing" name="reason" /></Form>}
     {(w.actor.owner || w.actor.roles.includes('admin')) && !v.imported && <details><summary>{v.confidential ? 'Confidential job' : 'Make confidential'}</summary>
-      <p className="hint">Only the people you name, its hiring manager, the owner and holders of “see private” see a confidential job and its candidates. It stays off the careers page unless you give a neutral title.</p>
+      <p className="hint">Only the people you name, its hiring team, the owner and holders of “see private” see a confidential job and its candidates. It stays off the careers page unless you give a neutral title.</p>
       <Form label="Save confidentiality" onSubmit={x => mutate('vacancy-privacy', { id: v.id, confidential: x.confidential === true, publicTitle: x.publicTitle, namedPeople: x.namedPeople.split(',').map((e: string) => e.trim()).filter(Boolean) })}>
         <Check name="confidential" label="Confidential" defaultChecked={v.confidential} />
         <Field label="Named people (emails, comma-separated)" name="namedPeople" required={false} defaultValue={(v.namedPeople ?? []).join(', ')} />
