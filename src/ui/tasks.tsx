@@ -16,7 +16,7 @@ export function Tasks({ w, mutate, go }: Pick<PageProps, 'w' | 'mutate' | 'go'>)
   const me = w.actor.email, today = new Date().toLocaleDateString('en-CA', { timeZone: w.business?.timeZone || 'UTC' })
   const open = w.tasks.filter((t: D) => t.status === 'open'), mine = open.filter((t: D) => t.owner === me), set = open.filter((t: D) => t.owner !== me)
   const who = (t: D) => t.application ? w.applications.find((a: D) => a.id === t.application)?.candidateName : w.candidates.find((c: D) => c.id === t.candidate)?.name
-  const row = (t: D, owner: boolean) => <li key={t.id}><span><strong>{t.note}</strong><small>{[who(t), t.kind === 'task' ? 'task' : 'follow-up', owner ? (t.createdBy !== me ? 'from ' + person(w, t.createdBy) : '') : 'for ' + person(w, t.owner)].filter(Boolean).join(' · ')}</small></span>{due(t, today)}
+  const row = (t: D, owner: boolean) => <li key={t.id} id={'task-' + t.id}><span><strong>{t.note}</strong><small>{[who(t), t.kind === 'task' ? 'task' : 'follow-up', owner ? (t.createdBy !== me ? 'from ' + person(w, t.createdBy) : '') : 'for ' + person(w, t.owner)].filter(Boolean).join(' · ')}</small></span>{due(t, today)}
     {t.application && <button className="link" onClick={() => go('Applications', { app: t.application, job: undefined })}>Open</button>}
     <button onClick={() => mutate('complete-task', { id: t.id })}>Done</button></li>
   if (!mine.length && !set.length && !recruiter(w)) return null

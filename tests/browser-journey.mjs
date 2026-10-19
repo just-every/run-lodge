@@ -119,6 +119,13 @@ export async function journey(browser, root, origin, width, evidence) {
     await manager.page.getByRole('button', { name: 'Schedule', exact: true }).click()
     await manager.page.getByRole('link', { name: 'Download calendar invitation (.ics)' }).waitFor()
 
+    // HOME-001: the interviewer's home lists the interview (its kit) and the scorecard due, each linking to its exact item.
+    await interviewer.page.reload(); await tab(interviewer.page, 'Overview')
+    await interviewer.page.getByRole('link', { name: `Site walk with ${person}`, exact: false }).waitFor()
+    await shot(interviewer.page, evidence, 'home', width)
+    await interviewer.page.getByRole('link', { name: 'Scorecard for ' + person, exact: false }).click()
+    await interviewer.page.getByRole('button', { name: 'Open ' + person, pressed: true }).waitFor()
+
     // Interviewer: sees only this application and submits an independent scorecard.
     await interviewer.page.reload(); await tab(interviewer.page, 'Applications')
     await interviewer.page.getByRole('button', { name: 'Open ' + person }).click()

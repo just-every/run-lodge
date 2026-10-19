@@ -15,6 +15,7 @@ import { emlFile } from '../records/messages'
 import { handoff, packet } from '../views/offer-exports'
 import { kitView } from '../views/kits'
 import { board } from '../views/board'
+import { home } from '../views/home'
 import { openingsReport } from '../views/openings-report'
 import { rejectionsReport } from '../views/rejections-report'
 import { deleteCandidate } from '../records/retention'
@@ -83,6 +84,11 @@ api.get('/api/lodge/search', async c => {
 api.get('/api/lodge/kit/:id', async c => {
   const { state, actor } = await context(c)
   return c.json(kitView(await workspace(state, actor), c.req.param('id')))
+})
+
+api.get('/api/lodge/home', async c => {
+  const { state, actor } = await context(c)
+  return c.json(home(await workspaceRecords(state, actor)))
 })
 
 api.get('/api/lodge/board/:vacancy', async c => {

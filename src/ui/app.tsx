@@ -28,7 +28,19 @@ export function App() {
   // An interview kit opens straight from its calendar invitation link (/app?kit=<interview>).
   const [kit, setKit] = useState<string | null>(null)
   async function reload() { setW(await call('state')) }
-  useEffect(() => { setKit(new URLSearchParams(location.search).get('kit')); reload().catch(e => setError(e.message)) }, [])
+  // HOME-001 links name the exact work item: ?application=, ?job=, ?approval= or ?task= (a kit keeps its own URL).
+  const [focus, setFocus] = useState<string | null>(null)
+  function follow(href: string) {
+    const q = new URLSearchParams(new URL(href, location.origin).search), at = (k: string) => q.get(k)
+    setKit(at('kit')); setNotice(''); scrollTo({ top: 0 })
+    history.replaceState(null, '', at('kit') ? '/app?kit=' + encodeURIComponent(at('kit')!) : '/app')
+    if (at('application')) setNav(n => ({ ...n, tab: 'Applications', app: at('application'), job: null }))
+    else if (at('job')) setNav(n => ({ ...n, tab: 'Applications', job: at('job'), app: '' }))
+    else if (at('approval')) { setNav(n => ({ ...n, tab: 'Approvals' })); setFocus('approval-' + at('approval')) }
+    else if (at('task')) { setNav(n => ({ ...n, tab: 'Overview' })); setFocus('task-' + at('task')) }
+  }
+  useEffect(() => { follow(location.href); reload().catch(e => setError(e.message)) }, [])
+  useEffect(() => { if (w && focus) { document.getElementById(focus)?.scrollIntoView({ block: 'center' }); setFocus(null) } }, [w, focus, nav.tab])
   async function mutate(op: string, body: D) {
     const result = await call('command/' + op, body)
     setNotice('Saved.')
@@ -54,7 +66,7 @@ export function App() {
   ]
   const go = (tab: string, target: Target = {}) => { setKit(null); setNav(n => ({ ...n, ...target, tab })); setNotice(''); scrollTo({ top: 0 }) }
   const closeKit = () => { history.replaceState(null, '', '/app'); setKit(null) }
-  const props = { w, mutate, reload, go, setNotice, nav }
+  const props = { w, mutate, reload, go, setNotice, nav, follow }
   const home = w.business && manager && w.applications.some((a: D) => a.manages) ? 'Applications' : 'Overview'
   const tab = nav.tab || home
   return <div className="shell">
@@ -80,4 +92,4 @@ export function App() {
   </div>
 }
 
-export interface PageProps { w: D; mutate: (op: string, body: D) => Promise<D>; reload: () => Promise<void>; go: (tab: string, target?: Target) => void; setNotice: (n: string) => void; nav: Nav }
+export interface PageProps { w: D; mutate: (op: string, body: D) => Promise<D>; reload: () => Promise<void>; go: (tab: string, target?: Target) => void; setNotice: (n: string) => void; nav: Nav; follow: (href: string) => void }

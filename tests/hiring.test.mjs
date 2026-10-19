@@ -550,6 +550,64 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     for (const a of apps) await cmd('move', { application: a.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Board test done' }, manager)
   })
 
+  await t.test('HOME-001 one home across jobs: interviews, scorecards, approvals, reviews, follow-ups, offers and jobs needing attention, each linked and gone once done or revoked', async () => {
+    const hana = await h.member('hana@example.test', ['manager', 'approver'], 'Hana Ito')
+    const jobA = await openJob('Tiler'), jobB = await openJob('Plasterer')
+    // Interviewer rights on job A and manager rights on job B (REQ-003).
+    await cmd('hiring-team', { id: jobA.id, interviewers: ['hana@example.test'] })
+    await cmd('hiring-team', { id: jobB.id, hiringManagers: ['hana@example.test'] })
+    const add = async (job, name) => (await cmd('candidate', { name, email: name.split(' ')[0].toLowerCase() + '.home@example.test', source: 'Careers page', consentBasis: 'application', vacancy: job.id }, manager)).application
+    const [a1, a2, b1, b2] = [await add(jobA, 'Tess Grout'), await add(jobA, 'Ned Bond'), await add(jobB, 'Pia Skim'), await add(jobB, 'Lou Float')]
+    const inDays = d => new Date(Math.floor(Date.now() / 3600000) * 3600000 + d * 86400000).toISOString()
+    const booked = async (app, start) => { const iv = await cmd('interview', { application: app.id, planItem: jobA.plan[0].id, participants: ['hana@example.test'], slots: [start], durationMinutes: 60 }, manager); await cmd('schedule', { interview: iv.id, slot: 0 }, manager); return iv }
+    // Job A: an upcoming interview, an interview held three days ago whose scorecard is overdue, and an application review.
+    const upcoming = await booked(a1, inDays(7)), held = await booked(a2, inDays(1))
+    await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.start',?) WHERE kind='interview' AND id=?").bind(inDays(-3), held.id).run()
+    await cmd('assign-reviewers', { application: a1.id, reviewers: ['hana@example.test'] }, manager)
+    const offerA = await cmd('offer', { application: a1.id, title: 'Tiler', startDate: '2027-02-01', salary: { currency: 'USD', amount: 9500000, period: 'year' } }, manager)
+    const approval = await cmd('request-offer-approval', { id: offerA.id, approver: 'hana@example.test' }, manager)
+    // Job B: her follow-up, a draft offer not yet sent for approval, a candidate 15 days in stage and an interview still collecting times.
+    const followUp = await cmd('task', { application: b1.id, note: 'Chase the portfolio', due: inDays(3).slice(0, 10), owner: 'hana@example.test' }, manager)
+    await cmd('move', { application: b2.id, to: jobB.stages[1].id, reason: 'Phone screen passed' }, manager)
+    await cmd('offer', { application: b2.id, title: 'Plasterer', startDate: '2027-03-01', salary: { currency: 'USD', amount: 9500000, period: 'year' } }, manager)
+    await cmd('interview', { application: b2.id, planItem: jobB.plan[0].id, participants: ['ivy@example.test'], slots: [inDays(5)] }, manager)
+    await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.at',?) WHERE kind='stage-event' AND json_extract(value,'$.application')=?").bind(inDays(-15), b1.id).run()
+
+    const homeOf = async (cookie = hana) => { const r = await send('/api/lodge/home', undefined, cookie); assert.equal(r.status, 200, JSON.stringify(r.value)); return r.value }
+    const links = x => Object.fromEntries(['interviews', 'scorecards', 'approvals', 'reviews', 'mentions', 'tasks', 'offers', 'attention'].map(k => [k, x[k].map(i => i.link).sort()]))
+    let home = await homeOf()
+    assert.deepEqual(links(home), {
+      interviews: ['/app?kit=' + upcoming.id], scorecards: ['/app?application=' + a1.id, '/app?application=' + a2.id].sort(), approvals: ['/app?approval=' + approval.id],
+      reviews: ['/app?job=' + jobA.id, '/app?job=' + jobB.id].sort(), mentions: [], tasks: ['/app?application=' + b1.id], offers: ['/app?application=' + b2.id], attention: ['/app?job=' + jobB.id],
+    })
+    assert.deepEqual(home.counts, { interviews: 1, scorecards: 2, approvals: 1, reviews: 2, mentions: 0, tasks: 1, offers: 1, attention: 1 })
+    const late = home.scorecards.find(x => x.application === a2.id), review = home.scorecards.find(x => x.application === a1.id)
+    assert.deepEqual([late.overdue, late.due, review.due], [true, new Date(Date.parse(inDays(-3)) + 3600000 + 24 * 3600000).toISOString(), null], 'due a day after the interview ends')
+    assert.deepEqual([home.reviews.find(q => q.vacancy === jobB.id).remaining, home.offers[0].action, home.attention[0].stalled, home.attention[0].unscheduled, home.tasks[0].overdue], [1, 'request-approval', 1, 1, false])
+    // Every link opens its exact item for her: the kit, the applications, the approval and the jobs.
+    assert.equal((await send('/api/lodge/kit/' + upcoming.id, undefined, hana)).status, 200)
+    const seen = await state(hana)
+    assert.ok([a1, a2, b1, b2].every(x => seen.applications.some(a => a.id === x.id)) && seen.approvals.some(x => x.id === approval.id && x.status === 'pending'))
+    assert.ok([jobA, jobB].every(j => seen.vacancies.some(v => v.id === j.id)))
+    assert.equal((await homeOf(ian)).counts.scorecards, 0, 'nobody else gets her items')
+
+    // Submit the scorecards, decide the approval, revoke job B and cancel the interview: each item leaves.
+    const [safety] = jobA.rubrics.at(-1).criteria
+    for (const app of [a1, a2]) await cmd('scorecard', { application: app.id, ratings: { [safety.id]: 3 }, evidence: { [safety.id]: 'Even grout lines' }, recommendation: 'yes', takeaways: 'Careful finisher', submit: true }, hana)
+    await cmd('review-recommendation', { application: a1.id, recommendation: 'yes' }, hana)
+    home = await homeOf()
+    assert.deepEqual([home.counts.scorecards, links(home).reviews], [0, ['/app?job=' + jobB.id]])
+    await cmd('decide-approval', { id: approval.id, decision: 'approved', reason: 'Within range', version: (await state(hana)).approvals.find(x => x.id === approval.id).currentVersion }, hana)
+    assert.equal((await homeOf()).counts.approvals, 0)
+    await cmd('hiring-team', { id: jobB.id })
+    home = await homeOf()
+    assert.deepEqual([home.counts.reviews, home.counts.tasks, home.counts.offers, home.counts.attention], [0, 0, 0, 0], 'job B is gone from her home at once')
+    assert.ok((await homeOf(manager)).tasks.some(x => x.id === followUp.id), 'her follow-up moved to the job’s hiring manager')
+    await cmd('cancel-interview', { interview: upcoming.id, reason: 'Candidate rescheduling' }, manager)
+    assert.deepEqual(Object.values((await homeOf()).counts), [0, 0, 0, 0, 0, 0, 0, 0])
+    for (const app of [a1, a2, b1, b2]) await cmd('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Home test done' }, manager)
+  })
+
   await t.test('OFFER-006 a recruiter records an offer signed outside Lodge: bytes bound to the approved terms, hire recorded, honest label', async () => {
     const job = await openJob('Glazier')
     const rosa = await h.member('rosa@example.test', ['manager'], 'Rosa Pike')

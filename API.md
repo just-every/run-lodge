@@ -24,6 +24,10 @@ cookie or sign-in URL in a task, log or source file.
 - `GET /api/lodge/reports/interviewers`: admins and hiring managers: per interviewer and job they run,
   interviews held, scorecards on time, late or missing against the business's `scorecardDueHours`
   (default 24), average hours to submit, released recommendations only, upcoming load, and each item.
+- `GET /api/lodge/home`: the reader's work across every job they are on (HOME-001): today's and upcoming
+  interviews (kit links), scorecards due and overdue, approvals waiting on them, review queues, their
+  follow-ups and tasks, draft offers waiting on them, and for the people who run a job its stalled stages
+  (14+ days) and interviews still collecting times; each item with the `/app?…` link to its exact work item.
 - `GET /api/lodge/board/:vacancyId`: one job's pipeline board as the reader sees it (PIPE-001), with their
   saved view applied: stage columns (filtered cards and the job total), each card's days in stage, last
   activity, next interview, outstanding scorecards and needs-decision flag, and the filter options.

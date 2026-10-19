@@ -28,7 +28,7 @@ export function Approvals({ w, mutate }: PageProps) {
     {!pending.length && <Empty icon="approvals" title="Nothing is waiting for you.">Vacancies, offers and messages sent for approval appear here with their exact terms.</Empty>}
     {pending.map((x: D) => {
       const yours = x.approver === me
-      return <article key={x.id} className="card approval-card">
+      return <article key={x.id} id={'approval-' + x.id} className="card approval-card">
         <header className="approval-head"><h2>{KINDS[x.subjectKind]}: {x.terms.title ?? x.terms.subject}</h2><Status tone={yours ? 'alert' : 'warn'}>{yours ? 'waiting on you' : `waiting on ${person(w, x.approver)}`}</Status></header>
         <p className="muted">Requested by {person(w, x.requestedBy)} · {when(x.requestedAt)} · approver {person(w, x.approver)}</p>
         <Terms x={x} w={w} />
