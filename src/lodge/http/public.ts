@@ -52,7 +52,7 @@ export function sameOrigin(c: C) {
 publicPages.get('/jobs', async c => {
   const s = await load(c.env.DB)
   const business = s.all('business')[0]
-  const all = s.all('vacancy').filter(v => v.status === 'open').map(v => v.confidential ? publicPosting(v) && { ...publicPosting(v), departmentId: undefined } : v).filter((v): v is Data => !!v).sort((x, y) => x.title.localeCompare(y.title))
+  const all = s.all('vacancy').filter(v => v.status === 'open').map(v => v.confidential ? publicPosting(v) && { ...publicPosting(v), departmentId: undefined } : publicPosting(v)).filter((v): v is Data => !!v).sort((x, y) => x.title.localeCompare(y.title))
   // REQ-004: filter by department (with its sub-departments) and office, among the departments and offices open roles use.
   const offices = (v: Data) => [v.officeId, ...(v.openings ?? []).filter((o: Data) => o.status === 'open').map((o: Data) => o.officeId)].filter(Boolean)
   const wantDepartment = s.find('department', c.req.query('department')), wantOffice = s.find('office', c.req.query('office'))

@@ -21,6 +21,7 @@ import { reviewQueues } from '../records/reviews'
 import { boardViews } from '../records/board-views'
 import { mergeRule, sourceOf } from '../records/sources'
 import { boardSettings, publicSettings } from '../records/job-board'
+import { internalBoard, internalNotices } from '../records/internal'
 import { fairChanceView } from '../records/fair-chance'
 
 /**
@@ -179,6 +180,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     sources: s.all('source').sort((x, y) => x.type.localeCompare(y.type) || x.name.localeCompare(y.name)), sourceMergeRule: mergeRule(s),
     // ATTR-009: the public job board's token, allowed origins and keys (never a key's hash), for the people who administer it.
     jobBoard: admin && !a.agent ? publicSettings(boardSettings(s)) : null,
+    // ATTR-005: the internal job board every person member sees, notices of a report's internal application, and the admins' policy.
+    internalBoard: internalBoard(s, a), internalNotices: internalNotices(s, a), internalPolicy: admin ? s.find('internal-policy', 'main') ?? { notifyManager: false } : null,
     // COORD-006 briefs, for the people who run the job (and their agents) only.
     debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [

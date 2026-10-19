@@ -8,6 +8,7 @@ import { columns, openProposals, proposalApplication } from './pipeline/facts'
 import { Tasks } from './tasks'
 import { InterviewerActivity } from './activity-report'
 import { YourWork } from './your-work'
+import { InternalJobs } from './internal'
 import { home } from '../lodge/views/home'
 
 export function Overview({ w, mutate, go, follow }: PageProps) {
@@ -64,6 +65,7 @@ export function Overview({ w, mutate, go, follow }: PageProps) {
         </section>}
       </div>
       <YourWork w={w} follow={follow} />
+      <InternalJobs w={w} mutate={mutate} />
     </div>
   </div>
 }

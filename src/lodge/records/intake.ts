@@ -23,8 +23,9 @@ export const APPLICATION_PAGE: Door = { source: 'Application page', path: 'Caree
 
 export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
 
-/** What the careers page shows of a job: a confidential one appears only under its neutral title, without its department. */
+/** What the careers page shows of a job: a confidential one appears only under its neutral title, without its department; an internal-only one (ATTR-005) never. */
 export function publicPosting(v: Data): Data | null {
+  if (v.internalOnly) return null
   if (!v.confidential) return v
   return v.publicTitle ? { ...v, title: v.publicTitle, department: '' } : null
 }

@@ -1539,6 +1539,58 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.deepEqual([tagged.answers.map(a => a.value), tagged.tags], [['yes'], ['Can lift']])
   })
 
+  await t.test('ATTR-005 the internal job board: employees see public and internal-only jobs and apply as members; internal applications stay with the hiring team and count as internal moves', async () => {
+    const shifts = await cmd('department', { name: 'Shift operations' })
+    const job = async (title, internalOnly) => {
+      const v = await cmd('vacancy', { title, departmentId: internalOnly ? shifts.id : undefined, location: 'Denver, CO', headcount: 1, manager: 'morgan@example.test', compensation: RANGE }, manager)
+      await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
+      await cmd('interview-plan', { id: v.id, plan: [{ name: 'Talk', stageName: 'Interview', durationMinutes: 30 }] }, manager)
+      await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
+      if (internalOnly) await cmd('vacancy-internal', { id: v.id, internalOnly: true }, manager)
+      return cmd('publish', { id: v.id }, manager)
+    }
+    const lead = await job('Shift lead (internal)', true), planner = await job('Route planner', false)
+    assert.equal((await send('/api/lodge/command/vacancy-internal', { id: lead.id, internalOnly: false }, ivy)).status, 403, 'only the people who run the job set it')
+    const emma = await h.member('emma@example.test', ['interviewer'], 'Emma Stone'), otto = await h.member('otto@example.test', ['interviewer'], 'Otto Berg')
+    await cmd('reports-to', { email: 'emma@example.test', reportsTo: 'ian@example.test' })
+    await cmd('internal-policy', { notifyManager: true })
+
+    // An employee sees both jobs and applies to the internal one with their member identity.
+    const board = (await state(emma)).internalBoard
+    assert.deepEqual([lead.id, planner.id].map(id => board.find(j => j.id === id)?.internalOnly), [true, false])
+    const applied = await cmd('apply-internal', { vacancy: lead.id }, emma)
+    assert.equal((await send('/api/lodge/command/apply-internal', { vacancy: lead.id }, emma)).status, 409, 'once per job')
+    assert.ok((await state(emma)).internalBoard.find(j => j.id === lead.id).applied, 'the applicant sees that they applied, and when')
+    assert.equal((await state(emma)).applications.some(a => a.id === applied.id), false, 'and nothing more of the application')
+
+    // The internal-only job never leaves Lodge: not on /jobs, the embed or the public board.
+    assert.ok(!(await send('/jobs')).text.includes('Shift lead (internal)') && (await send('/jobs')).text.includes('Route planner'))
+    assert.ok(!(await send('/embed/jobs')).text.includes('Shift lead (internal)'))
+    const boardApi = (await send('/api/board/v1/example-builders/jobs')).value.jobs
+    assert.ok(!boardApi.some(j => j.id === lead.id) && boardApi.some(j => j.id === planner.id))
+    assert.equal((await send(`/api/board/v1/example-builders/jobs/${lead.id}`)).status, 404)
+    assert.equal((await send('/api/board/v1/example-builders/departments')).value.departments.some(d => d.id === shifts.id), false, 'nor in the department counts')
+
+    // Source "Internal"; seen by the owner and the job's hiring manager, never by another employee or a reviewer outside the team.
+    const app = (await state()).applications.find(a => a.id === applied.id)
+    assert.deepEqual([app.source, app.internal, app.sourceEntry?.type], ['Internal', true, 'internal'])
+    assert.ok((await state(manager)).applications.some(a => a.id === applied.id), 'the hiring manager sees it')
+    assert.equal((await state(otto)).applications.some(a => a.id === applied.id), false, 'another employee does not')
+    await cmd('assign-reviewers', { application: applied.id, reviewers: ['otto@example.test'] }, manager)
+    assert.equal((await state(otto)).applications.some(a => a.id === applied.id), false, 'not even when assigned, while outside the hiring team')
+    // The manager it reports to hears who applied to which job, only because the admins turned it on.
+    assert.deepEqual((await state(ian)).internalNotices.map(n => [n.who, n.title]), [['Emma Stone', 'Shift lead (internal)']])
+    assert.equal((await state(ian)).applications.some(a => a.id === applied.id), false)
+
+    // REPORT-001: internal applications and moves apart from external ones.
+    const offer = await cmd('offer', { application: applied.id, title: 'Shift lead', salary: { currency: 'USD', amount: 9500000, period: 'year' }, startDate: '2026-12-01', opening: lead.openings[0].id }, manager)
+    await approve((await cmd('request-offer-approval', { id: offer.id, approver: 'parker@example.test' }, manager)).id)
+    await cmd('offer-outcome', { id: offer.id, outcome: 'accepted', reason: 'Accepted the move' }, manager)
+    const report = (await send('/api/lodge/reports/openings', undefined, manager)).value
+    assert.deepEqual([report.internal.moves >= 1, report.internal.applications >= 1], [true, true])
+    assert.equal(report.external.hires, report.funnel.hired - report.internal.moves, 'external hires leave out internal moves')
+  })
+
   await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {
     const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
     const [authorized, relocate, cdl, story] = [q('Are you legally authorized to work in the US?'), q('Willing to relocate?'), q('Years holding a Class A CDL'), q('Tell us about a job you finished early')]

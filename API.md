@@ -108,6 +108,8 @@ takes `office`. Also
 `POST /api/lodge/invite` (send a member a sign-in invitation through the
 outbox) and `POST /api/lodge/delete-candidate`.
 
+Internal job board (ATTR-005): `vacancy-internal { id, internalOnly }` (the people who run the job), `apply-internal { vacancy }` (any person member; `internalBoard` in the state lists what they may apply to and when they applied), `internal-policy { notifyManager }` and `reports-to { email, reportsTo }` (admins). An internal application is visible only to the owner, admins and the job's hiring team.
+
 ## Agents
 
 Run a coding agent as its own member: the owner adds it under People as an

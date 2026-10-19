@@ -4,6 +4,7 @@ import { Org } from './org'
 import { RejectionSettings } from './rejections'
 import { SourceSettings } from './sources'
 import { JobBoardSettings } from './job-board'
+import { InternalSettings } from './internal'
 import { FairChanceSettings } from './fair-chance'
 
 const ROLES = [['admin', 'Hiring admin'], ['manager', 'Hiring manager'], ['interviewer', 'Interviewer'], ['approver', 'Approver']]
@@ -45,6 +46,7 @@ export function People({ w, mutate, setNotice }: PageProps) {
     {(w.actor.owner || w.actor.roles.includes('admin')) && <RejectionSettings w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <SourceSettings w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <JobBoardSettings w={w} mutate={mutate} />}
+    {(w.actor.owner || w.actor.roles.includes('admin')) && <InternalSettings w={w} mutate={mutate} />}
     {w.fairChance && <FairChanceSettings w={w} mutate={mutate} />}
     <p className="hint">Interviewers see only the applications they are assigned to, without contact details. Restricted documents and voluntary monitoring answers stay with the owner and hiring admins.</p>
   </div>

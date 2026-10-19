@@ -1,4 +1,5 @@
 import type { PageProps } from './app'
+import { VacancyInternal } from './internal'
 import { EMPLOYMENT_TYPES, vacancyFacts } from '../lodge/core/labels'
 import { pay, payShort, since } from './format'
 import { Icon } from './icons'
@@ -96,6 +97,7 @@ function Detail({ v, w, mutate, go, select }: { v: D; select: (id: string) => vo
         : <Form label="Request approval" compact onSubmit={x => mutate('request-vacancy-approval', { id: v.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} /></Form>}
     </section>}
     {v.status === 'open' && <Form label="Unpublish" compact onSubmit={x => mutate('unpublish', { id: v.id, reason: x.reason })}><Field label="Reason for unpublishing" name="reason" /></Form>}
+    {!v.imported && v.status !== 'closed' && <VacancyInternal v={v} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && !v.imported && <details><summary>{v.confidential ? 'Confidential job' : 'Make confidential'}</summary>
       <p className="hint">Only the people you name, its hiring team, the owner and holders of “see private” see a confidential job and its candidates. It stays off the careers page unless you give a neutral title.</p>
       <Form label="Save confidentiality" onSubmit={x => mutate('vacancy-privacy', { id: v.id, confidential: x.confidential === true, publicTitle: x.publicTitle, namedPeople: x.namedPeople.split(',').map((e: string) => e.trim()).filter(Boolean) })}>

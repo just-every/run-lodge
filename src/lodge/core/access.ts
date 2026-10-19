@@ -71,6 +71,8 @@ export function canSeeApplication(s: State, a: Actor, application: Data) {
   s.get('application', application.id)
   if (!cleared(a, s.find('candidate', application.candidate), 'private')) return false
   const vacancy = s.find('vacancy', application.vacancy)
+  // ATTR-005: an internal application reaches only the owner, admins and the job's hiring team.
+  if (application.internal && !(vacancy && ((isAdmin(a) && cleared(a, vacancy, 'confidential')) || onTeam(scope(a), vacancy)))) return false
   return (vacancy && managesVacancy(a, vacancy)) || assignedTo(s, a, application)
 }
 

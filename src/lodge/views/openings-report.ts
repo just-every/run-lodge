@@ -30,8 +30,13 @@ export function openingsReport(s: State, a: Actor, w: WorkspaceRecords, filter: 
     funnel.applicants += f.applicants; funnel.spam += f.spam; funnel.rejected += f.rejected; funnel.withdrawn += f.withdrawn; funnel.transferred += f.transferred; funnel.hired += f.hired
     funnel.active += Object.values(f.stages as Record<string, number>).reduce((n, x) => n + x, 0)
   }
+  // ATTR-005: internal applications and moves apart from external applicants and hires.
+  const ids = new Set(jobs.map(v => v.id))
+  const apps = w.applications.filter(x => ids.has(x.vacancy) && x.status !== 'spam')
+  const internal = { applications: apps.filter(x => x.internal).length, moves: apps.filter(x => x.internal && x.status === 'hired').length }
+  const external = { applications: apps.length - internal.applications, hires: apps.filter(x => !x.internal && x.status === 'hired').length }
   return {
-    filter: { department: within ? filter.department : null, office: filter.office ?? null }, jobs: jobs.map(v => ({ id: v.id, title: v.title })), openings, funnel,
-    definitions: 'Time to fill: whole calendar days in the business time zone from the opening’s own open date to its filled date. Funnel: non-spam applications to the jobs shown, by current status.',
+    filter: { department: within ? filter.department : null, office: filter.office ?? null }, jobs: jobs.map(v => ({ id: v.id, title: v.title })), openings, funnel, internal, external,
+    definitions: 'Time to fill: whole calendar days in the business time zone from the opening’s own open date to its filled date. Funnel: non-spam applications to the jobs shown, by current status. Internal moves: hires from internal (ATTR-005) applications; external hires: every other hire.',
   }
 }
