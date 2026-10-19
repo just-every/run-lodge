@@ -1591,6 +1591,83 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal(report.external.hires, report.funnel.hired - report.internal.moves, 'external hires leave out internal moves')
   })
 
+  await t.test('ATTR-012 several posts per job: each post lists with its own title and approved locations on its destinations; applications land on the one job with the post; pausing, an unapproved location and closing the job', async () => {
+    const offices = (await state()).offices, denver = offices.find(o => o.name === 'Denver, CO'), aurora = offices.find(o => o.name === 'Aurora, CO')
+    const boulder = await cmd('office', { name: 'Boulder, CO' })
+    const lift = (await state()).questions.find(q => q.versions[0].text === 'Can you lift 50 pounds?')
+    const v = await cmd('vacancy', { title: 'Warehouse Associate', officeId: denver.id, locations: [aurora.id], headcount: 2, manager: 'morgan@example.test', compensation: RANGE, description: 'Pick and pack.' }, manager)
+    assert.deepEqual(v.locations, [aurora.id], 'approved for Denver (its office) and Aurora')
+    await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
+    await cmd('interview-plan', { id: v.id, plan: [{ name: 'Floor walk', stageName: 'Interview', durationMinutes: 30 }] }, manager)
+    await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
+    const everywhere = ['careers', 'embed', 'api']
+    const denverPost = (await cmd('job-post', { vacancy: v.id, title: 'Warehouse Associate — Denver', description: 'Denver warehouse, day shift.', locations: [denver.id], destinations: everywhere }, manager)).posts[0]
+    const status = (post, s, cookie = manager) => send('/api/lodge/command/post-status', { vacancy: v.id, post: post.id, status: s }, cookie)
+    assert.equal((await status(denverPost, 'live')).status, 409, 'a post goes live only on a published job')
+    const job = await cmd('publish', { id: v.id }, manager)
+    const careers = async () => [...(await send('/jobs')).text.matchAll(/<li><a href="\/jobs\/[^"]+">([^<]+)<\/a>/g)].map(m => m[1])
+    const embedded = async () => [...(await send('/embed/jobs')).text.matchAll(/<li><a href="\/embed\/jobs\/[^"?]+[^"]*">([^<]+)<\/a>/g)].map(m => m[1])
+    const api = async () => (await send('/api/board/v1/example-builders/jobs')).value.jobs.filter(j => j.jobId === v.id)
+    assert.ok((await send('/jobs')).text.includes(`/jobs/${job.slug}"`), 'until a post goes live the job keeps its own page')
+
+    // Two posts go live; the job now reaches applicants only through them, each with its own title, wording and location.
+    await cmd('post-status', { vacancy: v.id, post: denverPost.id, status: 'live' }, manager)
+    const auroraPost = (await cmd('job-post', { vacancy: v.id, title: 'Material Handler — Aurora', description: 'Aurora cross-dock, nights.', locations: [aurora.id], destinations: everywhere, questions: [{ question: lift.id, required: true }] }, manager)).posts[1]
+    await cmd('post-status', { vacancy: v.id, post: auroraPost.id, status: 'live' }, manager)
+    const both = ['Material Handler — Aurora', 'Warehouse Associate — Denver']
+    for (const titles of [await careers(), await embedded()]) assert.deepEqual(both.map(x => titles.includes(x)), [true, true])
+    for (const path of ['/jobs', '/embed/jobs']) assert.ok(!(await send(path)).text.includes(job.slug), path + ' no longer lists the job’s own page')
+    assert.equal((await send('/jobs/' + job.slug)).status, 404, 'the job’s own page gives way to its posts')
+    const listed = await api()
+    assert.deepEqual(listed.map(j => [j.title, j.postId, j.offices.map(o => o.name), j.pay[0].max]).sort(), [['Material Handler — Aurora', auroraPost.id, ['Aurora, CO'], RANGE.max], ['Warehouse Associate — Denver', denverPost.id, ['Denver, CO'], RANGE.max]], 'each post carries the job’s one approved pay range')
+    const denverPage = await send('/jobs/' + denverPost.slug), auroraPage = await send('/jobs/' + auroraPost.slug)
+    assert.ok(denverPage.text.includes('Denver warehouse, day shift.') && denverPage.text.includes('Denver, CO') && !denverPage.text.includes(`name="q-${lift.id}"`))
+    assert.ok(auroraPage.text.includes('Aurora cross-dock, nights.') && auroraPage.text.includes(`name="q-${lift.id}"`), 'the Aurora post asks its own extra question')
+
+    // Apply through each: the hosted Denver post and the Aurora post through the board API land on the one job, post and source recorded.
+    const notice = denverPage.text.match(/name="noticeVersion" value="(\d+)"/)[1]
+    const f = new FormData(); for (const [k, x] of Object.entries({ name: 'Ines Park', email: 'ines@example.test', noticeVersion: notice, consent: 'yes' })) f.set(k, x)
+    const hosted = await send('/jobs/' + denverPost.slug, f)
+    assert.equal(hosted.status, 200, hosted.text.slice(0, 400))
+    assert.match(hosted.text, /<dt>Role<\/dt><dd>Warehouse Associate — Denver<\/dd>/)
+    const viaApi = body => send(`/api/board/v1/example-builders/jobs/${auroraPost.id}/applications`, { name: 'Omar Haddad', email: 'omar@example.test', noticeVersion: Number(notice), consent: true, ...body }, '', { origin: 'https://careers.example.test', 'cf-connecting-ip': '203.0.113.21' })
+    assert.deepEqual([(await viaApi({})).status, (await viaApi({})).value.field], [400, 'answers.' + lift.id], 'the post’s extra question is required')
+    assert.equal((await viaApi({ answers: { [lift.id]: 'yes' } })).status, 201)
+    const apps = (await state(manager)).applications.filter(a => a.vacancy === v.id)
+    assert.deepEqual(apps.map(a => [a.candidateName, a.post, a.postTitle, a.source]).sort(), [['Ines Park', denverPost.id, 'Warehouse Associate — Denver', 'Application page'], ['Omar Haddad', auroraPost.id, 'Material Handler — Aurora', 'Careers page (API)']])
+
+    // A post's title changes without a new approval; pay or headcount still needs one.
+    await cmd('job-post', { vacancy: v.id, post: denverPost.id, title: 'Warehouse Associate — Denver days', description: 'Denver warehouse, day shift.', locations: [denver.id], destinations: everywhere }, manager)
+    assert.deepEqual([(await careers()).includes('Warehouse Associate — Denver days'), (await state(manager)).vacancies.find(x => x.id === v.id).approvedNow], [true, true])
+    assert.equal((await send('/api/lodge/command/vacancy', { ...job, headcount: 3 }, manager)).status, 409, 'headcount changes need the job unpublished and approved again')
+    // A location the job was not approved for is refused, on a new post or an edit.
+    const boulderPost = await send('/api/lodge/command/job-post', { vacancy: v.id, title: 'Warehouse Associate — Boulder', locations: [boulder.id], destinations: everywhere }, manager)
+    assert.equal(boulderPost.status, 409)
+    assert.match(boulderPost.value.error, /Boulder, CO is not one of this job’s approved locations/)
+    assert.equal((await send('/api/lodge/command/job-post', { vacancy: v.id, post: denverPost.id, title: 'x', locations: [denver.id, boulder.id], destinations: everywhere }, manager)).status, 409)
+    assert.equal((await status(auroraPost, 'paused', ivy)).status, 403, 'only the people who run the job change its posts')
+
+    // Pausing the Aurora post takes it off the careers page, the embed and the API; the Denver post stays. Each destination is chosen per post.
+    await cmd('post-status', { vacancy: v.id, post: auroraPost.id, status: 'paused' }, manager)
+    for (const titles of [await careers(), await embedded(), (await api()).map(j => j.title)]) assert.deepEqual([titles.includes('Material Handler — Aurora'), titles.includes('Warehouse Associate — Denver days')], [false, true])
+    assert.deepEqual([(await send('/jobs/' + auroraPost.slug)).status, (await send(`/api/board/v1/example-builders/jobs/${auroraPost.id}`)).status], [404, 404])
+    await cmd('job-post', { vacancy: v.id, post: denverPost.id, title: 'Warehouse Associate — Denver days', locations: [denver.id], destinations: ['careers'] }, manager)
+    assert.deepEqual([(await careers()).includes('Warehouse Associate — Denver days'), (await embedded()).includes('Warehouse Associate — Denver days'), (await api()).length], [true, false, 0])
+    await cmd('job-post', { vacancy: v.id, post: denverPost.id, title: 'Warehouse Associate — Denver days', locations: [denver.id], destinations: everywhere }, manager)
+    await cmd('post-status', { vacancy: v.id, post: auroraPost.id, status: 'live' }, manager)
+
+    // REPORT-001 by post: applications, source and conversion for each post.
+    const byPost = (await send('/api/lodge/reports/sources', undefined, manager)).value.byPost.filter(r => r.vacancy === v.id)
+    assert.deepEqual(byPost.map(r => [r.post, r.applications, r.sources.map(x => x.name), r.advanced]).sort(), [[auroraPost.id, 1, ['Careers page (API)'], 0], [denverPost.id, 1, ['Application page'], 0]].sort())
+
+    // Closing the job closes every post on every destination.
+    await cmd('close-vacancy', { id: v.id, reason: 'Filled from the agency pool' }, manager)
+    for (const titles of [await careers(), await embedded()]) assert.ok(!titles.some(x => x === 'Material Handler — Aurora' || x === 'Warehouse Associate — Denver days'))
+    for (const post of [denverPost, auroraPost]) assert.equal((await send('/jobs/' + post.slug)).status, 404)
+    assert.deepEqual(await api(), [])
+    assert.deepEqual((await state(manager)).vacancies.find(x => x.id === v.id).posts.map(p => p.status), ['closed', 'closed'])
+  })
+
   await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {
     const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
     const [authorized, relocate, cdl, story] = [q('Are you legally authorized to work in the US?'), q('Willing to relocate?'), q('Years holding a Class A CDL'), q('Tell us about a job you finished early')]

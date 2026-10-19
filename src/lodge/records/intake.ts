@@ -30,11 +30,6 @@ export function publicPosting(v: Data): Data | null {
   return v.publicTitle ? { ...v, title: v.publicTitle, department: '' } : null
 }
 
-export function openVacancy(s: State, slug: string) {
-  const vacancy = s.all('vacancy').find(v => v.slug === slug && v.status === 'open' && publicPosting(v))
-  return vacancy ? s.get('vacancy', vacancy.id) : null
-}
-
 /**
  * A repeat submission is flagged for a person to review, never removed: the same
  * email or the same submission (name, phone, cover note and resume) already
@@ -53,7 +48,8 @@ function likelySpamReasons(s: State, vacancy: Data, address: string, fingerprint
   return [...reasons]
 }
 
-export async function submit(s: State, vacancy: Data, input: Submission, door: Door = APPLICATION_PAGE) {
+/** Take one application; `post` is the ATTR-012 post it came through, recorded on the application. */
+export async function submit(s: State, vacancy: Data, input: Submission, door: Door = APPLICATION_PAGE, post: Data | null = null) {
   const business = s.get('business', 'main')
   const notice = business.notices.at(-1)
   // The applicant must have been shown the current notice; a stale page is refused, not silently upgraded.
@@ -62,14 +58,14 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const address = about('email', () => email(input.email, 'Email'))
   const fields = candidateFields({ name: about('name', () => text(input.name, 'Full name', 160)), email: address, phone: about('phone', () => optionalText(input.phone, 'Phone', 40)), location: about('location', () => optionalText(input.location, 'Location', 160)) })
   // SCREEN-001: each answer keeps the question version the applicant was shown.
-  const answered = answers(s, vacancy, input.answers ?? {})
+  const answered = answers(s, vacancy, input.answers ?? {}, post)
   const talentPool = input.talentPool === 'yes'
   ensureSource(s, door.entry, 'careers-site')
   // ATTR-009: one email applies to a job once through the board API. A repeat adds
   // no application; it gets its own receipt and is recorded on the earlier one, so
   // the answer never tells a caller whether that email applied before.
   const earlier = door.oncePerJob && s.scan('application').find(x => x.vacancy === vacancy.id && x.status === 'active' && s.find('candidate', x.candidate)?.email === address)
-  if (earlier) return { receipt: await repeat(s, vacancy, earlier, door, notice.version), accommodationContact: business.accommodationContact }
+  if (earlier) return { receipt: await repeat(s, vacancy, earlier, door, notice.version, post), accommodationContact: business.accommodationContact }
   const candidate = s.put('candidate', uid(), {
     ...fields, source: door.source, createdAt: now(), retainUntil: retentionUntil(s),
     consent: { basis: 'application', noticeVersion: notice.version, talentPool, at: now(), recordedBy: 'applicant' },
@@ -77,7 +73,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
   const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
-  const application = startApplication(s, null, candidate, vacancy, door.source, { coverNote, fingerprint, ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
+  const application = startApplication(s, null, candidate, vacancy, door.source, { coverNote, fingerprint, ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await stored('resume', () => storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume!.name, mediaType: input.resume!.mediaType, base64: input.resume!.base64, kind: 'resume', source: door.source }))
   if (answered.length) {
     for (const x of answered) if (x.type === 'file') {
@@ -95,7 +91,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   if (monitoring) s.put('monitoring', uid(), { application: application.id, type: 'voluntary-monitoring', answer: monitoring, at: now() })
   const code = 'LDG-' + uid().slice(0, 8).toUpperCase()
   const receipt = s.put('receipt', code, {
-    application: application.id, vacancy: vacancy.id, vacancyTitle: publicPosting(vacancy)!.title, noticeVersion: notice.version, submittedAt: application.submittedAt,
+    application: application.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion: notice.version, submittedAt: application.submittedAt,
     digest: await sha256(canonical({ ...fields, coverNote: application.coverNote, resume: input.resume?.base64 ?? null, talentPool })),
   })
   s.audit(null, 'application-received', 'application:' + application.id, { receipt: code })
@@ -106,11 +102,11 @@ async function stored<T>(field: string, store: () => Promise<T>) {
   try { return await store() } catch (e) { if (e instanceof Fault) e.field ??= field; throw e }
 }
 
-async function repeat(s: State, vacancy: Data, earlier: Data, door: Door, noticeVersion: unknown) {
+async function repeat(s: State, vacancy: Data, earlier: Data, door: Door, noticeVersion: unknown, post: Data | null) {
   const code = 'LDG-' + uid().slice(0, 8).toUpperCase()
   const at = now()
-  s.put('application', earlier.id, { ...s.get('application', earlier.id), repeatSubmissions: [...(earlier.repeatSubmissions ?? []), { at, receipt: code, door: door.source }] })
-  const receipt = s.put('receipt', code, { application: earlier.id, vacancy: vacancy.id, vacancyTitle: publicPosting(vacancy)!.title, noticeVersion, submittedAt: at, repeat: true })
+  s.put('application', earlier.id, { ...s.get('application', earlier.id), repeatSubmissions: [...(earlier.repeatSubmissions ?? []), { at, receipt: code, door: door.source, ...(post ? { post: post.id } : {}) }] })
+  const receipt = s.put('receipt', code, { application: earlier.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion, submittedAt: at, repeat: true })
   s.audit(null, 'application-repeat', 'application:' + earlier.id, { receipt: code })
   return receipt
 }

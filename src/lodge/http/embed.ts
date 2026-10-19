@@ -5,7 +5,8 @@ import { load } from '../core/store'
 import type { State } from '../core/state'
 import { Fault, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
-import { boardSettings, listed } from '../records/job-board'
+import { boardSettings } from '../records/job-board'
+import { listingBySlug, listings, shownJob, type Listing } from '../records/posts'
 import { departmentPath, subtree } from '../records/org'
 import { jobForm } from '../records/questions'
 import { apply, esc, form, page } from './public'
@@ -73,9 +74,10 @@ embedPages.get('/embed/jobs', async c => {
   const embed = embedding(s)
   if (!embed) return notSetUp()
   const business = s.all('business')[0]
-  const all = listed(s)
+  // ATTR-012: each live post with the embed among its destinations is its own role.
+  const all: Data[] = listings(s, 'embed').map((l: Listing) => ({ ...shownJob(s, l), slug: l.slug, offices: l.offices }))
   const values = c.req.query(), campaign = campaignOf(values)
-  const offices = (v: Data) => [v.officeId, ...(v.openings ?? []).filter((o: Data) => o.status === 'open').map((o: Data) => o.officeId)].filter(Boolean)
+  const offices = (v: Data): string[] => v.offices
   const wantDepartment = s.find('department', values.department), wantOffice = s.find('office', values.office), remoteOnly = values.remote === 'true'
   const within = wantDepartment ? subtree(s, wantDepartment.id) : null
   const open = all.filter(v => (!within || within.has(v.departmentId)) && (!wantOffice || offices(v).includes(wantOffice.id)) && (!remoteOnly || v.workMode === 'remote'))
@@ -90,19 +92,16 @@ embedPages.get('/embed/jobs', async c => {
   return page('Open roles', `<h1>Open roles${business ? ' at ' + esc(business.name) : ''}</h1>${filters}${list}`, 200, embed)
 })
 
-function embeddedJob(s: State, slug: string) {
-  return listed(s).find(v => v.slug === slug) ?? null
-}
-
 embedPages.get('/embed/jobs/:slug', async c => {
   const s = await load(c.env.DB)
   const embed = embedding(s)
   if (!embed) return notSetUp()
-  const v = embeddedJob(s, c.req.param('slug'))
-  if (!v) return page('Not found', '<h1>This role is not available</h1><p><a href="/embed/jobs">See open roles</a></p>', 404, embed)
+  const l = listingBySlug(s, 'embed', c.req.param('slug'))
+  if (!l) return page('Not found', '<h1>This role is not available</h1><p><a href="/embed/jobs">See open roles</a></p>', 404, embed)
   const values = c.req.query(), campaign = campaignOf(values)
   const back = query(Object.fromEntries(FILTERS.concat(CAMPAIGN).filter(k => values[k]).map(k => [k, values[k]])))
-  return page(v.title, `<p><a href="/embed/jobs${esc(back)}">← All open roles</a></p>${form(v, s.get('business', 'main'), '', {}, jobForm(s, v), `/embed/jobs/${v.slug}`, campaign)}`, 200, embed)
+  const v: Data = { ...shownJob(s, l), slug: l.slug }
+  return page(v.title, `<p><a href="/embed/jobs${esc(back)}">← All open roles</a></p>${form(v, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), `/embed/jobs/${l.slug}`, campaign)}`, 200, embed)
 })
 
 embedPages.post('/embed/jobs/:slug', async c => {

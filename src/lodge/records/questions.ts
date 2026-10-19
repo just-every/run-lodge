@@ -48,13 +48,10 @@ export function question(s: State, a: Actor, b: Data) {
 
 export const currentVersion = (q: Data) => q.versions.at(-1)
 
-/** Attach library questions to a job, each with the job's own required flag; the applicant sees their current version. */
-export function jobQuestions(s: State, a: Actor, b: Data) {
-  const v = s.get('vacancy', b.id)
-  requireManages(a, v)
-  requireThat(!v.imported && v.status !== 'closed', 'Questions go on a live job only', 409)
+/** Library questions as a job or one of its posts (ATTR-012) attaches them, each with its own required flag. */
+export function attachable(s: State, v: Data, value: unknown) {
   const place = fairChancePlace(s, v)
-  const attached = list(b.questions ?? [], 'Screening questions', 20, (x: any) => {
+  const attached = list(value, 'Screening questions', 20, (x: any) => {
     const q = s.get('question', x?.question, 'question')
     allowed(currentVersion(q).text, 'The question')
     // HIRE-007: at a fair-chance place criminal history waits until after a conditional offer.
@@ -62,16 +59,25 @@ export function jobQuestions(s: State, a: Actor, b: Data) {
     return { question: q.id as string, required: x.required === undefined ? currentVersion(q).required : x.required === true }
   })
   requireThat(new Set(attached.map(x => x.question)).size === attached.length, 'Attach each question once')
+  return attached
+}
+
+/** Attach library questions to a job, each with the job's own required flag; the applicant sees their current version. */
+export function jobQuestions(s: State, a: Actor, b: Data) {
+  const v = s.get('vacancy', b.id)
+  requireManages(a, v)
+  requireThat(!v.imported && v.status !== 'closed', 'Questions go on a live job only', 409)
+  const attached = attachable(s, v, b.questions ?? [])
   const record = s.put('vacancy', v.id, { ...v, questions: attached })
   s.audit(a, 'job-questions', 'vacancy:' + v.id, { questions: attached.length })
   return record
 }
 
-/** The questions a job's applicants answer, as they read today. */
-export function jobForm(s: State, v: Data) {
+/** The questions a job's applicants answer, as they read today; a post (ATTR-012) adds its own after the job's. */
+export function jobForm(s: State, v: Data, post?: Data | null) {
   // HIRE-007: a job at a fair-chance place never asks a criminal-history question, even one attached before the place was named.
   const fairChance = !!fairChancePlace(s, v)
-  return (v.questions ?? []).flatMap((x: Data) => {
+  return [...(v.questions ?? []), ...(post?.questions ?? []).filter((x: Data) => !(v.questions ?? []).some((q: Data) => q.question === x.question))].flatMap((x: Data) => {
     const q = s.find('question', x.question)
     return q && !(fairChance && CRIMINAL_HISTORY.test(currentVersion(q).text)) ? [{ question: q.id, required: x.required, ...currentVersion(q) }] : []
   })
@@ -84,8 +90,8 @@ export type Answer = string | string[] | { name: string; mediaType: string; base
  * the question version it answered, with that version's wording. Files are
  * returned for the caller to store as the application's documents.
  */
-export function answers(s: State, v: Data, given: Record<string, Answer>) {
-  return jobForm(s, v).flatMap((q: Data) => {
+export function answers(s: State, v: Data, given: Record<string, Answer>, post?: Data | null) {
+  return jobForm(s, v, post).flatMap((q: Data) => {
     const raw = given[q.question]
     return about('answers.' + q.question, () => checked(q, raw))
   })

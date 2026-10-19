@@ -12,6 +12,7 @@ import { join, resolve } from 'node:path'
 import { command, freePort, fresh, report, start } from './browser-runtime.mjs'
 import { api, current, journey, screens, session } from './browser-journey.mjs'
 import { careersPage, careersSite, embedFallback, embedPage, embedRefused } from './board-page.mjs'
+import { postsPage } from './posts-page.mjs'
 import { folderEntries, zip } from './zip.mjs'
 
 const evidence = resolve(process.env.LODGE_EVIDENCE ?? '.cache/lodge-browser-proof')
@@ -73,6 +74,8 @@ try {
     }
     await embedRefused(browser, { lodge: server.origin, site: unlisted.origin })
     await embedFallback(browser, { lodge: server.origin, site: site.origin, job: { title: 'Yard lead' }, email: 'noor@example.test' })
+    // ATTR-012: a job approved for two offices gets a post per width, put live in the app and opened from the careers page.
+    await postsPage(browser, { root, origin: server.origin, run, offices: [yard, await run('office', { name: 'Queens yard' })], evidence })
   } finally {
     await site.close(); await unlisted.close()
   }

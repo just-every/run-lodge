@@ -36,8 +36,21 @@ export function sourcesReport(s: State, a: Actor, w: WorkspaceRecords) {
     const k = h.credit!.kind + ':' + h.credit!.who
     byCredit.set(k, { kind: h.credit!.kind, who: h.credit!.who, hires: (byCredit.get(k)?.hires ?? 0) + 1 })
   }
+  // ATTR-012: source and conversion by post. An application converts when it reached a later stage than the job's first, or was hired.
+  const byPost = new Map<string, Data>()
+  for (const app of apps.filter(x => x.post)) {
+    const v = s.find('vacancy', app.vacancy), post = (v?.posts ?? []).find((p: Data) => p.id === app.post)
+    const row = byPost.get(app.post) ?? { vacancy: app.vacancy, post: app.post, title: post?.title ?? app.postTitle, applications: 0, advanced: 0, hires: 0, sources: {} }
+    row.applications++
+    if (app.status === 'hired' || (v && app.stage !== v.stages[0]?.id)) row.advanced++
+    if (app.status === 'hired') row.hires++
+    const name = label(app).name
+    row.sources[name] = (row.sources[name] ?? 0) + 1
+    byPost.set(app.post, row)
+  }
   return {
     rule,
+    byPost: [...byPost.values()].map((r): Data => ({ ...r, conversion: r.applications ? Math.round(r.advanced / r.applications * 100) : 0, sources: Object.entries(r.sources).map(([name, applications]) => ({ name, applications })).sort((x, y) => (y.applications as number) - (x.applications as number) || x.name.localeCompare(y.name)) })).sort((x, y) => x.title.localeCompare(y.title)),
     bySource: [...bySource.values()].sort((x, y) => y.hires - x.hires || y.applications - x.applications || x.name.localeCompare(y.name)),
     byCredit: [...byCredit.values()].sort((x, y) => y.hires - x.hires || x.kind.localeCompare(y.kind) || x.who.localeCompare(y.who)),
     hires,

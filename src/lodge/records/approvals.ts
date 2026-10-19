@@ -14,7 +14,7 @@ export type Subject = 'vacancy' | 'offer' | 'message'
 export function terms(s: State, kind: Subject, record: Data): Data {
   if (kind === 'vacancy') {
     const rubric = (record.rubrics ?? []).at(-1) ?? null
-    return { title: record.title, department: record.department, departmentId: record.departmentId, officeId: record.officeId, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan, kickoff: record.kickoff ? kickoffTerms(s.find('kickoff', record.kickoff)) : undefined }
+    return { title: record.title, department: record.department, departmentId: record.departmentId, officeId: record.officeId, locations: record.locations?.length ? record.locations : undefined, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan, kickoff: record.kickoff ? kickoffTerms(s.find('kickoff', record.kickoff)) : undefined }
   }
   if (kind === 'offer') return { application: record.application, title: record.title, salary: record.salary, startDate: record.startDate, terms: record.terms, opening: record.opening, ...(record.conditional ? { conditional: true } : {}) }
   return { to: record.to, subject: record.subject, body: record.body, application: record.application ?? null }

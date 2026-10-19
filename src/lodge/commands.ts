@@ -3,6 +3,7 @@ import { Fault, type Actor, type Data } from './core/types'
 import { business, member } from './records/people'
 import { close, kit, plan, privacy, publish, requestOpening, requestVacancyApproval, rubric, stages, unpublish, vacancy } from './records/vacancies'
 import { closeOpening, editOpening } from './records/openings'
+import { jobPost, postStatus } from './records/posts'
 import { jobQuestions, question } from './records/questions'
 import { deleteOrg, department, memberOrg, office } from './records/org'
 import { applyRule, approveAutoReject, decideRuleMatches, previewRule, screeningRule } from './records/rules'
@@ -41,7 +42,7 @@ export const commands: Record<string, Command> = {
   business, member,
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy, 'hiring-team': team,
   'job-template': jobTemplate, 'vacancy-from-template': vacancyFromTemplate, 'clone-vacancy': cloneVacancy,
-  'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening, question, 'job-questions': jobQuestions,
+  'job-post': jobPost, 'post-status': postStatus, 'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening, question, 'job-questions': jobQuestions,
   department, office, 'delete-org': deleteOrg, 'member-org': memberOrg,
   'screening-rule': screeningRule, 'approve-auto-reject': approveAutoReject, 'preview-rule': previewRule, 'apply-rule': applyRule, 'decide-rule-matches': decideRuleMatches,
   'decide-approval': decide,

@@ -31,6 +31,8 @@ export function SourceSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
     </Form>
     {report && <><h3>Source of hire</h3>
       <Table heads={['Source', 'Type', 'Applications', 'Hires']} empty="No applications yet.">{report.bySource.map((r: D) => <tr key={r.source ?? r.name}><td>{r.name}{!r.source && <small> · not on the list</small>}</td><td>{r.type ? TYPE[r.type] : ''}</td><td>{r.applications}</td><td>{r.hires}</td></tr>)}</Table>
+      {report.byPost?.length > 0 && <><h3>By job post</h3>
+      <Table heads={['Post', 'Applications', 'Reached a later stage', 'Hires', 'Sources']}>{report.byPost.map((r: D) => <tr key={r.post}><td>{r.title}</td><td>{r.applications}</td><td>{r.advanced} ({r.conversion}%)</td><td>{r.hires}</td><td>{r.sources.map((x: D) => `${x.name} ${x.applications}`).join(', ')}</td></tr>)}</Table></>}
       <h3>Hires by credit</h3>
       <Table heads={['Credited', 'Hires']} empty="No credited hires yet.">{report.byCredit.map((r: D) => <tr key={r.kind + r.who}><td>{credited(w, r)}</td><td>{r.hires}</td></tr>)}</Table></>}
   </section>
@@ -39,7 +41,7 @@ export function SourceSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
 /** On an application: its source on the list and who is credited, with the history; the people who run the job change the credit. */
 export function SourceCredit({ app, w, mutate }: { app: D; w: D; mutate: PageProps['mutate'] }) {
   return <section className="source-credit" aria-label="Source and credit">
-    <p className="meta">Source: {app.sourceEntry ? `${app.sourceEntry.name} (${TYPE[app.sourceEntry.type]})` : `${app.source || 'Not recorded'} (not on the source list)`} · {app.credit ? `Credited to ${credited(w, app.credit)}` : 'No one credited yet'}</p>
+    <p className="meta">{app.postTitle ? `Post: ${app.postTitle} · ` : ''}Source: {app.sourceEntry ? `${app.sourceEntry.name} (${TYPE[app.sourceEntry.type]})` : `${app.source || 'Not recorded'} (not on the source list)`} · {app.credit ? `Credited to ${credited(w, app.credit)}` : 'No one credited yet'}</p>
     {app.creditHistory?.length > 0 && <details><summary>Credit history</summary><ul className="plain">{[...app.creditHistory, app.credit].map((c: D, i: number) => <li key={i}>{credited(w, c)} · {when(c.at)} · {person(w, c.by)}{c.reason ? ` · “${c.reason}”` : c.automatic ? ' · set automatically' : ''}</li>)}</ul></details>}
     {app.manages && <details><summary>Change credit</summary><Form label="Save credit" compact reset onSubmit={x => mutate('source-credit', { application: app.id, kind: x.kind, who: x.who, reason: x.why })}>
       <Field label="Credited as" name="kind" options={Object.entries(KIND).map(([value, label]) => ({ value, label: label as string }))} />

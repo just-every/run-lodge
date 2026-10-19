@@ -4,6 +4,7 @@ import { currency, email, integer, list, money, now, oneOf, optionalText, requir
 import { approvedNow, requestApproval } from './approvals'
 import { approvedOpenings, requestedOpening } from './openings'
 import { departmentPath, departmentRef, officeRef } from './org'
+import { approvedOffices, closePosts } from './posts'
 
 // Flows 1 and 2: a vacancy with its compensation range, manager and headcount
 // approval, and the stages, rubric and interview plan agreed before anyone is
@@ -31,6 +32,13 @@ function compensation(value: unknown) {
   return { currency: currency(c.currency), min, max, period: oneOf(c.period, ['year', 'month', 'hour'] as const, 'Pay period') }
 }
 
+function otherOffices(s: State, value: unknown, officeId: string | undefined) {
+  if (value === undefined || value === null || value === '') return undefined
+  const ids = [...new Set(list(value, 'Other approved offices', 20, x => officeRef(s, x)!))].filter(id => id && id !== officeId)
+  requireThat(!ids.length || officeId, 'Choose the job’s main office before other approved offices')
+  return ids.length ? ids : undefined
+}
+
 function editable(s: State, a: Actor, id: unknown) {
   const v = s.get('vacancy', id)
   requireManages(a, v)
@@ -49,6 +57,8 @@ export function vacancy(s: State, a: Actor, b: Data) {
     department: departmentId ? departmentPath(s, departmentId) : optionalText(b.department, 'Department', 120),
     location: optionalText(b.location, 'Location', 160) || (officeId ? s.get('office', officeId).name : ''),
     departmentId, officeId,
+    // ATTR-012: other offices the job is approved for; its posts draw their locations from these and its office.
+    locations: otherOffices(s, b.locations, officeId),
     workMode: oneOf(b.workMode ?? 'onsite', ['onsite', 'hybrid', 'remote'] as const, 'Work mode'),
     employmentType: oneOf(b.employmentType ?? 'full-time', ['full-time', 'part-time', 'contract', 'temporary'] as const, 'Employment type'),
     description: optionalText(b.description, 'Description', 20000),
@@ -62,6 +72,11 @@ export function vacancy(s: State, a: Actor, b: Data) {
   if (b.id) {
     const current = editable(s, a, b.id)
     requireThat((fields.headcount ?? 0) >= approvedOpenings(current).length, `This job already has ${approvedOpenings(current).length} approved openings; close one with a reason instead of lowering the headcount`, 409)
+    const offices = approvedOffices(fields)
+    for (const p of (current.posts ?? []).filter((x: Data) => x.status !== 'closed')) {
+      const gone = p.locations.find((id: string) => !offices.includes(id))
+      requireThat(!gone, `The post “${p.title}” is in ${s.find('office', gone)?.name ?? 'an office'}; change or close that post before removing the office from the job`, 409)
+    }
     const record = s.put('vacancy', current.id, { ...current, ...fields, updatedAt: now() })
     s.audit(a, 'vacancy-updated', 'vacancy:' + record.id)
     return record
@@ -200,7 +215,7 @@ export function close(s: State, a: Actor, b: Data) {
   const v = s.get('vacancy', b.id)
   requireManages(a, v)
   requireThat(v.status !== 'closed', 'Already closed', 409)
-  const record = s.put('vacancy', v.id, { ...v, status: 'closed', closedAt: now(), closeReason: text(b.reason, 'Reason', 500) })
+  const record = s.put('vacancy', v.id, { ...v, status: 'closed', closedAt: now(), closeReason: text(b.reason, 'Reason', 500), ...(v.posts?.length ? { posts: closePosts(v, a.email) } : {}) })
   s.audit(a, 'vacancy-closed', 'vacancy:' + v.id, { reason: record.closeReason })
   return record
 }

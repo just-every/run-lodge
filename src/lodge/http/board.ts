@@ -44,20 +44,20 @@ async function cached(c: C, value: unknown) {
   return new Response(body, { headers })
 }
 
-const publicJob = (s: State, id: string) => listed(s).find(v => v.id === id)
+const publicJob = (s: State, id: string) => listed(s).find(l => l.id === id)
 
 boardApi.get('/v1/:token/jobs', async c => {
   const { s, settings, origin } = await board(c)
   const content = c.req.query('content') === 'true'
-  const jobs = listed(s).map(v => boardJob(s, v, origin, settings.token, content))
+  const jobs = listed(s).map(l => boardJob(s, l, origin, settings.token, content))
   return cached(c, { jobs, meta: { total: jobs.length } })
 })
 
 boardApi.get('/v1/:token/jobs/:id', async c => {
   const { s, settings, origin } = await board(c)
-  const v = publicJob(s, c.req.param('id'))
-  if (!v) throw new Fault(404, 'No published job with that id')
-  return cached(c, boardJob(s, v, origin, settings.token, true, true))
+  const l = publicJob(s, c.req.param('id'))
+  if (!l) throw new Fault(404, 'No published job with that id')
+  return cached(c, boardJob(s, l, origin, settings.token, true, true))
 })
 
 boardApi.get('/v1/:token/departments', async c => {
@@ -111,8 +111,9 @@ boardApi.post('/v1/:token/jobs/:id/applications', async c => {
   await save(c.env.DB, counted, null)
   if (!within) throw Object.assign(new Fault(429, 'Too many applications from this connection; try again in an hour'), { field: 'rate' })
   const fresh = await load(c.env.DB)
-  const v = publicJob(fresh, c.req.param('id'))
-  if (!v) throw new Fault(404, 'No published job with that id')
+  const l = publicJob(fresh, c.req.param('id'))
+  if (!l) throw new Fault(404, 'No published job with that id')
+  const v = fresh.get('vacancy', l.v.id)
   const b = await json(c)
   if (typeof b.website === 'string' && b.website.trim()) throw Object.assign(new Fault(400, 'This field must stay empty'), { field: 'website' })
   const once = await idempotencyId(who, c.req.header('idempotency-key'))
@@ -124,7 +125,7 @@ boardApi.post('/v1/:token/jobs/:id/applications', async c => {
     name: b.name, email: b.email, phone: b.phone, location: b.location, coverNote: b.coverNote, noticeVersion: b.noticeVersion,
     consent: b.consent === true || b.consent === 'yes' ? 'yes' : 'no', talentPool: b.talentPool === true || b.talentPool === 'yes' ? 'yes' : 'no',
     accommodation: b.accommodation, monitoring: b.monitoring, resume: resumeFile(b.resume), answers,
-  }, { source, path: BOARD_SOURCE, entry: BOARD_SOURCE, campaign: campaign(b.campaign), oncePerJob: true })
+  }, { source, path: BOARD_SOURCE, entry: BOARD_SOURCE, campaign: campaign(b.campaign), oncePerJob: true }, l.post)
   rememberReceipt(fresh, once, receipt.id)
   await save(c.env.DB, fresh, null)
   return c.json({ receipt: receipt.id, submittedAt: receipt.submittedAt, noticeVersion: receipt.noticeVersion, accommodationContact }, 201, headers)

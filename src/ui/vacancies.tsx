@@ -8,6 +8,7 @@ import { cents, Check, Empty, Field, Form, memberOptions, Status, Table, type D 
 import { columns } from './pipeline/facts'
 import { Kickoffs } from './kickoffs'
 import { Openings } from './openings'
+import { Posts } from './posts'
 import { JobQuestions } from './questions'
 import { Rules } from './rules'
 import { departmentOptions, officeOptions } from './org'
@@ -27,7 +28,7 @@ function Terms({ v, w, mutate, onSaved }: { v?: D; w: D; mutate: PageProps['muta
   const c = v?.compensation
   return <Form label={v ? 'Save terms' : 'Create vacancy'} onSubmit={async x => {
     const compensation = x.min || x.max ? { currency: x.currency.toUpperCase(), min: cents(x.min), max: cents(x.max), period: x.period } : null
-    const saved = await mutate(x.template ? 'vacancy-from-template' : 'vacancy', { id: v?.id, template: x.template || undefined, title: x.title, department: x.department, departmentId: x.departmentId || undefined, officeId: x.officeId || undefined, location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation })
+    const saved = await mutate(x.template ? 'vacancy-from-template' : 'vacancy', { id: v?.id, template: x.template || undefined, title: x.title, department: x.department, departmentId: x.departmentId || undefined, officeId: x.officeId || undefined, locations: (w.offices ?? []).filter((o: D) => x['also-' + o.id]).map((o: D) => o.id), location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation })
     onSaved?.(saved.id)
   }}>
     {!v && w.jobTemplates?.length ? <Field label="Start from template" name="template" required={false} defaultValue="" options={w.jobTemplates.map((t: D) => ({ value: t.id, label: t.name }))} /> : null}
@@ -35,6 +36,7 @@ function Terms({ v, w, mutate, onSaved }: { v?: D; w: D; mutate: PageProps['muta
     {w.departments?.length ? <Field label="Managed department" name="departmentId" required={false} defaultValue={v?.departmentId ?? ''} options={departmentOptions(w)} /> : null}
     <Field label="Department" name="department" required={false} defaultValue={v?.department} hint={w.departments?.length ? 'Filled from the managed department when one is chosen' : undefined} />
     {w.offices?.length ? <Field label="Office" name="officeId" required={false} defaultValue={v?.officeId ?? ''} options={officeOptions(w)} /> : null}
+    {w.offices?.length > 1 ? <fieldset className="wide"><legend>Other approved offices (for job posts)</legend>{officeOptions(w).map((o: D) => <Check key={o.value} name={'also-' + o.value} label={o.label} defaultChecked={(v?.locations ?? []).includes(o.value)} />)}</fieldset> : null}
     <Field label="Location" name="location" required={false} defaultValue={v?.location} />
     <Field label="Work mode" name="workMode" defaultValue={v?.workMode ?? 'onsite'} options={[{ value: 'onsite', label: 'On site' }, { value: 'hybrid', label: 'Hybrid' }, { value: 'remote', label: 'Remote' }]} />
     <Field label="Employment type" name="employmentType" defaultValue={v?.employmentType ?? 'full-time'} options={Object.entries(EMPLOYMENT_TYPES).map(([value, label]) => ({ value, label }))} />
@@ -84,6 +86,7 @@ function Detail({ v, w, mutate, go, select }: { v: D; select: (id: string) => vo
     {v.imported && <p className="hint">Imported from Workable ({v.sourceState || 'unknown state'}). Kept as history; it cannot be reopened.</p>}
     {v.status === 'open' && <p className="page-link"><Icon name="external" size={18} />Application page: <a href={`/jobs/${v.slug}`}>/jobs/{v.slug}</a> · {apps.length} applications</p>}
     {!v.imported && <Openings v={v} w={w} mutate={mutate} />}
+    {!v.imported && v.manages && <Posts v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <Team v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <JobQuestions v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <Rules v={v} w={w} mutate={mutate} />}

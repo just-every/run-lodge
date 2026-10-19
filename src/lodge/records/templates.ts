@@ -82,7 +82,7 @@ export function cloneVacancy(s: State, a: Actor, b: Data) {
   requireThat(!source.imported, 'Imported vacancies are history; start a new vacancy instead', 409)
   // A new office or department sent with the clone fills its location or department text afresh.
   const job = vacancy(s, a, {
-    title: b.title ?? source.title, departmentId: b.departmentId ?? source.departmentId, officeId: b.officeId ?? source.officeId,
+    title: b.title ?? source.title, departmentId: b.departmentId ?? source.departmentId, officeId: b.officeId ?? source.officeId, locations: b.officeId ? undefined : source.locations,
     department: b.departmentId ? undefined : source.department, location: b.location ?? (b.officeId ? '' : source.location),
     workMode: source.workMode, employmentType: source.employmentType, description: source.description, compensation: source.compensation, headcount: source.headcount, manager: source.manager,
   })

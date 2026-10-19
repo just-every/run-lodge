@@ -3,7 +3,8 @@ import { requireAdmin } from '../core/access'
 import { pay } from '../core/labels'
 import { Fault, about, bytesToBase64, list, now, optionalText, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from './documents'
-import { MONITORING_OPTIONS, publicPosting } from './intake'
+import { MONITORING_OPTIONS } from './intake'
+import { listings, type Listing } from './posts'
 import { jobForm } from './questions'
 import { departmentPath } from './org'
 
@@ -11,8 +12,10 @@ import { departmentPath } from './org'
 // names the board's token, lists the browser origins that may submit, and keeps
 // submit-only board keys (shown once, stored as SHA-256 only, rotated or revoked
 // at once). The board lists only published jobs that are not confidential, with
-// public fields only. Internal-only jobs (ATTR-005) and per-location pay
-// (ATTR-004) join it when those clauses ship.
+// public fields only, never an internal-only one (ATTR-005). A job whose
+// ATTR-012 posts have gone live lists each live post on the API as its own
+// entry (its id is the post's, `jobId` the job's). Per-location pay (ATTR-004)
+// joins it when that clause ships.
 
 export const BOARD_SOURCE = 'Careers page (API)'
 export const SUBMITS_PER_HOUR = 10
@@ -100,12 +103,8 @@ export async function keyFor(board: Data, bearer: string) {
   return board.keys.find((k: Data) => k.hash === hash) as Data | undefined
 }
 
-/** Published jobs the board shows: confidential ones never, even under a neutral title. */
-export function listed(s: State) {
-  return s.all('vacancy').filter(v => v.status === 'open' && !v.confidential && !v.imported && publicPosting(v)).sort((x, y) => x.title.localeCompare(y.title))
-}
-
-const officesOf = (v: Data): string[] => [...new Set([v.officeId, ...(v.openings ?? []).filter((o: Data) => o.status === 'open').map((o: Data) => o.officeId)].filter(Boolean))] as string[]
+/** What the board shows: published jobs and live posts on the API, confidential ones never, even under a neutral title. */
+export const listed = (s: State) => listings(s, 'api')
 
 function departmentChain(s: State, id: unknown) {
   const chain: Data[] = []
@@ -113,26 +112,27 @@ function departmentChain(s: State, id: unknown) {
   return chain
 }
 
-/** One job as the board shows it; `content` adds the description, `detail` the application form. */
-export function boardJob(s: State, v: Data, origin: string, token: string, content: boolean, detail = false): Data {
-  const offices = officesOf(v).map(id => s.find('office', id)).filter(Boolean).map(o => ({ id: o!.id, name: o!.name }))
+/** One job or post as the board shows it; `content` adds the description, `detail` the application form. */
+export function boardJob(s: State, l: Listing, origin: string, token: string, content: boolean, detail = false): Data {
+  const v = l.v
+  const offices = l.offices.map(id => s.find('office', id)).filter(Boolean).map(o => ({ id: o!.id, name: o!.name }))
   const c = v.compensation
   // Today a job has one approved range for all its locations; ATTR-004 adds a range per location.
-  const where = v.location || offices.map(o => o.name).join(', ')
+  const where = (l.post ? '' : v.location) || offices.map(o => o.name).join(', ')
   const job: Data = {
-    id: v.id, title: v.title, departments: departmentChain(s, v.departmentId), department: v.departmentId ? departmentPath(s, v.departmentId) : v.department || null,
-    offices, location: v.location || null, employmentType: v.employmentType, workMode: v.workMode, remote: v.workMode === 'remote',
+    id: l.id, jobId: v.id, postId: l.post?.id ?? null, title: l.title, departments: departmentChain(s, v.departmentId), department: v.departmentId ? departmentPath(s, v.departmentId) : v.department || null,
+    offices, location: (l.post ? where : v.location) || null, employmentType: v.employmentType, workMode: v.workMode, remote: v.workMode === 'remote',
     pay: c ? [{ location: where || null, currency: c.currency, min: c.min, max: c.max, period: c.period, minorUnits: 2 }] : [],
     payTransparency: c ? `Pay${where ? ' for ' + where : ''}: ${pay(c).replace(/ /g, ' ')}` : null,
     publishedAt: v.publishedAt, updatedAt: v.updatedAt && v.updatedAt > v.publishedAt ? v.updatedAt : v.publishedAt,
-    url: `${origin}/jobs/${v.slug}`,
+    url: `${origin}/jobs/${l.slug}`,
   }
-  if (content || detail) job.content = v.description || ''
+  if (content || detail) job.content = l.description
   if (!detail) return job
   const business = s.get('business', 'main'), notice = business.notices.at(-1)
   return {
     ...job,
-    applyUrl: `${origin}/api/board/v1/${token}/jobs/${v.id}/applications`,
+    applyUrl: `${origin}/api/board/v1/${token}/jobs/${l.id}/applications`,
     fields: [
       { name: 'name', label: 'Full name', type: 'short-text', required: true },
       { name: 'email', label: 'Email', type: 'email', required: true },
@@ -143,7 +143,7 @@ export function boardJob(s: State, v: Data, origin: string, token: string, conte
       { name: 'accommodation', label: 'Adjustments you need', type: 'long-text', required: false },
       { name: 'talentPool', label: 'You may contact me about other suitable roles while you keep my details', type: 'yes-no', required: false },
     ],
-    questions: jobForm(s, v).map((q: Data) => ({ id: q.question, text: q.text, type: q.type, required: !!q.required, options: q.options ?? [], help: q.help || null, ...(q.type === 'file' ? { maxBytes: MAX_DOCUMENT_BYTES } : {}) })),
+    questions: jobForm(s, v, l.post).map((q: Data) => ({ id: q.question, text: q.text, type: q.type, required: !!q.required, options: q.options ?? [], help: q.help || null, ...(q.type === 'file' ? { maxBytes: MAX_DOCUMENT_BYTES } : {}) })),
     voluntaryQuestions: [{ id: 'monitoring', text: 'How do you describe your gender?', options: MONITORING_OPTIONS, required: false, note: 'Kept apart from the application and never shown to the people assessing it.' }],
     privacyNotice: { version: notice.version, text: notice.text },
     accommodationContact: business.accommodationContact,
@@ -153,14 +153,14 @@ export function boardJob(s: State, v: Data, origin: string, token: string, conte
 /** Departments the listed jobs use, with their parents; `jobs` counts listed jobs in a department and every department below it. */
 export function boardDepartments(s: State) {
   const jobs = listed(s), counts = new Map<string, number>()
-  for (const v of jobs) for (const d of departmentChain(s, v.departmentId)) counts.set(d.id, (counts.get(d.id) ?? 0) + 1)
+  for (const { v } of jobs) for (const d of departmentChain(s, v.departmentId)) counts.set(d.id, (counts.get(d.id) ?? 0) + 1)
   return [...counts].map(([id, n]) => { const d = s.get('department', id); return { id, name: d.name, parentId: d.parent ?? null, path: departmentPath(s, id), jobs: n } }).sort((x, y) => x.path.localeCompare(y.path))
 }
 
 /** Offices the listed jobs or their open openings are in, with how many listed jobs each has. */
 export function boardOffices(s: State) {
   const counts = new Map<string, number>()
-  for (const v of listed(s)) for (const id of officesOf(v)) counts.set(id, (counts.get(id) ?? 0) + 1)
+  for (const l of listed(s)) for (const id of l.offices) counts.set(id, (counts.get(id) ?? 0) + 1)
   return [...counts].flatMap(([id, n]) => { const o = s.find('office', id); return o ? [{ id, name: o.name, jobs: n }] : [] }).sort((x, y) => x.name.localeCompare(y.name))
 }
 

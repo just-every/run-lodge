@@ -108,6 +108,8 @@ takes `office`. Also
 `POST /api/lodge/invite` (send a member a sign-in invitation through the
 outbox) and `POST /api/lodge/delete-candidate`.
 
+Job posts (ATTR-012, the people who run the job): `job-post { vacancy, post?, title, description, locations, destinations, questions?, language }` creates or edits a post (`locations` from the job's office and its `locations`, the other approved offices in the vacancy terms; `destinations` from `careers`, `embed`, `api`; `language` is `en`); `post-status { vacancy, post, status: live|paused|closed }`. Applications from a post carry `post` and `postTitle`; `GET /api/lodge/reports/sources` returns `byPost`.
+
 Internal job board (ATTR-005): `vacancy-internal { id, internalOnly }` (the people who run the job), `apply-internal { vacancy }` (any person member; `internalBoard` in the state lists what they may apply to and when they applied), `internal-policy { notifyManager }` and `reports-to { email, reportsTo }` (admins). An internal application is visible only to the owner, admins and the job's hiring team.
 
 ## Agents
@@ -231,7 +233,8 @@ under a neutral title, and only the fields below.
   "type": "object",
   "required": ["id", "title", "departments", "offices", "employmentType", "workMode", "remote", "pay", "publishedAt", "updatedAt", "url"],
   "properties": {
-    "id": { "type": "string" }, "title": { "type": "string" },
+    "id": { "type": "string", "description": "The job's id, or for an ATTR-012 job post the post's id (submit to it as to a job)" }, "title": { "type": "string" },
+    "jobId": { "type": "string", "description": "The job (requisition) this entry belongs to" }, "postId": { "type": ["string", "null"], "description": "The ATTR-012 post this entry is, or null for the job's own page" },
     "departments": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "parentId": { "type": ["string", "null"] } } }, "description": "The job's department with its parents, top first" },
     "department": { "type": ["string", "null"], "description": "Path such as \"Operations › Warehouse\"" },
     "offices": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "name": { "type": "string" } } } },

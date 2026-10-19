@@ -8,7 +8,8 @@ import { businessZone, isZone, times } from '../core/time'
 import { load, save } from '../core/store'
 import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
-import { APPLICATION_PAGE, MONITORING_OPTIONS, interviewByToken, openVacancy, publicPosting, submit, type Door } from '../records/intake'
+import { APPLICATION_PAGE, MONITORING_OPTIONS, interviewByToken, submit, type Door } from '../records/intake'
+import { listingBySlug, listings, shownJob } from '../records/posts'
 import { candidateAvailability } from '../records/interviews'
 import { jobForm } from '../records/questions'
 import { departmentPath, subtree } from '../records/org'
@@ -52,9 +53,10 @@ export function sameOrigin(c: C) {
 publicPages.get('/jobs', async c => {
   const s = await load(c.env.DB)
   const business = s.all('business')[0]
-  const all = s.all('vacancy').filter(v => v.status === 'open').map(v => v.confidential ? publicPosting(v) && { ...publicPosting(v), departmentId: undefined } : publicPosting(v)).filter((v): v is Data => !!v).sort((x, y) => x.title.localeCompare(y.title))
+  // ATTR-012: each live post on the careers page is its own role; a confidential job shows no department.
+  const all: Data[] = listings(s, 'careers').map(l => ({ ...shownJob(s, l), slug: l.slug, offices: l.offices, ...(l.v.confidential ? { departmentId: undefined } : {}) }))
   // REQ-004: filter by department (with its sub-departments) and office, among the departments and offices open roles use.
-  const offices = (v: Data) => [v.officeId, ...(v.openings ?? []).filter((o: Data) => o.status === 'open').map((o: Data) => o.officeId)].filter(Boolean)
+  const offices = (v: Data): string[] => v.offices
   const wantDepartment = s.find('department', c.req.query('department')), wantOffice = s.find('office', c.req.query('office'))
   const within = wantDepartment ? subtree(s, wantDepartment.id) : null
   const open = all.filter(v => (!within || within.has(v.departmentId)) && (!wantOffice || offices(v).includes(wantOffice.id)))
@@ -114,10 +116,10 @@ ${questions.length ? `<fieldset><legend>Questions from the employer</legend>${qu
 
 publicPages.get('/jobs/:slug', async c => {
   const s = await load(c.env.DB)
-  const v = openVacancy(s, c.req.param('slug'))
-  if (!v) return notFound()
-  const shown = publicPosting(v)!
-  return page(shown.title, form(shown, s.get('business', 'main'), '', {}, jobForm(s, v)))
+  const l = listingBySlug(s, 'careers', c.req.param('slug'))
+  if (!l) return notFound()
+  const shown = shownJob(s, l)
+  return page(shown.title, form({ ...shown, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post)))
 })
 
 publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
@@ -131,12 +133,14 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   sameOrigin(c)
   if (Number(c.req.header('content-length') ?? 0) > MAX_DOCUMENT_BYTES * 1.5) return page('Too large', '<h1>That upload is too large</h1><p>Files may be at most 1 MB. Go back and choose a smaller file.</p>', 413, embed)
   const s = await load(c.env.DB)
-  const v = openVacancy(s, c.req.param('slug') ?? '')
-  if (!v || (embed && v.confidential)) return embed ? page('Not found', '<h1>This role is not available</h1>', 404, embed) : notFound()
+  // ATTR-012: the slug names the job's own page or one of its live posts on this destination.
+  const l = listingBySlug(s, embed ? 'embed' : 'careers', c.req.param('slug') ?? '')
+  if (!l) return embed ? page('Not found', '<h1>This role is not available</h1>', 404, embed) : notFound()
+  const v = s.get('vacancy', l.v.id)
   const data = await formBody(c)
   const values: Data = Object.fromEntries([...data.entries()].filter(([, x]) => typeof x === 'string'))
   const upload = async (file: FormDataEntryValue | null) => file && typeof file !== 'string' && file.size > 0 ? { name: file.name, mediaType: file.type, base64: bytesToBase64(new Uint8Array(await file.arrayBuffer())) } : null
-  const questions = jobForm(s, v), given: Data = {}
+  const questions = jobForm(s, v, l.post), given: Data = {}
   for (const q of questions) {
     const name = 'q-' + q.question
     given[q.question] = q.type === 'file' ? await upload(data.get(name)) : q.type === 'multiple-choice' ? data.getAll(name).map(String) : values[name]
@@ -144,12 +148,12 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   }
   try {
     const resume = await upload(data.get('resume'))
-    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume, answers: given } as any, door)
+    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, consent: values.consent, resume, answers: given } as any, door, l.post)
     await save(c.env.DB, s, null)
     return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd></dl><p>To ask about adjustments or your data, contact ${esc(accommodationContact)} and quote the receipt.</p>`, 200, embed)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
-    const shown = publicPosting(v)!
+    const shown: Data = { ...shownJob(s, l), slug: l.slug }
     return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden), error.status, embed)
   }
 }
