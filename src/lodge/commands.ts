@@ -4,6 +4,7 @@ import { business, member } from './records/people'
 import { close, kit, plan, privacy, publish, requestOpening, requestVacancyApproval, rubric, stages, unpublish, vacancy } from './records/vacancies'
 import { closeOpening, editOpening } from './records/openings'
 import { jobQuestions, question } from './records/questions'
+import { deleteOrg, department, memberOrg, office } from './records/org'
 import { decide } from './records/approvals'
 import { apply, candidate, candidatePrivacy, correctCandidate, reviewDuplicate, transfer } from './records/candidates'
 import { addDocument } from './records/documents'
@@ -30,6 +31,7 @@ export const commands: Record<string, Command> = {
   business, member,
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy,
   'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening, question, 'job-questions': jobQuestions,
+  department, office, 'delete-org': deleteOrg, 'member-org': memberOrg,
   'decide-approval': decide,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'assign-reviewers': assignReviewers, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,

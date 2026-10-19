@@ -1,6 +1,7 @@
 import type { State } from '../core/state'
 import { requireManages } from '../core/access'
 import { date, now, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { officeRef } from './org'
 
 // REQ-001: a job carries one opening per approved headcount. Each opening has an
 // opening ID (the employer's own, or generated), a target start date and a
@@ -60,7 +61,7 @@ export function settleOpenings(s: State, a: Actor, v: Data, decision: 'approved'
 /** Add one requested opening and raise the headcount; it opens only once LDG-001 approval of the new headcount is given. */
 export function requestedOpening(s: State, v: Data, b: Data) {
   const opening = blank(s, v, v.openings ?? [], 'requested')
-  return { ...opening, code: b.code ? code(s, b.code, v.id, null) : opening.code, targetStart: b.targetStart ? date(b.targetStart, 'Target first day') : opening.targetStart }
+  return { ...opening, code: b.code ? code(s, b.code, v.id, null) : opening.code, targetStart: b.targetStart ? date(b.targetStart, 'Target first day') : opening.targetStart, officeId: officeRef(s, b.office) }
 }
 
 function find(s: State, a: Actor, b: Data) {
@@ -76,7 +77,7 @@ function find(s: State, a: Actor, b: Data) {
 export function editOpening(s: State, a: Actor, b: Data) {
   const { v, opening } = find(s, a, b)
   requireThat(['open', 'requested'].includes(opening.status), 'Only an open or requested opening changes', 409)
-  const next = { ...opening, code: b.code === undefined ? opening.code : code(s, b.code, v.id, opening.id), targetStart: b.targetStart ? date(b.targetStart, 'Target first day') : null }
+  const next = { ...opening, code: b.code === undefined ? opening.code : code(s, b.code, v.id, opening.id), targetStart: b.targetStart ? date(b.targetStart, 'Target first day') : null, officeId: b.office === undefined ? opening.officeId : officeRef(s, b.office) }
   const record = s.put('vacancy', v.id, { ...v, openings: v.openings.map((o: Data) => o.id === opening.id ? next : o) })
   s.audit(a, 'opening-edited', 'vacancy:' + v.id, { opening: next.code })
   return record

@@ -891,6 +891,55 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await send('/api/lodge/download/document/' + file.document, undefined, manager)).text, 'OSHA 30 card 2024')
   })
 
+  await t.test('REQ-004 departments and offices: jobs, openings and members attach; the careers page filters; a manager granted Operations runs only Operations', async () => {
+    const ops = await cmd('department', { name: 'Operations' }), eng = await cmd('department', { name: 'Engineering' })
+    const yard = await cmd('department', { name: 'Warehouse', parent: ops.id })
+    assert.equal((await send('/api/lodge/command/department', { name: 'warehouse', parent: ops.id }, owner)).status, 409, 'sibling names are unique')
+    assert.equal((await send('/api/lodge/command/department', { id: ops.id, name: 'Operations', parent: yard.id }, owner)).status, 409, 'no department inside itself')
+    assert.equal((await send('/api/lodge/command/department', { name: 'Finance' }, manager)).status, 403, 'admins keep the hierarchy')
+    const denver = await cmd('office', { name: 'Denver, CO' }), remote = await cmd('office', { name: 'Remote (US)' }), spare = await cmd('office', { name: 'Austin, TX' })
+    const job = async (title, departmentId, officeId) => {
+      const v = await cmd('vacancy', { title, departmentId, officeId, headcount: 1, manager: 'morgan@example.test', compensation: RANGE }, manager)
+      await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
+      await cmd('interview-plan', { id: v.id, plan: [{ name: 'Walk', stageName: 'Interview', durationMinutes: 45 }] }, manager)
+      await approve((await cmd('request-vacancy-approval', { id: v.id, approver: 'parker@example.test' }, manager)).id)
+      return cmd('publish', { id: v.id }, manager)
+    }
+    const picker = await job('Picker', yard.id, denver.id), platform = await job('Platform engineer', eng.id, remote.id)
+    assert.deepEqual([picker.department, picker.location], ['Operations › Warehouse', 'Denver, CO'])
+    // Renaming keeps the earlier name; the job keeps its link and its approved text.
+    await cmd('department', { id: yard.id, name: 'Warehouse & Yard', parent: ops.id })
+    const view = await state(manager)
+    assert.deepEqual(view.departments.find(d => d.id === yard.id).names.map(n => n.name), ['Warehouse'])
+    assert.deepEqual((({ departmentId, approvedNow }) => [departmentId, approvedNow])(view.vacancies.find(v => v.id === picker.id)), [yard.id, true])
+
+    // The careers page filters by department (with sub-departments) and by office, openings included.
+    const titles = async query => [...(await send('/jobs' + query)).text.matchAll(/<li><a href="\/jobs\/[^"]+">([^<]+)<\/a>/g)].map(m => m[1]).sort()
+    assert.deepEqual(await titles(`?department=${ops.id}`), ['Picker'])
+    assert.deepEqual(await titles(`?office=${remote.id}`), ['Platform engineer'])
+    assert.match((await send('/jobs')).text, /<label>Department<select name="department">/)
+    await cmd('opening', { vacancy: picker.id, opening: picker.openings[0].id, code: 'PICK-01', office: remote.id }, manager)
+    assert.deepEqual(await titles(`?office=${remote.id}`), ['Picker', 'Platform engineer'])
+
+    // A manager granted Operations runs every Operations job and reaches no Engineering job through any door.
+    const mona = await h.member('mona@example.test', ['manager'], 'Mona Diaz')
+    assert.equal((await send('/api/lodge/command/member-org', { email: 'ivy@example.test', grantDepartments: [ops.id] }, owner)).status, 409, 'grants are for managers')
+    await cmd('member-org', { email: 'mona@example.test', department: ops.id, office: denver.id, grantDepartments: [ops.id] })
+    const monaView = await state(mona)
+    assert.deepEqual(monaView.vacancies.map(v => [v.title, v.manages]), [['Picker', true]])
+    assert.deepEqual((await send('/api/lodge/search?q=Platform', undefined, mona)).value.results, [])
+    assert.equal((await send(`/api/lodge/download/vacancy/${platform.id}`, undefined, mona)).status, 404)
+    assert.equal((await send(`/api/lodge/download/vacancy/${picker.id}`, undefined, mona)).status, 200)
+    assert.equal((await send('/api/lodge/command/close-opening', { vacancy: platform.id, opening: platform.openings[0].id, reason: 'x' }, mona)).status, 403)
+    await cmd('member-org', { email: 'mona@example.test', department: ops.id, office: denver.id, grantDepartments: [] })
+    assert.deepEqual((await state(mona)).vacancies, [], 'removing the grant removes access at once')
+
+    // Deleting what is still in use is refused; an unused office goes.
+    for (const [kind, id] of [['office', denver.id], ['office', remote.id], ['department', ops.id], ['department', yard.id]]) assert.equal((await send('/api/lodge/command/delete-org', { kind, id }, owner)).status, 409, kind + ' in use')
+    await cmd('delete-org', { kind: 'office', id: spare.id })
+    assert.equal((await state()).offices.some(o => o.id === spare.id), false)
+  })
+
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {
     assert.equal((await send('/api/lodge/state')).status, 401)
     assert.equal((await send('/api/lodge/state', undefined, owner, { 'sec-fetch-site': 'cross-site' })).status, 403)

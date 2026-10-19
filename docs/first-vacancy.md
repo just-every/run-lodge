@@ -48,6 +48,12 @@ its own opening ID (change it to your own under **Change opening**) and target
 first day. Close an opening you will not fill with a reason. **Add an opening**
 raises the headcount by one; the new opening waits until the approver agrees.
 
+Under **People**, admins keep **Departments and offices**: a department can sit
+inside another, renaming keeps the earlier name, and anything still in use cannot be
+deleted. Choose a job's **Managed department** and **Office** in its terms; the
+careers page at `/jobs` filters by both. A manager can be given departments or
+offices whose jobs they also run.
+
 Under **Screening questions**, choose which questions applicants answer on this
 job and whether each is required. Admins keep the **Question library**: each
 question has an answer type (yes or no, choices, number, date, file or text),

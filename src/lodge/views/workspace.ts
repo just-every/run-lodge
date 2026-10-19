@@ -129,6 +129,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     tasks,
     // SCREEN-001: the question library, for admins who keep it and managers who attach it.
     questions: library(s, a),
+    // REQ-004: the department hierarchy and office list, which every member may read.
+    departments: s.all('department'), offices: s.all('office'),
     // COORD-006 briefs, for the people who run the job (and their agents) only.
     debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [

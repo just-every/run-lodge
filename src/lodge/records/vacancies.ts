@@ -3,6 +3,7 @@ import { managesVacancy, requireAdmin, requireManages, requireMember, requireRol
 import { currency, email, integer, list, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval } from './approvals'
 import { approvedOpenings, requestedOpening } from './openings'
+import { departmentPath, departmentRef, officeRef } from './org'
 
 // Flows 1 and 2: a vacancy with its compensation range, manager and headcount
 // approval, and the stages, rubric and interview plan agreed before anyone is
@@ -41,10 +42,13 @@ function editable(s: State, a: Actor, id: unknown) {
 
 export function vacancy(s: State, a: Actor, b: Data) {
   requireRole(a, 'admin', 'manager')
+  // REQ-004: a job may attach to a managed department and office; their names fill the text the job shows.
+  const departmentId = departmentRef(s, b.departmentId), officeId = officeRef(s, b.officeId)
   const fields = {
     title: text(b.title, 'Title', 160),
-    department: optionalText(b.department, 'Department', 120),
-    location: optionalText(b.location, 'Location', 160),
+    department: departmentId ? departmentPath(s, departmentId) : optionalText(b.department, 'Department', 120),
+    location: optionalText(b.location, 'Location', 160) || (officeId ? s.get('office', officeId).name : ''),
+    departmentId, officeId,
     workMode: oneOf(b.workMode ?? 'onsite', ['onsite', 'hybrid', 'remote'] as const, 'Work mode'),
     employmentType: oneOf(b.employmentType ?? 'full-time', ['full-time', 'part-time', 'contract', 'temporary'] as const, 'Employment type'),
     description: optionalText(b.description, 'Description', 20000),

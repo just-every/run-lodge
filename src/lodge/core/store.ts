@@ -1,6 +1,6 @@
 import { operatorAuth, runtimeBindings, type Bindings } from '../../auth.server'
 import { State, type Row } from './state'
-import { Fault, requireThat, uid, type Actor, type Role } from './types'
+import { Fault, requireThat, uid, type Actor, type Data, type Role } from './types'
 
 /** Scalar SQL that is true only while the actor's exact session and operator version are current. */
 export function authority(actor: Actor, owner = false) {
@@ -63,6 +63,14 @@ export async function signedIn(request: Request, original: Bindings): Promise<Se
   return session as unknown as Session
 }
 
+/** REQ-004: a member's department grants with every sub-department, and office grants; none when empty. */
+function grantsOf(state: State, m: Data) {
+  if (!m.grantDepartments?.length && !m.grantOffices?.length) return undefined
+  const departments = new Set<string>(m.grantDepartments ?? [])
+  for (let grew = true; grew;) { grew = false; for (const d of state.all('department')) if (d.parent && departments.has(d.parent) && !departments.has(d.id)) { departments.add(d.id); grew = true } }
+  return { departments: [...departments], offices: [...(m.grantOffices ?? [])] }
+}
+
 /** Lodge capabilities come from the saved member record, never from the request body. */
 export function actorFor(session: Session, state: State): Actor {
   const owner = session.operator.role === 'owner'
@@ -79,8 +87,8 @@ export function actorFor(session: Session, state: State): Actor {
     memberships.push({ email: principal.email, revision: state.revisionOf('member', principal.email) })
     const roles: Role[] = principal.owner ? all : principal.roles
     requireThat(roles.length, 'Active Lodge principal capability required', 403)
-    return { ...base, roles, agent: true, scopeAs: principal?.email, seePrivate: principal.owner === true || principal.seePrivate === true }
+    return { ...base, roles, agent: true, scopeAs: principal?.email, seePrivate: principal.owner === true || principal.seePrivate === true, grants: grantsOf(state, principal) }
   }
   requireThat(owner || member?.roles?.length, 'Active Lodge capability required', 403)
-  return { ...base, roles: owner ? all : member!.roles, agent: false, seePrivate: member?.seePrivate === true }
+  return { ...base, roles: owner ? all : member!.roles, agent: false, seePrivate: member?.seePrivate === true, grants: owner ? undefined : grantsOf(state, member!) }
 }

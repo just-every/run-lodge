@@ -8,6 +8,7 @@ import { columns } from './pipeline/facts'
 import { Kickoffs } from './kickoffs'
 import { Openings } from './openings'
 import { JobQuestions } from './questions'
+import { departmentOptions, officeOptions } from './org'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -22,11 +23,13 @@ function Terms({ v, w, mutate, onSaved }: { v?: D; w: D; mutate: PageProps['muta
   const c = v?.compensation
   return <Form label={v ? 'Save terms' : 'Create vacancy'} onSubmit={async x => {
     const compensation = x.min || x.max ? { currency: x.currency.toUpperCase(), min: cents(x.min), max: cents(x.max), period: x.period } : null
-    const saved = await mutate('vacancy', { id: v?.id, title: x.title, department: x.department, location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation })
+    const saved = await mutate('vacancy', { id: v?.id, title: x.title, department: x.department, departmentId: x.departmentId || undefined, officeId: x.officeId || undefined, location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation })
     onSaved?.(saved.id)
   }}>
     <Field label="Job title" name="title" defaultValue={v?.title} />
-    <Field label="Department" name="department" required={false} defaultValue={v?.department} />
+    {w.departments?.length ? <Field label="Managed department" name="departmentId" required={false} defaultValue={v?.departmentId ?? ''} options={departmentOptions(w)} /> : null}
+    <Field label="Department" name="department" required={false} defaultValue={v?.department} hint={w.departments?.length ? 'Filled from the managed department when one is chosen' : undefined} />
+    {w.offices?.length ? <Field label="Office" name="officeId" required={false} defaultValue={v?.officeId ?? ''} options={officeOptions(w)} /> : null}
     <Field label="Location" name="location" required={false} defaultValue={v?.location} />
     <Field label="Work mode" name="workMode" defaultValue={v?.workMode ?? 'onsite'} options={[{ value: 'onsite', label: 'On site' }, { value: 'hybrid', label: 'Hybrid' }, { value: 'remote', label: 'Remote' }]} />
     <Field label="Employment type" name="employmentType" defaultValue={v?.employmentType ?? 'full-time'} options={Object.entries(EMPLOYMENT_TYPES).map(([value, label]) => ({ value, label }))} />

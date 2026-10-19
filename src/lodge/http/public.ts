@@ -11,6 +11,7 @@ import { MAX_DOCUMENT_BYTES } from '../records/documents'
 import { MONITORING_OPTIONS, interviewByToken, openVacancy, publicPosting, submit } from '../records/intake'
 import { candidateAvailability } from '../records/interviews'
 import { jobForm } from '../records/questions'
+import { departmentPath, subtree } from '../records/org'
 
 // The pages applicants see: open roles, the application form (plain HTML that
 // works without JavaScript, every field labelled), the receipt, and the private
@@ -45,8 +46,18 @@ function sameOrigin(c: C) {
 publicPages.get('/jobs', async c => {
   const s = await load(c.env.DB)
   const business = s.all('business')[0]
-  const open = s.all('vacancy').filter(v => v.status === 'open').map(publicPosting).filter((v): v is Data => !!v).sort((x, y) => x.title.localeCompare(y.title))
-  return page('Open roles', `<h1>Open roles${business ? ' at ' + esc(business.name) : ''}</h1>${open.length ? `<ul class="roles">${open.map(v => `<li><a href="/jobs/${esc(v.slug)}">${esc(v.title)}</a><span>${esc(vacancyFacts(v, false).join(' · '))}</span></li>`).join('')}</ul>` : '<p>There are no open roles right now.</p>'}`)
+  const all = s.all('vacancy').filter(v => v.status === 'open').map(v => v.confidential ? publicPosting(v) && { ...publicPosting(v), departmentId: undefined } : v).filter((v): v is Data => !!v).sort((x, y) => x.title.localeCompare(y.title))
+  // REQ-004: filter by department (with its sub-departments) and office, among the departments and offices open roles use.
+  const offices = (v: Data) => [v.officeId, ...(v.openings ?? []).filter((o: Data) => o.status === 'open').map((o: Data) => o.officeId)].filter(Boolean)
+  const wantDepartment = s.find('department', c.req.query('department')), wantOffice = s.find('office', c.req.query('office'))
+  const within = wantDepartment ? subtree(s, wantDepartment.id) : null
+  const open = all.filter(v => (!within || within.has(v.departmentId)) && (!wantOffice || offices(v).includes(wantOffice.id)))
+  const usedDepartments = new Set<string>()
+  for (const v of all) for (let d = s.find('department', v.departmentId); d; d = d.parent ? s.find('department', d.parent) : undefined) { if (usedDepartments.has(d.id)) break; usedDepartments.add(d.id) }
+  const usedOffices = new Set(all.flatMap(offices))
+  const choose = (name: string, label: string, ids: string[], nameOf: (id: string) => string, picked?: string) => `<label>${label}<select name="${name}"><option value="">All</option>${ids.map(id => [id, nameOf(id)]).sort((x, y) => x[1].localeCompare(y[1])).map(([id, n]) => `<option value="${esc(id)}"${id === picked ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>`
+  const filters = usedDepartments.size || usedOffices.size ? `<form method="get" action="/jobs" class="filters">${usedDepartments.size ? choose('department', 'Department', [...usedDepartments], id => departmentPath(s, id), wantDepartment?.id) : ''}${usedOffices.size ? choose('office', 'Office', [...usedOffices], id => s.find('office', id)?.name ?? '', wantOffice?.id) : ''}<button type="submit">Show roles</button></form>` : ''
+  return page('Open roles', `<h1>Open roles${business ? ' at ' + esc(business.name) : ''}</h1>${filters}${open.length ? `<ul class="roles">${open.map(v => `<li><a href="/jobs/${esc(v.slug)}">${esc(v.title)}</a><span>${esc(vacancyFacts(v, false).join(' · '))}</span></li>`).join('')}</ul>` : all.length ? '<p>No open roles match these filters. <a href="/jobs">See all open roles</a>.</p>' : '<p>There are no open roles right now.</p>'}`)
 })
 
 /** SCREEN-001: the job's screening questions, each labelled, named q-<question id>. */

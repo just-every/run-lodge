@@ -2,6 +2,7 @@ import type { PageProps } from './app'
 import { day } from './format'
 import { person } from './names'
 import { Field, Form, memberOptions, Status, Table, type D } from './shared'
+import { officeOptions } from './org'
 
 const TONE: D = { open: 'good', filled: 'neutral', closed: 'warn', requested: 'neutral', refused: 'alert' }
 
@@ -13,17 +14,18 @@ export function Openings({ v, w, mutate }: { v: D } & Pick<PageProps, 'w' | 'mut
   const hiredBy = (o: D) => w.applications.find((x: D) => x.id === o.application)?.candidateName
   return <section className="openings" aria-label="Openings">
     <h3>Openings</h3>
-    <Table heads={['Opening ID', 'Target first day', 'Status', 'Since']}>
+    <Table heads={['Opening ID', 'Target first day', 'Office', 'Status', 'Since']}>
       {openings.map(o => <tr key={o.id}>
-        <td>{o.code}</td><td>{o.targetStart ? day(o.targetStart) : 'not set'}</td>
+        <td>{o.code}</td><td>{o.targetStart ? day(o.targetStart) : 'not set'}</td><td>{w.offices?.find((x: D) => x.id === (o.officeId ?? v.officeId))?.name ?? '—'}</td>
         <td><Status tone={TONE[o.status]}>{o.status === 'requested' ? 'waiting on headcount approval' : o.status}</Status>{o.status === 'filled' && (hiredBy(o) ? ` by ${hiredBy(o)}` : o.filledBy ? ` (${o.filledBy})` : '')}{o.closeReason ? ` · ${o.closeReason}` : ''}</td>
         <td>{day(o.filledAt ?? o.closedAt ?? o.refusedAt ?? o.openedAt ?? o.requestedAt)}</td>
       </tr>)}
     </Table>
     {live && openings.filter(o => ['open', 'requested'].includes(o.status)).map(o => <details key={o.id}><summary>Change opening {o.code}</summary>
-      <Form label="Save opening" onSubmit={x => mutate('opening', { vacancy: v.id, opening: o.id, code: x.code, targetStart: x.targetStart })}>
+      <Form label="Save opening" onSubmit={x => mutate('opening', { vacancy: v.id, opening: o.id, code: x.code, targetStart: x.targetStart, office: x.office || null })}>
         <Field label="Opening ID" name="code" defaultValue={o.code} />
         <Field label="Target first day" name="targetStart" type="date" required={false} defaultValue={o.targetStart ?? ''} />
+        {w.offices?.length > 0 && <Field label="Opening office" name="office" required={false} defaultValue={o.officeId ?? ''} options={officeOptions(w)} />}
       </Form>
       {o.status === 'open' && <Form label="Close opening" compact onSubmit={x => mutate('close-opening', { vacancy: v.id, opening: o.id, reason: x.why })}>
         <Field label="Why it closes without a hire" name="why" hint="For example: budget cut" />

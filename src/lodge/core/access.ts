@@ -29,9 +29,18 @@ export function cleared(a: Actor, record: Data | undefined, flag: 'confidential'
   return a.owner || a.seePrivate === true || (record.namedPeople ?? []).includes(who) || (flag === 'confidential' && record.manager === who)
 }
 
-/** Managers run their own vacancies; admins and the owner run all of them, except confidential ones they are not cleared for. */
+/** REQ-004: a manager's department or office grant covers the job. */
+const granted = (a: Actor, vacancy: Data) => !!a.grants && ((!!vacancy.departmentId && a.grants.departments.includes(vacancy.departmentId)) || (!!vacancy.officeId && a.grants.offices.includes(vacancy.officeId)))
+
+/**
+ * Managers run their own vacancies and, with department or office grants, every
+ * job in them; admins and the owner run all of them, except confidential ones
+ * they are not cleared for.
+ */
 export function managesVacancy(a: Actor, vacancy: Data) {
-  return (isAdmin(a) && cleared(a, vacancy, 'confidential')) || (a.roles.includes('manager') && vacancy.manager === scope(a))
+  if (isAdmin(a) && cleared(a, vacancy, 'confidential')) return true
+  if (!a.roles.includes('manager')) return false
+  return vacancy.manager === scope(a) || (granted(a, vacancy) && cleared(a, vacancy, 'confidential'))
 }
 
 export function requireManages(a: Actor, vacancy: Data) {

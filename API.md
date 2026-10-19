@@ -56,7 +56,11 @@ managers; send its `id` to edit your own, history kept), `task` (a follow-up on 
 `complete-data-request`, `propose`, `decide-proposal`, `debrief`, `edit-debrief`,
 `decide-debrief` (see Agents), `question` (admins: a screening question `{ id?, text,
 type, options, required, help }`; with `id` it saves the next version), `job-questions`
-(`{ id: vacancy, questions: [{ question, required }] }`). Also
+(`{ id: vacancy, questions: [{ question, required }] }`), `department` (admins: `{ id?, name, parent? }`),
+`office` (admins: `{ id?, name }`), `delete-org` (`{ kind: "department" | "office", id }`),
+`member-org` (admins: `{ email, department?, office?, grantDepartments, grantOffices }`;
+grants are for managers). `vacancy` also takes `departmentId` and `officeId`, and `opening`
+takes `office`. Also
 `POST /api/lodge/invite` (send a member a sign-in invitation through the
 outbox) and `POST /api/lodge/delete-candidate`.
 
