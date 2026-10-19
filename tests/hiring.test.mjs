@@ -559,6 +559,7 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     const followUp = await cmd('task', { application: app.id, note: 'Check in after her site visit', due: today }, manager)
     const call = await cmd('task', { kind: 'task', candidate: app.candidate, note: 'Call references', due: friday, owner: 'rhea@example.test' }, manager)
     const later = await cmd('task', { candidate: app.candidate, note: 'Ask about her start date', due: friday }, manager)
+    const walk = await cmd('task', { kind: 'task', application: app.id, note: 'Book her site walk', due: friday }, manager)
     assert.equal((await send('/api/lodge/command/task', { candidate: app.candidate, note: 'Panel follow-up', due: friday }, ivy)).status, 404, 'an unassigned interviewer cannot reach the candidate')
     await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test'] }, manager)
     assert.equal((await send('/api/lodge/command/task', { kind: 'task', application: app.id, note: 'Panel task', due: friday }, ivy)).status, 403, 'tasks are for recruiters; panel members set follow-ups')
@@ -567,18 +568,19 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await send('/api/lodge/command/task', { application: app.id, note: 'No date', due: 'Friday' }, manager)).status, 400)
     // Each owner's home lists theirs; the follow-up due today notifies its owner, the Friday task does not yet.
     const mine = await state(manager)
-    assert.deepEqual(mine.tasks.filter(x => x.candidate === app.candidate).map(x => [x.note, x.owner]).sort(), [['Ask about her start date', 'morgan@example.test'], ['Call references', 'rhea@example.test'], ['Check in after her site visit', 'morgan@example.test']])
+    assert.deepEqual(mine.tasks.filter(x => x.candidate === app.candidate).map(x => [x.note, x.owner]).sort(), [['Ask about her start date', 'morgan@example.test'], ['Book her site walk', 'morgan@example.test'], ['Call references', 'rhea@example.test'], ['Check in after her site visit', 'morgan@example.test']])
     assert.deepEqual(mine.notifications.filter(n => n.kind === 'task-due').map(n => n.task), [followUp.id])
     const theirs = await state(rhea)
     assert.deepEqual(theirs.tasks.map(x => x.id), [call.id])
     assert.deepEqual(theirs.notifications.filter(n => n.kind === 'task-due'), [])
     assert.ok(!JSON.stringify(await state(una)).includes('Call references'))
     assert.ok(!JSON.stringify((await state(ivy)).tasks).includes('Call references'), 'a panel member sees only their own')
-    // Rejecting the application closes the follow-ups set on it; the candidate's own task stays open.
+    // Rejecting the application cancels the follow-ups and tasks attached to it, kept as cancelled history;
+    // the task and follow-up about the candidate that are not attached to it stay open.
     await cmd('move', { application: app.id, to: 'rejected', reason: 'Not progressing' }, manager)
     const after = (await state(manager)).tasks
-    assert.deepEqual(after.filter(x => x.application === app.id).map(x => [x.status, x.closedReason]), [['cancelled', 'Application rejected']])
-    assert.equal(after.find(x => x.id === call.id).status, 'open')
+    assert.deepEqual(after.filter(x => x.application === app.id).map(x => [x.kind, x.note, x.status, x.closedReason]).sort(), [['follow-up', 'Check in after her site visit', 'cancelled', 'Application rejected'], ['task', 'Book her site walk', 'cancelled', 'Application rejected']])
+    assert.deepEqual([after.find(x => x.id === walk.id)?.status, after.find(x => x.id === call.id).status, after.find(x => x.id === later.id).status], ['cancelled', 'open', 'open'])
     assert.equal((await state(ivy)).tasks.find(x => x.note.startsWith('IVY-FOLLOWUP')).status, 'cancelled')
     assert.deepEqual((await state(manager)).notifications.filter(n => n.kind === 'task-due'), [], 'a closed follow-up no longer notifies')
     // Deprovisioning the colleague hands their task back to the person who set it.
