@@ -296,7 +296,8 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
   })
 
   await t.test('LDG-011 an offer is approved on exact terms, its outcome recorded and handed to HR', async () => {
-    let offer = await cmd('offer', { application: publicApp.id, title: 'Site supervisor', startDate: '2026-12-01', salary: { currency: 'USD', amount: 11500000, period: 'year' }, terms: 'Truck allowance' }, manager)
+    const [opening] = (await state(manager)).vacancies.find(v => v.id === vacancy.id).openings
+    let offer = await cmd('offer', { application: publicApp.id, title: 'Site supervisor', startDate: '2026-12-01', salary: { currency: 'USD', amount: 11500000, period: 'year' }, terms: 'Truck allowance', opening: opening.id }, manager)
     let packet = (await send('/api/lodge/download/packet/' + offer.id, undefined, manager)).value
     assert.equal(packet.rangeWarning, 'Outside the approved range')
     assert.equal(packet.scorecards.length, 1)
@@ -777,6 +778,66 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     const closed = await fix(v3, { reason: 'One more thought' })
     assert.equal(closed.status, 409)
     assert.match(closed.value.error, /job is closed/)
+  })
+
+  await t.test('REQ-001 one opening per approved headcount, filled by a named accepted offer, closed with a reason, added only with approval', async () => {
+    const job = await cmd('vacancy', { title: 'Carpenter', location: 'Queens, NY', headcount: 3, manager: 'morgan@example.test', compensation: RANGE }, manager)
+    await cmd('rubric', { id: job.id, criteria: RUBRIC }, manager)
+    await cmd('interview-plan', { id: job.id, plan: [{ name: 'Shop test', stageName: 'Interview', durationMinutes: 60 }] }, manager)
+    const asked = await cmd('request-vacancy-approval', { id: job.id, approver: 'parker@example.test' }, manager)
+    const read = async () => (await state(manager)).vacancies.find(v => v.id === job.id)
+    assert.deepEqual((await read()).openings ?? [], [], 'no openings before the headcount is approved')
+    await approve(asked.id)
+    let v = await read()
+    assert.deepEqual(v.openings.map(o => o.status), ['open', 'open', 'open'])
+    assert.equal(new Set(v.openings.map(o => o.code)).size, 3, 'each opening has its own generated ID')
+    assert.ok(v.openings.every(o => o.openedAt))
+    const [first, second, third] = v.openings
+
+    // Employer-defined IDs are unique ignoring case; the approved headcount cannot drop below its openings.
+    await cmd('opening', { vacancy: job.id, opening: first.id, code: 'CARP-2026-01', targetStart: '2027-01-11' }, manager)
+    assert.equal((await send('/api/lodge/command/opening', { vacancy: job.id, opening: second.id, code: 'carp-2026-01' }, manager)).status, 409)
+    assert.equal((await send('/api/lodge/command/vacancy', { ...job, headcount: 2 }, manager)).status, 409)
+    assert.equal((await send('/api/lodge/command/close-opening', { vacancy: job.id, opening: second.id, reason: 'x' }, ivy)).status, 403)
+    await cmd('publish', { id: job.id }, manager)
+
+    // An accepted offer fills the opening it names; an offer naming none cannot be accepted on a job with openings.
+    const hire = (await cmd('candidate', { name: 'Theo Grant', email: 'theo@example.test', source: 'Referral', consentBasis: 'referral', vacancy: job.id }, manager)).application
+    const other = (await cmd('candidate', { name: 'Uma Bell', email: 'uma@example.test', source: 'Referral', consentBasis: 'referral', vacancy: job.id }, manager)).application
+    const terms = { title: 'Carpenter', startDate: '2027-01-11', salary: { currency: 'USD', amount: 9500000, period: 'year' } }
+    const named = await cmd('offer', { application: hire.id, ...terms, opening: first.id }, manager)
+    await approve((await cmd('request-offer-approval', { id: named.id, approver: 'parker@example.test' }, manager)).id)
+    await cmd('offer-outcome', { id: named.id, outcome: 'accepted', reason: 'Signed' }, manager)
+    const unnamed = await cmd('offer', { application: other.id, ...terms }, manager)
+    await approve((await cmd('request-offer-approval', { id: unnamed.id, approver: 'parker@example.test' }, manager)).id)
+    assert.equal((await send('/api/lodge/command/offer-outcome', { id: unnamed.id, outcome: 'accepted', reason: 'Signed' }, manager)).status, 409)
+    assert.equal((await send('/api/lodge/command/offer', { ...unnamed, opening: first.id }, manager)).status, 409, 'a filled opening cannot be named again')
+    v = await read()
+    const filled = v.openings.find(o => o.id === first.id)
+    assert.deepEqual([filled.status, filled.code, filled.offer, filled.application], ['filled', 'CARP-2026-01', named.id, hire.id])
+    assert.ok(filled.filledAt >= filled.openedAt, 'time to fill runs from the opening’s own open date')
+    assert.deepEqual((await send('/api/lodge/download/handoff/' + named.id, undefined, manager)).value.opening, { id: 'CARP-2026-01', targetStart: '2027-01-11', openedAt: filled.openedAt, filledAt: filled.filledAt }, 'the HR handoff names the filled opening')
+
+    // Closing an opening without a hire needs a reason.
+    assert.equal((await send('/api/lodge/command/close-opening', { vacancy: job.id, opening: second.id }, manager)).status, 400)
+    await cmd('close-opening', { vacancy: job.id, opening: second.id, reason: 'budget cut' }, manager)
+    assert.deepEqual((({ status, closeReason, closedBy }) => [status, closeReason, closedBy])((await read()).openings.find(o => o.id === second.id)), ['closed', 'budget cut', 'morgan@example.test'])
+
+    // A fourth opening raises the headcount and waits on LDG-001 approval; a refused one falls back to the approved three.
+    await cmd('request-opening', { id: job.id, approver: 'parker@example.test', code: 'CARP-2026-04' }, manager)
+    v = await read()
+    const fourth = v.openings.find(o => o.code === 'CARP-2026-04')
+    assert.deepEqual([v.headcount, fourth.status, v.approvedNow], [4, 'requested', false])
+    assert.equal((await send('/api/lodge/command/offer', { ...unnamed, opening: fourth.id }, manager)).status, 409, 'a requested opening cannot be offered yet')
+    await approve(v.approval.id)
+    v = await read()
+    assert.deepEqual(v.openings.map(o => o.status), ['filled', 'closed', 'open', 'open'])
+    assert.ok(v.openings[3].openedAt > third.openedAt, 'the new opening opens from its own approval')
+    await cmd('request-opening', { id: job.id, approver: 'parker@example.test' }, manager)
+    const refusal = (await read()).approval
+    await cmd('decide-approval', { id: refusal.id, decision: 'rejected', reason: 'No budget', version: (await state(approver)).approvals.find(x => x.id === refusal.id).currentVersion }, approver)
+    v = await read()
+    assert.deepEqual([v.headcount, v.openings.at(-1).status, v.approvedNow], [4, 'refused', true])
   })
 
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {

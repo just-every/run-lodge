@@ -35,7 +35,7 @@ export async function fixture() {
     const message = await cmd('message', { application: app.id, purpose: 'other', subject: 'Private hiring communication', body: 'PRIVATE-CANDIDATE-MESSAGE' }, manager)
     const ma = await cmd('request-message-approval', { id: message.id, approver: 'owner@example.test' }, manager)
     await cmd('decide-approval', { id: ma.id, decision: 'approved', version: ma.version, reason: 'Exact text approved' })
-    const offer = await cmd('offer', { application: app.id, title: 'Protected role', salary: { currency: 'USD', amount: 150, period: 'year' }, startDate: '2026-12-10', terms: 'Offer terms' }, manager)
+    const offer = await cmd('offer', { application: app.id, title: 'Protected role', salary: { currency: 'USD', amount: 150, period: 'year' }, startDate: '2026-12-10', terms: 'Offer terms', opening: vacancy.openings[0].id }, manager)
     const oa = await cmd('request-offer-approval', { id: offer.id, approver: 'owner@example.test' }, manager)
     await cmd('decide-approval', { id: oa.id, decision: 'approved', version: oa.version, reason: 'Offer approved' })
     const pendingVacancy = await cmd('vacancy', { title: 'Pending vacancy', location: 'New York', headcount: 1, manager: 'm1@example.test', compensation: vacancy.compensation }, manager)

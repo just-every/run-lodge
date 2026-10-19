@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { requireMember, requireRole } from '../core/access'
 import { canonical, now, oneOf, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { kickoffTerms } from './kickoffs'
+import { settleOpenings } from './openings'
 
 // Approvals bind a person's decision to the exact version of what they saw.
 // Changing the subject afterwards makes the approval stale: it no longer
@@ -15,14 +16,15 @@ export function terms(s: State, kind: Subject, record: Data): Data {
     const rubric = (record.rubrics ?? []).at(-1) ?? null
     return { title: record.title, department: record.department, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan, kickoff: record.kickoff ? kickoffTerms(s.find('kickoff', record.kickoff)) : undefined }
   }
-  if (kind === 'offer') return { application: record.application, title: record.title, salary: record.salary, startDate: record.startDate, terms: record.terms }
+  if (kind === 'offer') return { application: record.application, title: record.title, salary: record.salary, startDate: record.startDate, terms: record.terms, opening: record.opening }
   return { to: record.to, subject: record.subject, body: record.body, application: record.application ?? null }
 }
 
 export const versionOf = async (s: State, kind: Subject, record: Data) => sha256(canonical(terms(s, kind, record)))
 
 export function latestApproval(s: State, kind: Subject, id: string) {
-  return s.all('approval').filter(x => x.subjectKind === kind && x.subjectId === id).sort((x, y) => x.requestedAt.localeCompare(y.requestedAt)).at(-1)
+  // A refused extra opening (REQ-001) leaves the job's earlier approval in force.
+  return s.all('approval').filter(x => x.subjectKind === kind && x.subjectId === id && !(x.purpose === 'extra-opening' && x.status === 'rejected')).sort((x, y) => x.requestedAt.localeCompare(y.requestedAt)).at(-1)
 }
 
 /** True only when the newest approval is approved and still matches the current terms. */
@@ -34,12 +36,12 @@ export async function approvedNow(s: State, kind: Subject, record: Data) {
   return approval.version === await versionOf(s, kind, record)
 }
 
-export async function requestApproval(s: State, a: Actor, kind: Subject, record: Data, approverEmail: unknown) {
+export async function requestApproval(s: State, a: Actor, kind: Subject, record: Data, approverEmail: unknown, purpose?: 'extra-opening') {
   // Messages are approved by a hiring manager; vacancies and offers by someone holding the approver role.
   const approver = requireMember(s, text(approverEmail, 'Approver').toLowerCase(), kind === 'message' ? 'manager' : 'approver')
   const pending = latestApproval(s, kind, record.id)
   if (pending?.status === 'pending') s.put('approval', pending.id, { ...s.get('approval', pending.id), status: 'superseded', decidedAt: now() })
-  const approval = s.put('approval', uid(), { subjectKind: kind, subjectId: record.id, version: await versionOf(s, kind, record), terms: terms(s, kind, record), requestedBy: a.email, approver: approver.email, status: 'pending', requestedAt: now() })
+  const approval = s.put('approval', uid(), { subjectKind: kind, subjectId: record.id, version: await versionOf(s, kind, record), terms: terms(s, kind, record), requestedBy: a.email, approver: approver.email, status: 'pending', requestedAt: now(), purpose })
   s.audit(a, 'approval-requested', `${kind}:${record.id}`, { approval: approval.id, approver: approver.email })
   return approval
 }
@@ -59,5 +61,7 @@ export async function decide(s: State, a: Actor, b: Data) {
   requireThat(approval.version === current, 'The subject changed after approval was requested; request approval again', 409)
   const result = s.put('approval', approval.id, { ...approval, status: decision, reason, decidedBy: a.email, decidedAt: now() })
   s.audit(a, 'approval-' + decision, `${approval.subjectKind}:${approval.subjectId}`, { approval: approval.id, reason })
+  // REQ-001: a headcount decision opens (or refuses) the job's openings.
+  if (approval.subjectKind === 'vacancy') settleOpenings(s, a, subject, decision)
   return result
 }

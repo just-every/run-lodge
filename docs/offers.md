@@ -14,7 +14,8 @@ needs approval again.
 ## Prepare an offer
 
 On an active application, choose **Prepare an offer**: the job title, start
-date, pay and any other terms. Press **Save offer**.
+date, pay, any other terms and the opening it fills. Press **Save offer**.
+Accepting the offer marks that opening filled.
 
 **Request offer approval** sends it to an approver. The approver opens the
 **Approval packet**: the rubric, the stage history, the released scorecards,

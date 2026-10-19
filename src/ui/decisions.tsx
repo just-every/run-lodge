@@ -36,7 +36,7 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
   return <section className="card">
     <h3>Offer</h3>
     {list.map((o: D) => <article key={o.id} className="card">
-      <h4>{o.title} · {money(o.salary)} · starts {day(o.startDate)} {o.status === 'draft' ? approvalState(o, w) : <Status tone={tone(o.status)}>{o.status}</Status>}</h4>
+      <h4>{o.title} · {money(o.salary)} · starts {day(o.startDate)}{o.opening && ` · opening ${v?.openings?.find((x: D) => x.id === o.opening)?.code ?? ''}`} {o.status === 'draft' ? approvalState(o, w) : <Status tone={tone(o.status)}>{o.status}</Status>}</h4>
       {o.rangeWarning && <p className="warn">{o.rangeWarning}.</p>}
       {o.terms && <p className="pre">{o.terms}</p>}
       <p><a href={`/api/lodge/download/packet/${o.id}`}>Approval packet (JSON)</a>{o.status === 'accepted' && <> · <a href={`/api/lodge/download/handoff/${o.id}`}>HR handoff (JSON)</a></>}</p>
@@ -48,13 +48,14 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
         </Form>
       </>}
     </article>)}
-    {app.status === 'active' && !list.some((o: D) => o.status === 'draft') && <details><summary>Prepare an offer</summary><Form label="Save offer" reset onSubmit={x => mutate('offer', { application: app.id, title: x.title, startDate: x.startDate, terms: x.terms, salary: { currency: x.currency.toUpperCase(), amount: cents(x.amount), period: x.period } })}>
+    {app.status === 'active' && !list.some((o: D) => o.status === 'draft') && <details><summary>Prepare an offer</summary><Form label="Save offer" reset onSubmit={x => mutate('offer', { application: app.id, title: x.title, startDate: x.startDate, terms: x.terms, opening: x.opening || undefined, salary: { currency: x.currency.toUpperCase(), amount: cents(x.amount), period: x.period } })}>
       <Field label="Job title" name="title" defaultValue={v?.title} />
       <Field label="Start date" name="startDate" type="date" />
       <Field label="Currency" name="currency" defaultValue={v?.compensation?.currency ?? 'USD'} />
       <Field label="Pay" name="amount" type="number" />
       <Field label="Pay period" name="period" defaultValue={v?.compensation?.period ?? 'year'} options={[{ value: 'year', label: 'per year' }, { value: 'month', label: 'per month' }, { value: 'hour', label: 'per hour' }]} />
       <Field label="Other terms" name="terms" type="textarea" wide required={false} />
+      {(v?.openings ?? []).some((o: D) => o.status === 'open') && <Field label="Opening it fills" name="opening" defaultValue={v!.openings.find((o: D) => o.status === 'open').id} options={v!.openings.filter((o: D) => o.status === 'open').map((o: D) => ({ value: o.id, label: o.code }))} />}
     </Form></details>}
   </section>
 }

@@ -1,7 +1,8 @@
 import type { State } from './core/state'
 import { Fault, type Actor, type Data } from './core/types'
 import { business, member } from './records/people'
-import { close, kit, plan, privacy, publish, requestVacancyApproval, rubric, stages, unpublish, vacancy } from './records/vacancies'
+import { close, kit, plan, privacy, publish, requestOpening, requestVacancyApproval, rubric, stages, unpublish, vacancy } from './records/vacancies'
+import { closeOpening, editOpening } from './records/openings'
 import { decide } from './records/approvals'
 import { apply, candidate, candidatePrivacy, correctCandidate, reviewDuplicate, transfer } from './records/candidates'
 import { addDocument } from './records/documents'
@@ -27,6 +28,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
 export const commands: Record<string, Command> = {
   business, member,
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy,
+  'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening,
   'decide-approval': decide,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'assign-reviewers': assignReviewers, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,

@@ -45,6 +45,7 @@ function packetOf(offer: Data, app: Data, vacancy: Data, candidate: Data, cards:
     compiledAt, correctedSince, staleEvidence: correctedSince.length ? 'A scorecard was corrected after this packet was compiled; request approval again on the corrected evidence' : null,
     offer, rangeWarning: offer.rangeWarning, candidate: { id: candidate.id, name: candidate.name },
     vacancy: { id: vacancy.id, title: vacancy.title, compensation: vacancy.compensation, headcount: vacancy.headcount, hires: vacancy.hires ?? 0, manager: vacancy.manager },
+    opening: (vacancy.openings ?? []).find((o: Data) => o.id === offer.opening) ?? null,
     rubric: vacancy.rubrics.find((r: { version: number }) => r.version === app.rubricVersion), history: app.history,
     scorecards, feedbackReleased: app.feedbackReleased === true,
     interviews: interviews.filter(i => i.application === app.id).map(i => ({ title: i.title, status: i.status, start: i.start ?? null, participants: i.participants })),
@@ -60,6 +61,8 @@ export function handoff(w: Workspace, id: string) {
     person: { name: candidate.name, email: candidate.email, phone: candidate.phone, location: candidate.location },
     role: { title: o.title, department: vacancy.department, manager: vacancy.manager, location: vacancy.location, workMode: vacancy.workMode, employmentType: vacancy.employmentType },
     pay: o.salary, startDate: o.startDate, terms: o.terms, offerAcceptedAt: o.outcomeAt,
+    // REQ-001: the opening this hire fills, for HR position mapping.
+    opening: (o2 => o2 ? { id: o2.code, targetStart: o2.targetStart, openedAt: o2.openedAt, filledAt: o2.filledAt } : null)((vacancy.openings ?? []).find((x: Data) => x.id === o.opening)),
     documents: w.documents.filter(d => d.candidate === candidate.id && (d.application === app.id || !d.application)).map(d => ({ id: d.id, name: d.name, kind: d.kind, sha256: d.sha256, restricted: d.restricted })),
     note: 'Lodge records the hiring decision only. Contracts, payroll and right-to-work checks happen in your HR process.',
   }

@@ -43,6 +43,11 @@ terms** and presses **Record decision**.
 Pay range, headcount and hiring manager are approved together. Change one after
 approval and the approval no longer applies: request it again.
 
+The approval opens one opening per approved head under **Openings**, each with
+its own opening ID (change it to your own under **Change opening**) and target
+first day. Close an opening you will not fill with a reason. **Add an opening**
+raises the headcount by one; the new opening waits until the approver agrees.
+
 Once approved, press **Publish application page**. The vacancy shows its address,
 for example `/jobs/product-designer`, and anyone can apply there. Stages, rubric
 and plan cannot change while the page is published. **Unpublish** and **Close

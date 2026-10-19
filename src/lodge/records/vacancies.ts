@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { managesVacancy, requireAdmin, requireManages, requireMember, requireRole } from '../core/access'
 import { currency, email, integer, list, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval } from './approvals'
+import { approvedOpenings, requestedOpening } from './openings'
 
 // Flows 1 and 2: a vacancy with its compensation range, manager and headcount
 // approval, and the stages, rubric and interview plan agreed before anyone is
@@ -56,6 +57,7 @@ export function vacancy(s: State, a: Actor, b: Data) {
   requireThat(managesVacancy(a, { manager: fields.manager }), 'Managers can only create vacancies they manage', 403)
   if (b.id) {
     const current = editable(s, a, b.id)
+    requireThat((fields.headcount ?? 0) >= approvedOpenings(current).length, `This job already has ${approvedOpenings(current).length} approved openings; close one with a reason instead of lowering the headcount`, 409)
     const record = s.put('vacancy', current.id, { ...current, ...fields, updatedAt: now() })
     s.audit(a, 'vacancy-updated', 'vacancy:' + record.id)
     return record
@@ -128,6 +130,19 @@ export async function requestVacancyApproval(s: State, a: Actor, b: Data) {
   const missing = missingTerms(v)
   requireThat(!missing.length, 'Add before requesting approval: ' + missing.join(', '), 409)
   return requestApproval(s, a, 'vacancy', v, b.approver)
+}
+
+/** REQ-001: ask for one more opening on an approved job. It raises the headcount and waits on LDG-001 approval before it opens. */
+export async function requestOpening(s: State, a: Actor, b: Data) {
+  const v = s.get('vacancy', b.id)
+  requireManages(a, v)
+  requireThat(!v.imported && v.status !== 'closed', 'Openings are added to a live job only', 409)
+  requireThat(approvedOpenings(v).length, 'Get the job’s headcount approved first; its openings come with that approval', 409)
+  requireThat(!v.openings.some((o: Data) => o.status === 'requested'), 'An extra opening is already waiting on approval', 409)
+  const record = s.put('vacancy', v.id, { ...v, headcount: v.headcount + 1, openings: [...v.openings, requestedOpening(s, v, b)] })
+  s.audit(a, 'opening-requested', 'vacancy:' + v.id, { headcount: record.headcount })
+  await requestApproval(s, a, 'vacancy', record, b.approver, 'extra-opening')
+  return record
 }
 
 export async function publish(s: State, a: Actor, b: Data) {

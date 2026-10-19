@@ -3,6 +3,7 @@ import { requireApplication, requireManages } from '../core/access'
 import { currency, date, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval } from './approvals'
 import { cancelTasks } from './tasks'
+import { fill, namedOpening } from './openings'
 
 // Flow 11: an offer record, its approval packet, the approval bound to the
 // exact terms, and the recorded outcome. Accepting records the hire and opens
@@ -17,6 +18,8 @@ export function offer(s: State, a: Actor, b: Data) {
     application: app.id, title: text(b.title ?? vacancy.title, 'Job title', 160),
     salary: { currency: currency(b.salary?.currency), amount: money(b.salary?.amount, 'Salary'), period: oneOf(b.salary?.period, ['year', 'month', 'hour'] as const, 'Pay period') },
     startDate: date(b.startDate, 'Start date'), terms: optionalText(b.terms, 'Other terms', 8000),
+    // REQ-001: the opening this offer fills once accepted; part of the approved terms.
+    opening: namedOpening(vacancy, b.opening),
   }
   if (b.id) {
     const current = s.get('offer', b.id)
@@ -61,10 +64,11 @@ export async function outcome(s: State, a: Actor, b: Data) {
   const reason = text(b.reason, 'Reason or note', 2000)
   // Making or accepting an offer needs the approval to match these exact terms now.
   if (result !== 'withdrawn') requireThat(await approvedNow(s, 'offer', o), 'The offer needs a current approval of these exact terms', 409)
+  const filled = result === 'accepted' ? fill(vacancy, o, app.id) : vacancy
   const record = s.put('offer', o.id, { ...o, status: result, outcomeReason: reason, outcomeBy: a.email, outcomeAt: now() })
   if (result === 'accepted') {
     s.put('application', app.id, { ...app, status: 'hired', closedAt: now() })
-    s.put('vacancy', vacancy.id, { ...vacancy, hires: (vacancy.hires ?? 0) + 1 })
+    s.put('vacancy', vacancy.id, { ...filled, hires: (vacancy.hires ?? 0) + 1 })
     s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'hired', reason: 'Offer accepted: ' + reason, actor: a.email, at: now() })
     cancelTasks(s, app.id, 'Application hired')
   }
