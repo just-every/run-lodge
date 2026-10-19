@@ -10,6 +10,7 @@ export function commandBodies(h) {
     'request-vacancy-approval': { id: h.pendingVacancy.id, approver: 'approve@example.test' }, publish: { id: h.pendingVacancy.id },
     unpublish: { id: vacancy.id, reason: 'Forbidden' }, 'close-vacancy': { id: vacancy.id, reason: 'Forbidden' },
     department: { name: 'Forbidden' }, office: { name: 'Forbidden' }, 'delete-org': { kind: 'office', id: 'no-such-office' }, 'member-org': { email: 'm1@example.test', grantDepartments: [] },
+    'screening-rule': { vacancy: vacancy.id, name: 'Forbidden', question: 'no-such-question', when: { equals: 'no' }, then: { kind: 'tag', tag: 'x' } }, 'approve-auto-reject': { id: 'no-such-rule' }, 'preview-rule': { id: 'no-such-rule' }, 'apply-rule': { id: 'no-such-rule', applications: [] }, 'decide-rule-matches': { vacancy: vacancy.id, all: true, decision: 'confirm' },
     question: { text: 'Forbidden?', type: 'yes-no' }, 'job-questions': { id: vacancy.id, questions: [] },
     'request-opening': { id: vacancy.id, approver: 'approve@example.test' }, opening: { vacancy: vacancy.id, opening: vacancy.openings[0].id, code: 'FORBIDDEN-1' }, 'close-opening': { vacancy: vacancy.id, opening: vacancy.openings[0].id, reason: 'Forbidden' },
     'decide-approval': { id: h.pending.id, decision: 'approved', reason: 'Forbidden', version: h.pending.version },

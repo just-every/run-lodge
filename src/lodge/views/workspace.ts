@@ -15,6 +15,7 @@ import { businessToday } from '../records/tasks'
 import { interviewerActivity } from './reports'
 import { staleDebrief } from '../agents/debriefs'
 import { library } from '../records/questions'
+import { rulesView } from '../records/rules'
 
 /**
  * The actor's whole permitted view. The app, search, exports and the agent
@@ -131,6 +132,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     questions: library(s, a),
     // REQ-004: the department hierarchy and office list, which every member may read.
     departments: s.all('department'), offices: s.all('office'),
+    // SCREEN-002: rules and the rule-matches queue, for the people who run the job.
+    ...rulesView(s, a, appIds),
     // COORD-006 briefs, for the people who run the job (and their agents) only.
     debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [

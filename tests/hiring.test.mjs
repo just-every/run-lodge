@@ -940,6 +940,63 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await state()).offices.some(o => o.id === spare.id), false)
   })
 
+  await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {
+    const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
+    const [authorized, relocate, cdl, story] = [q('Are you legally authorized to work in the US?'), q('Willing to relocate?'), q('Years holding a Class A CDL'), q('Tell us about a job you finished early')]
+    const stages = (await state(manager)).vacancies.find(v => v.id === carpenter.id).stages
+    const rule = (body, cookie = owner) => send('/api/lodge/command/screening-rule', { vacancy: carpenter.id, ...body }, cookie)
+    assert.equal((await rule({ name: 'x', question: authorized, when: { equals: 'no' }, then: { kind: 'tag', tag: 'x' } }, manager)).status, 403, 'admins author rules')
+    assert.equal((await rule({ name: 'x', question: story, when: { equals: 'yes' }, then: { kind: 'tag', tag: 'x' } })).status, 409, 'free text never drives a rule')
+    const noAuth = (await rule({ name: 'Work authorization', question: authorized, when: { equals: 'no' }, then: { kind: 'propose-reject', reason: 'Not authorized to work in the US' } })).value
+    const cdlRoute = (await rule({ name: 'Short CDL', question: cdl, when: { min: 1, below: 3 }, then: { kind: 'route', stage: stages[1].id } })).value
+    await rule({ name: 'New York only', question: relocate, when: { equals: ['Within New York'] }, then: { kind: 'tag', tag: 'NY only' } })
+
+    const { slug: jobSlug } = (await state(manager)).vacancies.find(v => v.id === carpenter.id)
+    const notice = (await send('/jobs/' + jobSlug)).text.match(/name="noticeVersion" value="(\d+)"/)[1]
+    const apply = async (name, answers) => {
+      const f = new FormData()
+      for (const [k, v] of Object.entries({ name, email: name.split(' ')[0].toLowerCase() + '@example.test', noticeVersion: notice, consent: 'yes', ['q-' + story]: 'Finished a deck early.', ...answers })) f.append(k, v)
+      assert.equal((await send('/jobs/' + jobSlug, f)).status, 200)
+      return (await state(manager)).applications.find(x => x.candidateName === name)
+    }
+    const hit = await apply('Xena Park', { ['q-' + authorized]: 'no', ['q-' + relocate]: 'Within New York', ['q-' + cdl]: '2' })
+    const miss = await apply('Yuri Long', { ['q-' + authorized]: 'yes', ['q-' + relocate]: 'No', ['q-' + cdl]: '5' })
+    assert.deepEqual([hit.status, hit.stage, hit.tags], ['active', stages[1].id, ['NY only']], 'routed and tagged, still a person’s decision')
+    assert.deepEqual([miss.status, miss.stage, miss.tags], ['active', stages[0].id, undefined], 'a near miss is untouched')
+    let queue = (await state(manager)).ruleMatches.filter(m => m.status === 'queued')
+    assert.deepEqual(queue.map(m => [m.application, m.ruleName, m.version, m.question, m.answer, m.intakePath, m.reason]), [[hit.id, 'Work authorization', 1, 'Are you legally authorized to work in the US?', 'no', 'Careers page', 'Not authorized to work in the US']])
+    assert.deepEqual((await state(ivy)).ruleMatches, [], 'the queue is for the people who run the job')
+
+    // An edited rule applies to later applications; earlier ones change only through an explicit preview and apply.
+    await rule({ id: cdlRoute.id, name: 'Short CDL', question: cdl, when: { below: 1 }, then: { kind: 'route', stage: stages[2].id } })
+    const preview = (await send('/api/lodge/command/preview-rule', { id: cdlRoute.id }, owner)).value
+    const wren = (await state(manager)).applications.find(x => x.candidateName === 'Wren Ito')
+    assert.deepEqual(preview.applications, [{ application: wren.id, answer: 0.5 }])
+    assert.equal((await state(manager)).applications.find(x => x.id === wren.id).stage, wren.stage, 'a preview changes nothing')
+    await cmd('apply-rule', { id: cdlRoute.id, applications: [wren.id] })
+    assert.equal((await state(manager)).applications.find(x => x.id === wren.id).stage, stages[2].id)
+    assert.equal((await state(manager)).applications.find(x => x.id === hit.id).stage, stages[1].id, 'the earlier routing stands')
+
+    // A recruiter confirms the queued rejection and is recorded as the decider.
+    assert.equal((await send('/api/lodge/command/decide-rule-matches', { id: queue[0].id, decision: 'confirm' }, ivy)).status, 403)
+    await cmd('decide-rule-matches', { id: queue[0].id, decision: 'confirm' }, manager)
+    let s = await state(manager)
+    assert.equal(s.applications.find(x => x.id === hit.id).status, 'rejected')
+    assert.deepEqual((({ status, decidedBy }) => [status, decidedBy])(s.ruleMatches.find(m => m.id === queue[0].id)), ['confirmed', 'morgan@example.test'])
+
+    // An admin approves the rule for automatic rejection: later answers close with the version and approver recorded.
+    await cmd('approve-auto-reject', { id: noAuth.id })
+    const auto = await apply('Zane Fox', { ['q-' + authorized]: 'no', ['q-' + relocate]: 'No', ['q-' + cdl]: '6' })
+    s = await state(manager)
+    assert.equal(auto.status, 'rejected')
+    assert.deepEqual((({ status, version, approvedBy }) => [status, version, approvedBy])(s.ruleMatches.find(m => m.application === auto.id)), ['auto-rejected', 1, 'owner@example.test'])
+    // Wren answered before the approval: applying the rule to her only queues it; the whole queue is confirmed in one action.
+    await cmd('apply-rule', { id: noAuth.id, applications: [wren.id] })
+    assert.equal((await state(manager)).applications.find(x => x.id === wren.id).status, 'active')
+    await cmd('decide-rule-matches', { vacancy: carpenter.id, all: true, decision: 'confirm' }, manager)
+    assert.equal((await state(manager)).applications.find(x => x.id === wren.id).status, 'rejected')
+  })
+
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {
     assert.equal((await send('/api/lodge/state')).status, 401)
     assert.equal((await send('/api/lodge/state', undefined, owner, { 'sec-fetch-site': 'cross-site' })).status, 403)

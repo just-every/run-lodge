@@ -59,7 +59,10 @@ type, options, required, help }`; with `id` it saves the next version), `job-que
 (`{ id: vacancy, questions: [{ question, required }] }`), `department` (admins: `{ id?, name, parent? }`),
 `office` (admins: `{ id?, name }`), `delete-org` (`{ kind: "department" | "office", id }`),
 `member-org` (admins: `{ email, department?, office?, grantDepartments, grantOffices }`;
-grants are for managers). `vacancy` also takes `departmentId` and `officeId`, and `opening`
+grants are for managers), `screening-rule` (admins: `{ vacancy, id?, name, question, when:
+{ equals | min, below | onOrAfter, onOrBefore }, then: { kind: route | assign | tag | propose-reject, ... } }`),
+`approve-auto-reject`, `preview-rule`, `apply-rule` (`{ id, applications }` from the preview) and
+`decide-rule-matches` (`{ id | vacancy + all, decision: confirm | dismiss, reason }`). `vacancy` also takes `departmentId` and `officeId`, and `opening`
 takes `office`. Also
 `POST /api/lodge/invite` (send a member a sign-in invitation through the
 outbox) and `POST /api/lodge/delete-candidate`.

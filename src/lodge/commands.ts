@@ -5,6 +5,7 @@ import { close, kit, plan, privacy, publish, requestOpening, requestVacancyAppro
 import { closeOpening, editOpening } from './records/openings'
 import { jobQuestions, question } from './records/questions'
 import { deleteOrg, department, memberOrg, office } from './records/org'
+import { applyRule, approveAutoReject, decideRuleMatches, previewRule, screeningRule } from './records/rules'
 import { decide } from './records/approvals'
 import { apply, candidate, candidatePrivacy, correctCandidate, reviewDuplicate, transfer } from './records/candidates'
 import { addDocument } from './records/documents'
@@ -32,6 +33,7 @@ export const commands: Record<string, Command> = {
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy,
   'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening, question, 'job-questions': jobQuestions,
   department, office, 'delete-org': deleteOrg, 'member-org': memberOrg,
+  'screening-rule': screeningRule, 'approve-auto-reject': approveAutoReject, 'preview-rule': previewRule, 'apply-rule': applyRule, 'decide-rule-matches': decideRuleMatches,
   'decide-approval': decide,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'assign-reviewers': assignReviewers, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,

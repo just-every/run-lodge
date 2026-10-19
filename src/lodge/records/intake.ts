@@ -3,6 +3,7 @@ import { email, now, optionalText, requireThat, sha256, canonical, text, uid, ty
 import { candidateFields, retentionUntil, startApplication } from './candidates'
 import { storeDocument } from './documents'
 import { answers, type Answer } from './questions'
+import { evaluate } from './rules'
 
 // Flow 3: the public application page. The applicant sees the privacy notice
 // and accommodation contact; each submission records the notice version and
@@ -68,6 +69,8 @@ export async function submit(s: State, vacancy: Data, input: Submission) {
       x.value = { document: doc.id, name: doc.name }
     }
     s.put('application', application.id, { ...s.get('application', application.id), answers: answered })
+    // SCREEN-002: the job's rules run on the objective answers, as on every intake path.
+    evaluate(s, s.get('application', application.id), 'Careers page')
   }
   const accommodation = optionalText(input.accommodation, 'Accommodation request', 4000)
   const monitoring = typeof input.monitoring === 'string' && MONITORING_OPTIONS.includes(input.monitoring) && input.monitoring !== 'Prefer not to say' ? input.monitoring : ''

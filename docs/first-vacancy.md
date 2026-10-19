@@ -61,6 +61,14 @@ and each edit saves a new version while earlier applications keep the version
 they answered. Lodge refuses questions about protected traits and salary
 history.
 
+Under **Screening rules**, admins act on objective answers (yes or no, choices,
+numbers, dates): move the application to a stage, assign a reviewer, tag it, or
+propose rejection into the job's **Rule matches** queue, where a recruiter
+confirms each one or the whole queue. An admin can approve a rejection rule to
+close later matches automatically. Editing a rule never changes earlier
+applications unless you preview it on them and apply it. Lodge sends no
+rejection email yet.
+
 Once approved, press **Publish application page**. The vacancy shows its address,
 for example `/jobs/product-designer`, and anyone can apply there. Stages, rubric
 and plan cannot change while the page is published. **Unpublish** and **Close
