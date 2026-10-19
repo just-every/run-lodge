@@ -485,6 +485,71 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await queueOf(manager)).remaining, 0)
   })
 
+  await t.test('PIPE-001 the job board: stage counts and days in stage from the history, per-person saved filters and sort, a needs-decision flag, moves with reasons', async () => {
+    const job = await openJob('Glazier')
+    assert.ok(job.stages.length >= 4, 'four stages to fill')
+    // Ten candidates in four stages; [stage, days in it]. Odd ones came from the job fair.
+    const placed = [[0, 0], [0, 2], [0, 5], [1, 1], [1, 3], [1, 8], [2, 4], [2, 6], [3, 2], [3, 9]], apps = []
+    for (const [i, [stage, days]] of placed.entries()) {
+      const { application } = await cmd('candidate', { name: `Glen Pane ${i}`, email: `glen${i}.pane@example.test`, source: i % 2 ? 'Spring job fair' : 'Careers page', consentBasis: 'application', vacancy: job.id }, manager)
+      if (stage) await cmd('move', { application: application.id, to: job.stages[stage].id, reason: 'Placed for the board' }, manager)
+      apps.push({ ...application, stage, days })
+    }
+    // Age the stored history: each arrived 20 days ago (or `days` ago when still in the first stage) and entered its stage `days` ago.
+    const ago = d => new Date(Date.now() - d * 86400000 - 3600000).toISOString()
+    for (const a of apps) {
+      const arrived = ago(a.stage ? 20 : a.days)
+      await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.at',?) WHERE kind='stage-event' AND json_extract(value,'$.application')=? AND json_extract(value,'$.to')=?").bind(arrived, a.id, job.stages[0].id).run()
+      await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.at',?) WHERE kind='stage-event' AND json_extract(value,'$.application')=? AND json_extract(value,'$.to')=?").bind(ago(a.days), a.id, job.stages[a.stage].id).run()
+      await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.submittedAt',?) WHERE kind='application' AND id=?").bind(arrived, a.id).run()
+    }
+    const boardOf = async (cookie = manager) => { const r = await send('/api/lodge/board/' + job.id, undefined, cookie); assert.equal(r.status, 200, JSON.stringify(r.value)); return r.value }
+    const cards = b => b.columns.flatMap(c => c.cards)
+    let b = await boardOf()
+    assert.deepEqual(b.columns.map(c => [c.name, c.cards.length, c.total]), [...job.stages.map((st, i) => [st.name, [3, 3, 2, 2][i] ?? 0, [3, 3, 2, 2][i] ?? 0]), ['Closed', 0, 0]])
+    const history = new Map((await state(manager)).applications.map(x => [x.id, x.history]))
+    for (const a of apps) {
+      const card = cards(b).find(c => c.application === a.id)
+      assert.deepEqual([card.stage, card.enteredStage, card.daysInStage], [job.stages[a.stage].id, history.get(a.id).at(-1).at, a.days], 'days in stage count from the move into it in the history')
+      assert.equal(card.lastActivity, history.get(a.id).at(-1).at)
+    }
+    assert.deepEqual(b.columns[1].cards.map(c => c.daysInStage), [1, 3, 8], 'last activity first by default')
+
+    // A filter by source and a sort are saved for this manager on this job only.
+    assert.deepEqual(b.options.source, ['Careers page', 'Spring job fair'])
+    assert.equal((await send('/api/lodge/command/board-view', { vacancy: job.id, sort: 'random' }, manager)).status, 400)
+    await cmd('board-view', { vacancy: job.id, sort: 'days', filters: { source: 'Spring job fair' } }, manager)
+    b = await boardOf()
+    assert.deepEqual([b.filtered, b.view.sort, b.columns.map(c => [c.cards.length, c.total])], [true, 'days', [[1, 3], [2, 3], [1, 2], [1, 2], [0, 0]]])
+    assert.ok(cards(b).every(c => c.source === 'Spring job fair'))
+    assert.deepEqual(b.columns[1].cards.map(c => c.daysInStage), [8, 1], 'longest in stage first')
+    assert.deepEqual((await state(manager)).boardViews.map(v => [v.vacancy, v.filters]), [[job.id, { source: 'Spring job fair' }]])
+    assert.equal((await boardOf(owner)).filtered, false, 'another person keeps their own view')
+    assert.equal((await send('/api/lodge/board/' + job.id, undefined, ian)).status, 404, 'an interviewer with nothing on the job has no board')
+    assert.equal((await send('/api/lodge/command/board-view', { vacancy: job.id }, ian)).status, 404)
+
+    // Needs decision appears when the last panel scorecard is in; a filter by reviewer finds the panel.
+    const [safety] = job.rubrics.at(-1).criteria, target = apps[7]
+    await cmd('assign-reviewers', { application: target.id, reviewers: ['ivy@example.test', 'ian@example.test'] }, manager)
+    const card = (who, takeaways) => cmd('scorecard', { application: target.id, ratings: { [safety.id]: 3 }, evidence: { [safety.id]: 'Measured twice' }, recommendation: 'yes', takeaways, submit: true }, who)
+    await cmd('board-view', { vacancy: job.id, filters: { reviewer: 'ian@example.test' } }, manager)
+    const flagged = async () => { const x = await boardOf(); assert.deepEqual(cards(x).map(c => c.application), [target.id]); return x.columns.flatMap(c => c.cards)[0] }
+    await card(ivy, 'Neat cuts')
+    assert.deepEqual([(await flagged()).needsDecision, (await flagged()).scorecards], [false, { submitted: 1, panel: 2, outstanding: ['ian@example.test'] }])
+    await card(ian, 'Careful with glass')
+    assert.deepEqual([(await flagged()).needsDecision, (await flagged()).scorecards.outstanding], [true, []])
+
+    // A move from the board needs its LDG-007 reason; the card then starts again in its new stage.
+    assert.equal((await send('/api/lodge/command/move', { application: target.id, to: job.stages[3].id }, manager)).status, 400)
+    await cmd('move', { application: target.id, to: job.stages[3].id, reason: 'Panel agrees: offer stage' }, manager)
+    const moved = await flagged()
+    assert.deepEqual([moved.stage, moved.daysInStage, moved.needsDecision], [job.stages[3].id, 0, false])
+    assert.equal((await state(manager)).applications.find(x => x.id === target.id).history.at(-1).reason, 'Panel agrees: offer stage')
+    await cmd('board-view', { vacancy: job.id }, manager)
+    assert.deepEqual((await boardOf()).columns.map(c => c.cards.length), [3, 3, 1, 3, 0])
+    for (const a of apps) await cmd('move', { application: a.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Board test done' }, manager)
+  })
+
   await t.test('OFFER-006 a recruiter records an offer signed outside Lodge: bytes bound to the approved terms, hire recorded, honest label', async () => {
     const job = await openJob('Glazier')
     const rosa = await h.member('rosa@example.test', ['manager'], 'Rosa Pike')

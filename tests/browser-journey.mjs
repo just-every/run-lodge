@@ -139,6 +139,16 @@ export async function journey(browser, root, origin, width, evidence) {
     await shot(interviewer.page, evidence, 'kit', width)
     await interviewer.page.goto(origin + '/app'); await interviewer.page.getByRole('navigation', { name: 'Workspace' }).waitFor()
 
+    // PIPE-001: the panel's only scorecard is in, so the board flags a decision; a source filter stays saved for the manager.
+    await manager.page.reload(); await tab(manager.page, 'Applications')
+    const board = manager.page.getByRole('button', { name: 'Open ' + person })
+    await board.getByText('All scorecards in · needs decision', { exact: true }).waitFor()
+    await manager.page.getByLabel('Source', { exact: true }).selectOption('Application page'); await saved(manager.page)
+    await manager.page.reload(); await tab(manager.page, 'Applications')
+    assert.equal(await manager.page.getByLabel('Source', { exact: true }).inputValue(), 'Application page')
+    await board.getByText('0 days in stage', { exact: false }).waitFor()
+    await shot(manager.page, evidence, 'board', width)
+
     // Manager: release feedback, prepare the offer, request approval.
     await manager.page.reload(); await tab(manager.page, 'Applications')
     await manager.page.getByRole('button', { name: 'Open ' + person }).click()

@@ -11,6 +11,7 @@ import { apply, candidate, candidatePrivacy, correctCandidate, reviewDuplicate, 
 import { addDocument } from './records/documents'
 import { rejectionReasons, rejectionTemplate } from './records/rejections'
 import { reviewDecision, reviewRecommendation } from './records/reviews'
+import { boardView } from './records/board-views'
 import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } from './records/pipeline'
 import { availability, cancel, interview, reply, schedule } from './records/interviews'
 import { correct, note, releaseFeedback, scorecard } from './records/scorecards'
@@ -42,7 +43,7 @@ export const commands: Record<string, Command> = {
   'decide-approval': decide,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate, 'review-decision': reviewDecision, 'review-recommendation': reviewRecommendation,
-  'assign-reviewers': assignReviewers, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
+  'assign-reviewers': assignReviewers, 'board-view': boardView, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
   message, 'request-message-approval': requestMessageApproval,

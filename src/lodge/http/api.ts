@@ -14,6 +14,7 @@ import { calendarFile } from '../records/interviews'
 import { emlFile } from '../records/messages'
 import { handoff, packet } from '../views/offer-exports'
 import { kitView } from '../views/kits'
+import { board } from '../views/board'
 import { openingsReport } from '../views/openings-report'
 import { rejectionsReport } from '../views/rejections-report'
 import { deleteCandidate } from '../records/retention'
@@ -82,6 +83,13 @@ api.get('/api/lodge/search', async c => {
 api.get('/api/lodge/kit/:id', async c => {
   const { state, actor } = await context(c)
   return c.json(kitView(await workspace(state, actor), c.req.param('id')))
+})
+
+api.get('/api/lodge/board/:vacancy', async c => {
+  const { state, actor } = await context(c)
+  const view = board(await workspaceRecords(state, actor), c.req.param('vacancy'))
+  requireThat(view, 'Vacancy not found', 404)
+  return c.json(view)
 })
 
 api.get('/api/lodge/reports/interviewers', async c => {

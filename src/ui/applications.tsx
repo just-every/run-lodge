@@ -36,7 +36,7 @@ export function Applications(props: PageProps) {
       <JobHeader v={job} apps={apps} {...props} />
       <Coordinator v={job} apps={apps} w={w} go={go} open={open} />
       <ReviewQueue v={job} w={w} mutate={props.mutate} open={open} />
-      <Board v={job} apps={apps} w={w} selected={app?.id} open={open} />
+      <Board v={job} w={w} selected={app?.id} open={open} mutate={props.mutate} />
       <Activity v={job} apps={apps} w={w} open={open} />
     </div>
     {app && <ApplicationPanel key={app.id} app={app} {...props} close={() => go('Applications', { job: job.id, app: '' })} />}

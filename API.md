@@ -24,6 +24,9 @@ cookie or sign-in URL in a task, log or source file.
 - `GET /api/lodge/reports/interviewers`: admins and hiring managers: per interviewer and job they run,
   interviews held, scorecards on time, late or missing against the business's `scorecardDueHours`
   (default 24), average hours to submit, released recommendations only, upcoming load, and each item.
+- `GET /api/lodge/board/:vacancyId`: one job's pipeline board as the reader sees it (PIPE-001), with their
+  saved view applied: stage columns (filtered cards and the job total), each card's days in stage, last
+  activity, next interview, outstanding scorecards and needs-decision flag, and the filter options.
 - `GET /api/lodge/kit/:interviewId`: the interview's kit (purpose, focus criteria, questions, resume,
   released feedback, your scorecard) for its panel and the job's managers; invitations link `/app?kit=:id`.
 - Downloads: `/api/lodge/download/document/:id` (original bytes),
@@ -53,7 +56,8 @@ lists; see REQ-003), `job-template` (admins: `name` with `fromVacancy` and/or `s
 `request-vacancy-approval`, `publish`, `unpublish`, `close-vacancy`,
 `decide-approval` (send the `version` you reviewed), `candidate`,
 `correct-candidate`, `apply`, `review-duplicate`, `document`,
-`assign-reviewers`, `move` (a stage move takes `to` and `reason`; a close takes `to: "rejected" | "withdrawn"`,
+`assign-reviewers`, `board-view` (PIPE-001, your own view of a job's board: `{ vacancy, layout: columns | list,
+sort: activity | days | name | submitted, filters: { source?, reviewer?, tag?, rule? } }`), `move` (a stage move takes `to` and `reason`; a close takes `to: "rejected" | "withdrawn"`,
 `closeReason` (a current reason id of the matching group from `rejectionReasons`), an optional `reason` note
 and, for a rejection only, `send: none | now | delay` with `template` and `businessDays` 1–20),
 `review-decision` (REVIEW-001, people who run the job: `{ application, decision: advance | reject | skip }`;

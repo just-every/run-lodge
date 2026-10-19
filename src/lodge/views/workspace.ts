@@ -18,6 +18,7 @@ import { library } from '../records/questions'
 import { rulesView } from '../records/rules'
 import { rejectionsView } from '../records/rejections'
 import { reviewQueues } from '../records/reviews'
+import { boardViews } from '../records/board-views'
 
 /**
  * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
@@ -158,6 +159,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     ...rejectionsView(s, a, appIds),
     // REVIEW-001: the reader's review queues, shown on their home (HOME-001) and the job's board.
     reviewQueues: reviewQueues(s, a, applications),
+    // PIPE-001: the reader's own saved board views (filters, sort, layout) per job.
+    boardViews: boardViews(s, a, visibleVacancyIds),
     // COORD-006 briefs, for the people who run the job (and their agents) only.
     debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [
