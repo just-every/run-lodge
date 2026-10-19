@@ -2145,3 +2145,8 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM l_records').first()).n, before.n, 'refusals change nothing')
   })
 })
+
+test('OFFER-001 reviewed hourly and annual documents bind compensation routing, release and job setup', async () => {
+  const { checkOfferDocuments } = await import('./offer-documents.mjs')
+  await checkOfferDocuments()
+})

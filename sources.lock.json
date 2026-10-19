@@ -79,7 +79,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "0a19bf2c7f0965cf24874c424126766e3c6913552c527d90544d9e54bf9e7705",
+      "sha256": "41b0c987630165475cb6aed4b74fc278f6864d564ea5e842afb792dc9ea403ef",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -91,7 +91,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "44a06206987bbd088ee606bc2f20b9ccf72a0548e6b8416644df34d786a5d12b",
+      "sha256": "495ad349294afec79f2210b4bb484967a9ba5555062b00b6e739c249acc2899b",
       "executable": false
     },
     "base-copies.json": {
@@ -103,7 +103,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4137892580e8850e2f95d5e1e22e3304c27625fc13e402e8e514458a4d99d7a8",
+      "sha256": "ca2b945882baf6b6aecb4e27dc8b2b5b09de21ee2a4dd3b09c452faff126708f",
       "executable": false
     },
     "DEMO.md": {
@@ -775,7 +775,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "f30fdec1dd08a631f0dc7e2f9b2e9a132348b13819657c003ae986d0a096bf7f",
+      "sha256": "b76bc93464f53085c531eb928181f9526881ed474f85eeea8e2f94cb644608dc",
       "executable": false
     },
     "src/lodge/core/access.ts": {
@@ -811,7 +811,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "30a7e6f67166d72ceaaa3516af561a350541f6c1f948e5545bb5041f0176b40b",
+      "sha256": "33d9c7500b67c9177d3723378767c1dec9003fb7b35af49a2aa85a7f06364a28",
       "executable": false
     },
     "src/lodge/http/board.ts": {
@@ -855,7 +855,7 @@
       "executable": false
     },
     "src/lodge/records/approvals.ts": {
-      "sha256": "a8b64f00a565dac0040b380a4aa7397204c789b4bf1ec6b55b4b871871aa8bd0",
+      "sha256": "01d6d22edff02acf28bbfb23aef4831d810b1cfd115bba83ae1b315d490279fb",
       "executable": false
     },
     "src/lodge/records/board-views.ts": {
@@ -926,8 +926,12 @@
       "sha256": "3e9fdd4c4df999d8016226a6e5cbdf314aa559a2252f2e452064ea9d8e131fac",
       "executable": false
     },
+    "src/lodge/records/offer-templates.ts": {
+      "sha256": "e5c60344b4a84fea2c9920d49ea265411711aba5460160292005a25f89d91d84",
+      "executable": false
+    },
     "src/lodge/records/offers.ts": {
-      "sha256": "5de25e46e5ac4936b0f57f464f7606dc80ddd0c438f1c0f206f06002f6907062",
+      "sha256": "e1f23d7e3f7971ef912c85ce410a263e26da7d329911610a45870959a6cde306",
       "executable": false
     },
     "src/lodge/records/openings.ts": {
@@ -991,7 +995,7 @@
       "executable": false
     },
     "src/lodge/records/templates.ts": {
-      "sha256": "bfd316dd22badb97e9c13ad2465f722c2d5d1c8dbf9fd2732293f2280e3e7abf",
+      "sha256": "0cceb293ea4be7e3ec1d30fb30a037857fbd26be22a1e31b10ff924444ce7942",
       "executable": false
     },
     "src/lodge/records/vacancies.ts": {
@@ -1020,6 +1024,10 @@
     },
     "src/lodge/views/kits.ts": {
       "sha256": "660c3d8157584ea5e948a2de0ac5be04febb73837fc6ec3ba235302f029cd2b3",
+      "executable": false
+    },
+    "src/lodge/views/offer-document.ts": {
+      "sha256": "118edeb54c9f8cb2b9fb5be5d848c030f6d95710df32c883d5528c287904292c",
       "executable": false
     },
     "src/lodge/views/offer-exports.ts": {
@@ -1051,7 +1059,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "eb6abc76baf25ae5badced496279d2c860cc142ffe4d23724f78ca5bd5649830",
+      "sha256": "34cf59ef4d29abcf21ac007ad451ef21c89e906b311480a2efe08aba69f4d521",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -2835,7 +2843,7 @@
       "executable": false
     },
     "src/ui/decisions.tsx": {
-      "sha256": "9444f1c5c430fb4bb7d6561e7f2148b33cadfe755b0e743a7f57be77e9d06223",
+      "sha256": "b2cf97029177596cdd82800578955042690f1315cbba65afaa23e79fb3e90f7f",
       "executable": false
     },
     "src/ui/document-rendering.ts": {
@@ -2904,6 +2912,14 @@
     },
     "src/ui/notes.tsx": {
       "sha256": "657c9cd52120c3d9bb789924e676f5ef769fe7c993f4cae19265abd0d8f738e7",
+      "executable": false
+    },
+    "src/ui/offer-form.tsx": {
+      "sha256": "4d73bfc6b39e9ab41d523265d6f1c22d185d2ebe97ce7fd0fa4c607f4ba976c6",
+      "executable": false
+    },
+    "src/ui/offer-templates.tsx": {
+      "sha256": "4fcf83e441801b5d38002b8d9fd710957af79133545bb73a41b7a7062476983e",
       "executable": false
     },
     "src/ui/openings.tsx": {
@@ -3019,11 +3035,11 @@
       "executable": false
     },
     "src/ui/templates.tsx": {
-      "sha256": "90200b005f66049bbcccd63189f7caa0b804ea2d8079ac65d19e86ca9b8d4053",
+      "sha256": "cf74c3109e9191321be914ea3cd5144cf8fddd74c78e644478722384f9874a91",
       "executable": false
     },
     "src/ui/vacancies.tsx": {
-      "sha256": "701bd125f689bde3aa6e898d49fe6d207d59158364ceee3fb7e0a827d184beef",
+      "sha256": "476f9c82c510582a7fe1afc423e4a4414f2509f018c411bcea9499bed7ba2e39",
       "executable": false
     },
     "src/ui/your-work.tsx": {
@@ -3047,7 +3063,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "640ef7dfa50ee2bc7f195d1d90f690244fe9ee6f067e19464dc4a9cc34a32e1e",
+      "sha256": "75daaa42dec973fe227be2a036d87d5327c596776085f9f7f3e58e6c6223738d",
       "executable": false
     },
     "tests/bulk-page.mjs": {
@@ -3071,7 +3087,7 @@
       "executable": false
     },
     "tests/hiring.test.mjs": {
-      "sha256": "2782d1b15e3798c279af90d9215bfd792f14c2042a73cd5753ce84e0e45960bb",
+      "sha256": "7af7eccd4c1e34542c3c3fd8baed638acc97229b4808a2674e5f190763fdde55",
       "executable": false
     },
     "tests/lodge-worker.ts": {
@@ -3088,6 +3104,14 @@
     },
     "tests/move-in.test.mjs": {
       "sha256": "4b7ed442fac8e31b904c4154161551cfd9b744d22943ae11aa139f864afaf5b5",
+      "executable": false
+    },
+    "tests/offer-documents.mjs": {
+      "sha256": "6b274f83bbff8895e0b75e1ba3780bb4feb3ae8b5d7aac5f97ed33670f5c60da",
+      "executable": false
+    },
+    "tests/offer-page.mjs": {
+      "sha256": "78363c5b8ada7f3d33d45c4e800023707608d0eb6f201f37d2f33223968061c4",
       "executable": false
     },
     "tests/portability-cli.mjs": {

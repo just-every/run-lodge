@@ -1,3 +1,4 @@
+import { offerReference, offerReferenceValue, offerTemplateOptions } from './offer-templates'
 import type { PageProps } from './app'
 import { Field, Form, type D } from './shared'
 
@@ -16,7 +17,8 @@ export function Templates({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
     <ul>{w.jobTemplates.map((t: D) => {
       const rubric = t.rubrics.at(-1)
       return <li key={t.id}><strong>{t.name}</strong> · {t.stages.map((st: D) => st.name).join(' → ')} · rubric version {rubric.version} · {t.plan.length} interviews · {t.questions.length} questions · {t.rules.length} rules
-        <details><summary>Edit {t.name}</summary><Form label="Save template" onSubmit={x => mutate('job-template', { id: t.id, name: x.name, criteria: parseCriteria(x.criteria, rubric.criteria) })}>
+        <details><summary>Edit {t.name}</summary><Form label="Save template" onSubmit={x => mutate('job-template', { id: t.id, name: x.name, offerTemplate: offerReference(x.offerTemplate) ?? null, criteria: parseCriteria(x.criteria, rubric.criteria) })}>
+          <Field label="Reviewed offer template in this setup" name="offerTemplate" required={false} defaultValue={offerReferenceValue(t.offerTemplate)} options={offerTemplateOptions(w)} />
           <Field label="Template name" name="name" defaultValue={t.name} />
           <Field label={`Rubric for ${t.name} (a line each as “Name: the evidence it looks for”)`} name="criteria" type="textarea" wide defaultValue={criteriaText(rubric.criteria)} />
         </Form></details></li>

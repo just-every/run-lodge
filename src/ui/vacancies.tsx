@@ -13,6 +13,7 @@ import { JobQuestions } from './questions'
 import { Rules } from './rules'
 import { departmentOptions, officeOptions } from './org'
 import { Sourcing, Team } from './team'
+import { OfferTemplates, JobOfferTemplate } from './offer-templates'
 import { JobCopies, Templates } from './templates'
 
 export function VacancyStatus({ v }: { v: D }) {
@@ -109,6 +110,7 @@ function Detail({ v, w, mutate, go, select }: { v: D; select: (id: string) => vo
         <Field label="Neutral title for the careers page (blank keeps it off)" name="publicTitle" required={false} defaultValue={v.publicTitle} />
       </Form></details>}
     {v.status !== 'closed' && !v.imported && <Form label="Close vacancy" compact onSubmit={x => mutate('close-vacancy', { id: v.id, reason: x.reason })}><Field label="Reason for closing" name="reason" /></Form>}
+    {!v.imported && v.manages && <JobOfferTemplate v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <JobCopies v={v} w={w} mutate={mutate} select={select} />}
     <p><a href={`/api/lodge/download/vacancy/${v.id}`}>Export this vacancy’s whole history (JSON)</a></p>
   </section>
@@ -131,6 +133,7 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
           <td>{apps.length}{apps.some((a: D) => a.status !== 'active') && <small>{apps.filter((a: D) => a.status !== 'active').length} closed</small>}</td><td><button aria-label={'Open ' + x.title} onClick={() => select(x.id)}>Open</button></td></tr>
       })}</Table>}
     <Sourcing w={w} />
+    <OfferTemplates w={w} mutate={mutate} />
     <Templates w={w} mutate={mutate} />
     <Kickoffs w={w} mutate={mutate} select={select} />
   </div>
