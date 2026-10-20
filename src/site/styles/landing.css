@@ -433,3 +433,21 @@
   .closing-actions .site-pill { width: 100%; }
   .closing-plate img { height: auto; aspect-ratio: 900 / 774; object-position: center top; }
 }
+
+/* Narrow phones: the import table tightens under 370 so "14 mapped" stays inside the card. */
+@media (max-width: 369px) {
+  .import { padding: 22px 12px; }
+  .recon, .recon thead th { font-size: 15px; }
+  .recon th, .recon td { padding: 12px 6px; }
+  .recon .note { font-size: 13px; }
+}
+/* Under 360 the key columns narrow so salary ranges stay whole, and row gaps tighten so no line runs past its card. */
+@media (max-width: 359px) {
+  .opening .pairs > div, .letter .pairs > div { grid-template-columns: 88px minmax(0, 1fr); }
+  .screening li { gap: 10px; }
+  .screening .check { margin-right: 0; }
+  .ticks li { gap: 12px; }
+  .log li { gap: 10px; }
+  .score { padding: 20px 18px; }
+  .rubric dt { white-space: normal; }
+}
