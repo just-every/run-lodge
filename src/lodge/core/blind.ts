@@ -30,13 +30,22 @@ export function blindResult(s: State, a: Actor, value: any, context?: Data): any
   if (context && !blindFor(s, a, context)) context = undefined
   if (Array.isArray(value)) return value.map(x => blindResult(s, a, x, context))
   if (value && typeof value === 'object') {
-    const subject = s.find('application', typeof value.application === 'string' ? value.application : value.id)
+    const subject = s.find('application', typeof value.application === 'string' ? value.application : value.blindApplication ?? value.sources?.find((source: Data) => source.blindApplication)?.blindApplication ?? value.id)
     const app = subject && blindFor(s, a, subject) ? subject : context
     const out = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, ['id', 'application', 'vacancy'].includes(k) && typeof v === 'string' ? v : blindResult(s, a, v, app)]))
-    if (app && value.kind === 'candidate' && value.id === app.candidate) out.id = blindId(app)
+    delete out.blindStamp
+    if (app && value.kind === 'candidate' && value.id === app.candidate) { out.id = blindId(app); out.revision = 'hidden during blind review' }
     if (app && value.candidateName) out.candidateName = blindCode(app)
     return out
   }
   if (context && typeof value === 'string') return value === context.candidate ? blindId(context) : redactor(s, context)(value)
   return value
+}
+
+/** Derived resume text depends on more than the application row alone. */
+export function blindSourceStamp(s: State, id: string) {
+  const app = s.get('application', id)
+  const revisions = [['application', id], ['vacancy', app.vacancy], ['candidate', app.candidate], ['blind-identity', id]]
+  for (const kind of ['document', 'resume-extraction']) for (const row of s.scan(kind).filter(r => r.candidate === app.candidate && (!r.application || r.application === id))) revisions.push([kind, row.id])
+  return JSON.stringify(revisions.map(([kind, record]) => s.revisionOf(kind, record)))
 }
