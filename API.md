@@ -13,7 +13,8 @@ cookie or sign-in URL in a task, log or source file.
   interview notes, messages, offers, approvals, proposals, coordination facts
   (missing scorecards, interviews still collecting times) and, for the owner and
   hiring admins, holds, retention review, requests, receipts, duplicates and audit.
-- `GET /api/lodge/search?q=`: matches within that same workspace.
+- `GET /api/lodge/search?q=`: matches permitted profile/custom values, decoded resume text and jobs within that same workspace.
+- `GET /api/lodge/views/:vacancy/:viewId`: applies a saved team view to the reader’s projected applications; hidden fields never contribute membership.
 - `GET /api/lodge/talent?q=`: owner/admin: prior candidates with current
   permission to be contacted whose own words match; matched fields shown, no score.
 - `GET /api/lodge/reports/openings?department=&office=`: admins and hiring managers: the jobs they run
@@ -414,3 +415,13 @@ facts and normal exports keep original document bytes. Erasure removes committed
 resume evidence and invalidates all pending resume-intake transfers and their
 originals in the same transaction. The installation archive validates staged
 original size, type and digest, and candidate/application/document references.
+
+## Configurable hiring fields (DATA-001)
+
+`field-schema {id: vacancyId, fields}` configures a draft job. Each field has a stable job-namespaced `id`, `name`, `record` (`candidate`, `application`, `vacancy`), `type` (`text`, `number`, `date`, `boolean`, `choice`), `choices`, `restricted`, optional explicit `identity` (`school` or `year`), `requiredStages` and optional `importColumn`. Saved facts prevent changing record/type or removing a restricted scope. Published configuration changes use the workflow sandbox; unpublish before exact reviewed deployment.
+
+`field-values {application, values}` updates candidate/application values; `{vacancy, values}` updates requisition values. Missing keys preserve values; null clears. Numbers must be finite, dates are real YYYY-MM-DD calendar dates, choices match exactly, and booleans are explicit true/false. Zero and false satisfy requirements. Every active-stage entry, including rule routes, checks its configured required fields. Restricted definitions and values follow LDG-006 owner/admin access; manager writes preserve unseen restricted definitions. Blind applications suppress typed values and redact explicitly designated school/year values from passages.
+
+`hiring-view {id: vacancyId, views}` saves job team views. Each has `id`, `name`, a case-insensitive whitespace-separated `query` whose terms all match, `tags` that must all exist, and `filters: [{field: fieldId, equals: typedValue}]` that must all match exactly. Restricted predicates remain owner/admin only. Views operate on the current reader’s projected records. No ranking or inferred attributes are used.
+
+Hosted and embedded forms post `cf-<fieldId>` controls. Board JSON, staff, internal, event and reviewed-resume intake accept `customValues`. Workable preview/commit optionally accept `fieldTemplate: vacancyId`; explicit `importColumn` headers map typed values and the reviewed fingerprint includes the template schema. Imported records stay inert and field IDs belong to the imported job. OPS-003 clones schema/views, reports required-field gaps and visible scope/view impacts on isolated selected data, fences revisions at deployment and restores the previous configuration on rollback.
