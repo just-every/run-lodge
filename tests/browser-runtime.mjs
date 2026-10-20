@@ -51,7 +51,6 @@ export async function start(root, port, mode = 'dev') {
     await new Promise(r => setTimeout(r, 250))
   }
   const close = async () => {
-    await command(root, [mode, '--stop']).catch(() => {})
     if (child.exitCode === null) { child.kill('SIGTERM'); await new Promise(r => child.once('exit', r)) }
   }
   if (!output.includes('RER_READY')) { await close(); throw new Error(mode + ' did not become ready') }

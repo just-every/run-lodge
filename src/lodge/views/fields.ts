@@ -10,7 +10,7 @@ export function fieldProjection<T extends Data>(s: State, a: Actor, view: T): T 
   const pick = (values: Data | undefined, fields: Data[]) => Object.fromEntries(fields.filter(f => Object.hasOwn(values ?? {}, f.id)).map(f => [f.id, values![f.id]]))
   const privateIds = new Set(s.all('vacancy').flatMap(v => (v.customSchema ?? []).filter((f: Data) => !admin && f.restricted).map((f: Data) => f.id)))
   const clean = (value: any): any => {
-    if (Array.isArray(value)) return value.filter(x => !(x?.restricted && !admin) && !(x?.filters?.some((f: Data) => privateIds.has(f.field)))).map(clean)
+    if (Array.isArray(value)) return value.filter(x => !(x?.restricted && !admin) && !(Array.isArray(x?.filters) && x.filters.some((f: Data) => privateIds.has(f.field)))).map(clean)
     if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).filter(([k]) => !privateIds.has(k)).map(([k,v]) => [k, clean(v)]))
     return value
   }
@@ -38,7 +38,7 @@ export function fieldResult(s: State, a: Actor, value: any): any {
   const permitted = new Set(s.all('vacancy').filter(v => managesVacancy(a, v) || s.all('application').some(app => app.vacancy === v.id && canSeeApplication(s, a, app))).flatMap(v => (v.customSchema ?? []).filter((f: Data) => admin || !f.restricted).map((f: Data) => f.id)))
   const allIds = new Set(s.all('vacancy').flatMap(v => (v.customSchema ?? []).map((f: Data) => f.id)))
   const clean = (x: any): any => {
-    if (Array.isArray(x)) return x.filter(r => !(r?.record && r?.type && r?.id && allIds.has(r.id) && !permitted.has(r.id)) && !(r?.filters?.some((f: Data) => !permitted.has(f.field)))).map(clean)
+    if (Array.isArray(x)) return x.filter(r => !(r?.record && r?.type && r?.id && allIds.has(r.id) && !permitted.has(r.id)) && !(Array.isArray(r?.filters) && r.filters.some((f: Data) => !permitted.has(f.field)))).map(clean)
     if (x && typeof x === 'object') return Object.fromEntries(Object.entries(x).filter(([k]) => !allIds.has(k) || permitted.has(k)).map(([k,v]) => [k, k === 'customValues' && v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([id]) => permitted.has(id))) : clean(v)]))
     return x
   }

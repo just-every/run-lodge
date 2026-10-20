@@ -293,7 +293,7 @@ Every clause names buyer behavior and an acceptance journey through a page, rout
 
 ## Honest boundaries and product ownership
 
-Lodge owns the full recruiting job, including named integrations and follow-through. [Willow](https://github.com/just-every/run-willow) or the buyer's BambooHR/ADP owns employee HR, onboarding, benefits, I-9, payroll and tax records after HIRE-001's verified handoff. Lodge never replaces those products or absorbs an unowned category.
+Lodge owns the full recruiting job, including named integrations and follow-through. [Willow](https://github.com/just-every/run-willow) or the buyer's BambooHR/ADP owns employee HR, onboarding, benefits, I-9, payroll and tax records after HIRE-001's verified handoff. For payroll, see the RunEditRun sibling [Envelope](https://github.com/just-every/run-envelope). Lodge never replaces those products or absorbs an unowned category.
 
 Email, calendar, job-board distribution, licensed sourcing, telephony, video, e-signature and background-report infrastructure use the named provider connections. Provider subscriptions, app/partner approval, sender registration, recording permissions and service costs must be shown during setup and delivered as part of the integration work. No provider account means that operation is visibly unconnected, not simulated or silently successful. Lodge remains MIT and self-hostable through LDG-017; installation ownership does not grant provider-network rights.
 

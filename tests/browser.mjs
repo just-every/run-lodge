@@ -40,7 +40,7 @@ try {
   await command(root, ['check', '--profile', 'first-party'])
   await command(root, ['describe'])
   server = await start(root, port)
-  browser = await chromium.launch({ headless: true })
+  browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
 
   // The owner starts from the empty-state onboarding page.
   const owner = await session(browser, root, server.origin, 'owner', 1440)
@@ -158,7 +158,7 @@ try {
   await command(second.root, ['import', '--input', 'exports/lodge.rer', '--yes'])
   await command(second.root, ['setup', '--owner-email', 'owner@example.test', '--port', String(secondPort), '--non-interactive'])
   server = await start(second.root, secondPort)
-  browser = await chromium.launch({ headless: true })
+  browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
   const restored = await session(browser, second.root, server.origin, 'owner', 1440)
   const after = await current(restored.context, server.origin)
   for (const key of ['vacancies', 'applications', 'candidates', 'documents', 'scorecards', 'offers', 'approvals'])
