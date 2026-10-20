@@ -36,8 +36,9 @@ export function blindResult(s: State, a: Actor, value: any, context?: Data): any
   if (context && !blindFor(s, a, context)) context = undefined
   if (Array.isArray(value)) return value.map(x => blindResult(s, a, x, context))
   if (value && typeof value === 'object') {
-    const subject = s.find('application', typeof value.application === 'string' ? value.application : value.blindApplication ?? value.sources?.find((source: Data) => source.blindApplication)?.blindApplication ?? value.id)
+    const subject = s.find('application', typeof value.application === 'string' ? value.application : value.application?.id ?? value.blindApplication ?? value.sources?.find((source: Data) => source.blindApplication)?.blindApplication ?? value.id)
     const app = subject && blindFor(s, a, subject) ? subject : context
+    if (app && value.id === app.candidate) return { id: blindId(app), name: blindCode(app), blind: true }
     const out = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, ['id', 'application', 'vacancy'].includes(k) && typeof v === 'string' ? v : blindResult(s, a, v, app)]))
     delete out.blindStamp
     if (app) delete out.candidateToken

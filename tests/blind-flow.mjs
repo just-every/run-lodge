@@ -45,6 +45,14 @@ export async function checkBlindReview(t) {
  const packet = await cmd('propose', { workflow: 'coordination', summary: 'Schedule a discussion', approver: 'blind.manager@example.test', sources: [{ kind: 'application', id: first.application.id }, { kind: 'candidate', id: 'blind:' + first.application.id }], changes: [{ op: 'interview', input: { application: first.application.id, planItem: v.plan[0].id, participants: ['blind.reviewer@example.test'], slots: ['2026-12-03T15:00:00Z'] } }] }, agent)
  assert.ok((await state(manager)).proposals.some(p => p.id === packet.id), 'new blind proposal remains usable')
  assert.ok(!JSON.stringify(packet).includes(first.candidate.id), 'blind proposal sources cannot join the shared candidate')
+ const pendingOwn = await cmd('resume-upload', { vacancy: v.id, file: { name: 'new-intake.txt', mediaType: 'text/plain', base64: Buffer.from('New Prospect\nprospect@example.test').toString('base64') } }, manager)
+ assert.ok((await state(manager)).resumeIntakes.some(r => r.id === pendingOwn.id), 'unlinked intake retains uploader rights')
+ const addedBlind = await cmd('candidate', { name: 'New Blind Person', email: 'new.blind@example.test', vacancy: v.id, source: 'Careers', consentBasis: 'application' }, manager)
+ assert.equal(addedBlind.candidate.id, addedBlind.application.candidate)
+ assert.ok(addedBlind.candidate.id.startsWith('blind:'), 'command responses also use application aliases')
+ const shared = await cmd('document', { candidate: first.candidate.id, kind: 'resume', name: 'shared-original.txt', mediaType: 'text/plain', base64: Buffer.from(sourceText).toString('base64') })
+ assert.equal((await send('/api/lodge/download/document/' + shared.id, undefined, manager)).status, 200, 'a separate full job retains its candidate-level original')
+ assert.equal((await send('/api/lodge/download/document/' + shared.id, undefined, reviewer)).status, 404, 'blind-only review cannot read the shared original')
  const doc = (await state()).documents.find(d => d.application === first.application.id)
  const hidden = [name, email, phone, address, school, year, 'Julian Carter', 'julian.old@example.test']
  for (const cookie of [manager, reviewer, agent]) {
