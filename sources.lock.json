@@ -79,7 +79,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "8541dd523402539e2d78046cef8f59f5fbf79ff9731db9669c9ee3bc0844116c",
+      "sha256": "8c787eef3e4f99c58ed78901087023e1dcf06e0f71b161ee95b5e853c2d48048",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -103,7 +103,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "ca2b945882baf6b6aecb4e27dc8b2b5b09de21ee2a4dd3b09c452faff126708f",
+      "sha256": "6bc5ecfdd910eb71dfc790e84c2506ad17cca7320c1a4f8e63a14712973f3cd3",
       "executable": false
     },
     "DEMO.md": {
@@ -439,7 +439,7 @@
       "executable": false
     },
     "public/lodge.css": {
-      "sha256": "8da43bd85349377454bec857fc92aabcd096c3eeb639826a531c8cb0a5944514",
+      "sha256": "8658f4a6e4154c3bca1f361ab3d49dbafc741c13d1afced964e0a54287ade077",
       "executable": false
     },
     "public/rer-theme.css": {
