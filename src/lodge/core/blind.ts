@@ -34,6 +34,7 @@ export function blindResult(s: State, a: Actor, value: any, context?: Data): any
     const app = subject && blindFor(s, a, subject) ? subject : context
     const out = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, ['id', 'application', 'vacancy'].includes(k) && typeof v === 'string' ? v : blindResult(s, a, v, app)]))
     delete out.blindStamp
+    if (app) delete out.candidateToken
     if (app && value.kind === 'candidate' && value.id === app.candidate) { out.id = blindId(app); out.revision = 'hidden during blind review' }
     if (app && value.candidateName) out.candidateName = blindCode(app)
     return out
