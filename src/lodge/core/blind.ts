@@ -33,6 +33,7 @@ export function blindResult(s: State, a: Actor, value: any, context?: Data): any
     const subject = s.find('application', typeof value.application === 'string' ? value.application : value.id)
     const app = subject && blindFor(s, a, subject) ? subject : context
     const out = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, ['id', 'application', 'vacancy'].includes(k) && typeof v === 'string' ? v : blindResult(s, a, v, app)]))
+    if (app && value.kind === 'candidate' && value.id === app.candidate) out.id = blindId(app)
     if (app && value.candidateName) out.candidateName = blindCode(app)
     return out
   }

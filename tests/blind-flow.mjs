@@ -9,6 +9,7 @@ export async function checkBlindReview(t) {
  await cmd('business', BUSINESS)
  const manager = await h.member('blind.manager@example.test', ['manager'])
  const reviewer = await h.member('blind.reviewer@example.test', ['interviewer'])
+ const admin = await h.member('blind.admin@example.test', ['admin'])
  const recruiter = await h.member('blind.recruiter@example.test', ['manager'])
  const agent = await h.member('blind.agent@example.test', ['manager'], 'Review agent', { agent: true, actsFor: 'blind.manager@example.test' })
  const job = async (title, question) => {
@@ -28,6 +29,7 @@ export async function checkBlindReview(t) {
  const intake = await cmd('resume-upload', { vacancy: v.id, file: { name: 'parsed.txt', mediaType: 'text/plain', base64: Buffer.from(sourceText.replace(name, 'Julian Carter').replace(email, 'julian.old@example.test')).toString('base64') } })
  const corrected = await cmd('resume-preview', { id: intake.id, name, email, phone, location: address, source: 'Reviewed resume', consentBasis: 'application', education: school + ' ' + year })
  await cmd('resume-commit', { id: intake.id, token: corrected.token, confirmed: true, duplicates: corrected.duplicates.map(d => ({ candidate: d.candidate, decision: 'existing', reason: 'Confirmed same person' })) })
+ const image = await cmd('document', { application: first.application.id, name: 'candidate-photo.png', kind: 'portfolio', mediaType: 'image/png', base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=' })
  const second = await cmd('candidate', { name: 'Taylor Rowan', email: 'taylor.blind@example.test', vacancy: v.id, source: 'Careers', consentBasis: 'application' })
  await cmd('apply', { candidate: first.candidate.id, vacancy: other.id, source: 'Other job' })
  for (const app of [first.application, second.application]) await cmd('assign-reviewers', { application: app.id, reviewers: ['blind.reviewer@example.test'] })
@@ -35,7 +37,7 @@ export async function checkBlindReview(t) {
  const oldPacket = await cmd('propose', { workflow: 'coordination', summary: name, approver: 'blind.manager@example.test', sources: [{ kind: 'application', id: first.application.id }], changes: [{ op: 'message', input: { application: first.application.id, purpose: 'other', subject: 'Interview', body: name } }] })
  await cmd('blind-review', { id: v.id, enabled: true, stages: [v.stages[0].id], revealStage: v.stages[2].id }, manager)
  assert.ok(!(await state(manager)).proposals.some(p => p.id === oldPacket.id), 'old full-record packet hides on blinding')
- const packet = await cmd('propose', { workflow: 'coordination', summary: 'Schedule a discussion', approver: 'blind.manager@example.test', sources: [{ kind: 'application', id: first.application.id }], changes: [{ op: 'interview', input: { application: first.application.id, planItem: v.plan[0].id, participants: ['blind.reviewer@example.test'], slots: ['2026-12-03T15:00:00Z'] } }] }, agent)
+ const packet = await cmd('propose', { workflow: 'coordination', summary: 'Schedule a discussion', approver: 'blind.manager@example.test', sources: [{ kind: 'application', id: first.application.id }, { kind: 'candidate', id: 'blind:' + first.application.id }], changes: [{ op: 'interview', input: { application: first.application.id, planItem: v.plan[0].id, participants: ['blind.reviewer@example.test'], slots: ['2026-12-03T15:00:00Z'] } }] }, agent)
  assert.ok((await state(manager)).proposals.some(p => p.id === packet.id), 'new blind proposal remains usable')
  const doc = (await state()).documents.find(d => d.application === first.application.id)
  const hidden = [name, email, phone, address, school, year, 'Julian Carter', 'julian.old@example.test']
@@ -47,6 +49,9 @@ export async function checkBlindReview(t) {
   for (const value of hidden) assert.ok(!JSON.stringify({ app, c }).includes(value), `profile hides ${value}`)
   assert.equal(app.earlier.length, 0)
   for (const path of ['download/document/', 'view/document/']) assert.equal((await send('/api/lodge/' + path + doc.id, undefined, cookie)).status, 404)
+  assert.ok(!w.documents.some(d => d.id === image.id), 'photos are absent from blind context')
+  assert.equal((await send('/api/lodge/download/document/' + image.id, undefined, cookie)).status, 404)
+  assert.equal((await send('/api/lodge/download/resume-intake/' + intake.id, undefined, cookie)).status, 404)
   const queue = w.reviewQueues.find(q => q.vacancy === v.id)
   assert.ok(queue.queue.includes(app.id))
   const visible = await send('/api/lodge/search?q=Inventory', undefined, cookie)
@@ -58,7 +63,7 @@ export async function checkBlindReview(t) {
    assert.ok(!exported.text.includes(first.candidate.id), 'no shared-person join in blind export')
   }
  }
- for (const cookie of [h.owner, recruiter]) {
+ for (const cookie of [h.owner, admin, recruiter]) {
   const w = await state(cookie), app = w.applications.find(a => a.id === first.application.id)
   assert.equal(app.blind, false); assert.equal(app.candidateName, name)
   assert.equal((await send('/api/lodge/download/document/' + doc.id, undefined, cookie)).status, 200)

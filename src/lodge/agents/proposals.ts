@@ -29,7 +29,8 @@ const SOURCE_KINDS = ['vacancy', 'application', 'candidate', 'interview', 'inter
 function readable(s: State, view: WorkspaceRecords, kind: string, id: string) {
   const record = sourceRecord(view, kind, id)
   requireThat(record, 'Source outside your scope', 404)
-  s.get(kind, id) // Fence the original row while returning only its projection.
+  const originalId = kind === 'candidate' && record.blind ? s.get('application', id.slice('blind:'.length)).candidate : id
+  s.get(kind, originalId) // Fence the original row while returning only its projection.
   return record
 }
 
@@ -83,7 +84,9 @@ export async function propose(s: State, a: Actor, b: Data) {
     // Keep the actual source field grant used to prepare the packet. Neither
     // its recipient nor a later reader may lose any part of that grant.
     const fields = sourceFields(source)
-    return { kind, id: x.id as string, revision: s.revisionOf(kind, x.id), fields, blindApplication: source.blind ? source.id : view.applications.find(app => app.blind && app.id === source.application)?.id ?? null }
+    const blindApplication = source.blind ? (kind === 'candidate' ? source.id.slice('blind:'.length) : source.id) : view.applications.find(app => app.blind && app.id === source.application)?.id ?? null
+    const id = kind === 'candidate' && source.blind ? s.get('application', blindApplication).candidate : x.id as string
+    return { kind, id, viewId: x.id as string, revision: s.revisionOf(kind, id), fields, blindApplication }
   })
   requireThat(Array.isArray(b.changes) && b.changes.length > 0 && b.changes.length <= 20, 'Propose between 1 and 20 changes')
   const changes = b.changes.map((c: Data) => ({ op: oneOf(c?.op, WORKFLOWS[workflow] as readonly string[], 'Change for this workflow'), input: c?.input ?? {} }))
