@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { writeFile } from 'node:fs/promises'
-import { current, session } from './browser-journey.mjs'
+import { api, current, session } from './browser-journey.mjs'
 import { resumeFiles, unreadableResume } from './resume-fixtures.mjs'
 import { resumeLifecyclePage } from './resume-lifecycle-page.mjs'
 
@@ -65,6 +65,9 @@ export async function resumeIntakePage(browser, { root, origin, job, evidence })
       await confirm.getByLabel('Reason for ' + d.name, { exact: true }).fill('Confirmed the same person against their original resume')
      }
     }
+    const previousIntake = decisions.length ? before.resumeIntakes.find(r => r.status === 'committed' && r.candidate === decisions[0].candidate) : null
+    if (decisions.length) assert.ok(previousIntake, 'the existing person has an earlier committed original')
+    const previousPerson = previousIntake ? (await api(context, origin, 'resume-commit', { id: previousIntake.id })).candidate : null
     await page.screenshot({ path: join(evidence, `DATA-002-review-${file.name.replace(/\W/g, '-')}-${width}.png`), fullPage: true })
     await confirm.getByLabel('I checked the original, corrected the details and decided every duplicate suggestion', { exact: true }).check()
     await confirm.getByRole('button', { name: 'Commit reviewed resume', exact: true }).click()
@@ -76,7 +79,11 @@ export async function resumeIntakePage(browser, { root, origin, job, evidence })
     if (correct) assert.equal(person.name, 'Corrected Resume ' + tag)
     if (decisions.length) {
      assert.equal(after.candidates.length, before.candidates.length, 'duplicate intake reuses a person')
-     assert.deepEqual(person, before.candidates.find(c => c.id === person.id), 'existing person was not overwritten')
+     // Replay exposes the persisted record; workspace resumeText is derived from all readable originals.
+     const persisted = (await api(context, origin, 'resume-commit', { id })).candidate
+     assert.deepEqual(persisted, previousPerson, 'existing person was not overwritten')
+     assert.ok(person.resumeText.includes(before.candidates.find(c => c.id === person.id).resumeText), 'earlier resume passages remain searchable')
+     if (row.sourceText) assert.ok(person.resumeText.includes(row.sourceText), 'the newly attached original contributes searchable text')
     }
     committed.push(saved)
     return saved
