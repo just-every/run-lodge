@@ -36,10 +36,10 @@ function Impact({ box }: { box: D }) {
   const impact = box.preview?.impact
   if (!impact) return null
   const stage = (id: string) => box.config.stages.find((s: D) => s.id === id)?.name ?? id
-  return <section aria-label="Sandbox impact"><h3>Reviewed impact</h3><p>{impact.explanation}</p>
-    <Table heads={['Configuration', 'Current', 'Reviewed change']} empty="Configuration is unchanged.">{impact.changes.map((change: D) => <tr key={change.area}><td>{change.area}</td><td>{change.before}</td><td>{change.after}</td></tr>)}</Table>
+  return <section aria-label="Sandbox impact" style={{ overflowWrap: 'anywhere' }}><h3>Reviewed impact</h3><p>{impact.explanation}</p>
+    <Table heads={['Configuration', 'Current', 'Reviewed change']} empty="Configuration is unchanged.">{impact.changes.map((change: D) => <tr key={change.area}><td>{({ customFields: 'Custom fields', savedViews: 'Team views' } as Record<string, string>)[change.area] ?? change.area}</td><td>{change.before}</td><td>{change.after}</td></tr>)}</Table>
     <Table heads={['Test case', 'Before', 'Expected outcome', 'Actions']}>
-      {impact.outcomes.map((o: D) => <tr key={o.case}><td>{o.case}</td><td>{stage(o.before.stage)} · {o.before.status}</td><td>{stage(o.after.stage)} · {o.after.status}<br />Reviewers: {o.after.reviewers.join(', ') || 'none'}<br />Tags: {o.after.tags.join(', ') || 'none'}</td><td>{o.rules.map((r: D) => `${r.rule} v${r.version}: ${r.status} — ${r.reason}`).join('; ')}{o.scheduling && <p>{o.scheduling.title} · {o.scheduling.durationMinutes} minutes · {o.scheduling.status} · {o.scheduling.start ?? o.scheduling.slots.join(', ')} · {o.scheduling.timezone}</p>}</td></tr>)}
+      {impact.outcomes.map((o: D) => <tr key={o.case}><td>{o.case}</td><td>{stage(o.before.stage)} · {o.before.status}</td><td>{o.error ? <p role="alert">Trial refused: {o.error}</p> : <>{stage(o.after.stage)} · {o.after.status}</>}<br />{o.views?.map((view: D) => <p key={view.id}>{view.name}: {view.matches ? 'matches' : 'does not match'}</p>)}Reviewers: {o.after.reviewers.join(', ') || 'none'}<br />Tags: {o.after.tags.join(', ') || 'none'}</td><td>{o.rules.map((r: D) => `${r.rule} v${r.version}: ${r.status} — ${r.reason}`).join('; ')}{o.scheduling && <p>{o.scheduling.title} · {o.scheduling.durationMinutes} minutes · {o.scheduling.status} · {o.scheduling.start ?? o.scheduling.slots.join(', ')} · {o.scheduling.timezone}</p>}</td></tr>)}
     </Table><p>Approval routes: {Object.entries(impact.routes).map(([k, v]) => k + ': ' + v).join('; ') || 'Person selected when requesting approval'}</p>
     <p>Production contact: {impact.productionContact}; production signatures: {impact.productionSignatures}; production HR records: {impact.productionHrRecords}.</p>
   </section>
