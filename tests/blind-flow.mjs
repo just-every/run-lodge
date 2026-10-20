@@ -60,7 +60,7 @@ export async function checkBlindReview(t) {
   assert.equal(app.blind, true); assert.equal(c.name, app.candidateName); assert.notEqual(app.candidate, first.candidate.id)
   assert.notEqual(w.applications.find(a => a.id === second.application.id).candidateName, app.candidateName)
   assert.ok(app.resumeText.includes('Inventory planning'))
-  for (const value of hidden) assert.ok(!JSON.stringify({ app, c }).includes(value), `profile hides ${value}`)
+  for (const value of hidden) assert.deepEqual(identityHits({ app, c }, value), [], `profile hides ${value}`)
   assert.equal(app.earlier.length, 0)
   for (const path of ['download/document/', 'view/document/']) assert.equal((await send('/api/lodge/' + path + doc.id, undefined, cookie)).status, 404)
   assert.ok(!w.documents.some(d => d.id === image.id), 'photos are absent from blind context')
@@ -73,7 +73,7 @@ export async function checkBlindReview(t) {
   if (cookie !== reviewer) {
    const exported = await send('/api/lodge/download/vacancy/' + v.id, undefined, cookie)
    assert.equal(exported.status, 200)
-   for (const value of hidden) assert.ok(!exported.text.includes(value), `export hides ${value}`)
+   for (const value of hidden) assert.deepEqual(identityHits(exported.value, value), [], `export hides ${value}`)
    assert.ok(!exported.text.includes(first.candidate.id), 'no shared-person join in blind export')
   }
  }
@@ -141,3 +141,15 @@ export async function checkBlindReview(t) {
  await blindRules(h, job)
 }
 
+
+// A graduation year must disappear from identity facts and passages. A coincidental
+// substring of an opaque UUID or SHA-256 is not a year; join IDs are checked separately.
+function identityHits(value, needle, path = '') {
+ if (typeof value === 'number') return String(value) === needle ? [path] : []
+ if (typeof value === 'string') {
+  const opaque = /^(?:(?:[a-z-]+:|Application )?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{64})$/i.test(value)
+  return value.includes(needle) && !( /^\d{4}$/.test(needle) && opaque ) ? [path] : []
+ }
+ if (!value || typeof value !== 'object') return []
+ return Object.entries(value).flatMap(([key, item]) => identityHits(item, needle, path + '/' + key))
+}
