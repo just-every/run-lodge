@@ -33,7 +33,7 @@ export function talentPool(s: State, a: Actor, q: unknown) {
   const words = terms(q), today = new Date().toISOString().slice(0, 10)
   return s.all('candidate')
     .filter(c => !c.deleted && !c.mergedInto && c.consent?.talentPool === true && c.retainUntil >= today && canSeeCandidate(s, a, c))
-    .map(c => { const record = { ...c, customFields: Object.values(c.customValues ?? {}).join(' '), resumeText: s.all('resume-extraction').filter(r => r.candidate === c.id).map(r => r.sourceText).concat(s.all('document').filter(d => d.candidate === c.id && d.kind === 'resume').map(d => s.resumeTexts.get(d.id))).filter(Boolean).join(' ') }; return { c, record, f: matches(record, ['headline', 'skills', 'location', 'name', 'customFields', 'resumeText'], words) } })
+    .map(c => { const record: Data = { ...c, customFields: Object.values(c.customValues ?? {}).join(' '), resumeText: s.all('resume-extraction').filter(r => r.candidate === c.id).map(r => r.sourceText).concat(s.all('document').filter(d => d.candidate === c.id && d.kind === 'resume').map(d => s.resumeTexts.get(d.id))).filter(Boolean).join(' ') }; return { c, record, f: matches(record, ['headline', 'skills', 'location', 'name', 'customFields', 'resumeText'], words) } })
     .filter(x => x.f)
     .map(({ c, record, f }) => ({ candidate: c.id, name: c.name, matchedFields: f, evidence: Object.fromEntries(f!.map(k => [k, record[k]])), permission: { basis: c.consent.basis, talentPool: true, retainUntil: c.retainUntil }, applications: s.all('application').filter(x => x.candidate === c.id).map(x => ({ vacancy: x.vacancy, status: x.status })) }))
     .sort((x, y) => x.name.localeCompare(y.name))
