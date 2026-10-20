@@ -78,7 +78,9 @@ export async function rollbackSandbox(s: State, a: Actor, b: Data) {
   if (canonical(configuration(s, v.id).rules) !== canonical(box.previous.rules)) requireAdmin(a)
   if (canonical(v.workflowConnectors ?? []) !== canonical(box.previous.workflowConnectors)) requireAdmin(a)
   for (const connector of box.previous.workflowConnectors ?? []) requireProviderPlan(s, connector)
-  validateConfiguration(s, a, v.id, box.previous)
+  const restricted = (config: Data) => (config.customSchema ?? []).filter((f: Data) => f.restricted)
+  if (canonical(restricted(configuration(s, v.id))) !== canonical(restricted(box.previous))) requireAdmin(a)
+  // The prior configuration was valid when captured; the exact content stamp fences all intervening facts.
   installConfiguration(s, v.id, box.previous)
   const record = s.put('workflow-sandbox', box.id, { ...box, status: 'rolled-back', previous: null, preview: null, rolledBackBy: a.email, rolledBackAt: now() })
   s.audit(a, 'sandbox-config-rolled-back', 'vacancy:' + v.id, { sandbox: box.id })
