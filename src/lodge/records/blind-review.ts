@@ -38,7 +38,8 @@ export function recordBlindReveals(s: State, a: Actor | null) {
       logged.add(app.id)
     }
   }
-  for (const app of s.all('application')) {
+  const settingsChanged = pending.some(w => w.kind === 'vacancy' && JSON.stringify(s.original('vacancy', w.id)?.blindReview) !== JSON.stringify(w.value?.blindReview))
+  for (const app of settingsChanged ? s.scan('application') : s.all('application')) {
     const before = s.original('application', app.id)
     if (!before || logged.has(app.id)) continue
     const oldJob = s.original('vacancy', before.vacancy), job = s.find('vacancy', app.vacancy)

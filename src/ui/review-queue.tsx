@@ -1,3 +1,4 @@
+import { nextReviewStage } from '../lodge/core/blind'
 import { DocumentViewer, applicationDocuments } from './document-viewer'
 import type { PageProps } from './app'
 import { recent, when } from './format'
@@ -18,7 +19,7 @@ export function ReviewQueue({ v, w, mutate, open }: { v: D; open: (id: string) =
   if (!q?.remaining) return null
   const app = w.applications.find((a: D) => a.id === q.queue[0])
   if (!app) return null
-  const next = v.stages[1]
+  const next = nextReviewStage(v, app)
   const documents = app.blind ? [] : applicationDocuments(app, w)
   const resumes = documents.filter((d: D) => d.kind === 'resume')
   const reviews = q.reviews.filter((r: D) => r.application === app.id)

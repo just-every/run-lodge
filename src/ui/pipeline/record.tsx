@@ -1,3 +1,4 @@
+import { nextReviewStage } from '../../lodge/core/blind'
 import { useState, type FormEvent } from 'react'
 import type { PageProps } from '../app'
 import { since, when } from '../format'
@@ -15,7 +16,7 @@ const OUTCOMES: D = { disqualified: 'disqualified', 'open-in-source': 'still ope
 /** Advance to the next stage with the reason the history keeps, or close with a DISP-001 reason; any other move sits behind it. */
 function Decide({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: PageProps['mutate'] }) {
   const [busy, setBusy] = useState(false), [error, setError] = useState('')
-  const at = v?.stages.findIndex((s: D) => s.id === app.stage) ?? -1, next = v?.stages[at + 1]
+  const next = v ? nextReviewStage(v, app) : undefined
   const jobs = w.vacancies.filter((j: D) => j.manages && j.status === 'open' && j.id !== app.vacancy)
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
