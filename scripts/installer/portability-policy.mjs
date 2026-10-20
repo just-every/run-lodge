@@ -24,10 +24,31 @@ export async function validateStaged({ read }) {
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
   if (['interview', 'scorecard', 'interview-note', 'stage-event', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
   if (['imported-note', 'imported-rating', 'imported-message'].includes(row.kind)) { reference('candidate', value.candidate); if (value.application) reference('application', value.application); }
-  if (row.kind === 'blob') reference('document', row.id);
-  if (row.kind !== 'document') continue;
-  reference('candidate', value.candidate);
-  if (value.application) refuse(reference('application', value.application).candidate === value.candidate);
+  if (row.kind === 'resume-extraction') {
+   reference('candidate', value.candidate);
+   refuse(reference('document', value.document).candidate === value.candidate);
+   if (value.application) refuse(reference('application', value.application).candidate === value.candidate);
+  }
+  if (row.kind === 'resume-intake-settings') refuse(Number.isSafeInteger(value.retentionDays) && value.retentionDays > 0 && Number.isFinite(new Date(Date.now() + value.retentionDays * 86400000).getTime()));
+  if (row.kind === 'resume-intake') {
+   if (value.status !== 'committed') {
+    refuse(typeof value.uploadedAt === 'string' && Number.isFinite(Date.parse(value.uploadedAt)));
+    if (value.expiresAt !== undefined) refuse(typeof value.expiresAt === 'string' && Number.isFinite(Date.parse(value.expiresAt)) && Date.parse(value.expiresAt) > Date.parse(value.uploadedAt));
+    else refuse(Number.isFinite(new Date(Date.parse(value.uploadedAt) + 30 * 86400000).getTime()));
+   }
+   if (value.vacancy) reference('vacancy', value.vacancy);
+   if (value.status === 'committed') { reference('candidate', value.candidate); const document = reference('document', row.id); refuse(document.candidate === value.candidate && document.application === value.application); if (value.application) reference('application', value.application); }
+  }
+  if (row.kind === 'blob') {
+   const staged = get('resume-intake', row.id);
+   refuse(!!get('document', row.id) || !!staged && staged.status !== 'committed');
+  }
+  const stagedOriginal = row.kind === 'resume-intake' && value.status !== 'committed';
+  if (row.kind !== 'document' && !stagedOriginal) continue;
+  if (!stagedOriginal) {
+   reference('candidate', value.candidate);
+   if (value.application) refuse(reference('application', value.application).candidate === value.candidate);
+  }
   const blob = reference('blob', row.id);
   refuse(typeof value.mediaType === 'string' && /^[\w.+-]+\/[\w.+-]+$/.test(value.mediaType) && blob.mediaType === value.mediaType);
   refuse(typeof blob.base64 === 'string' && blob.base64.length > 0 && /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(blob.base64));

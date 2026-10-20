@@ -4,6 +4,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { BUSINESS, harness } from './harness.mjs'
 import { checkMerge } from './merge-flow.mjs'
+import { checkResumeIntake } from './resume-flow.mjs'
 import { checkErasure } from './retention-flow.mjs'
 import { createHash } from 'node:crypto'
 
@@ -2129,6 +2130,10 @@ test('Lodge hiring flows through native sessions and real D1', async t => {
     assert.deepEqual([denverNow.applications, denverNow.openings, denverNow.approval.status], [1, 1, 'approved'], 'the source keeps its candidate, opening and approval')
     await approve((await cmd('request-vacancy-approval', { id: clone.id, approver: 'parker@example.test' }, manager)).id)
     assert.equal((await cmd('publish', { id: clone.id }, manager)).status, 'open')
+  })
+
+  await t.test('DATA-002 original resumes, grounded extraction, corrections and confirmed duplicates before individual or bulk commit', async () => {
+    await checkResumeIntake(h, { manager, interviewer: ivy })
   })
 
   await t.test('LDG-016 every private route checks the live session, origin and saved role', async () => {

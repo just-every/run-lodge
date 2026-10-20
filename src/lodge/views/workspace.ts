@@ -24,6 +24,8 @@ import { boardSettings, publicSettings } from '../records/job-board'
 import { internalBoard, internalNotices } from '../records/internal'
 import { fairChanceView } from '../records/fair-chance'
 import { eventsView } from '../records/events'
+import { intakeView } from '../resumes/intake'
+import { intakeLifecycleView } from '../resumes/lifecycle'
 import { cpraDraft } from '../records/privacy'
 import { sandboxesView } from '../operations/sandbox'
 import { providerSummary } from '../operations/providers'
@@ -159,6 +161,9 @@ export async function workspaceRecords(s: State, a: Actor) {
     kickoffs: s.all('kickoff').filter(k => admin || k.author === scope(a) || managed.some(v => v.id === k.vacancy)),
     applications: projected,
     candidates,
+    resumeIntakes: intakeView(s, a),
+    ...intakeLifecycleView(s, a),
+    resumeExtractions: s.all('resume-extraction').filter(r => { const c = s.find('candidate', r.candidate); return c && canSeeContact(s, a, c) }),
     mergedCandidates: admin ? s.all('candidate').filter(c => c.mergedInto && !hiddenCandidate(c.mergedInto)) : [],
     receipts: admin ? s.all('receipt').filter(r => !hiddenApp(r.application)) : [],
     duplicateReviews: admin ? s.all('duplicate-review').filter(r => !hiddenCandidate(r.first) && !hiddenCandidate(r.second)) : [],

@@ -12,20 +12,24 @@ const ALWAYS_RESTRICTED = new Set(['right-to-work'])
 
 export interface DocumentInput { candidate: string; application?: string | null; name: unknown; mediaType: unknown; base64: unknown; kind: unknown; restricted?: unknown; source: string }
 
-export async function storeDocument(s: State, input: DocumentInput) {
+export async function storeOriginal(s: State, input: Pick<DocumentInput, 'name' | 'mediaType' | 'base64'>) {
   requireThat(typeof input.base64 === 'string' && input.base64.length > 0, 'File bytes are required')
   let bytes: Uint8Array
   try { bytes = base64ToBytes(input.base64) } catch { requireThat(false, 'File bytes must be base64') }
   requireThat(bytes!.length > 0, 'The file is empty')
   requireThat(bytes!.length <= MAX_DOCUMENT_BYTES, 'Files may be at most 1 MB in this release', 413)
-  const kind = oneOf(input.kind ?? 'other', DOCUMENT_KINDS, 'Document kind')
   const mediaType = typeof input.mediaType === 'string' && /^[\w.+-]+\/[\w.+-]+$/.test(input.mediaType) ? input.mediaType : 'application/octet-stream'
   const id = uid()
   s.put('blob', id, { base64: bytesToBase64(bytes!), mediaType })
-  return s.put('document', id, {
-    candidate: input.candidate, application: input.application ?? null, name: text(input.name, 'File name', 200).replace(/[\\/]/g, '_'),
-    mediaType, size: bytes!.length, sha256: await sha256(bytes!), kind, restricted: ALWAYS_RESTRICTED.has(kind) || input.restricted === true, source: input.source, addedAt: now(),
-  })
+  return { id, name: text(input.name, 'File name', 200).replace(/[\\/]/g, '_'),
+    mediaType, size: bytes!.length, sha256: await sha256(bytes!), addedAt: now(),
+  }
+}
+
+export async function storeDocument(s: State, input: DocumentInput) {
+  const original = await storeOriginal(s, input)
+  const kind = oneOf(input.kind ?? 'other', DOCUMENT_KINDS, 'Document kind')
+  return s.put('document', original.id, { ...original, candidate: input.candidate, application: input.application ?? null, kind, restricted: ALWAYS_RESTRICTED.has(kind) || input.restricted === true, source: input.source })
 }
 
 /** Staff add a document to an application they run, or to a candidate as an admin. */

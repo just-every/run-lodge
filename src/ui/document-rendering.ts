@@ -64,6 +64,8 @@ export async function readDocument(bytes: ArrayBuffer, name: string, mediaType: 
     const { default: mammoth } = await import('mammoth/mammoth.browser')
     const result = await mammoth.convertToHtml({ arrayBuffer: bytes }, { externalFileAccess: false })
     const html = readableHtml(result.value), dom = new DOMParser().parseFromString(html, 'text/html')
+    for (const element of dom.querySelectorAll('p,h1,h2,h3,h4,h5,h6,li,tr')) element.append('\n')
+    for (const element of dom.querySelectorAll('br')) element.replaceWith('\n')
     return { pages: [{ html, text: dom.body.textContent ?? '' }], dispose() {} }
   }
   if (/^image\/(png|jpeg|gif|webp|avif|bmp)$/.test(mediaType)) {

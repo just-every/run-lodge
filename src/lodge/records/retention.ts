@@ -75,7 +75,9 @@ export function candidateRecords(s: State, candidateId: string) {
     application: apps, 'stage-event': byApp('stage-event'), interview: byApp('interview'), scorecard: byApp('scorecard'),
     'interview-note': byApp('interview-note'), notification: byApp('notification'), 'team-note': byApp('team-note'), task: byApp('task'), debrief: byApp('debrief'), 'rule-match': byApp('rule-match'), 'rejection-email': byApp('rejection-email'), review: byApp('review'), 'fair-chance-record': byApp('fair-chance-record'), 'event-capture': byApp('event-capture'), message: messages, offer: offers, receipt: byApp('receipt'), monitoring: byApp('monitoring'),
     approval: s.scan('approval').filter(x => subjects.has(x.subjectId)),
-    document: byApp('document'),
+    document: byApp('document'), 'resume-extraction': byApp('resume-extraction'),
+    // Resume staging is a local transfer: any successful erasure invalidates all pending copies.
+    'resume-intake': s.scan('resume-intake').filter(r => r.status !== 'committed' || candidateIds.has(r.candidate)),
     // Records merged into this person hold their old contact details too.
     candidate: merged,
     'data-request': s.scan('data-request').filter(r => candidateIds.has(r.candidate)),
@@ -118,7 +120,10 @@ export function deleteCandidate(s: State, a: Actor, b: Data) {
   const counts: Record<string, number> = {}
   for (const [kind, rows] of Object.entries(records)) {
     counts[kind] = rows.length
-    for (const r of rows) kind === 'document' ? removeDocument(s, r.id) : s.remove(kind, r.id)
+    for (const r of rows) {
+      if (kind === 'document') removeDocument(s, r.id)
+      else { if (kind === 'resume-intake' && r.status !== 'committed') s.drop('blob', r.id); s.remove(kind, r.id) }
+    }
   }
   eraseSharedHoldText(s, vacancyIds)
   const erasedApps = new Set(records.application.map(app => app.id))

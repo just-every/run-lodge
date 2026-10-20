@@ -339,3 +339,76 @@ approval of that exact document and all its terms. The bytes include the
 again; a stale release and a stale signed-outside attestation refuse. Downloading
 records an unsent release, never delivery. Provider sending/signature under
 COM-001 and OFFER-002–OFFER-005 must carry that approved document/hash.
+
+## Reviewed resume intake (DATA-002)
+
+The Candidates page provides individual and bulk resume intake. Each file is
+saved separately before decoding; the existing 1 MB original-file limit applies.
+The uploader needs current native candidate-creation rights, and contact access
+on a selected vacancy; adding without a vacancy needs an owner or hiring admin.
+Pending files and reviewed previews remain scoped to that uploader and their
+current permissions. Agents cannot upload, parse, commit, discard or set retention.
+
+The owner and hiring admins receive only `state.orphanedResumeIntakeCount` for
+pending uploads whose uploader is no longer an active eligible recruiter (including
+lost contact permission on the selected vacancy). They receive no original,
+filename, extraction or review token and cannot commit on the uploader's behalf.
+The existing resume intake panel exposes this count, discard and retention settings.
+
+- `resume-discard-orphaned`: `{}` rechecks each uploader's current saved membership,
+  job and permission level, then atomically deletes only orphaned pending rows and
+  original blobs. It returns `{ discarded: count }` and writes a count-only audit
+  receipt. A restored permission protects that uploader's pending files, even if
+  an admin previously saw them counted. Committed documents are never discarded.
+- `resume-intake-settings`: `{ retentionDays: positiveWholeDays }`, owner/admin only,
+  configures the installation's pending-original retention for new uploads; the
+  default is 30 days. It returns the saved setting and records an audit event.
+  `state.resumeIntakePolicy.retentionDays` shows that setting. Each pending upload
+  returns its immutable `expiresAt` deadline, displayed in the pending list;
+  changing the setting never extends or shortens an existing saved deadline.
+
+At `expiresAt`, pending intake disappears from workspace/search/export and every
+read, parse, preview and commit door refuses it with 404, even before cleanup.
+The Worker's real hourly cron (`0 * * * *`) atomically deletes expired pending
+rows and original blobs with a count-only audit receipt. The legacy pending
+format without `expiresAt` expires 30 days after `uploadedAt`. Committed
+originals use candidate retention and are unaffected by this maintenance.
+
+- `resume-upload`: `{ file: { name, mediaType, base64 }, vacancy? }` saves an
+  original and returns its durable intake `id`. UTF-8 text is decoded from the
+  original. PDF and DOCX are decoded locally by the app's PDF.js and Mammoth
+  readers after downloading that saved original. A batch runs this command for
+  each file so one parse failure does not discard the other originals.
+- `GET /api/lodge/download/resume-intake/:id` downloads the scoped original,
+  including an unreadable file. After commit the normal document download works
+  too. Downloads are audited.
+- `resume-parsed`: `{ id, text?, failure? }` records locally decoded source
+  text or the identified parse failure. Binary decoded text supplied through
+  this public command is recruiter-supplied, not independently server-verified
+  PDF content. The response extracts only literal contact fields and named
+  employment, education and skills sections, with passages and uncertainty.
+  Unrecognised or absent sections remain gaps for human review. No model,
+  protected-trait classification, suitability score or automated hiring decision
+  is involved.
+- `resume-preview`: `{ id, name, email?, phone?, employment?, education?, skills?,
+  source, consentBasis, consentNote?, talentPool?, retainUntil? }` stores exact
+  corrections and current email/name/phone duplicate suggestions, returning a
+  review `token`. It creates no candidate or application. Correcting again
+  requires a new preview. Consent and retention reuse native candidate fields.
+- `resume-commit`: `{ id, token, confirmed: true, duplicates: [{ candidate,
+  decision: "existing" | "distinct", reason }] }`. Every suggested duplicate
+  needs an explicit decision. At most one can be the existing person. Choosing
+  that person attaches the original and reuses their active application for the
+  selected job, or links a new application; their fields are never overwritten.
+  Distinct decisions use LDG-005's owner/admin duplicate review. Otherwise a
+  fresh candidate/application is created. A changed duplicate set or candidate
+  revision refuses with 409 and requires a new preview. Repeating a successful
+  commit returns the same records. Each file's commit is atomic.
+
+`state.resumeIntakes` contains the uploader's pending previews and committed
+receipts; `state.resumeExtractions` contains candidate-linked reviewed facts
+only where contact access permits. Candidate and vacancy exports carry those
+facts and normal exports keep original document bytes. Erasure removes committed
+resume evidence and invalidates all pending resume-intake transfers and their
+originals in the same transaction. The installation archive validates staged
+original size, type and digest, and candidate/application/document references.

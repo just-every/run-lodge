@@ -1,3 +1,4 @@
+import { resumeIntakeMaintenance } from './lodge/resumes/maintenance'
 import { withDemo } from './modules/demo/index.mjs'
 import { seedDemo } from './demo'
 import start from '@tanstack/react-start/server-entry'
@@ -27,6 +28,7 @@ function noTransform(response: Response): Response {
 }
 
 export default withDemo({
+  scheduled: resumeIntakeMaintenance,
   async fetch(request, env, execution) {
     const asset = await staticAssetResponse(request, env)
     if (asset) return asset

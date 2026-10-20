@@ -26,6 +26,7 @@ import { erasureTransfers } from '../records/erasure-transfers'
 import { retentionUntil } from '../records/candidates'
 import { importJobs, imports } from '../move-in/imports'
 import { deploymentHealth } from '../../base/deployment-health'
+import { requireIntake } from '../resumes/intake'
 import { boardApi } from './board'
 
 // Lodge's private HTTP surface. The app and an owner's coding agent use the
@@ -209,6 +210,18 @@ async function documentResponse(c: C, viewing: boolean) {
   for (let i = 0; i < raw.length; i++) data[i] = raw.charCodeAt(i)
   return recorded(c, state, actor, attachment(data, doc.mediaType, doc.name))
 }
+
+api.get('/api/lodge/download/resume-intake/:id', async c => {
+  const { state, actor } = await context(c)
+  const intake = requireIntake(state, actor, c.req.param('id'))
+  const file = intake.status === 'committed' ? requireDocument(state, actor, intake.id) : intake
+  const blob = await readBlob(c.env.DB, intake.id)
+  requireThat(blob, 'The original bytes are missing', 404)
+  state.audit(actor, 'resume-original-downloaded', intake.candidate ? 'candidate:' + intake.candidate : 'resume-intake:' + intake.id)
+  const raw = atob(blob.base64), bytes = new Uint8Array(raw.length)
+  for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i)
+  return recorded(c, state, actor, attachment(bytes, file.mediaType, file.name))
+})
 
 api.get('/api/lodge/download/document/:id', c => documentResponse(c, false))
 api.get('/api/lodge/view/document/:id', c => documentResponse(c, true))

@@ -9,6 +9,9 @@ import { deleteOrg, department, memberOrg, office } from './records/org'
 import { applyRule, approveAutoReject, decideRuleMatches, previewRule, screeningRule } from './records/rules'
 import { decide } from './records/approvals'
 import { apply, candidate, candidatePrivacy, correctCandidate, reviewDuplicate, transfer } from './records/candidates'
+import { uploadResume, parsedResume } from './resumes/intake'
+import { discardOrphanedIntakes, intakeSettings } from './resumes/lifecycle'
+import { previewResume, commitResume } from './resumes/review'
 import { addDocument } from './records/documents'
 import { rejectionReasons, rejectionTemplate } from './records/rejections'
 import { reviewDecision, reviewRecommendation } from './records/reviews'
@@ -57,6 +60,8 @@ export const commands: Record<string, Command> = {
   'decide-approval': decide,
   'bulk-preview': bulkPreview, 'bulk-apply': bulkApply,
   event, 'event-status': eventStatus, 'event-cost': eventCost, 'event-capture': eventCapture, 'event-apply': eventApply,
+  'resume-intake-settings': intakeSettings, 'resume-discard-orphaned': discardOrphanedIntakes,
+  'resume-upload': uploadResume, 'resume-parsed': parsedResume, 'resume-preview': previewResume, 'resume-commit': commitResume,
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate, 'review-decision': reviewDecision, 'review-recommendation': reviewRecommendation,
   'assign-reviewers': assignReviewers, 'board-view': boardView, source, 'source-settings': sourceSettings, 'job-board': jobBoard, 'board-key': boardKey, 'revoke-board-key': revokeBoardKey, 'rotate-board-key': rotateBoardKey, 'vacancy-internal': vacancyInternal, 'internal-policy': internalPolicy, 'reports-to': reportsTo, 'apply-internal': applyInternal, 'source-credit': sourceCredit, 'fair-chance-places': fairChancePlaces, 'fair-chance-step': fairChanceStep, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,

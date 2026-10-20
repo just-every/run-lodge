@@ -1,3 +1,4 @@
+import { resumeIntakeMaintenance } from '../src/lodge/resumes/maintenance'
 // The Worker under test: Lodge's real auth, applicant pages and API routes,
 // without the TanStack document renderer (the browser journeys cover that).
 import { authResponse, type Bindings } from '../src/auth.server'
@@ -8,6 +9,7 @@ import { eventPages } from '../src/lodge/http/event-pages'
 import { privacyPages } from '../src/lodge/http/privacy-pages'
 
 export default {
+  scheduled: resumeIntakeMaintenance,
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
     const auth = await authResponse(request, env)
     if (auth) return auth

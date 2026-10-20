@@ -1,3 +1,4 @@
+import { ResumeIntake } from './resumes/intake'
 import type { PageProps } from './app'
 import { since, slot } from './format'
 import { count, person } from './names'
@@ -24,6 +25,7 @@ export function Candidates({ w, mutate, go }: PageProps) {
   const name = (id: string) => w.candidates.find((c: D) => c.id === id)?.name ?? id
   return <div className="page">
     <h1>Candidates</h1>
+    <ResumeIntake w={w} mutate={mutate} />
     <details><summary>Add a candidate</summary>
       <Form label="Add candidate" reset onSubmit={async (x, form) => {
         const file = fileFrom(form, 'resume')
