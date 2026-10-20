@@ -53,7 +53,7 @@ export function FieldSchemaEditor({ fields, stages, admin, save }: { fields: D[]
   return <>
     {fields.map(field => <details key={field.id}><summary>Change field “{field.name}” · {field.record} · {field.type}{field.restricted ? ' · restricted' : ''}</summary>
       <SchemaForm key={JSON.stringify(field)} field={field} stages={stages} admin={admin} save={next => save(fields.map(f => f.id === field.id ? next : f))} />
-      <Form label={'Remove field ' + field.name} compact onSubmit={() => save(fields.filter(f => f.id !== field.id))} />
+      <Form label="Remove field" compact onSubmit={() => save(fields.filter(f => f.id !== field.id))} />
     </details>)}
     <details><summary>Add a typed field</summary><SchemaForm stages={stages} admin={admin} save={next => save([...fields, next])} /></details>
   </>

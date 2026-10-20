@@ -5,7 +5,8 @@ import { current, session } from './browser-journey.mjs'
 const navigate = (page, name) => page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name, exact: true }).click()
 async function expand(details) { if (!await details.evaluate(node => node.open)) await details.locator('summary').first().click() }
 async function screenshot(page, evidence, label, width) {
-  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'DATA-001 fits at ' + width)
+  const bounds = await page.evaluate(() => ({ fits: document.documentElement.scrollWidth <= innerWidth + 1, overflow: [...document.querySelectorAll('main *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(-12).map(e => ({ tag: e.tagName, cls: e.className, width: Math.round(e.getBoundingClientRect().width) })) }))
+  assert.ok(bounds.fits, 'DATA-001 fits at ' + width + ': ' + JSON.stringify(bounds.overflow))
   await page.screenshot({ path: join(evidence, `DATA-001-${label}-${width}.png`), fullPage: true })
 }
 async function addField(region, page, spec) {

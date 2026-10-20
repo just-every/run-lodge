@@ -24,7 +24,7 @@ export function HiringViewEditor({ views, fields, save }: { views: D[]; fields: 
   return <>
     {views.map(view => <details key={view.id}><summary>Change team view “{view.name}”</summary>
       <ViewForm key={JSON.stringify(view)} view={view} fields={fields} save={next => save(views.map(v => v.id === view.id ? next : v))} />
-      <Form label={'Remove team view ' + view.name} compact onSubmit={() => save(views.filter(v => v.id !== view.id))} />
+      <Form label="Remove team view" compact onSubmit={() => save(views.filter(v => v.id !== view.id))} />
     </details>)}
     <details><summary>Add a team view</summary><ViewForm fields={fields} save={view => save([...views, view])} /></details>
   </>
