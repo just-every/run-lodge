@@ -187,7 +187,7 @@ export function canSeeDocument(s: State, a: Actor, doc: Data) {
     return false
   }
   const candidate = s.find('candidate', doc.candidate)
-  if (s.all('application').some(app => app.candidate === doc.candidate && canSeeApplication(s, a, app) && blindFor(s, a, app))) return false
+  if (s.all('application').some(app => app.candidate === doc.candidate && canSeeApplication(s, a, app) && blindFor(s, a, app))) return s.all('application').some(app => app.candidate === doc.candidate && canSeeApplication(s, a, app) && !blindFor(s, a, app))
   return !!candidate && canSeeCandidate(s, a, candidate)
 }
 
