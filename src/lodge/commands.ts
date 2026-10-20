@@ -1,5 +1,6 @@
 import type { State } from './core/state'
 import { Fault, type Actor, type Data } from './core/types'
+import { blindIdentity, blindReview } from './records/blind-review'
 import { business, member } from './records/people'
 import { close, kit, plan, privacy, publish, requestOpening, requestVacancyApproval, rubric, stages, unpublish, vacancy } from './records/vacancies'
 import { closeOpening, editOpening } from './records/openings'
@@ -51,6 +52,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
 export const commands: Record<string, Command> = {
   'sandbox-create': createSandbox, 'sandbox-edit': editSandbox, 'sandbox-preview': previewSandbox, 'sandbox-deploy': deploySandbox, 'sandbox-rollback': rollbackSandbox,
   'provider-setup': providerSetup, 'provider-review': reviewProviderSetup,
+  'blind-review': blindReview, 'blind-identity': blindIdentity,
   business, member,
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy, 'hiring-team': team,
   'job-template': jobTemplate, 'vacancy-from-template': vacancyFromTemplate, 'clone-vacancy': cloneVacancy,

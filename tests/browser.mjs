@@ -18,6 +18,7 @@ import { operationsPage } from './operations-page.mjs'
 import { postsPage } from './posts-page.mjs'
 import { eventsPage } from './events-page.mjs'
 import { resumeIntakePage } from './resume-page.mjs'
+import { blindPage } from './blind-page.mjs'
 import { bulkPage } from './bulk-page.mjs'
 import { folderEntries, zip } from './zip.mjs'
 
@@ -89,6 +90,7 @@ try {
     await resumeIntakePage(browser, { root, origin: server.origin, job: lead, evidence })
     await documentsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await offersPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+    await blindPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await operationsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   } finally {
     await site.close(); await unlisted.close()

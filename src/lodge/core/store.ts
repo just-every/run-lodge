@@ -1,4 +1,5 @@
 import { operatorAuth, runtimeBindings, type Bindings } from '../../auth.server'
+import { recordBlindReveals } from '../records/blind-review'
 import { State, type Row } from './state'
 import { Fault, requireThat, uid, type Actor, type Data, type Role } from './types'
 
@@ -12,7 +13,13 @@ export function authority(actor: Actor, owner = false) {
 
 export async function load(db: D1Database): Promise<State> {
   const { results } = await db.prepare("SELECT kind,id,revision,value FROM l_records WHERE kind <> 'blob'").all<{ kind: string; id: string; revision: string; value: string }>()
-  return new State(results.map(r => ({ kind: r.kind, id: r.id, revision: r.revision, value: JSON.parse(r.value) }) as Row))
+  const state = new State(results.map(r => ({ kind: r.kind, id: r.id, revision: r.revision, value: JSON.parse(r.value) }) as Row))
+  // Read only UTF-8 resume bytes for the sanitized REVIEW-002 text projection.
+  const texts = await db.prepare("SELECT b.id,b.value FROM l_records b JOIN l_records d ON d.id=b.id AND d.kind='document' WHERE b.kind='blob' AND json_extract(d.value,'$.kind')='resume' AND (json_extract(d.value,'$.mediaType') LIKE 'text/%' OR json_extract(d.value,'$.name') LIKE '%.txt')").all<{ id: string; value: string }>()
+  for (const row of texts.results) {
+    try { const raw = atob(JSON.parse(row.value).base64); state.resumeTexts.set(row.id, new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(raw, c => c.charCodeAt(0)))) } catch { /* Invalid UTF-8 remains unavailable, never expose original bytes. */ }
+  }
+  return state
 }
 
 export async function readBlob(db: D1Database, id: string): Promise<{ base64: string; mediaType: string } | null> {
@@ -26,6 +33,7 @@ export async function readBlob(db: D1Database, id: string): Promise<{ base64: st
  * both ends, so concurrent or revoked work fails with 409 and changes nothing.
  */
 export async function save(db: D1Database, state: State, actor: Actor | null, extra: D1PreparedStatement[] = []) {
+  recordBlindReveals(state, actor)
   const { writes, fences, scans } = state.pending()
   if (!writes.length && !extra.length) return
   const guard = (sql: string, params: unknown[]) => db.prepare(`INSERT INTO l_guard SELECT CASE WHEN ${sql} THEN 1 ELSE 0 END`).bind(...params)

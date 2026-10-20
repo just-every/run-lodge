@@ -1,3 +1,4 @@
+import { blindFor, blindResult } from '../core/blind'
 import { Hono, type Context } from 'hono'
 import type { Bindings } from '../../auth.server'
 import { runtimeBindings } from '../../auth.server'
@@ -81,7 +82,7 @@ api.post('/api/lodge/command/:op', async c => {
   const { state, actor } = await context(c)
   const result = await run(state, actor, c.req.param('op'), await body(c))
   await save(c.env.DB, state, actor)
-  return c.json(result)
+  return c.json(blindResult(state, actor, result))
 })
 
 api.get('/api/lodge/search', async c => {
@@ -232,6 +233,7 @@ api.get('/api/lodge/download/prepared-offer/:id', async c => {
   person(actor)
   const offer = (await workspace(state, actor)).offers.find(o => o.id === c.req.param('id'))
   requireThat(offer?.document, 'Prepared offer document not found', 404)
+  requireThat(!blindFor(state, actor, state.get('application', offer.application)), 'Prepared offer document not found', 404)
   const stored = state.get('offer', offer.id)
   requireThat(await approvedNow(state, 'offer', stored), 'The offer document needs current approval before release; nothing was sent', 409)
   state.audit(actor, 'unsent-offer-document-downloaded', 'offer:' + offer.id, { sha256: offer.document.sha256, sent: false })
@@ -245,7 +247,8 @@ api.get('/api/lodge/download/calendar/:id', async c => {
   requireThat(iv, 'Interview not found', 404)
   const app = requireApplication(state, actor, iv.application)
   requireThat(onPanel(actor, iv) || managesVacancy(actor, state.get('vacancy', app.vacancy)), 'Interview not found', 404)
-  const candidate = view.candidates.find(c => c.id === app.candidate)!
+  const projected = view.applications.find(x => x.id === app.id)!
+  const candidate = view.candidates.find(c => c.id === projected.candidate)!
   return attachment(calendarFile(iv, candidate.name, runtimeBindings(c.env).AUTH_ORIGIN), 'text/calendar; charset=utf-8', 'interview.ics')
 })
 
@@ -256,6 +259,7 @@ api.get('/api/lodge/download/message/:id', async c => {
   requireThat(m, 'Message not found', 404)
   state.get('message', m.id)
   const app = requireApplication(state, actor, m.application)
+  requireThat(!blindFor(state, actor, app), 'Message not found', 404)
   const business = state.get('business', 'main')
   const vacancy = state.get('vacancy', app.vacancy)
   const eml = await emlFile(state, actor, state.get('message', m.id), `${business.name} <${vacancy.manager}>`)

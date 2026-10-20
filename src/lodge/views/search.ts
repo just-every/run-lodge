@@ -17,7 +17,7 @@ function matches(record: Data, fields: string[], words: string[]) {
 export function search(w: Workspace, q: unknown) {
   const words = terms(q)
   const results: Data[] = []
-  for (const c of w.candidates) { const f = matches(c, ['name', 'email', 'headline', 'skills', 'location'], words); if (f) results.push({ kind: 'candidate', id: c.id, label: c.name, fields: f }) }
+  for (const c of w.candidates) { const f = matches(c, ['name', 'email', 'headline', 'skills', 'location', 'resumeText'], words); if (f) results.push({ kind: 'candidate', id: c.id, label: c.name, fields: f }) }
   for (const v of w.vacancies) { const f = matches(v, ['title', 'department', 'location'], words); if (f) results.push({ kind: 'vacancy', id: v.id, label: v.title, fields: f }) }
   for (const d of w.documents) { const f = matches(d, ['name'], words); if (f) results.push({ kind: 'document', id: d.id, label: d.name, fields: f }) }
   return results.slice(0, 100)

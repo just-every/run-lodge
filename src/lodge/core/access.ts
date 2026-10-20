@@ -1,3 +1,4 @@
+import { blindFor } from './blind'
 import type { State } from './state'
 import { Fault, requireThat, scope, type Actor, type Data, type Role } from './types'
 
@@ -169,7 +170,7 @@ export function canSeeContact(s: State, a: Actor, candidate: Data) {
     s.get('application', app.id)
     const vacancy = s.find('vacancy', app.vacancy)
     // OPS-004: the job's level decides whether contact details show.
-    return vacancy ? managesVacancy(a, vacancy) && can(s, a, vacancy, 'contact') : false
+    return vacancy ? managesVacancy(a, vacancy) && can(s, a, vacancy, 'contact') && !blindFor(s, a, app) : false
   })
 }
 
@@ -182,10 +183,11 @@ export function canSeeDocument(s: State, a: Actor, doc: Data) {
   if (doc.application && s.find('application', doc.application)) {
     // A transferred application carries its source's attachments to the new job's team.
     for (let app = s.find('application', doc.application), hops = 0; app && hops < 20; app = app.transferredTo && s.find('application', app.transferredTo), hops++)
-      if (canSeeApplication(s, a, app)) return true
+      if (canSeeApplication(s, a, app) && !blindFor(s, a, app)) return true
     return false
   }
   const candidate = s.find('candidate', doc.candidate)
+  if (s.all('application').some(app => app.candidate === doc.candidate && canSeeApplication(s, a, app) && blindFor(s, a, app))) return false
   return !!candidate && canSeeCandidate(s, a, candidate)
 }
 
