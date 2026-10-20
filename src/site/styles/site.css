@@ -64,4 +64,10 @@ table { border-collapse: collapse; }
   .site-footer-name { flex-wrap: wrap; gap: 6px 16px; }
   .site-footer nav { gap: 28px; }
 }
+@media (max-width: 360px) {
+  .site-brand { font-size: 26px; gap: 7px; }
+  .site-brand img { width: 36px; height: 23px; }
+  .site-header nav { gap: 14px; font-size: 15px; }
+  .site-footer nav { gap: 14px; font-size: 15px; }
+}
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .site-pill { transition: none; } .site-pill:hover { transform: none; } }
