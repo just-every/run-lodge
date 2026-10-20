@@ -22,11 +22,11 @@ export const sourceFields = (record: Data) => Object.keys(record).filter(key => 
 export function canSeeProposal(s: State, a: Actor, p: Data, view: WorkspaceRecords) {
   if (p.workflow === 'feedback-packet' ? p.approver !== scope(a) : !isAdmin(a) && p.proposedFor !== scope(a) && p.proposedBy !== scope(a) && p.approver !== scope(a)) return false
   if (!(p.sources ?? []).every((source: Data) => {
-    const record = sourceRecord(view, source.kind, source.id)
+    const record = sourceRecord(view, source.kind, source.viewId ?? source.id)
     if (!record || !Array.isArray(source.fields) || !source.fields.every((field: string) => record[field] !== undefined)) return false
     const original = s.get(source.kind, source.id)
     // Old full-record packets cannot survive reblinding; new packets record the blind context.
-    const blindApp = record.blind ? record.id : view.applications.find(app => app.blind && app.id === original.application)?.id
+    const blindApp = record.blind ? (source.kind === 'candidate' ? record.id.slice('blind:'.length) : record.id) : view.applications.find(app => app.blind && app.id === original.application)?.id
     if (blindApp && source.blindApplication !== blindApp) return false
     return true
   })) return false
