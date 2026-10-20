@@ -87,6 +87,11 @@ export async function checkFields(t) {
  assert.equal(activity.status, 200); assert.ok(!activity.text.includes('permit-review-7'))
  const vacancyExport = await send('/api/lodge/download/vacancy/' + v.id, undefined, manager)
  assert.equal(vacancyExport.status, 200); assert.ok(!vacancyExport.text.includes('permit-review-7'))
+ const bulk = await cmd('bulk-preview', { items: [app.id], action: { kind: 'export' } }, manager)
+ assert.equal(bulk.items[0].ok, true); assert.ok(!JSON.stringify(bulk).includes('permit-review-7'))
+ const bulkFile = await cmd('bulk-apply', { batch: 'fields-bulk-0001', items: [app.id], action: { kind: 'export' }, previewed: { [app.id]: bulk.items[0].seen } }, manager)
+ assert.equal(bulkFile.applied, 1); assert.ok(!JSON.stringify(bulkFile.file).includes('permit-review-7'), 'bulk selection exports inherit typed-field restrictions')
+
  await cmd('blind-review', { id: v.id, enabled: true, stages: [v.stages[0].id], revealStage: v.stages[2].id }, manager)
  const blind = await state(reviewer), blindApp = blind.applications.find(a => a.id === app.id)
  for (const secret of ['Westfield University', '2007', 'permit-review-7']) {
