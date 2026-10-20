@@ -44,7 +44,7 @@ export async function previewSandbox(s: State, a: Actor, b: Data) {
   validateConfiguration(isolated, a, v.id, box.config)
   installConfiguration(isolated, v.id, box.config)
   const impact: Data = await trial(isolated, a, v.id, box.selection)
-  impact.changes = configurationImpact(s, configuration(s, v.id), box.config)
+  impact.changes = configurationImpact(s, configuration(s, v.id), box.config, a)
   const source = await sourceStamp(s), configVersion = await sha256(canonical(box.config))
   const token = await sha256(canonical({ sandbox: box.id, configVersion, source, selection: box.selection, impact }))
   const preview = { token, source, configVersion, impact, at: now() }

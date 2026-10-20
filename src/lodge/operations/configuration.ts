@@ -95,7 +95,11 @@ export async function sourceStamp(s: State, content = false) {
 }
 
 /** Plain language configuration differences are part of the reviewed token. */
-export function configurationImpact(s: State, before: Data, after: Data) {
+export function configurationImpact(s: State, before: Data, after: Data, actor?: Actor) {
+  if (actor && !isAdmin(actor)) {
+    const visible = (config: Data) => ({ ...config, customSchema: (config.customSchema ?? []).filter((f: Data) => !f.restricted), hiringViews: (config.hiringViews ?? []).filter((view: Data) => !(view.filters ?? []).some((filter: Data) => (config.customSchema ?? []).some((f: Data) => f.id === filter.field && f.restricted))) })
+    before = visible(before); after = visible(after)
+  }
   const stage = (c: Data, id: string) => c.stages.find((st: Data) => st.id === id)?.name ?? id
   const describe: Record<string, (c: Data) => string> = {
     stages: c => c.stages.map((st: Data) => st.name).join(' → '),

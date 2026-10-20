@@ -152,7 +152,7 @@ export function eventApply(s: State, a: Actor, b: Data) {
   const person = s.get('candidate', b.candidate, 'Candidate')
   requireThat(s.all('event-capture').some(r => r.event === e.id && r.candidate === person.id), 'That person is not in this event’s pool', 404)
   requireThat(!person.mergedInto && !person.deleted, 'This candidate record is closed', 409)
-  const application = startApplication(s, a, person, vacancy, eventSource(e), { event: e.id, credit: initialCredit(s, a, vacancy, {}) }, `Added from ${eventSource(e)}`)
+  const application = startApplication(s, a, person, vacancy, eventSource(e), { customValues: b.customValues, event: e.id, credit: initialCredit(s, a, vacancy, {}) }, `Added from ${eventSource(e)}`)
   s.audit(a, 'event-application', 'application:' + application.id, { event: e.id, vacancy: vacancy.id })
   return application
 }

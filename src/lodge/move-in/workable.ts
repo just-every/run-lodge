@@ -37,6 +37,8 @@ const slug = (v: string) => (v ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '')
 const ids = { job: (id: string) => `workable:job:${id}`, candidate: (id: string) => `workable:candidate:${id}`, application: (c: string, j: string) => `workable:application:${c}:${j}`, member: (id: string) => `workable:member:${id}` }
 const MEDIA: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain', rtf: 'application/rtf', odt: 'application/vnd.oasis.opendocument.text', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg' }
 const mediaType = (name: string) => MEDIA[name.split('.').pop()!.toLowerCase()] ?? 'application/octet-stream'
+// Sparse exports omit columns; source projections preserve that absence as JSON.
+const columns = (row: Data, names: string[]) => Object.fromEntries(names.filter(name => Object.hasOwn(row, name)).map(name => [name, row[name]]))
 const EMAIL = /^[^\s@<>()",;]+@[^\s@<>()",;]+\.[^\s@<>()",;]+$/
 
 export interface Quarantined { file: string; line?: number; reason: string }
@@ -132,7 +134,7 @@ export async function buildWorkable(filename: string, zipBytes: Uint8Array, reta
     if (v.job_id && !jobIds.has(v.job_id)) { reject('candidate-row', key, v, tables.candidate.file, line, `Candidate ${v.id} refers to job ${v.job_id}, which is not in this package`); continue }
     if (!people.has(v.id)) {
       people.set(v.id, v)
-      add('candidate', v.id, { id: v.id, name: v.name, email: v.email, phone: v.phone, address: v.address, headline: v.headline, summary: v.summary, skills: v.skills, education: v.education, experience: v.experience, social_profiles: v.social_profiles, tags: v.tags, source: v.source, talent_pool: v['Talent Pool'] ?? v.talent_pool ?? '' }, tables.candidate.file, line, { targetKind: 'candidate', targetId: ids.candidate(v.id), value: {
+      add('candidate', v.id, { ...columns(v, ['id', 'name', 'email', 'phone', 'address', 'headline', 'summary', 'skills', 'education', 'experience', 'social_profiles', 'tags', 'source']), talent_pool: v['Talent Pool'] ?? v.talent_pool ?? '' }, tables.candidate.file, line, { targetKind: 'candidate', targetId: ids.candidate(v.id), value: {
         ...(template ? { customValues: Object.assign({}, ...candidateRows.filter(row => row.values.id === v.id && jobFields.has(row.values.job_id)).map(row => importValues(jobFields.get(row.values.job_id)!, 'candidate', tables.candidate.headers, row.values))) } : {}),
         imported: meta(tables.candidate.file.name, v.id, line), name: v.name || '(no name)', email: (v.email ?? '').trim().toLowerCase(), phone: v.phone ?? '', location: v.address ?? '', headline: v.headline ?? '',
         skills: [v.summary, v.skills, v.experience, v.education].filter(Boolean).join('\n'), source: `Workable import${v.source ? ' (' + v.source + ')' : ''}`, createdAt: v.created_at ?? '',
@@ -143,7 +145,7 @@ export async function buildWorkable(filename: string, zipBytes: Uint8Array, reta
     if (!v.job_id) continue
     applicationsOf.set(v.id, [...(applicationsOf.get(v.id) ?? []), ids.application(v.id, v.job_id)])
     const stageNames = stagesByJob.get(v.job_id) ?? []
-    add('application', key, { id: v.id, job_id: v.job_id, stage: v.stage, disqualified: v.disqualified, disqualified_at: v.disqualified_at, disqualification_reason: v.disqualification_reason, created_at: v.created_at, cover_letter: v.cover_letter, answers: v.answers, source: v.source, keyword_matches: v.keyword_matches }, tables.candidate.file, line, { targetKind: 'application', targetId: ids.application(v.id, v.job_id), value: {
+    add('application', key, columns(v, ['id', 'job_id', 'stage', 'disqualified', 'disqualified_at', 'disqualification_reason', 'created_at', 'cover_letter', 'answers', 'source', 'keyword_matches']), tables.candidate.file, line, { targetKind: 'application', targetId: ids.application(v.id, v.job_id), value: {
       ...(template ? { customValues: importValues(jobFields.get(v.job_id)!, 'application', tables.candidate.headers, v) } : {}),
       imported: meta(tables.candidate.file.name, key, line), candidate: ids.candidate(v.id), vacancy: ids.job(v.job_id), stage: 'w' + Math.max(0, stageNames.indexOf(v.stage)), sourceStage: v.stage ?? '',
       status: 'imported', outcome: v.disqualified === 'true' ? 'disqualified' : 'open-in-source', disqualificationReason: v.disqualification_reason ?? '', disqualifiedAt: v.disqualified_at ?? '',

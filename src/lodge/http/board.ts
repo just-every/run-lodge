@@ -124,7 +124,7 @@ boardApi.post('/v1/:token/jobs/:id/applications', async c => {
   const { receipt, accommodationContact } = await submit(fresh, v, {
     name: b.name, email: b.email, phone: b.phone, location: b.location, coverNote: b.coverNote, noticeVersion: b.noticeVersion, cpraNoticeVersion: b.cpraNoticeVersion,
     consent: b.consent === true || b.consent === 'yes' ? 'yes' : 'no', talentPool: b.talentPool === true || b.talentPool === 'yes' ? 'yes' : 'no',
-    accommodation: b.accommodation, monitoring: b.monitoring, resume: resumeFile(b.resume), answers,
+    accommodation: b.accommodation, monitoring: b.monitoring, resume: resumeFile(b.resume), answers, customValues: b.customValues,
   }, { source, path: BOARD_SOURCE, entry: BOARD_SOURCE, campaign: campaign(b.campaign), oncePerJob: true }, l.post)
   rememberReceipt(fresh, once, receipt.id)
   await save(c.env.DB, fresh, null)

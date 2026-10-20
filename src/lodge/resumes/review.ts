@@ -1,18 +1,24 @@
+import { schemaOf } from '../fields/schema'
+import { validateValues, valuesFor } from '../fields/values'
+import { requireAdmin } from '../core/access'
 import type { State } from '../core/state'
 import { requireThat, canonical, date, list, now, oneOf, optionalText, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { apply, candidate, candidateFields, CONSENT_BASES, retentionUntil, reviewDuplicate } from '../records/candidates'
 import { requireIntake, resumeDuplicates } from './intake'
 
-function corrected(s: State, b: Data) {
+function corrected(s: State, a: Actor, b: Data, vacancy?: string) {
+ const schema = vacancy ? schemaOf(s.get('vacancy', vacancy)) : []
+ for (const id of Object.keys(b.customValues ?? {})) if (schema.some(f => f.id === id && f.restricted)) requireAdmin(a)
+ const customValues = validateValues(schema, b.customValues ?? {})
  const fields = candidateFields(b)
- return { ...fields, employment: optionalText(b.employment, 'Employment', 12000), education: optionalText(b.education, 'Education', 12000), source: text(b.source, 'Source', 200), consentBasis: oneOf(b.consentBasis, CONSENT_BASES, 'Consent basis'), consentNote: optionalText(b.consentNote, 'Consent note', 1000), talentPool: b.talentPool === true, retainUntil: b.retainUntil ? date(b.retainUntil, 'Keep until') : retentionUntil(s) }
+ return { ...fields, customValues, employment: optionalText(b.employment, 'Employment', 12000), education: optionalText(b.education, 'Education', 12000), source: text(b.source, 'Source', 200), consentBasis: oneOf(b.consentBasis, CONSENT_BASES, 'Consent basis'), consentNote: optionalText(b.consentNote, 'Consent note', 1000), talentPool: b.talentPool === true, retainUntil: b.retainUntil ? date(b.retainUntil, 'Keep until') : retentionUntil(s) }
 }
 
 /** Store the exact corrected fields and duplicate set to be confirmed. No candidate or application is written. */
 export async function previewResume(s: State, a: Actor, b: Data) {
  const row = requireIntake(s, a, b.id)
  requireThat(['review', 'failed'].includes(row.status), 'Decode the resume before review', 409)
- const fields = corrected(s, b), duplicates = resumeDuplicates(s, a, fields)
+ const fields = corrected(s, a, b, row.vacancy), duplicates = resumeDuplicates(s, a, fields)
  const review = { fields, duplicates, token: await sha256(canonical({ fields, duplicates, source: row.sha256, sourceText: row.sourceText, extraction: row.extraction })), at: now() }
  s.put('resume-intake', row.id, { ...row, review })
  return { id: row.id, ...review }
@@ -39,10 +45,17 @@ export async function commitResume(s: State, a: Actor, b: Data) {
  let result: Data
  if (existing.length) {
   const person = s.get('candidate', existing[0].candidate)
+  const schema = row.vacancy ? schemaOf(s.get('vacancy', row.vacancy)) : []
+  for (const [id, value] of Object.entries(valuesFor(schema, fields.customValues ?? {}, 'candidate'))) requireThat(!Object.hasOwn(person.customValues ?? {}, id) || canonical(person.customValues[id]) === canonical(value), 'Resume intake never overwrites an existing person’s custom fields; update that person separately', 409)
   let application = null
   if (row.vacancy) {
    const active = s.scan('application').find(app => app.candidate === person.id && app.vacancy === row.vacancy && app.status === 'active')
-   application = active ?? apply(s, a, { candidate: person.id, vacancy: row.vacancy, source: fields.source })
+   if (active) for (const [id, value] of Object.entries(fields.customValues ?? {})) {
+    const field = schema.find(f => f.id === id)!
+    const target = field.record === 'candidate' ? person : active
+    requireThat(canonical(target.customValues?.[id] ?? null) === canonical(value), 'This existing application already has its own custom fields; update it separately', 409)
+   }
+   application = active ?? apply(s, a, { candidate: person.id, vacancy: row.vacancy, source: fields.source, customValues: fields.customValues })
   }
   result = { candidate: person, application }
   for (const decision of decisions.filter(d => d.decision === 'distinct')) reviewDuplicate(s, a, { keep: person.id, other: decision.candidate, decision: 'distinct', reason: decision.reason })

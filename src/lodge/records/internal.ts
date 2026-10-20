@@ -72,7 +72,7 @@ export function applyInternal(s: State, a: Actor, b: Data) {
     name: me.name, email: me.email, phone: '', location: '', headline: '', skills: '', source: INTERNAL_SOURCE, internal: true, memberEmail: me.email, createdAt: now(), retainUntil: retentionUntil(s),
     consent: { basis: 'internal application', noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), talentPool: false, at: now(), recordedBy: me.email },
   })
-  const application = startApplication(s, a, candidate, v, INTERNAL_SOURCE, { internal: true, memberEmail: me.email, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}) }, 'Internal application received')
+  const application = startApplication(s, a, candidate, v, INTERNAL_SOURCE, { customValues: b.customValues, internal: true, memberEmail: me.email, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}) }, 'Internal application received')
   s.audit(a, 'internal-application', 'application:' + application.id)
   const policy = s.find('internal-policy', 'main')
   if (policy?.notifyManager && me.reportsTo && s.find('member', me.reportsTo)?.active) {
