@@ -1,3 +1,4 @@
+import { blindSourceStamp } from '../core/blind'
 import type { State } from '../core/state'
 import { assignedTo, canSeeContact, isAdmin, managesVacancy } from '../core/access'
 import { now, scope, type Actor, type Data } from '../core/types'
@@ -27,7 +28,7 @@ export function canSeeProposal(s: State, a: Actor, p: Data, view: WorkspaceRecor
     const original = s.get(source.kind, source.id)
     // Old full-record packets cannot survive reblinding; new packets record the blind context.
     const blindApp = record.blind ? (source.kind === 'candidate' ? record.id.slice('blind:'.length) : record.id) : view.applications.find(app => app.blind && app.id === original.application)?.id
-    if (blindApp && source.blindApplication !== blindApp) return false
+    if (blindApp && (source.blindApplication !== blindApp || source.blindStamp !== blindSourceStamp(s, blindApp))) return false
     return true
   })) return false
   // Citations are source evidence too, including when supplied outside feedback.

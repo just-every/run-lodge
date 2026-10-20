@@ -1,3 +1,4 @@
+import { blindSourceStamp } from '../core/blind'
 import type { State } from '../core/state'
 import { isAdmin, requireMember } from '../core/access'
 import { Fault, now, oneOf, optionalText, requireThat, scope, text, uid, ROLES, type Actor, type Data } from '../core/types'
@@ -86,7 +87,7 @@ export async function propose(s: State, a: Actor, b: Data) {
     const fields = sourceFields(source)
     const blindApplication = source.blind ? (kind === 'candidate' ? source.id.slice('blind:'.length) : source.id) : view.applications.find(app => app.blind && app.id === source.application)?.id ?? null
     const id = kind === 'candidate' && source.blind ? s.get('application', blindApplication).candidate : x.id as string
-    return { kind, id, viewId: x.id as string, revision: s.revisionOf(kind, id), fields, blindApplication }
+    return { kind, id, viewId: x.id as string, revision: s.revisionOf(kind, id), fields, blindApplication, blindStamp: blindApplication ? blindSourceStamp(s, blindApplication) : null }
   })
   requireThat(Array.isArray(b.changes) && b.changes.length > 0 && b.changes.length <= 20, 'Propose between 1 and 20 changes')
   const changes = b.changes.map((c: Data) => ({ op: oneOf(c?.op, WORKFLOWS[workflow] as readonly string[], 'Change for this workflow'), input: c?.input ?? {} }))

@@ -39,6 +39,7 @@ export async function checkBlindReview(t) {
  assert.ok(!(await state(manager)).proposals.some(p => p.id === oldPacket.id), 'old full-record packet hides on blinding')
  const packet = await cmd('propose', { workflow: 'coordination', summary: 'Schedule a discussion', approver: 'blind.manager@example.test', sources: [{ kind: 'application', id: first.application.id }, { kind: 'candidate', id: 'blind:' + first.application.id }], changes: [{ op: 'interview', input: { application: first.application.id, planItem: v.plan[0].id, participants: ['blind.reviewer@example.test'], slots: ['2026-12-03T15:00:00Z'] } }] }, agent)
  assert.ok((await state(manager)).proposals.some(p => p.id === packet.id), 'new blind proposal remains usable')
+ assert.ok(!JSON.stringify(packet).includes(first.candidate.id), 'blind proposal sources cannot join the shared candidate')
  const doc = (await state()).documents.find(d => d.application === first.application.id)
  const hidden = [name, email, phone, address, school, year, 'Julian Carter', 'julian.old@example.test']
  for (const cookie of [manager, reviewer, agent]) {
