@@ -39,7 +39,7 @@ export function fieldResult(s: State, a: Actor, value: any): any {
   const allIds = new Set(s.all('vacancy').flatMap(v => (v.customSchema ?? []).map((f: Data) => f.id)))
   const clean = (x: any): any => {
     if (Array.isArray(x)) return x.filter(r => !(r?.record && r?.type && r?.id && allIds.has(r.id) && !permitted.has(r.id)) && !(r?.filters?.some((f: Data) => !permitted.has(f.field)))).map(clean)
-    if (x && typeof x === 'object') return Object.fromEntries(Object.entries(x).filter(([k]) => !allIds.has(k) || permitted.has(k)).map(([k,v]) => [k, clean(v)]))
+    if (x && typeof x === 'object') return Object.fromEntries(Object.entries(x).filter(([k]) => !allIds.has(k) || permitted.has(k)).map(([k,v]) => [k, k === 'customValues' && v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([id]) => permitted.has(id))) : clean(v)]))
     return x
   }
   return clean(value)
