@@ -13,7 +13,7 @@ export function blindProjection<T extends Data>(s: State, a: Actor, view: T): T 
   const clean = (value: any, app: Data): any => {
     if (typeof value === 'string') return value === app.candidate ? blindId(app) : sanitize.get(app.id)!(value)
     if (Array.isArray(value)) return value.map(x => clean(x, app))
-    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, ['id', 'application', 'vacancy'].includes(k) ? v : clean(v, app)]))
+    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).filter(([k]) => k !== 'candidateToken').map(([k, v]) => [k, ['id', 'application', 'vacancy'].includes(k) ? v : clean(v, app)]))
     return value
   }
   const text = (app: Data) => {
@@ -54,7 +54,7 @@ export function blindProjection<T extends Data>(s: State, a: Actor, view: T): T 
   // Sandboxes carry historical application snapshots: they follow the same sanitization.
   out.sandboxes = view.sandboxes.map((box: Data) => [...blind.values()].reduce((x, app) => clean(x, app), box))
   out.coordination = [...blind.values()].reduce((x, app) => clean(x, app), view.coordination)
-  out.events = view.events.map((e: Data) => ({ ...e, captures: (e.captures ?? []).filter((r: Data) => !people.has(r.candidate)) }))
+  out.events = view.events.map((e: Data) => ({ ...e, pool: e.pool.filter((r: Data) => !people.has(r.candidate) || fullPeople.has(r.candidate)).map((r: Data) => ({ ...r, applications: r.applications.filter((app: Data) => !blind.has(app.id)) })) }))
   const contextual = (value: any): any => {
     if (Array.isArray(value)) return value.map(contextual)
     if (value && typeof value === 'object') {

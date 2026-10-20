@@ -77,6 +77,8 @@ outcome? (proceed | adverse) }`; `offer` takes `conditional: true`), `assign-rev
 sort: activity | days | name | submitted, filters: { source?, reviewer?, tag?, rule? } }`), `move` (a stage move takes `to` and `reason`; a close takes `to: "rejected" | "withdrawn"`,
 `closeReason` (a current reason id of the matching group from `rejectionReasons`), an optional `reason` note
 and, for a rejection only, `send: none | now | delay` with `template` and `businessDays` 1–20),
+`blind-review` (REVIEW-002, job settings permission: `{ id, enabled, stages: [stageId], revealStage }`; the reveal stage must be outside the blind stages),
+`blind-identity` (same job permission: `{ application, schools: [text], years: [text] }`; replaces the employer-entered redaction values without returning them to a blind reader),
 `review-decision` (REVIEW-001, people who run the job: `{ application, decision: advance | reject | skip }`;
 advance takes an optional `reason`, reject the `move` close fields), `review-recommendation` (an assigned
 reviewer who does not run the job: `{ application, recommendation: yes | no | maybe, note? }`),
