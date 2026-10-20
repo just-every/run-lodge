@@ -30,7 +30,7 @@ export async function blindPage(browser, { root, origin, run, evidence, ownerEma
    await settings.locator('summary').click()
    await settings.getByLabel('Enable blind review', { exact: true }).check()
    await settings.getByRole('group', { name: 'Blind stages' }).getByLabel(v.stages[0].name, { exact: true }).check()
-   await settings.getByLabel('Reveal stage', { exact: true }).selectOption(v.stages[2].id)
+   await settings.getByRole('combobox', { name: /^Reveal stage/ }).selectOption(v.stages[2].id)
    await settings.getByRole('button', { name: 'Save blind review', exact: true }).click()
    await page.getByRole('heading', { name: 'Redacted resume', exact: true }).first().waitFor()
    const w = await current(context, origin), app = w.applications.find(a => a.id === added.application.id), code = app.candidateName
@@ -61,6 +61,9 @@ export async function blindPage(browser, { root, origin, run, evidence, ownerEma
    assert.equal((await current(context, origin)).applications.find(a => a.id === added.application.id).reveals.length, 1)
    await fits(); await page.screenshot({ path: join(evidence, `REVIEW-002-reblinded-${width}.png`), fullPage: true })
    assert.deepEqual(errors, [])
+  } catch (error) {
+   await s.page.screenshot({ path: join(evidence, `REVIEW-002-failure-${width}.png`), fullPage: true })
+   throw error
   } finally { await s.context.close() }
  }
 }
