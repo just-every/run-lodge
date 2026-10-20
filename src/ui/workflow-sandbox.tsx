@@ -2,6 +2,7 @@ import type { PageProps } from './app'
 import { Check, Field, Form, memberOptions, Status, Table, type D } from './shared'
 import { ProviderSetup } from './provider-setup'
 import { SandboxRules } from './workflow-sandbox-rules'
+import { SandboxFields } from './workflow-sandbox-fields'
 
 function Configuration({ box, w, mutate }: { box: D } & Pick<PageProps, 'w' | 'mutate'>) {
   const c = box.config, criteria = c.rubrics.at(-1)?.criteria ?? []
@@ -57,7 +58,7 @@ export function WorkflowSandbox({ w, mutate }: PageProps) {
     </Form>
     <details><summary>Applications available to select</summary><Table heads={['Candidate', 'Vacancy', 'Application ID']}>{w.applications.filter((a: D) => jobs.some((v: D) => v.id === a.vacancy)).map((a: D) => <tr key={a.id}><td>{a.candidateName}</td><td>{jobs.find((v: D) => v.id === a.vacancy)?.title}</td><td>{a.id}</td></tr>)}</Table></details>
     {w.sandboxes.map((box: D) => <article className="card" aria-label={'Sandbox ' + box.name} key={box.id}><h2>{box.name}</h2><Status>{box.status}</Status>
-      {box.status !== 'deployed' && <><Configuration box={box} w={w} mutate={mutate} /><SandboxRules box={box} w={w} mutate={mutate} />
+      {box.status !== 'deployed' && <><Configuration box={box} w={w} mutate={mutate} /><SandboxRules box={box} w={w} mutate={mutate} /><SandboxFields box={box} w={w} mutate={mutate} />
         <Form label="Preview expected outcomes" compact onSubmit={() => mutate('sandbox-preview', { id: box.id })} /></>}
       <Impact box={box} />
       {box.status === 'review' && <Form label="Deploy this reviewed version" onSubmit={x => mutate('sandbox-deploy', { id: box.id, token: box.preview.token, confirmProduction: x.confirmProduction })}><Check name="confirmProduction" label="I approve this exact reviewed configuration for production" /></Form>}

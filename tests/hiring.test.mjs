@@ -2161,3 +2161,9 @@ test('REVIEW-002 name-blind review across reads, reveals and return', async t =>
   const { checkBlindReview } = await import('./blind-flow.mjs')
   await checkBlindReview(t)
 })
+
+// Typed hiring records are exercised through the real HTTP and hosted intake doors.
+test('DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration', async t => {
+  const { checkFields } = await import('./fields-flow.mjs')
+  await checkFields(t)
+})

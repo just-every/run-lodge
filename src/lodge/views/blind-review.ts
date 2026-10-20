@@ -32,7 +32,7 @@ export function blindProjection<T extends Data>(s: State, a: Actor, view: T): T 
   out.applications = apps.map(app => {
     if (!blind.has(app.id)) return { ...app, blind: false, reveals: reveals(app) }
     // No transfer/merge lineage, source identifiers, cross-job hashes or person-level joins.
-    const { transferredFrom, transferredTo, transferHistory, earlier, credit, employee, ...safe } = app
+    const { transferredFrom, transferredTo, transferHistory, earlier, credit, employee, customValues, ...safe } = app
     return { ...clean(safe, app), candidate: blindId(app), candidateName: blindCode(app), blind: true, earlier: [], resumeText: text(app), reveals: reveals(app) }
   })
   out.candidates = [

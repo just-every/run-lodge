@@ -1,4 +1,5 @@
 import { applyD1ImportBatches, createD1ImportJob, planD1Import, readD1ImportJob, readD1ImportOriginals, readD1ImportUndoReport, resumeD1Import, undoD1Import, type D1ImportContext, type ImportPlan } from '../../modules/import-kit/src/d1/index'
+import { fieldTemplate } from '../fields/imports'
 import type { State } from '../core/state'
 import { authority } from '../core/store'
 import { base64ToBytes, Fault, requireThat, text, type Actor, type Data } from '../core/types'
@@ -10,10 +11,13 @@ import { MAPPING_VERSION, NAMESPACE, buildWorkable } from './workable'
 // with explicit resume, and conflict-preserving undo. Jobs belong to the owner
 // who started them; every batch re-checks that owner's live session in SQL.
 
-const context = (db: D1Database, a: Actor): D1ImportContext => ({
+const context = (db: D1Database, a: Actor, template?: { id: string; revision: string | null }): D1ImportContext => ({
   destination: 'main', namespace: NAMESPACE, mappingVersion: MAPPING_VERSION, reversalPolicy: 'preserve-conflicts',
   storage: { database: db as any, targets: lodgeTargets },
-  authorization: { principalId: a.id, predicate: () => authority(a, true) as any },
+  authorization: { principalId: a.id, predicate: () => {
+    const auth = authority(a, true)
+    return template ? { sql: `(${auth.sql}) AND EXISTS(SELECT 1 FROM l_records WHERE kind='vacancy' AND id=? AND revision=?)`, params: [...auth.params, template.id, template.revision] } as any : auth as any
+  } },
   batchSize: 50, maxBatches: 4,
 })
 
@@ -26,11 +30,13 @@ function summary(plan: ImportPlan) {
   }
 }
 
-async function planFor(db: D1Database, a: Actor, b: Data, retainUntil: string) {
+async function planFor(db: D1Database, a: Actor, b: Data, retainUntil: string, state: State) {
   const filename = text(b.filename, 'Package file name', 200)
   requireThat(typeof b.base64 === 'string' && b.base64.length > 0, 'Choose the Workable export ZIP')
-  const built = await buildWorkable(filename, base64ToBytes(b.base64), retainUntil, new Date().toISOString().slice(0, 10))
-  return { ...built, plan: await planD1Import(built.source, built.mapping, context(db, a)) }
+  const template = b.fieldTemplate ? fieldTemplate(state.get('vacancy', b.fieldTemplate)) : undefined
+  const fence = template ? { id: template.id, revision: state.revisionOf('vacancy', template.id) } : undefined
+  const built = await buildWorkable(filename, base64ToBytes(b.base64), retainUntil, new Date().toISOString().slice(0, 10), template)
+  return { ...built, fence, plan: await planD1Import(built.source, built.mapping, context(db, a, fence)) }
 }
 
 const kitError = (error: unknown) => {
@@ -40,17 +46,17 @@ const kitError = (error: unknown) => {
   return new Fault(409, 'The import could not continue: ' + message.split('\n')[0].slice(0, 300))
 }
 
-export async function imports(db: D1Database, a: Actor, op: string, b: Data, retainUntil: string) {
+export async function imports(db: D1Database, a: Actor, op: string, b: Data, retainUntil: string, state: State) {
   requireThat(a.owner, 'Only the owner moves data in', 403)
   try {
     if (op === 'preview') {
-      const { plan, report } = await planFor(db, a, b, retainUntil)
+      const { plan, report } = await planFor(db, a, b, retainUntil, state)
       return { plan: summary(plan), report }
     }
     if (op === 'commit') {
-      const { plan, report } = await planFor(db, a, b, retainUntil)
+      const { plan, report, fence } = await planFor(db, a, b, retainUntil, state)
       requireThat(b.fingerprint === plan.fingerprint, 'The package or mapping changed since your preview; preview it again', 409)
-      const ctx = context(db, a)
+      const ctx = context(db, a, fence)
       const job = await createD1ImportJob(plan, { ...ctx, reviewedFingerprint: b.fingerprint, operationKey: b.fingerprint })
       return { job: await applyD1ImportBatches(job.id, ctx), report }
     }

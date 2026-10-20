@@ -1,3 +1,4 @@
+import { requireStageFields } from '../fields/values'
 import { operatorAuth, runtimeBindings, type Bindings } from '../../auth.server'
 import { recordBlindReveals } from '../records/blind-review'
 import { State, type Row } from './state'
@@ -33,6 +34,10 @@ export async function readBlob(db: D1Database, id: string): Promise<{ base64: st
  * both ends, so concurrent or revoked work fails with 409 and changes nothing.
  */
 export async function save(db: D1Database, state: State, actor: Actor | null, extra: D1PreparedStatement[] = []) {
+  for (const app of state.all('application')) {
+    const before = state.original('application', app.id)
+    if (app.status === 'active' && (!before || before.stage !== app.stage || before.status !== app.status)) requireStageFields(state, state.get('vacancy', app.vacancy), app, app.stage)
+  }
   recordBlindReveals(state, actor)
   const { writes, fences, scans } = state.pending()
   if (!writes.length && !extra.length) return

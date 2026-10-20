@@ -1,14 +1,15 @@
 import type { State } from '../core/state'
-import { requireAdmin, requireCan, requireManages, requireMember } from '../core/access'
+import { requireAdmin, requireCan, requireManages, requireMember, isAdmin } from '../core/access'
 import { canonical, list, oneOf, requireThat, sha256, type Actor, type Data } from '../core/types'
 import { PROVIDERS } from './providers'
 import { stages, rubric, plan, kit } from '../records/vacancies'
 import { jobQuestions } from '../records/questions'
 import { screeningRule } from '../records/rules'
+import { fieldSchema, hiringViews } from '../fields/commands'
 
 /** Only configuration commands cross from a trial to production. Trial records never do. */
 export const CONFIG_COMMANDS: Record<string, (s: State, a: Actor, b: Data) => Data> = {
-  'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit,
+  'field-schema': fieldSchema, 'hiring-view': hiringViews, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit,
   'job-questions': jobQuestions, 'screening-rule': screeningRule, 'approval-routing': approvalRouting, 'workflow-connectors': workflowConnectors,
 }
 
@@ -36,7 +37,7 @@ function workflowConnectors(s: State, a: Actor, b: Data) {
 
 export function configuration(s: State, id: string) {
   const v = s.get('vacancy', id)
-  return structuredClone({ stages: v.stages, rubrics: v.rubrics, plan: v.plan, questions: v.questions ?? [], approvalRouting: v.approvalRouting ?? {}, workflowConnectors: v.workflowConnectors ?? [], rules: s.scan('screening-rule').filter(r => r.vacancy === id) })
+  return structuredClone({ stages: v.stages, rubrics: v.rubrics, plan: v.plan, questions: v.questions ?? [], customSchema: v.customSchema ?? [], hiringViews: v.hiringViews ?? [], approvalRouting: v.approvalRouting ?? {}, workflowConnectors: v.workflowConnectors ?? [], rules: s.scan('screening-rule').filter(r => r.vacancy === id) })
 }
 
 export function installConfiguration(s: State, id: string, config: Data) {
@@ -72,6 +73,11 @@ export function validateConfiguration(s: State, a: Actor, id: string, config: Da
   if (criteria.length) rubric(isolated, a, { id, criteria })
   if (config.plan.length) plan(isolated, a, { id, plan: config.plan })
   jobQuestions(isolated, a, { id, questions: config.questions })
+  if (!isAdmin(a)) requireThat(canonical((config.customSchema ?? []).filter((f: Data) => f.restricted)) === canonical((live.customSchema ?? []).filter((f: Data) => f.restricted)), 'Only the owner or a hiring admin can change restricted fields', 403)
+  fieldSchema(isolated, a, { id, fields: (config.customSchema ?? []).filter((f: Data) => isAdmin(a) || !f.restricted) })
+  const hiddenView = (view: Data) => (view.filters ?? []).some((filter: Data) => (config.customSchema ?? []).some((f: Data) => f.id === filter.field && f.restricted))
+  if (!isAdmin(a)) requireThat(canonical((config.hiringViews ?? []).filter(hiddenView)) === canonical((live.hiringViews ?? []).filter(hiddenView)), 'Only the owner or a hiring admin can change restricted views', 403)
+  hiringViews(isolated, a, { id, views: (config.hiringViews ?? []).filter((view: Data) => isAdmin(a) || !hiddenView(view)) })
   approvalRouting(isolated, a, { id, routing: config.approvalRouting })
   if (canonical(config.workflowConnectors) !== canonical(live.workflowConnectors)) workflowConnectors(isolated, a, { id, connectors: config.workflowConnectors })
   if (changedRules) for (const r of config.rules) {
@@ -83,7 +89,7 @@ export function validateConfiguration(s: State, a: Actor, id: string, config: Da
 /** Fenced dependencies include absence, permissions, selected history and scheduling facts.
  * Deliberately conservative: another hiring change can require a fresh preview. */
 export async function sourceStamp(s: State, content = false) {
-  const kinds = ['vacancy', 'screening-rule', 'question', 'member', 'business', 'permission-level', 'application', 'candidate', 'interview', 'rejection-reasons', 'rejection-template', 'fair-chance', 'department', 'office', 'provider-setup']
+  const kinds = ['vacancy', 'screening-rule', 'question', 'member', 'business', 'permission-level', 'application', 'candidate', 'interview', 'rejection-reasons', 'rejection-template', 'fair-chance', 'department', 'office', 'provider-setup', 'document', 'resume-extraction', 'blind-identity']
   const revisions = kinds.flatMap(kind => s.scan(kind).map(r => ({ kind, id: r.id, ...(content ? { value: r } : { revision: s.revisionOf(kind, r.id) }) }))).sort((x, y) => (x.kind + x.id).localeCompare(y.kind + y.id))
   return sha256(canonical(revisions))
 }
@@ -96,6 +102,8 @@ export function configurationImpact(s: State, before: Data, after: Data) {
     rubric: c => (c.rubrics.at(-1)?.criteria ?? []).map((k: Data) => k.name + ': ' + k.description).join('; ') || 'No rubric',
     interviews: c => c.plan.map((p: Data) => `${p.name}, ${p.durationMinutes} minutes at ${stage(c, p.stage)}; focus: ${p.criteria.map((id: string) => c.rubrics.at(-1)?.criteria.find((k: Data) => k.id === id)?.name ?? id).join(', ') || 'none'}; purpose: ${p.purpose || 'none'}; kit: ${(p.questions ?? []).map((q: Data) => q.text + ' (' + q.guidance + ')').join('; ') || 'none'}`).join('; ') || 'No interviews',
     fields: c => c.questions.map((q: Data) => `${s.get('question', q.question).versions.at(-1).text}: ${q.required ? 'required' : 'optional'}`).join('; ') || 'No screening fields',
+    customFields: c => (c.customSchema ?? []).map((f: Data) => `${f.name}: ${f.record} ${f.type}${f.choices.length ? ' (' + f.choices.join(', ') + ')' : ''}; ${f.restricted ? 'owner/admin only' : 'job-scoped readers'}; required at ${f.requiredStages.map((id: string) => stage(c, id)).join(', ') || 'no stage'}; identity ${f.identity || 'none'}; import column ${f.importColumn || 'none'}`).join('; ') || 'No custom fields',
+    savedViews: c => (c.hiringViews ?? []).map((v: Data) => `${v.name}: query ${v.query || 'none'}; filters ${canonical(v.filters)}; tags ${v.tags.join(', ') || 'none'}`).join('; ') || 'No team hiring views',
     approvals: c => Object.entries(c.approvalRouting).map(([kind, who]) => `${kind}: ${who}`).join('; ') || 'Person selected when requesting approval',
     rules: c => c.rules.map((r: Data) => { const x = r.versions.at(-1), action = x.then; return `${r.name} v${x.version} (${r.active ? 'enabled' : 'disabled'}): ${x.questionText}; condition ${canonical(x.when)}; ${action.kind}${action.stage ? ' to ' + stage(c, action.stage) : action.tag ? ': ' + action.tag : action.reviewer ? ': ' + action.reviewer : action.reason ? ': ' + action.reason : ''}` }).join('; ') || 'No rules',
     connectors: c => c.workflowConnectors.map((id: string) => PROVIDERS.find(p => p.id === id)?.name ?? id).join(', ') || 'No connector references',

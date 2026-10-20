@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { PageProps } from './app'
 import { day } from './format'
 import { sentence } from './names'
-import { call, fileFrom, Form, readFile, Table, type D } from './shared'
+import { call, Field, fileFrom, Form, readFile, Table, type D } from './shared'
 
 const AREAS: D = { job: 'Jobs', member: 'Team members', candidate: 'Candidates', 'candidate-row': 'Candidate rows set aside', application: 'Applications', file: 'Files', comment: 'Comments', rating: 'Ratings', event: 'Events', 'inbound-message': 'Messages received', 'outbound-message': 'Messages sent' }
 const KINDS: D = { vacancy: 'Job', candidate: 'Candidate', application: 'Application', document: 'File', 'source-member': 'Workable team member', 'imported-note': 'Comment', 'imported-rating': 'Rating', 'imported-message': 'Message' }
@@ -38,19 +38,24 @@ function Preview({ preview, onCommit }: { preview: D; onCommit: () => Promise<vo
 }
 
 export function MoveIn({ w, reload, setNotice }: PageProps) {
+  const [fieldTemplate, setFieldTemplate] = useState('')
   const [preview, setPreview] = useState<D | null>(null), [file, setFile] = useState<D | null>(null), [status, setStatus] = useState<D | null>(null)
   const act = async (op: string, id: string) => { const r = await call('import/' + op, { id }); setNotice(`Batch ${r.job?.state ?? 'updated'}.`); await reload(); if (op === 'status') setStatus(r) }
   return <div className="page">
     <h1>Move in from Workable</h1>
     <p className="hint">Ask Workable support for the full data export ZIP (the candidate CSV report leaves out resumes). Lodge previews it first and writes nothing until you commit that exact preview. Imported people, jobs and history stay as records: nothing is sent, no one gets access, and Workable’s talent-pool flag is not treated as permission to contact.</p>
-    <Form label="Preview package" onSubmit={async (_, form) => {
+    <Form label="Preview package" onSubmit={async (values, form) => {
       const f = fileFrom(form, 'package')
       if (!f) throw new Error('Choose the export ZIP')
       const read = await readFile(f)
+      setPreview(null)
       setFile(read)
-      setPreview(await call('import/preview', { filename: read.name, base64: read.base64 }))
-    }}><label className="wide">Workable export ZIP<input type="file" name="package" accept=".zip" required /></label></Form>
-    {preview && <Preview preview={preview} onCommit={async () => { const r = await call('import/commit', { filename: file!.name, base64: file!.base64, fingerprint: preview.plan.fingerprint }); setPreview(null); setNotice(`Import ${r.job.state}: ${r.job.checkpoint} of ${r.job.total} records applied.`); await reload() }} />}
+      setFieldTemplate(values.fieldTemplate)
+      setPreview(await call('import/preview', { filename: read.name, base64: read.base64, fieldTemplate: values.fieldTemplate || undefined }))
+    }}><label className="wide">Workable export ZIP<input type="file" name="package" accept=".zip" required /></label>
+      <Field label="Typed field mapping from job (optional)" name="fieldTemplate" required={false} options={w.vacancies.filter((v: D) => v.manages && v.customSchema?.some((f: D) => f.importColumn)).map((v: D) => ({ value: v.id, label: v.title }))} hint="Uses this job’s configured Workable CSV columns for typed fields. Imported jobs remain inert history." />
+    </Form>
+    {preview && <Preview preview={preview} onCommit={async () => { const r = await call('import/commit', { filename: file!.name, base64: file!.base64, fingerprint: preview.plan.fingerprint, fieldTemplate: fieldTemplate || undefined }); setPreview(null); setNotice(`Import ${r.job.state}: ${r.job.checkpoint} of ${r.job.total} records applied.`); await reload() }} />}
     <h2>Import batches</h2>
     <Table heads={['Batch', 'State', 'Progress', '']} empty="No imports yet.">{w.importJobs.map((j: D) => <tr key={j.id}><td title={j.id}>{batchName(j)}</td><td>{sentence(j.state.replace(/_/g, ' '))}{j.error ? ` · ${j.error}` : ''}</td><td>{j.checkpoint}/{j.total}</td>
       <td>{j.mine && <span className="row-actions">{['applying', 'undoing', 'rolling_back', 'failed'].includes(j.state) && <button onClick={() => act('resume', j.id)}>Resume</button>}{j.state === 'completed' && <button onClick={() => act('undo', j.id)}>Undo unchanged records</button>}<button onClick={() => act('status', j.id)}>Details</button></span>}</td></tr>)}</Table>

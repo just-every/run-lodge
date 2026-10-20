@@ -1,3 +1,4 @@
+import { fieldProjection, fieldResult } from './fields'
 import { blindResult } from '../core/blind'
 import { blindProjection } from './blind-review'
 import { canSeeProposal } from './proposals'
@@ -153,7 +154,7 @@ export async function workspaceRecords(s: State, a: Actor) {
   const tasks = s.all('task').filter(t => (t.owner === scope(a) || t.createdBy === scope(a)) && (t.application ? appIds.has(t.application) : !t.candidate || visibleCandidates.has(t.candidate))).sort((x, y) => x.due.localeCompare(y.due))
   const today = businessToday(s)
   const teamNotes = s.all('team-note').filter(n => visibleCandidates.has(n.candidate) && canSeeTeamNote(s, a, n)).sort((x, y) => x.at.localeCompare(y.at))
-  return blindProjection(s, a, {
+  return blindProjection(s, a, fieldProjection(s, a, {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
     sandboxes: sandboxesView(s, a), providerSetup: admin && !a.agent ? await providerSummary(s) : null,
@@ -227,14 +228,14 @@ export async function workspaceRecords(s: State, a: Actor) {
     },
     coordination: coordination(s, a),
     audit: admin ? s.all('audit').filter(e => !concealed(e.record ?? '')).sort((x, y) => y.at.localeCompare(x.at)).slice(0, 300) : [],
-  })
+  }))
 }
 
 export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
 
 export async function workspace(s: State, a: Actor) {
   const records = await workspaceRecords(s, a)
-  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication))), interviewerActivity: interviewerActivity(s, a, records) }
+  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication)))), interviewerActivity: interviewerActivity(s, a, records) }
 }
 
 export type Workspace = Awaited<ReturnType<typeof workspace>>

@@ -1,3 +1,5 @@
+import { fieldResult } from '../views/fields'
+import { savedHiringView } from '../views/field-views'
 import { blindFor, blindResult } from '../core/blind'
 import { Hono, type Context } from 'hono'
 import type { Bindings } from '../../auth.server'
@@ -82,12 +84,17 @@ api.post('/api/lodge/command/:op', async c => {
   const { state, actor } = await context(c)
   const result = await run(state, actor, c.req.param('op'), await body(c))
   await save(c.env.DB, state, actor)
-  return c.json(blindResult(state, actor, result))
+  return c.json(fieldResult(state, actor, blindResult(state, actor, result)))
 })
 
 api.get('/api/lodge/search', async c => {
   const { state, actor } = await context(c)
   return c.json({ results: search(await workspace(state, actor), c.req.query('q')) })
+})
+
+api.get('/api/lodge/views/:vacancy/:viewId', async c => {
+  const { state, actor } = await context(c)
+  return c.json(savedHiringView(await workspaceRecords(state, actor), c.req.param('vacancy'), c.req.param('viewId')))
 })
 
 api.get('/api/lodge/kit/:id', async c => {
@@ -174,7 +181,7 @@ api.post('/api/lodge/import/:op', async c => {
   // Refuse before reading a body of up to 30 MB.
   requireThat(actor.owner, 'Only the owner moves data in', 403)
   const op = c.req.param('op'), input = await body(c, 30_000_000)
-  const result = await imports(c.env.DB, actor, op, input, retentionUntil(state))
+  const result = await imports(c.env.DB, actor, op, input, retentionUntil(state), state)
   if (['commit', 'undo', 'resume'].includes(op)) {
     const after = await load(c.env.DB)
     // The commit names its package, so the batch list can show it.

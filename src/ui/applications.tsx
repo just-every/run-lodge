@@ -10,6 +10,7 @@ import { ApplicationPanel } from './pipeline/panel'
 import { Empty, type D } from './shared'
 import { ReviewQueue } from './review-queue'
 import { BlindReviewSettings } from './blind-review'
+import { HiringViews } from './hiring-views'
 
 /** The job a board opens on: the one with a decision waiting, else the busiest open job, else any with applications. */
 function defaultJob(w: D) {
@@ -42,6 +43,7 @@ export function Applications(props: PageProps) {
       <Coordinator v={job} apps={apps} w={w} go={go} open={open} />
       <ReviewQueue v={job} w={w} mutate={props.mutate} open={open} />
       <Board v={job} w={w} selected={app?.id} open={open} mutate={props.mutate} />
+      <HiringViews key={job.id} v={job} open={open} revision={w} />
       <BulkActions v={job} w={w} reload={props.reload} selection={selection} setSelection={setSelection} />
       <Activity v={job} apps={apps} w={w} open={open} />
     </div>

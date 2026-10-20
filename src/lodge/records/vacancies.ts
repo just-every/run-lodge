@@ -106,6 +106,7 @@ export function criteriaList(value: unknown) {
 export function stages(s: State, a: Actor, b: Data) {
   const v = editable(s, a, b.id)
   const next = stageList(b.stages)
+  requireThat((v.customSchema ?? []).every((field: Data) => field.requiredStages.every((id: string) => next.some(stage => stage.id === id))), 'Change required field stages before deleting their stage', 409)
   for (const app of s.all('application').filter(x => x.vacancy === v.id)) requireThat(next.some(x => x.id === app.stage), `Stage of ${app.id} is in use; move its applications first`, 409)
   const record = s.put('vacancy', v.id, { ...v, stages: next, plan: v.plan.filter((p: Data) => next.some(x => x.id === p.stage)) })
   s.audit(a, 'stages-defined', 'vacancy:' + v.id, { stages: next.map(x => x.name) })

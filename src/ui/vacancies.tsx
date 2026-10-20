@@ -15,6 +15,8 @@ import { departmentOptions, officeOptions } from './org'
 import { Sourcing, Team } from './team'
 import { OfferTemplates, JobOfferTemplate } from './offer-templates'
 import { JobCopies, Templates } from './templates'
+import { JobFields } from './fields'
+import { JobHiringViews } from './hiring-views'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -90,6 +92,8 @@ function Detail({ v, w, mutate, go, select }: { v: D; select: (id: string) => vo
     {!v.imported && v.manages && <Posts v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <Team v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <JobQuestions v={v} w={w} mutate={mutate} />}
+    {!v.imported && <JobFields v={v} w={w} mutate={mutate} />}
+    {!v.imported && <JobHiringViews v={v} mutate={mutate} />}
     {!v.imported && v.manages && <Rules v={v} w={w} mutate={mutate} />}
     {v.missing?.length > 0 && !v.imported && <p className="warn">Before approval, add: {v.missing.join(', ')}.</p>}
     {v.status === 'draft' && !v.imported && <details><summary>Edit terms</summary><Terms v={v} w={w} mutate={mutate} /></details>}

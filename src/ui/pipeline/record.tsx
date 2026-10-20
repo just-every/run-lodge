@@ -10,6 +10,7 @@ import { lastMove, openProposals, proposalApplication, stageName } from './facts
 import { CloseForm, RejectionEmails } from '../rejections'
 import { SourceCredit } from '../sources'
 import { FairChanceSteps } from '../fair-chance'
+import { ApplicationFields } from '../fields'
 
 const OUTCOMES: D = { disqualified: 'disqualified', 'open-in-source': 'still open in Workable' }
 
@@ -58,6 +59,7 @@ export function RecordOverview({ app, v, c, w, mutate }: { app: D; v?: D; c: D; 
     {c.headline && <p>{c.headline}</p>}
     <SourceCredit app={app} w={w} mutate={mutate} />
     <Answers app={app} />
+    <ApplicationFields app={app} v={v} c={c} mutate={mutate} />
     {app.coverNote && <details><summary>Cover note</summary><p className="pre">{app.coverNote}</p></details>}
     {app.imported && <p className="hint">Imported from Workable: source stage “{app.sourceStage}”, {OUTCOMES[app.outcome] ?? app.outcome}{app.disqualificationReason ? ` (${app.disqualificationReason})` : ''}.</p>}
     {app.manages && active && <Decide app={app} v={v} w={w} mutate={mutate} />}

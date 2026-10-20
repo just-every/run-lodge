@@ -1,3 +1,4 @@
+import { importedFields, importValues, type FieldTemplate } from '../fields/imports'
 import { canonicalJson, sha256, type ImportMapping, type SourceBundle, type SourceRecord, type TargetEffect } from '../../modules/import-kit/src/d1/index'
 import { bytesToBase64, requireThat, type Data } from '../core/types'
 import { parseCsv } from './csv'
@@ -52,7 +53,7 @@ export interface Report {
 interface Built { source: SourceBundle; mapping: ImportMapping; report: Report }
 
 // Mapping is deterministic for the same bytes on the same day, so a commit can be bound to its preview.
-export async function buildWorkable(filename: string, zipBytes: Uint8Array, retainUntil: string, importedOn: string): Promise<Built> {
+export async function buildWorkable(filename: string, zipBytes: Uint8Array, retainUntil: string, importedOn: string, template?: FieldTemplate): Promise<Built> {
   requireThat(zipBytes.length <= 20_000_000, 'Packages may be at most 20 MB in this release; ask Workable to split the export', 413)
   const entries = await readZip(zipBytes)
   const report: Report = { package: { name: filename, files: entries.length, bytes: zipBytes.length }, areas: {}, quarantined: [], omitted: [], orphanedAttachments: [], missingAttachments: [], notes: [] }
@@ -62,7 +63,7 @@ export async function buildWorkable(filename: string, zipBytes: Uint8Array, reta
     return artifacts.get(entry.name)!
   }
 
-  const tables: Record<string, { file: ZipEntry; rows: { line: number; values: Record<string, string> }[] }> = {}
+  const tables: Record<string, { file: ZipEntry; headers: string[]; rows: { line: number; values: Record<string, string> }[] }> = {}
   const files: ZipEntry[] = []
   for (const entry of entries) {
     const depth = entry.name.split('/').length
@@ -73,11 +74,13 @@ export async function buildWorkable(filename: string, zipBytes: Uint8Array, reta
       const parsed = parseCsv(new TextDecoder().decode(entry.bytes))
       if (parsed.error) { report.quarantined.push({ file: entry.name, reason: parsed.error + '; the whole file was set aside' }); continue }
       for (const m of parsed.malformed) report.quarantined.push({ file: entry.name, line: m.line, reason: 'Row ' + m.reason })
-      tables[AREAS[area]] = { file: entry, rows: parsed.rows }
+      tables[AREAS[area]] = { file: entry, headers: parsed.headers, rows: parsed.rows }
     } else if (depth >= 3) files.push(entry)
     else report.omitted.push({ file: entry.name, reason: /read ?me/i.test(entry.name) ? 'Export guide, kept only in the package' : 'Not a recognized Workable export file' })
   }
   requireThat(tables.candidate || tables.job, 'No jobs or candidates CSV was found in this package')
+
+  requireThat(!template?.customSchema.length || tables.job, 'A custom field template requires a jobs CSV so imported fields keep their job scope')
 
   const records: SourceRecord[] = []
   const effects = new Map<string, TargetEffect | { rejection: string }>()
@@ -98,10 +101,16 @@ export async function buildWorkable(filename: string, zipBytes: Uint8Array, reta
   const stagesByJob = new Map<string, string[]>()
   for (const r of candidateRows) { const list = stagesByJob.get(r.values.job_id) ?? []; if (r.values.stage && !list.includes(r.values.stage)) list.push(r.values.stage); stagesByJob.set(r.values.job_id, list) }
 
+  const jobFields = new Map(jobRows.filter(r => r.values.id).map(r => {
+    const job = ids.job(r.values.id), stages = (stagesByJob.get(r.values.id) ?? []).map((name, i) => ({ id: 'w' + i, name }))
+    return [r.values.id, importedFields(template, job, stages)]
+  }))
+
   for (const { values: v, line } of jobRows) {
     if (!v.id) { reject('job', '', v, tables.job.file, line, 'Job row has no id'); continue }
     const stageNames = stagesByJob.get(v.id) ?? []
     add('job', v.id, v, tables.job.file, line, { targetKind: 'vacancy', targetId: ids.job(v.id), value: {
+      ...(template ? { customSchema: jobFields.get(v.id), customValues: importValues(jobFields.get(v.id)!, 'vacancy', tables.job.headers, v), hiringViews: [] } : {}),
       imported: meta(tables.job.file.name, v.id, line), title: v.title || '(untitled job)', department: v.department ?? '', location: [v.city, v.state_code, v.country_code].filter(Boolean).join(', '),
       workMode: v.telecommuting === 'true' ? 'remote' : 'onsite', employmentType: ({ full_time: 'full-time', part_time: 'part-time', contract: 'contract', temporary: 'temporary' } as Data)[(v.employment_type ?? '').toLowerCase().replace(/[- ]/g, '_')] ?? 'full-time',
       description: [v.description, v.requirement_summary, v.benefit_summary].filter(Boolean).join('\n\n'), sourceSalary: { from: v.salary_from ?? '', to: v.salary_to ?? '', currency: v.salary_currency ?? '' },
@@ -124,6 +133,7 @@ export async function buildWorkable(filename: string, zipBytes: Uint8Array, reta
     if (!people.has(v.id)) {
       people.set(v.id, v)
       add('candidate', v.id, { id: v.id, name: v.name, email: v.email, phone: v.phone, address: v.address, headline: v.headline, summary: v.summary, skills: v.skills, education: v.education, experience: v.experience, social_profiles: v.social_profiles, tags: v.tags, source: v.source, talent_pool: v['Talent Pool'] ?? v.talent_pool ?? '' }, tables.candidate.file, line, { targetKind: 'candidate', targetId: ids.candidate(v.id), value: {
+        ...(template ? { customValues: Object.assign({}, ...candidateRows.filter(row => row.values.id === v.id && jobFields.has(row.values.job_id)).map(row => importValues(jobFields.get(row.values.job_id)!, 'candidate', tables.candidate.headers, row.values))) } : {}),
         imported: meta(tables.candidate.file.name, v.id, line), name: v.name || '(no name)', email: (v.email ?? '').trim().toLowerCase(), phone: v.phone ?? '', location: v.address ?? '', headline: v.headline ?? '',
         skills: [v.summary, v.skills, v.experience, v.education].filter(Boolean).join('\n'), source: `Workable import${v.source ? ' (' + v.source + ')' : ''}`, createdAt: v.created_at ?? '',
         consent: { basis: 'imported', talentPool: false, sourceTalentPool: (v['Talent Pool'] ?? v.talent_pool) === 'true', at: v.created_at || importedOn, recordedBy: 'import' }, retainUntil,
@@ -134,6 +144,7 @@ export async function buildWorkable(filename: string, zipBytes: Uint8Array, reta
     applicationsOf.set(v.id, [...(applicationsOf.get(v.id) ?? []), ids.application(v.id, v.job_id)])
     const stageNames = stagesByJob.get(v.job_id) ?? []
     add('application', key, { id: v.id, job_id: v.job_id, stage: v.stage, disqualified: v.disqualified, disqualified_at: v.disqualified_at, disqualification_reason: v.disqualification_reason, created_at: v.created_at, cover_letter: v.cover_letter, answers: v.answers, source: v.source, keyword_matches: v.keyword_matches }, tables.candidate.file, line, { targetKind: 'application', targetId: ids.application(v.id, v.job_id), value: {
+      ...(template ? { customValues: importValues(jobFields.get(v.job_id)!, 'application', tables.candidate.headers, v) } : {}),
       imported: meta(tables.candidate.file.name, key, line), candidate: ids.candidate(v.id), vacancy: ids.job(v.job_id), stage: 'w' + Math.max(0, stageNames.indexOf(v.stage)), sourceStage: v.stage ?? '',
       status: 'imported', outcome: v.disqualified === 'true' ? 'disqualified' : 'open-in-source', disqualificationReason: v.disqualification_reason ?? '', disqualifiedAt: v.disqualified_at ?? '',
       submittedAt: v.created_at ?? '', source: v.source ?? 'Workable', coverNote: v.cover_letter ?? '', answers: v.answers ?? '', rubricVersion: null, reviewers: [], feedbackReleased: false,

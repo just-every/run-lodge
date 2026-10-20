@@ -1,3 +1,4 @@
+import { requireStageFields } from '../fields/values'
 import type { State } from '../core/state'
 import { canReview, requireApplication, requireCan, requireManages, requireMember } from '../core/access'
 import { holdsFor } from './retention'
@@ -42,6 +43,7 @@ export function move(s: State, a: Actor, b: Data) {
   const reason = text(b.reason, 'Reason for this decision', 2000)
   requireThat(vacancy.stages.some((st: Data) => st.id === to), 'Choose a stage of this vacancy')
   requireThat(to !== app.stage, 'The application is already in that stage', 409)
+  requireStageFields(s, vacancy, app, to)
   const record = s.put('application', app.id, { ...app, stage: to })
   s.put('stage-event', uid(), { application: app.id, from: app.stage, to, reason, actor: a.email, at: now() })
   s.audit(a, 'stage-moved', 'application:' + app.id, { to, reason })
@@ -84,6 +86,7 @@ export function unmarkSpam(s: State, a: Actor, b: Data) {
   requireThat(app.status === 'spam', 'This application is not marked as spam', 409)
   requireNoOtherActive(s, app)
   const reason = text(b.reason, 'Why this is not spam', 1000)
+  requireStageFields(s, s.get('vacancy', app.vacancy), app, app.spam.stage)
   const { spam, ...rest } = app
   const record = s.put('application', app.id, { ...rest, status: 'active', stage: spam.stage, unmarkedSpam: [...(app.unmarkedSpam ?? []), { ...spam, unmarkedBy: a.email, unmarkedAt: now(), unmarkReason: reason }] })
   s.put('stage-event', uid(), { application: app.id, from: 'spam', to: spam.stage, reason, actor: a.email, at: now() })
@@ -132,6 +135,7 @@ export function reopen(s: State, a: Actor, b: Data) {
   requireNoOtherActive(s, app)
   requireThat(vacancy.stages.some((st: Data) => st.id === b.to), 'Choose a stage of this vacancy')
   const reason = text(b.reason, 'Reason for reopening', 2000)
+  requireStageFields(s, vacancy, app, b.to)
   const { closedAt, ...open } = app
   const record = s.put('application', app.id, { ...open, status: 'active', stage: b.to, reopenedAt: now() })
   s.put('stage-event', uid(), { application: app.id, from: app.status, to: b.to, reason, actor: a.email, at: now(), reopened: true })

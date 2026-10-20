@@ -22,7 +22,9 @@ export const blindCode = (app: Data) => 'Application ' + app.id
 export function redactor(s: State, app: Data) {
   const c = s.get('candidate', app.candidate), identity = s.find('blind-identity', app.id)
   const extractions = s.all('resume-extraction').filter(r => r.candidate === c.id && (!r.application || r.application === app.id))
-  const values = [c.name, ...(c.name ?? '').split(/\s+/).filter((x: string) => x.length > 1), c.email, c.phone, c.location, ...(identity?.schools ?? []), ...(identity?.years ?? []), ...extractions.flatMap(r => ['name', 'email', 'phone', 'location'].flatMap(k => [r.corrections?.[k], r.extraction?.[k]?.value]))]
+  const v = s.get('vacancy', app.vacancy)
+  const configured = (v.customSchema ?? []).filter((f: Data) => f.identity).flatMap((f: Data) => [({ candidate: c, application: app, vacancy: v } as Data)[f.record].customValues?.[f.id]]).filter((x: any) => x != null).map(String)
+  const values = [...configured, c.name, ...(c.name ?? '').split(/\s+/).filter((x: string) => x.length > 1), c.email, c.phone, c.location, ...(identity?.schools ?? []), ...(identity?.years ?? []), ...extractions.flatMap(r => ['name', 'email', 'phone', 'location'].flatMap(k => [r.corrections?.[k], r.extraction?.[k]?.value]))]
     .filter((x): x is string => typeof x === 'string' && !!x.trim()).sort((a, b) => b.length - a.length)
   const escape = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const patterns = [...new Set(values)].map(value => new RegExp(escape(value).replace(/\s+/g, '\\s+'), 'giu'))
@@ -41,7 +43,7 @@ export function blindResult(s: State, a: Actor, value: any, context?: Data): any
     if (app && value.id === app.candidate) return { id: blindId(app), name: blindCode(app), blind: true }
     const out = Object.fromEntries(Object.entries(value).map(([k, v]) => [k, ['id', 'application', 'vacancy'].includes(k) && typeof v === 'string' ? v : blindResult(s, a, v, app)]))
     delete out.blindStamp
-    if (app) delete out.candidateToken
+    if (app) { delete out.candidateToken; delete out.customValues }
     if (app && value.kind === 'candidate' && value.id === app.candidate) { out.id = blindId(app); out.revision = 'hidden during blind review' }
     if (app && value.candidateName) out.candidateName = blindCode(app)
     return out

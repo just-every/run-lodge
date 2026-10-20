@@ -22,7 +22,7 @@ export const MONITORING_OPTIONS = ['Prefer not to say', 'Woman', 'Man', 'Non-bin
 export interface Door { source: string; path: string; entry: string; campaign?: Data; oncePerJob?: boolean }
 export const APPLICATION_PAGE: Door = { source: 'Application page', path: 'Careers page', entry: 'Application page' }
 
-export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
+export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; customValues?: Data; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
 
 /** What the careers page shows of a job: a confidential one appears only under its neutral title, without its department; an internal-only one (ATTR-005) never. */
 export function publicPosting(v: Data): Data | null {
@@ -77,7 +77,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
   const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
-  const application = startApplication(s, null, candidate, vacancy, door.source, { coverNote, fingerprint, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
+  const application = startApplication(s, null, candidate, vacancy, door.source, { coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await stored('resume', () => storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume!.name, mediaType: input.resume!.mediaType, base64: input.resume!.base64, kind: 'resume', source: door.source }))
   if (answered.length) {
     for (const x of answered) if (x.type === 'file') {

@@ -1,3 +1,5 @@
+import { captureApplicationFields } from '../fields/capture'
+import { requireStageFields } from '../fields/values'
 import type { State } from '../core/state'
 import { canSeeCandidate, canSeeContact, requireAdmin, requireApplication, requireManages, requireMember, requireRole, teamOf } from '../core/access'
 import { date, email, list, now, oneOf, optionalEmail, optionalText, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
@@ -31,7 +33,9 @@ export function startApplication(s: State, actor: Actor | null, candidate: Data,
   requireThat(vacancy.status === 'open', 'Applications are accepted only while the vacancy is published', 409)
   const active = s.scan('application').find(x => x.candidate === candidate.id && x.vacancy === vacancy.id && x.status === 'active')
   requireThat(!active, 'This candidate already has an active application for this vacancy', 409)
-  const application = s.put('application', uid(), { candidate: candidate.id, vacancy: vacancy.id, stage: vacancy.stages[0].id, status: 'active', source, rubricVersion: vacancy.rubrics.at(-1).version, reviewers: [], feedbackReleased: false, submittedAt: now(), ...extra })
+  const customValues = captureApplicationFields(s, actor, candidate, vacancy, extra.customValues)
+  const application = s.put('application', uid(), { candidate: candidate.id, vacancy: vacancy.id, stage: vacancy.stages[0].id, status: 'active', source, rubricVersion: vacancy.rubrics.at(-1).version, reviewers: [], feedbackReleased: false, submittedAt: now(), ...extra, customValues })
+  requireStageFields(s, vacancy, application, application.stage)
   s.put('stage-event', uid(), { application: application.id, from: null, to: application.stage, reason: received, actor: actor?.email ?? 'applicant', at: now() })
   return application
 }
@@ -54,9 +58,9 @@ export async function candidate(s: State, a: Actor, b: Data) {
   })
   s.audit(a, 'candidate-added', 'candidate:' + record.id, { source: record.source })
   let application = null
-  if (vacancy) application = startApplication(s, a, record, vacancy, record.source, { credit: initialCredit(s, a, vacancy, b) })
+  if (vacancy) application = startApplication(s, a, record, vacancy, record.source, { credit: initialCredit(s, a, vacancy, b), customValues: b.customValues ?? {} })
   if (b.resume) await storeDocument(s, { candidate: record.id, application: application?.id ?? null, name: b.resume.name, mediaType: b.resume.mediaType, base64: b.resume.base64, kind: 'resume', source: 'uploaded by ' + a.email })
-  return { candidate: record, application }
+  return { candidate: s.get('candidate', record.id), application }
 }
 
 /** An admin marks a candidate private: only the people named, the owner and "see private" holders see them anywhere. */
@@ -87,7 +91,7 @@ export function apply(s: State, a: Actor, b: Data) {
   const person = s.get('candidate', b.candidate)
   requireThat(canSeeContact(s, a, person), 'Candidate not found', 404)
   requireThat(!person.mergedInto && !person.deleted, 'This candidate record is closed', 409)
-  const application = startApplication(s, a, person, vacancy, text(b.source, 'Source', 200), { credit: initialCredit(s, a, vacancy, b) })
+  const application = startApplication(s, a, person, vacancy, text(b.source, 'Source', 200), { credit: initialCredit(s, a, vacancy, b), customValues: b.customValues ?? {} })
   s.audit(a, 'application-linked', 'application:' + application.id, { candidate: person.id, vacancy: vacancy.id })
   return application
 }
@@ -108,7 +112,7 @@ export function transfer(s: State, a: Actor, b: Data) {
   const person = s.get('candidate', source.candidate)
   requireThat(!person.mergedInto && !person.deleted, 'This candidate record is closed', 409)
   const note = optionalText(b.reason, 'Reason', 2000)
-  const application = startApplication(s, a, person, target, source.source, { transferredFrom: source.id, credit: source.credit ?? null }, `Transferred from ${from.title}${note ? ': ' + note : ''}`)
+  const application = startApplication(s, a, person, target, source.source, { transferredFrom: source.id, credit: source.credit ?? null, customValues: b.customValues ?? {} }, `Transferred from ${from.title}${note ? ': ' + note : ''}`)
   const reason = `Transferred to ${target.title}`
   s.put('application', source.id, { ...source, status: 'transferred', closedAt: now(), transferredTo: application.id })
   cancelTasks(s, source.id, 'Application transferred')

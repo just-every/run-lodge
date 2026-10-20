@@ -1,3 +1,4 @@
+import { customFieldControls, submittedCustomFields } from '../fields/public'
 import { Hono, type Context } from 'hono'
 import { runtimeBindings, type Bindings } from '../../auth.server'
 import { fontHead } from '../../base/font-head'
@@ -111,6 +112,7 @@ ${field('email', 'Email', 'email', 'required autocomplete="email"')}
 ${field('phone', 'Phone (optional)', 'tel', 'autocomplete="tel"')}
 ${field('location', 'Where you are based (optional)', 'text', 'autocomplete="address-level2"')}
 <label>Resume (optional, PDF, Word or text, up to 1 MB)<input name="resume" type="file" accept=".pdf,.doc,.docx,.txt,.rtf,.odt"></label>
+${customFieldControls(v, values)}
 ${questions.length ? `<fieldset><legend>Questions from the employer</legend>${questionFields(questions, values)}</fieldset>` : ''}
 <label>Cover note (optional)<textarea name="coverNote" rows="5" maxlength="8000">${esc(values.coverNote)}</textarea></label>
 <label>Adjustments you need (optional)<textarea name="accommodation" rows="3" maxlength="4000">${esc(values.accommodation)}</textarea></label>
@@ -129,7 +131,7 @@ publicPages.get('/jobs/:slug', async c => {
   const l = listingBySlug(s, 'careers', c.req.param('slug'))
   if (!l) return notFound()
   const shown = shownJob(s, l)
-  return page(shown.title, form({ ...shown, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)))
+  return page(shown.title, form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)))
 })
 
 publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
@@ -158,12 +160,12 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   }
   try {
     const resume = await upload(data.get('resume'))
-    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given } as any, door, l.post)
+    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given, customValues: submittedCustomFields(v, values) } as any, door, l.post)
     await save(c.env.DB, s, null)
     return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd>${receipt.cpraNoticeVersion ? `<dt>California privacy notice</dt><dd>Version ${esc(receipt.cpraNoticeVersion)}</dd>` : ''}</dl><p>To ask about adjustments, contact ${esc(accommodationContact)} and quote the receipt. To see, correct or delete your information, use <a href="/privacy-requests">/privacy-requests</a> with this receipt and your email.</p>`, 200, embed)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
-    const shown: Data = { ...shownJob(s, l), slug: l.slug }
+    const shown: Data = { ...shownJob(s, l), customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }
     return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden, cpraFor(s, l)), error.status, embed)
   }
 }
