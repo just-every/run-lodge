@@ -25,6 +25,8 @@ import { internalBoard, internalNotices } from '../records/internal'
 import { fairChanceView } from '../records/fair-chance'
 import { eventsView } from '../records/events'
 import { cpraDraft } from '../records/privacy'
+import { sandboxesView } from '../operations/sandbox'
+import { providerSummary } from '../operations/providers'
 
 /**
  * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
@@ -150,6 +152,7 @@ export async function workspaceRecords(s: State, a: Actor) {
   return {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
+    sandboxes: sandboxesView(s, a), providerSetup: admin && !a.agent ? await providerSummary(s) : null,
     members: s.all('member').map(m => admin ? m : { email: m.email, name: m.name, roles: m.roles, active: m.active }),
     vacancies,
     // Kickoffs: admins see all; a manager sees their own and those behind the jobs they run.

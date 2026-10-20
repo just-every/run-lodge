@@ -14,7 +14,7 @@ export type Subject = 'vacancy' | 'offer' | 'message'
 export function terms(s: State, kind: Subject, record: Data): Data {
   if (kind === 'vacancy') {
     const rubric = (record.rubrics ?? []).at(-1) ?? null
-    return { title: record.title, department: record.department, departmentId: record.departmentId, officeId: record.officeId, locations: record.locations?.length ? record.locations : undefined, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan, kickoff: record.kickoff ? kickoffTerms(s.find('kickoff', record.kickoff)) : undefined }
+    return { title: record.title, department: record.department, departmentId: record.departmentId, officeId: record.officeId, locations: record.locations?.length ? record.locations : undefined, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan, approvalRouting: Object.keys(record.approvalRouting ?? {}).length ? record.approvalRouting : undefined, kickoff: record.kickoff ? kickoffTerms(s.find('kickoff', record.kickoff)) : undefined }
   }
   if (kind === 'offer') return { application: record.application, title: record.title, salary: record.salary, startDate: record.startDate, terms: record.terms, opening: record.opening, ...(record.conditional ? { conditional: true } : {}), ...(record.document ? { document: record.document, location: record.location, employmentType: record.employmentType, bonus: record.bonus, equity: record.equity, contingencies: record.contingencies } : {}) }
   return { to: record.to, subject: record.subject, body: record.body, application: record.application ?? null }
@@ -37,6 +37,12 @@ export async function approvedNow(s: State, kind: Subject, record: Data) {
 }
 
 export async function requestApproval(s: State, a: Actor, kind: Subject, record: Data, approverEmail: unknown, purpose?: 'extra-opening') {
+  // A reviewed single-approver route selects a person; all existing role and exact-term checks still apply.
+  const job = kind === 'vacancy' ? record : record.application ? s.get('vacancy', s.get('application', record.application).vacancy) : null
+  // OFFER-001 binds its reviewed document's normal/exception approver, ahead of a general job route.
+  const routed = kind === 'offer' && record.document ? undefined : job?.approvalRouting?.[kind]
+  requireThat(!routed || !approverEmail || String(approverEmail).toLowerCase() === routed, `This workflow routes ${kind} approval to ${routed}`, 409)
+  approverEmail = routed ?? approverEmail
   // Messages are approved by a hiring manager; vacancies and offers by someone holding the approver role.
   const approver = requireMember(s, text(approverEmail, 'Approver').toLowerCase(), kind === 'message' ? 'manager' : 'approver')
   const pending = latestApproval(s, kind, record.id)

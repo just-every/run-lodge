@@ -13,6 +13,7 @@ import { Retention } from './retention'
 import { MoveIn } from './move-in'
 import { People } from './people'
 import { Audit } from './audit'
+import { WorkflowSandbox } from './workflow-sandbox'
 import { Kit } from './kit'
 import { openProposals } from './pipeline/facts'
 import { useZone } from './format'
@@ -62,6 +63,7 @@ export function App() {
     ...(manager || w.events.length ? [{ name: 'Events', icon: 'pin', count: w.events.length } as Tab] : []),
     ...(w.approvals.length || actor.roles.includes('approver') ? [{ name: 'Approvals', icon: 'approvals', count: pending.length, urgent: pending.some((x: D) => x.approver === me) } as Tab] : []),
     { name: 'Proposals', icon: 'proposals', count: openProposals(w).length, urgent: openProposals(w).length > 0 },
+    ...(manager ? [{ name: 'Workflow sandbox', icon: 'proposals' } as Tab] : []),
     ...(admin ? [{ name: 'Retention', icon: 'retention', count: w.retention?.due.length } as Tab] : []),
     ...(actor.owner ? [{ name: 'Move in', icon: 'movein' } as Tab] : []),
     ...(admin ? [{ name: 'People', icon: 'people' } as Tab, { name: 'Audit', icon: 'audit' } as Tab] : []),
@@ -89,6 +91,7 @@ export function App() {
         {!kit && tab === 'Move in' && <MoveIn {...props} />}
         {!kit && tab === 'People' && <People {...props} />}
         {!kit && tab === 'Audit' && <Audit {...props} />}
+        {!kit && tab === 'Workflow sandbox' && <WorkflowSandbox {...props} />}
       </main>
       <footer className="shell-foot">Lodge keeps the hiring record. It sends no email, ranks no one and makes no hiring decision; people do.</footer>
     </div>

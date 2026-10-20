@@ -35,6 +35,8 @@ import { extendRequest, refuseRequest, saveCpraNotice } from './records/privacy'
 import { deletePermissionLevel, jobLevels, permissionLevel } from './records/levels'
 import { decideProposal, propose } from './agents/proposals'
 import { debrief, decideDebrief, editDebrief } from './agents/debriefs'
+import { createSandbox, editSandbox, previewSandbox, deploySandbox, rollbackSandbox } from './operations/sandbox'
+import { providerSetup, reviewProviderSetup } from './operations/providers'
 
 export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
 
@@ -44,6 +46,8 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'sandbox-create': createSandbox, 'sandbox-edit': editSandbox, 'sandbox-preview': previewSandbox, 'sandbox-deploy': deploySandbox, 'sandbox-rollback': rollbackSandbox,
+  'provider-setup': providerSetup, 'provider-review': reviewProviderSetup,
   business, member,
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy, 'hiring-team': team,
   'job-template': jobTemplate, 'vacancy-from-template': vacancyFromTemplate, 'clone-vacancy': cloneVacancy,

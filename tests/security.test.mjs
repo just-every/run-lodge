@@ -8,8 +8,14 @@ import { checkImportedHistory } from './security-history.mjs'
 import { checkRaces } from './security-races.mjs'
 import { commandBodies } from './security-commands.mjs'
 import { checkLevels } from './security-levels.mjs'
+import { checkOperations } from './security-operations.mjs'
 
 const snapshot = async h => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
+
+test('OPS-003 selected workflow trials isolate production, bind reviewed deployment and rollback, and expose confirmed provider setup estimates', async () => {
+ const h = await fixture()
+ try { await checkOperations(h) } finally { await h.close() }
+})
 
 test('LDG-006/008/016 current roles and principals govern every private HTTP door without refusal side effects', async () => {
  const h = await fixture()
