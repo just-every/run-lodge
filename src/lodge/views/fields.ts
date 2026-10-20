@@ -21,7 +21,7 @@ export function fieldProjection<T extends Data>(s: State, a: Actor, view: T): T 
     const mine = apps.filter(app => app.candidate === c.id && !blindFor(s, a, app))
     const fields = mine.flatMap(app => allowed(s.get('vacancy', app.vacancy)))
     const docs = view.documents.filter((d: Data) => d.candidate === c.id && d.kind === 'resume' && (!d.application || mine.some(app => app.id === d.application)) && canSeeDocument(s, a, d))
-    const passages = [...docs.map((d: Data) => s.resumeTexts.get(d.id)), ...view.resumeExtractions.filter((r: Data) => r.candidate === c.id && (!r.application || mine.some(app => app.id === r.application))).map((r: Data) => r.sourceText)].filter(Boolean)
+    const passages = [...docs.map((d: Data) => s.resumeTexts.get(d.id)), ...s.all('resume-extraction').filter((r: Data) => r.candidate === c.id && docs.some((d: Data) => d.id === r.document) && (!r.application || mine.some(app => app.id === r.application))).map((r: Data) => r.sourceText)].filter(Boolean)
     let resumeText = [...new Set(passages)].join('\n\n')
     if (!admin) {
       const secretValues = s.all('vacancy').flatMap(v => (v.customSchema ?? []).filter((f: Data) => f.restricted).flatMap((f: Data) => [s.find('candidate', c.id)?.customValues?.[f.id], ...apps.filter(app => app.candidate === c.id && app.vacancy === v.id).map(app => app.customValues?.[f.id]), v.customValues?.[f.id]]))
