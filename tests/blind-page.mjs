@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
-import { api, current, session } from './browser-journey.mjs'
+import { current, session } from './browser-journey.mjs'
 
 /** REVIEW-002: manager configures, reviews, reveals, then returns to blind at both widths. */
 export async function blindPage(browser, { root, origin, run, evidence, ownerEmail }) {
@@ -54,8 +54,12 @@ export async function blindPage(browser, { root, origin, run, evidence, ownerEma
    await page.getByRole('region', { name: 'Application of ' + name, exact: true }).waitFor()
    await page.getByRole('region', { name: 'Identity reveal history' }).waitFor()
    await fits(); await page.screenshot({ path: join(evidence, `REVIEW-002-revealed-${width}.png`), fullPage: true })
-   await api(context, origin, 'move', { application: added.application.id, to: v.stages[0].id, reason: 'Fresh blind review' })
-   await page.reload()
+   const revealed = page.getByRole('region', { name: 'Application of ' + name, exact: true })
+   await revealed.getByText('Other moves', { exact: true }).click()
+   const move = revealed.locator('form').filter({ has: page.getByRole('button', { name: 'Move', exact: true }) })
+   await move.getByRole('combobox', { name: /^Move to/ }).selectOption(v.stages[0].id)
+   await move.getByLabel('Reason (kept in the history)', { exact: true }).fill('Fresh blind review')
+   await move.getByRole('button', { name: 'Move', exact: true }).click()
    await page.getByRole('region', { name: 'Application of ' + code, exact: true }).waitFor()
    await page.getByRole('region', { name: 'Identity reveal history' }).waitFor()
    assert.equal((await current(context, origin)).applications.find(a => a.id === added.application.id).reveals.length, 1)
