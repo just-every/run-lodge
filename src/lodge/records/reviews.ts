@@ -1,3 +1,4 @@
+import { nextReviewStage } from '../core/blind'
 import type { State } from '../core/state'
 import { managesVacancy, requireApplication, requireManages } from '../core/access'
 import { now, oneOf, optionalText, requireThat, scope, uid, type Actor, type Data } from '../core/types'
@@ -27,7 +28,7 @@ export function reviewDecision(s: State, a: Actor, b: Data) {
   requireManages(a, vacancy)
   const decision = oneOf(b.decision, ['advance', 'reject', 'skip'] as const, 'Decision')
   if (decision === 'advance') {
-    const next = vacancy.stages[1]
+    const next = nextReviewStage(vacancy, app)
     requireThat(next, 'This job has no stage after its first', 409)
     move(s, a, { application: app.id, to: next.id, reason: optionalText(b.reason, 'Reason', 2000) || 'Advanced from the review queue' })
   }

@@ -9,6 +9,12 @@ export function blindFor(s: State, a: Actor, app: Data) {
   const v = s.find('vacancy', app.vacancy)
   return blindStage(v, app) && !a.owner && !a.roles.includes('admin') && !(v?.team?.recruiters ?? []).includes(scope(a))
 }
+/** The planned advance follows blind stages, then the employer's chosen reveal stage. */
+export function nextReviewStage(v: Data, app: Data): Data | undefined {
+  const next = v.stages[v.stages.findIndex((stage: Data) => stage.id === app.stage) + 1]
+  if (blindStage(v, app) && next && !v.blindReview.stages.includes(next.id)) return v.stages.find((stage: Data) => stage.id === v.blindReview.revealStage)
+  return next
+}
 export const blindId = (app: Data) => 'blind:' + app.id
 export const blindCode = (app: Data) => 'Application ' + app.id
 

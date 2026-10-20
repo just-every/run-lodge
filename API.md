@@ -80,7 +80,7 @@ and, for a rejection only, `send: none | now | delay` with `template` and `busin
 `blind-review` (REVIEW-002, job settings permission: `{ id, enabled, stages: [stageId], revealStage }`; the reveal stage must be outside the blind stages),
 `blind-identity` (same job permission: `{ application, schools: [text], years: [text] }`; replaces the employer-entered redaction values without returning them to a blind reader),
 `review-decision` (REVIEW-001, people who run the job: `{ application, decision: advance | reject | skip }`;
-advance takes an optional `reason`, reject the `move` close fields), `review-recommendation` (an assigned
+advance takes an optional `reason` and follows the configured REVIEW-002 reveal stage on leaving blind stages, otherwise the next stage; reject takes the `move` close fields), `review-recommendation` (an assigned
 reviewer who does not run the job: `{ application, recommendation: yes | no | maybe, note? }`),
 `rejection-reasons` (admins: the whole list `{ reasons: [{ id?, label, group: rejected | withdrew }] }`;
 left-out reasons are retired), `rejection-template` (admins: `{ id?, name, subject, body, retired? }`

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { BUSINESS, harness } from './harness.mjs'
 import { blindRules } from './blind-rules.mjs'
+import { transactions } from './record-transactions.mjs'
 
 /** REVIEW-002: every existing public read door and every application exit path. */
 export async function checkBlindReview(t) {
@@ -75,6 +76,13 @@ export async function checkBlindReview(t) {
  }
  // Read a blind-only reviewer search: no hidden identity can be discovered by querying it.
  for (const q of [name, email, school, year]) assert.equal((await send('/api/lodge/search?q=' + encodeURIComponent(q), undefined, reviewer)).value.results.length, 0)
+ // A concurrent new blind application must invalidate a settings reveal prepared without it.
+ const tx = await transactions(h)
+ try {
+  const pending = await tx.prepare('blind-review', { id: v.id, enabled: false }, 'blind.manager@example.test')
+  await cmd('candidate', { name: 'Concurrent Candidate', vacancy: v.id, source: 'Careers', consentBasis: 'application' })
+  await tx.refuse(pending)
+ } finally { await tx.close() }
  const code = (await state(manager)).applications.find(a => a.id === first.application.id).candidateName
  const logs = async id => (await state()).audit.filter(e => e.action === 'blind-review-revealed' && e.record === 'application:' + id)
  const checkExit = async (op, body) => {

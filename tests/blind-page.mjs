@@ -50,7 +50,7 @@ export async function blindPage(browser, { root, origin, run, evidence, ownerEma
    await fits(); await page.screenshot({ path: join(evidence, `REVIEW-002-documents-${width}.png`), fullPage: true })
    await panel.getByRole('tab', { name: 'Overview', exact: true }).click()
    await queue.getByLabel('Why they move on (optional)').fill('Inventory experience merits a discussion')
-   await queue.getByRole('button', { name: 'Advance to ' + v.stages[1].name, exact: true }).click()
+   await queue.getByRole('button', { name: 'Advance to ' + v.stages[2].name, exact: true }).click()
    await page.getByRole('region', { name: 'Application of ' + name, exact: true }).waitFor()
    await page.getByRole('region', { name: 'Identity reveal history' }).waitFor()
    await fits(); await page.screenshot({ path: join(evidence, `REVIEW-002-revealed-${width}.png`), fullPage: true })
