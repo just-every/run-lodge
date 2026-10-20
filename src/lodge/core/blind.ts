@@ -27,6 +27,7 @@ export function redactor(s: State, app: Data) {
 
 /** Commands also return read material (notably bulk previews); they obey the current context. */
 export function blindResult(s: State, a: Actor, value: any, context?: Data): any {
+  if (context && !blindFor(s, a, context)) context = undefined
   if (Array.isArray(value)) return value.map(x => blindResult(s, a, x, context))
   if (value && typeof value === 'object') {
     const subject = s.find('application', typeof value.application === 'string' ? value.application : value.id)
