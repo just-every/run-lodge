@@ -3043,7 +3043,7 @@
       "executable": false
     },
     "src/ui/resumes/intake.tsx": {
-      "sha256": "5e8c82b1854565ca6083ebb203f205a481ccaa46071a6d40c779e65cc928aa53",
+      "sha256": "ef984fbb66194dbf232deddc5849e2d875c2d32af208138ec5b084b37482c80d",
       "executable": false
     },
     "src/ui/resumes/review.tsx": {
@@ -3207,7 +3207,7 @@
       "executable": false
     },
     "tests/resume-lifecycle-page.mjs": {
-      "sha256": "2aca3568dad6223ae18f976dfc0f3f23b0a0316f41f3d8e3da2dfc6f20359107",
+      "sha256": "f3918bf33cfe5651e8b7f238a11f9efd78e7a2239fa554d74654456d23e3091e",
       "executable": false
     },
     "tests/resume-lifecycle.mjs": {

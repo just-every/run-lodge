@@ -36,7 +36,7 @@ export function ResumeIntake({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
      <Field label="Keep new uncommitted resumes (days)" name="retentionDays" type="number" defaultValue={w.resumeIntakePolicy.retentionDays} hint="Applies to new uploads. Each saved resume keeps its displayed deadline." />
     </Form>
     <p>Pending resumes whose uploader no longer has permission: {w.orphanedResumeIntakeCount}. Only their count is available; their contents remain private.</p>
-    {w.orphanedResumeIntakeCount > 0 && <Form label="Discard pending resumes without an authorized uploader" onSubmit={() => mutate('resume-discard-orphaned', {})} />}
+    {w.orphanedResumeIntakeCount > 0 && <Form label="Discard inaccessible pending resumes" onSubmit={() => mutate('resume-discard-orphaned', {})} />}
    </>}
    <h2>Individual resume</h2><Upload multiple={false} jobs={jobs} mutate={mutate} />
    <h2>Bulk resume importer</h2><Upload multiple jobs={jobs} mutate={mutate} />
