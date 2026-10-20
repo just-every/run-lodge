@@ -122,7 +122,7 @@ export async function resumeIntakePage(browser, { root, origin, job, evidence })
    await page.screenshot({ path: join(evidence, `DATA-002-committed-${width}.png`), fullPage: true })
    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'committed resume list fits the viewport')
    assert.deepEqual(errors, [])
-   await intake.getByLabel('Keep new uncommitted resumes (days)', { exact: true }).fill('30')
+   await intake.getByLabel('Keep new uncommitted resumes (days)').fill('30')
    await intake.getByRole('button', { name: 'Save pending resume retention', exact: true }).click()
    await page.getByText('New uploads are kept for 30 days.', { exact: false }).waitFor()
   } catch (error) {

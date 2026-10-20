@@ -3215,7 +3215,7 @@
       "executable": false
     },
     "tests/resume-page.mjs": {
-      "sha256": "eec0cfa4da9386314bfc11bbc3d8663fb2eeeb2283766fca58cc0d90fc9e22af",
+      "sha256": "d9bfce79dafcc08465a82f6578b4a092e8416fe8257156946b132ed86701b9c1",
       "executable": false
     },
     "tests/retention-flow.mjs": {
