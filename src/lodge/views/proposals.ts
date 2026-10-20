@@ -25,8 +25,9 @@ export function canSeeProposal(s: State, a: Actor, p: Data, view: WorkspaceRecor
     const record = sourceRecord(view, source.kind, source.id)
     if (!record || !Array.isArray(source.fields) || !source.fields.every((field: string) => record[field] !== undefined)) return false
     const original = s.get(source.kind, source.id)
-    // A packet prepared with now-hidden identity prose cannot survive reblinding.
-    if ((record.blind || view.applications.some(app => app.blind && app.id === original.application)) && source.fields.some((field: string) => JSON.stringify(original[field]) !== JSON.stringify(record[field]))) return false
+    // Old full-record packets cannot survive reblinding; new packets record the blind context.
+    const blindApp = record.blind ? record.id : view.applications.find(app => app.blind && app.id === original.application)?.id
+    if (blindApp && source.blindApplication !== blindApp) return false
     return true
   })) return false
   // Citations are source evidence too, including when supplied outside feedback.

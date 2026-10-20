@@ -32,7 +32,11 @@ export async function checkBlindReview(t) {
  await cmd('apply', { candidate: first.candidate.id, vacancy: other.id, source: 'Other job' })
  for (const app of [first.application, second.application]) await cmd('assign-reviewers', { application: app.id, reviewers: ['blind.reviewer@example.test'] })
  await cmd('blind-identity', { application: first.application.id, schools: [school], years: [year] }, manager)
+ const oldPacket = await cmd('propose', { workflow: 'coordination', summary: name, approver: 'blind.manager@example.test', sources: [{ kind: 'application', id: first.application.id }], changes: [{ op: 'message', input: { application: first.application.id, purpose: 'other', subject: 'Interview', body: name } }] })
  await cmd('blind-review', { id: v.id, enabled: true, stages: [v.stages[0].id], revealStage: v.stages[2].id }, manager)
+ assert.ok(!(await state(manager)).proposals.some(p => p.id === oldPacket.id), 'old full-record packet hides on blinding')
+ const packet = await cmd('propose', { workflow: 'coordination', summary: 'Schedule a discussion', approver: 'blind.manager@example.test', sources: [{ kind: 'application', id: first.application.id }], changes: [{ op: 'interview', input: { application: first.application.id, planItem: v.plan[0].id, participants: ['blind.reviewer@example.test'], slots: ['2026-12-03T15:00:00Z'] } }] }, agent)
+ assert.ok((await state(manager)).proposals.some(p => p.id === packet.id), 'new blind proposal remains usable')
  const doc = (await state()).documents.find(d => d.application === first.application.id)
  const hidden = [name, email, phone, address, school, year, 'Julian Carter', 'julian.old@example.test']
  for (const cookie of [manager, reviewer, agent]) {

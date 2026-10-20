@@ -83,7 +83,7 @@ export async function propose(s: State, a: Actor, b: Data) {
     // Keep the actual source field grant used to prepare the packet. Neither
     // its recipient nor a later reader may lose any part of that grant.
     const fields = sourceFields(source)
-    return { kind, id: x.id as string, revision: s.revisionOf(kind, x.id), fields }
+    return { kind, id: x.id as string, revision: s.revisionOf(kind, x.id), fields, blindApplication: source.blind ? source.id : view.applications.find(app => app.blind && app.id === source.application)?.id ?? null }
   })
   requireThat(Array.isArray(b.changes) && b.changes.length > 0 && b.changes.length <= 20, 'Propose between 1 and 20 changes')
   const changes = b.changes.map((c: Data) => ({ op: oneOf(c?.op, WORKFLOWS[workflow] as readonly string[], 'Change for this workflow'), input: c?.input ?? {} }))

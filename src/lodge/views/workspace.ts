@@ -1,3 +1,4 @@
+import { blindResult } from '../core/blind'
 import { blindProjection } from './blind-review'
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
@@ -233,7 +234,7 @@ export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
 
 export async function workspace(s: State, a: Actor) {
   const records = await workspaceRecords(s, a)
-  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)), interviewerActivity: interviewerActivity(s, a, records) }
+  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication))), interviewerActivity: interviewerActivity(s, a, records) }
 }
 
 export type Workspace = Awaited<ReturnType<typeof workspace>>
