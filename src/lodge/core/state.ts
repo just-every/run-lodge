@@ -10,6 +10,9 @@ const key = (kind: string, id: string) => kind + '\u0000' + id
  * a revoked session never commits.
  */
 export class State {
+  readonly resumeTexts = new Map<string, string>()
+  original(kind: string, id: string) { return this.initialRows.find(r => r.kind === kind && r.id === id)?.value }
+
   private rows = new Map<string, Row>()
   private reads = new Map<string, string | null>()
   private changed = new Set<string>()
@@ -99,7 +102,11 @@ export class State {
   }
 
   /** An independent copy for dry runs; changes to it never reach the store. */
-  clone() { return new State([...this.rows.values()].map(r => ({ ...r, value: structuredClone(r.value) }))) }
+  clone() {
+    const copy = new State([...this.rows.values()].map(r => ({ ...r, value: structuredClone(r.value) })))
+    for (const [id, value] of this.resumeTexts) copy.resumeTexts.set(id, value)
+    return copy
+  }
 
   revisionOf(kind: string, id: string) { return this.rows.get(key(kind, id))?.revision ?? null }
 }

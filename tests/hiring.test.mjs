@@ -2155,3 +2155,9 @@ test('OFFER-001 reviewed hourly and annual documents bind compensation routing, 
   const { checkOfferDocuments } = await import('./offer-documents.mjs')
   await checkOfferDocuments()
 })
+
+// Application-specific privacy is an independent public-door journey.
+test('REVIEW-002 name-blind review across reads, reveals and return', async t => {
+  const { checkBlindReview } = await import('./blind-flow.mjs')
+  await checkBlindReview(t)
+})

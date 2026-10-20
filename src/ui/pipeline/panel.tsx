@@ -10,6 +10,7 @@ import { DocumentViewer, applicationDocuments } from '../document-viewer'
 import { Documents } from '../documents'
 import { Notes } from '../notes'
 import { RecordOverview } from './record'
+import { BlindIdentityValues, BlindResume, BlindReveals } from '../blind-review'
 
 /** The open application beside the board: who they are, then its record in tabs. */
 export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () => void } & PageProps) {
@@ -28,12 +29,17 @@ export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () 
       {tabs.map(t => <button key={t} role="tab" id={id(t) + '-tab'} aria-selected={tab === t} aria-controls={id(t)} onClick={() => setTab(t)}>{t}</button>)}
     </div>
     <div role="tabpanel" id={id(tab)} aria-labelledby={id(tab) + '-tab'} className="tab-body">
-      {tab === 'Overview' && <RecordOverview app={app} v={v} c={c} w={w} mutate={mutate} />}
+      {tab === 'Overview' && <>
+        {app.blind && <BlindResume app={app} />}
+        <BlindIdentityValues app={app} v={v} mutate={mutate} />
+        <BlindReveals app={app} v={v} w={w} />
+        <RecordOverview app={app} v={v} c={c} w={w} mutate={mutate} />
+      </>}
       {tab === 'Notes' && <Notes app={app} w={w} mutate={mutate} />}
       {tab === 'Interviews' && <Interviews app={app} v={v} w={w} mutate={mutate} />}
-      {tab === 'Scorecards' && <><Scorecards app={app} v={v} w={w} mutate={mutate} /><Debriefs app={app} v={v} w={w} mutate={mutate} /><div className="document-and-scorecard"><DocumentViewer documents={applicationDocuments(app, w)} /><ScorecardForm app={app} v={v} w={w} mutate={mutate} /></div></>}
+      {tab === 'Scorecards' && <><Scorecards app={app} v={v} w={w} mutate={mutate} /><Debriefs app={app} v={v} w={w} mutate={mutate} /><div className="document-and-scorecard">{app.blind ? <BlindResume app={app} /> : <DocumentViewer documents={applicationDocuments(app, w)} />}<ScorecardForm app={app} v={v} w={w} mutate={mutate} /></div></>}
       {tab === 'Decisions' && <><Offers app={app} v={v} w={w} mutate={mutate} /><Messages app={app} w={w} mutate={mutate} /></>}
-      {tab === 'Documents' && <Documents app={app} w={w} mutate={mutate} />}
+      {tab === 'Documents' && (app.blind ? <BlindResume app={app} /> : <Documents app={app} w={w} mutate={mutate} />)}
     </div>
   </section>
 }

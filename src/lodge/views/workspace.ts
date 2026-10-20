@@ -1,3 +1,4 @@
+import { blindProjection } from './blind-review'
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
 import { cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy, can, permissionsOn, SEEDED_LEVELS } from '../core/access'
@@ -151,7 +152,7 @@ export async function workspaceRecords(s: State, a: Actor) {
   const tasks = s.all('task').filter(t => (t.owner === scope(a) || t.createdBy === scope(a)) && (t.application ? appIds.has(t.application) : !t.candidate || visibleCandidates.has(t.candidate))).sort((x, y) => x.due.localeCompare(y.due))
   const today = businessToday(s)
   const teamNotes = s.all('team-note').filter(n => visibleCandidates.has(n.candidate) && canSeeTeamNote(s, a, n)).sort((x, y) => x.at.localeCompare(y.at))
-  return {
+  return blindProjection(s, a, {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
     sandboxes: sandboxesView(s, a), providerSetup: admin && !a.agent ? await providerSummary(s) : null,
@@ -225,7 +226,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     },
     coordination: coordination(s, a),
     audit: admin ? s.all('audit').filter(e => !concealed(e.record ?? '')).sort((x, y) => y.at.localeCompare(x.at)).slice(0, 300) : [],
-  }
+  })
 }
 
 export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
