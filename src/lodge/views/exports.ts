@@ -1,3 +1,4 @@
+import { staffSeesSubmission } from '../agency/access'
 import { candidateRecords } from '../records/retention'
 import type { State } from '../core/state'
 import { readBlob } from '../core/store'
@@ -62,7 +63,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
     documents.push({ ...d, base64: blob.base64 })
   }
   const agencySubmissions = []
-  for (const sub of candidateRecords(s, id)['agency-submission']) {
+  for (const sub of candidateRecords(s, id)['agency-submission'].filter(sub => staffSeesSubmission(s, a, sub))) {
     const files = []
     for (const file of sub.files) { const blob = await readBlob(db, file.id); requireThat(blob, 'The agency original bytes are missing', 409); files.push({ ...file, base64: blob.base64 }) }
     agencySubmissions.push({ ...sub, files })
