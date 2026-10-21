@@ -318,13 +318,13 @@ The existing Base-backed runtime, authentication, archive/import-kit and erasure
 
 ## Status
 
-Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9d9` (17 October 2026).
+Judged from the code and tests at commit `c63a1527ef39bad423588fc0457230fe4aeb65f2` (21 October 2026).
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 38 | 25 | 45 | 108 |
-| All | 55 | 25 | 45 | 125 |
+| Target and push further | 38 | 26 | 44 | 108 |
+| All | 55 | 26 | 44 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -438,7 +438,7 @@ Judged from the code and tests at commit `4a6cc976f756c66255ea5cc7477b501a1f8dc9
 | `MIG-006` | Metaview interview and recruiting history migration | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `MIG-007` | Reconciled migration and safe cutover | target | partial | `src/lodge/move-in/workable.ts`; `src/lodge/move-in/imports.ts`; `tests/move-in.test.mjs`; `IMPORTING.md` | Workable fixture-tested preview/journal/undo exists; other source adapters, real authorized comparisons and incremental cutover reconciliation remain unproven. |
 | `MIG-008` | Active-application cutover into live pipeline | target | partial | `src/lodge/move-in/workable.ts` | The Workable kit keeps each imported application's source stage, mapped onto the imported job's stage list; job, stage, rubric and user mapping, approved activation into live applications, the application contact basis, carried-forward interviews, scorecards and offers, source-conflict reporting and activation undo are absent, and imports stay inert. |
-| `MIG-009` | Old job links and listings after cutover | target | missing |  | No legacy-link map, legacy redirect route, `gh_jid` handling in an embed or cutover listing report exists. |
+| `MIG-009` | Old job links and listings after cutover | target | partial | `src/lodge/move-in/legacy-links.ts`; `src/lodge/http/public.ts`; `src/lodge/http/embed.ts`; `tests/move-in.test.mjs`; `tests/legacy-links.mjs`; `tests/legacy-page.mjs` | Manual legacy mappings, live hosted redirects, Greenhouse gh_jid embed selection and a scoped mapping report exist. Automatic source-cutover mapping, other source embed parameters, provider listing/feed readback, source-arrival conflicts and close/repost reconciliation remain unbuilt; no real Greenhouse cutover is claimed. |
 | `NOTE-001` | Consented interview capture and evidenced notes | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `REPORT-005` | Grounded natural-language recruiting analysis | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `OPS-001` | Complete recruiting audit and export | target | done | `tests/hiring.test.mjs`; `tests/move-in.test.mjs`; `tests/portability.test.mjs`; `src/lodge/views/audit.ts`; `src/lodge/http/api.ts`; `src/ui/audit.tsx` |  |

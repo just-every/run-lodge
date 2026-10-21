@@ -1,3 +1,4 @@
+import { legacyListing } from '../move-in/legacy-links'
 import { customFieldControls, submittedCustomFields } from '../fields/public'
 import { Hono, type Context } from 'hono'
 import { runtimeBindings, type Bindings } from '../../auth.server'
@@ -52,6 +53,13 @@ export function sameOrigin(c: C) {
   const origin = runtimeBindings(c.env).AUTH_ORIGIN
   if (new URL(c.req.url).origin !== origin || c.req.header('origin') !== origin) throw new Fault(403, 'Submit this form from its own page')
 }
+
+publicPages.get('/jobs/legacy/:source/:id', async c => {
+  const s = await load(c.env.DB)
+  const l = legacyListing(s, c.req.param('source'), c.req.param('id'), 'careers')
+  c.header('cache-control', 'no-store')
+  return l ? c.redirect('/jobs/' + l.slug, 302) : notFound()
+})
 
 publicPages.get('/jobs', async c => {
   const s = await load(c.env.DB)

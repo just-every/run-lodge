@@ -1,3 +1,4 @@
+import { legacyReport } from '../move-in/legacy-links'
 import { portal } from '../agency/views'
 import { agencyFile } from '../agency/access'
 import { fieldResult } from '../views/fields'
@@ -160,6 +161,11 @@ api.get('/api/lodge/reports/sources', async c => {
   const report = sourcesReport(state, actor, await workspaceRecords(state, actor))
   requireThat(report, 'Only admins and hiring managers see sources of hire', 403)
   return c.json(report)
+})
+
+api.get('/api/lodge/reports/cutover', async c => {
+  const { state, actor } = await context(c)
+  return c.json(legacyReport(state, await workspaceRecords(state, actor)))
 })
 
 api.get('/api/lodge/reports/events', async c => {

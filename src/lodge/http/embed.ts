@@ -1,3 +1,4 @@
+import { legacyListing } from '../move-in/legacy-links'
 import { Hono, type Context } from 'hono'
 import { runtimeBindings, type Bindings } from '../../auth.server'
 import { vacancyFacts } from '../core/labels'
@@ -49,7 +50,7 @@ embedPages.get('/embed.js', c => {
   const script = `(() => {
   const me = document.currentScript, origin = ${JSON.stringify(origin)}
   const params = new URLSearchParams()
-  for (const [key, value] of new URLSearchParams(location.search)) if (key.startsWith('utm_')) params.set(key, value)
+  for (const [key, value] of new URLSearchParams(location.search)) if (key.startsWith('utm_') || key === 'gh_jid') params.set(key, value)
   for (const key of ['department', 'office', 'remote']) if (me.dataset[key]) params.set(key, me.dataset[key])
   const frame = document.createElement('iframe')
   frame.src = origin + '/embed/jobs' + (params.size ? '?' + params : '')
@@ -73,6 +74,13 @@ embedPages.get('/embed/jobs', async c => {
   const s = await load(c.env.DB)
   const embed = embedding(s)
   if (!embed) return notSetUp()
+  const oldId = c.req.query('gh_jid')
+  if (oldId !== undefined) {
+    const l = legacyListing(s, 'greenhouse', oldId, 'embed')
+    c.header('cache-control', 'no-store')
+    const carried = query(campaignOf(c.req.query()))
+    return l ? c.redirect('/embed/jobs/' + l.slug + carried, 302) : page('Not found', '<h1>This role is not available</h1><p><a href="/embed/jobs">See open roles</a></p>', 404, embed)
+  }
   const business = s.all('business')[0]
   // ATTR-012: each live post with the embed among its destinations is its own role.
   const all: Data[] = listings(s, 'embed').map((l: Listing) => ({ ...shownJob(s, l), slug: l.slug, offices: l.offices }))

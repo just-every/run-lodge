@@ -446,3 +446,26 @@ uploads at `/api/lodge/agency/file/:id` and their permitted JSON projection at
 `/api/lodge/agency/export`. Every request checks live membership and job grants.
 Employer search, records, reports, audit, files, exports and agent doors refuse
 agency identities. See CONTRACT.md for the exact ct-approved boundary.
+
+### Legacy job links (MIG-009, partial)
+
+`POST /api/lodge/command/legacy-link` saves an explicit mapping with `source`
+(lowercase name, such as `greenhouse`), `sourceId` (letters, digits, `_` or `-`),
+`sourceUrl` (the old HTTPS URL), `vacancy`, and optional `post`. It uses the
+job's existing settings permission; replacing a mapping also requires that
+permission on its prior job. With `source`, `sourceId` and `remove: true`, it
+removes a mapping. This does not activate imported history or approve a job.
+
+`GET /jobs/legacy/<source>/<id>` redirects temporarily to that exact currently
+published careers destination. Unknown, closed, unpublished, confidential,
+internal-only or unavailable posts return the same unavailable page with a link
+to current openings. The original vendor's domain cannot be redirected by Lodge.
+The employer's existing embed snippet carries `gh_jid` from the host page and
+opens its mapped Greenhouse role inside the frame, preserving `utm_*` fields.
+A mapping to a job's fallback page does not automatically choose a different post
+if its first post later goes live: map the intended post explicitly.
+
+`GET /api/lodge/reports/cutover` lists mappings for jobs the actor currently
+manages, with old source URLs and currently available hosted destinations.
+Board/feed readback and source arrivals are explicitly unavailable. This is a
+mapping report, not proof of source migration, reposting or completed cutover.

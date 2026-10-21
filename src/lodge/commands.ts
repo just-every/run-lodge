@@ -1,3 +1,4 @@
+import { legacyLink } from './move-in/legacy-links'
 import { isAgency } from './core/access'
 import { agency, agencyJob, agencySubmit, agencyReview, agencyProgress, agencyFee } from './agency/records'
 import { fieldSchema, fieldValues, hiringViews } from './fields/commands'
@@ -53,6 +54,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'legacy-link': legacyLink,
   agency, 'agency-job': agencyJob, 'agency-submit': agencySubmit, 'agency-review': agencyReview, 'agency-progress': agencyProgress, 'agency-fee': agencyFee,
   'sandbox-create': createSandbox, 'sandbox-edit': editSandbox, 'sandbox-preview': previewSandbox, 'sandbox-deploy': deploySandbox, 'sandbox-rollback': rollbackSandbox,
   'provider-setup': providerSetup, 'provider-review': reviewProviderSetup,

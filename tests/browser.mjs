@@ -1,3 +1,4 @@
+import { legacyPage } from './legacy-page.mjs'
 // LDG-015 and LDG-017, plus the human journeys at 1440 and 390: a fresh clone of
 // the committed HEAD run only through the pinned `rer` verbs, the whole hiring
 // loop clicked by each role, every workspace screen at both widths, the Workable
@@ -82,6 +83,7 @@ try {
       const embedded = after.applications.find(a => after.receipts.some(r => r.id === framed && r.application === a.id))
       assert.deepEqual([embedded.source, embedded.campaign], ['Careers page (embedded)', { utm_source: 'webflow-embed' }])
     }
+    await legacyPage(browser, { lodge: server.origin, site: site.origin, run, state: () => current(owner.context, server.origin), ownerEmail: (await current(owner.context, server.origin)).actor.email, evidence })
     await embedRefused(browser, { lodge: server.origin, site: unlisted.origin })
     await embedFallback(browser, { lodge: server.origin, site: site.origin, job: { title: 'Yard lead' }, email: 'noor@example.test' })
     // ATTR-012: a job approved for two offices gets a post per width, put live in the app and opened from the careers page.

@@ -119,3 +119,9 @@ test('LDG-014 Workable package: preview writes nothing, commit is exact and repe
     assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='blob' AND id LIKE 'workable:%'").first()).n, 0, 'unchanged document bytes are removed with their records')
   } finally { await h.close() }
 })
+
+// Legacy links are independent of account-backed source migration acceptance.
+test('MIG-009 old source links resolve only to currently public mapped jobs and posts', async t => {
+  const { checkLegacyLinks } = await import('./legacy-links.mjs')
+  await checkLegacyLinks(t)
+})
