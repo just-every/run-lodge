@@ -97,8 +97,6 @@ try {
     // DATA-003: one applicant on each of two jobs selected from their board views, a previewed bulk tag applied to both.
     await bulkPage(browser, { root, origin: server.origin, run, jobs: [lead, hand], evidence })
     await resumeIntakePage(browser, { root, origin: server.origin, job: lead, evidence })
-    // MIG-008: the Workable kit's import, then a previewed and approved cutover into live jobs.
-    await cutoverPage(browser, { root, origin: server.origin, run, evidence })
     // TEAM-002/003: @mentions from the note box, the home list and the notification settings.
     await notifyPage(browser, { root, origin: server.origin, run, job: lead, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await documentsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
@@ -123,6 +121,8 @@ try {
   await owner.page.screenshot({ path: join(evidence, 'move-in-preview-1440.png'), fullPage: true })
   await owner.page.getByRole('button', { name: 'Commit this exact preview' }).click()
   await owner.page.getByText(/Import completed/).waitFor()
+  // MIG-008: that import's open applications, moved into live jobs by a previewed and approved cutover.
+  await cutoverPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence })
 
   // Every main screen the owner uses, the Lobby, sign-in and the public job list, at both widths.
   for (const width of [1440, 390]) await screens(browser, root, server.origin, width, evidence)

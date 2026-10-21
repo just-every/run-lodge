@@ -975,7 +975,7 @@
       "executable": false
     },
     "src/lodge/notify/view.ts": {
-      "sha256": "6dafb6f5b11e7c750c7338eef6406d8eeb029c50b2be08c90482b96fea019a02",
+      "sha256": "fa0f01357a7cd581b98f85e8df20e09bb7b91e40b1fdd0f31424f8ec883d8bf9",
       "executable": false
     },
     "src/lodge/operations/configuration.ts": {
@@ -3323,7 +3323,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "14ca0878f8d483541e499973d41921e1830c0b8f862e0e4b72a7954103df9081",
+      "sha256": "fac82867adeee6345297995b99dea98ea04478937a1ae515320ac3bb1c31c83d",
       "executable": false
     },
     "tests/bulk-page.mjs": {
@@ -3339,7 +3339,7 @@
       "executable": false
     },
     "tests/cutover-page.mjs": {
-      "sha256": "a2a32060ffdb366b14f1c52eeccc04fafbb070f72a977e47cb830af371ca4628",
+      "sha256": "e4dc8b3e6d36ecdabdea42903c9afec7a9144c5c27900919602b050955b8a518",
       "executable": false
     },
     "tests/document-fixtures.mjs": {

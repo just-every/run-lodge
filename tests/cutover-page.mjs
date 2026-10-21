@@ -1,9 +1,8 @@
-// MIG-008 on the real screen at 1440 and 390: after the Workable kit's import, the owner prepares a live job, previews the
+// MIG-008 on the real screen at 1440 and 390: after the Workable kit's import (made through its own screen), the owner prepares a live job, previews the
 // mapped cutover on the Move in screen, approves that exact preview and sees the moved people on the live job.
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
-import { folderEntries, zip } from './zip.mjs'
 
 async function fits(page, label) {
  const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: window.innerWidth }))
@@ -11,12 +10,6 @@ async function fits(page, label) {
 }
 
 export async function cutoverPage(browser, { root, origin, run, evidence }) {
- const owner = await session(browser, root, origin, 'owner', 1440)
- const pkg = { filename: 'workable-export.zip', base64: zip(await folderEntries('fixtures/workable-full-export')).toString('base64') }
- const post = async (path, body) => { const r = await owner.context.request.post(origin + '/api/lodge/import/' + path, { headers: { origin }, data: body }); assert.equal(r.status(), 200, await r.text()); return r.json() }
- const planned = await post('preview', pkg)
- await post('commit', { ...pkg, fingerprint: planned.plan.fingerprint })
- await owner.context.close()
  for (const [width, imported, people] of [[1440, 'Site supervisor', ['Dana Whitfield', 'Lee Moreno']], [390, 'Estimator', ['Kai Ito', 'Lee Moreno']]]) {
   const title = `${imported} (live ${width})`
   const job = await run('vacancy', { title, location: 'Brooklyn, NY', headcount: 2, manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 6500000, max: 8500000, period: 'year' } })

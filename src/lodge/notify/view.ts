@@ -8,10 +8,16 @@ import { EVENTS, settingFor, type EventKind } from './events'
 export function alertsView(s: State, a: Actor): Data[] {
   if (a.agent) return []
   const me = scope(a), at = Date.now()
-  return s.all('alert').filter(x => x.to === me && x.inAppFrom && Date.parse(x.inAppFrom) <= at && reach(s, a, x)).sort((p, q) => q.at.localeCompare(p.at)).slice(0, 200).map(x => {
+  const due = s.all('alert').filter(x => x.to === me && x.inAppFrom && Date.parse(x.inAppFrom) <= at).sort((p, q) => q.at.localeCompare(p.at))
+  const out: Data[] = []
+  // Newest first, checking live access only until the list is full.
+  for (const x of due) {
+    if (out.length >= 200) break
+    if (!reach(s, a, x)) continue
     const d = describe(s, x, a)
-    return { id: x.id, event: x.event, label: d.label, title: d.title, detail: d.detail, link: d.link, by: x.by, at: x.at, read: !!x.readAt, textOnly: x.textOnly === true, ...(x.textOnly ? {} : { application: x.application, candidate: x.candidate }), vacancy: x.vacancy }
-  })
+    out.push({ id: x.id, event: x.event, label: d.label, title: d.title, detail: d.detail, link: d.link, by: x.by, at: x.at, read: !!x.readAt, textOnly: x.textOnly === true, ...(x.textOnly ? {} : { application: x.application, candidate: x.candidate }), vacancy: x.vacancy })
+  }
+  return out
 }
 
 /** The settings screen's data: the reader's effective choices on each job they are on, and for admins the role defaults and mention policy. */
