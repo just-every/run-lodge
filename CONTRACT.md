@@ -323,8 +323,8 @@ Judged from the code and tests at commit `89f71d3084f627eca32f7def7b37e893ae045a
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 38 | 26 | 44 | 108 |
-| All | 55 | 26 | 44 | 125 |
+| Target and push further | 39 | 26 | 43 | 108 |
+| All | 56 | 26 | 43 | 125 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
