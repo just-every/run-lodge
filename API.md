@@ -34,7 +34,7 @@ cookie or sign-in URL in a task, log or source file.
   (default 24), average hours to submit, released recommendations only, upcoming load, and each item.
 - `GET /api/lodge/home`: the reader's work across every job they are on (HOME-001): today's and upcoming
   interviews (kit links), scorecards due and overdue, approvals waiting on them, review queues, their
-  follow-ups and tasks, draft offers waiting on them, and for the people who run a job its stalled stages
+  follow-ups and tasks, unread @mentions (TEAM-002; linkless text for one they cannot open), draft offers waiting on them, and for the people who run a job its stalled stages
   (14+ days) and interviews still collecting times; each item with the `/app?…` link to its exact work item.
 - `GET /api/lodge/board/:vacancyId`: one job's pipeline board as the reader sees it (PIPE-001), with their
   saved view applied: stage columns (filtered cards and the job total), each card's days in stage, last
@@ -90,7 +90,11 @@ with merge fields `{candidate_name}`, `{job_title}`, `{business_name}`), `interv
 interviewer's `can-cover` with an optional `freeAt`, each with a `note`), `scorecard`, `correct-scorecard` (the author's
 linked correction of a submitted `scorecard` id, with a `reason`), `release-feedback`, `note`, `team-note`
 (a shared candidate note: `candidate` or `application`, `text`, `private` for admins and the job's
-managers; send its `id` to edit your own, history kept), `task` (a follow-up on a `candidate` or
+managers; send its `id` to edit your own, history kept; write `@` and an active member's address to mention them, TEAM-002),
+`mention-policy` (admins: `{ refuseWithoutAccess }`), `notify-pref` (your own choice for a job you are on:
+`{ vacancy, event, email?, inApp? }`, each `off | immediate | digest | inherit`; events `application`, `assigned`, `approval`,
+`scorecard`, `feedback`, `interview`, `offer`, `mention`), `notify-default` (admins: the same for a REQ-003 `role`), `alert-read`
+(`{ id }` or `{ all: true }`), `task` (a follow-up on a `candidate` or
 `application`, or for admins and managers `kind: "task"`, with `note`, `due` date and `owner`),
 `complete-task`, `message`,
 `request-message-approval`, `offer`, `request-offer-approval`,

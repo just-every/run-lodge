@@ -2,6 +2,7 @@ import type { State } from '../core/state'
 import { canReview, onPanel, requireApplication, requireManages, requireMember } from '../core/access'
 import { email, instant, integer, list, now, oneOf, optionalText, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { businessZone, isZone } from '../core/time'
+import { notifyInterview } from '../notify/emit'
 
 // Flow 8: plan an interview from the vacancy's plan, collect availability from
 // the panel and the candidate, schedule one slot and hand out calendar files.
@@ -72,6 +73,7 @@ export function schedule(s: State, a: Actor, b: Data) {
   const index = integer(b.slot, 'Time', 0, iv.slots.length - 1)
   const record = s.put('interview', iv.id, { ...iv, status: 'scheduled', start: iv.slots[index], scheduledBy: a.email, scheduledAt: now() })
   s.audit(a, 'interview-scheduled', 'interview:' + iv.id, { start: record.start })
+  notifyInterview(s, record, a.email, 'scheduled')
   return record
 }
 
@@ -100,6 +102,7 @@ export function cancel(s: State, a: Actor, b: Data) {
   requireThat(iv.status !== 'cancelled', 'Already canceled', 409)
   const record = s.put('interview', iv.id, { ...iv, status: 'cancelled', cancelReason: text(b.reason, 'Reason', 500) })
   s.audit(a, 'interview-cancelled', 'interview:' + iv.id)
+  notifyInterview(s, record, a.email, 'canceled')
   return record
 }
 

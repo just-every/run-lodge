@@ -35,6 +35,7 @@ import { intakeLifecycleView } from '../resumes/lifecycle'
 import { cpraDraft } from '../records/privacy'
 import { sandboxesView } from '../operations/sandbox'
 import { providerSummary } from '../operations/providers'
+import { alertsView, notifyView } from '../notify/view'
 
 /**
  * REQ-003 (ct, 19 Oct): a sourcer sees who is already on the job, as names and
@@ -213,6 +214,8 @@ export async function workspaceRecords(s: State, a: Actor) {
       ...tasks.filter(t => t.owner === scope(a) && t.status === 'open' && t.due <= today).map(t => ({ id: 'due:' + t.id, kind: 'task-due', task: t.id, application: t.application, candidate: t.candidate, by: t.createdBy, reason: t.note, at: t.due, overdue: t.due < today })),
       ...s.all('notification').filter(n => n.to === scope(a) && appIds.has(n.application)).sort((x, y) => y.at.localeCompare(x.at)),
     ],
+    // TEAM-002/003: the reader's due alerts (mentions among them, shown on HOME-001) and their notification settings.
+    alerts: alertsView(s, a), notify: notifyView(s, a),
     messages, offers, approvals,
     restricted: admin ? s.all('monitoring').filter(m => !hiddenApp(m.application)) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.

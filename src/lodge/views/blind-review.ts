@@ -43,7 +43,7 @@ export function blindProjection<T extends Data>(s: State, a: Actor, view: T): T 
   out.documents = view.documents.filter((d: Data) => !blind.has(d.application) && !(people.has(d.candidate) && !fullPeople.has(d.candidate) && !d.application))
   out.resumeExtractions = view.resumeExtractions.filter((r: Data) => !blind.has(r.application) && !(people.has(r.candidate) && !fullPeople.has(r.candidate) && !r.application))
   out.resumeIntakes = view.resumeIntakes.filter((r: Data) => !blind.has(r.application) && !(people.has(r.candidate) && !fullPeople.has(r.candidate) && !r.application))
-  for (const key of ['interviews', 'scorecards', 'notes', 'teamNotes', 'activity', 'tasks', 'messages', 'offers', 'notifications', 'debriefs']) out[key] = rows(view[key])
+  for (const key of ['interviews', 'scorecards', 'notes', 'teamNotes', 'activity', 'tasks', 'messages', 'offers', 'notifications', 'alerts', 'debriefs']) out[key] = rows(view[key])
   out.importedHistory = { ...view.importedHistory, notes: rows(view.importedHistory.notes), ratings: rows(view.importedHistory.ratings), messages: rows(view.importedHistory.messages) }
   out.vacancies = view.vacancies.map((v: Data) => {
     const mine = [...blind.values()].filter(app => app.vacancy === v.id)

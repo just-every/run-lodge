@@ -1,7 +1,8 @@
 import type { PageProps } from './app'
 import { person } from './names'
 import { when } from './format'
-import { Check, Field, Form, Status, type D } from './shared'
+import { Check, Form, Status, type D } from './shared'
+import { MentionBox } from './notifications'
 import { FollowUp } from './tasks'
 
 const STAGE = (v: D | undefined, id: string) => v?.stages?.find((s: D) => s.id === id)?.name ?? id
@@ -24,14 +25,14 @@ export function Notes({ app, w, mutate }: { app: D; w: D; mutate: PageProps['mut
   return <section className="card">
     <h3>Notes and activity</h3>
     <Form label="Add note" reset onSubmit={x => mutate('team-note', { application: app.id, text: x.text, private: x.private === true })}>
-      <Field label="Note for the hiring team" name="text" type="textarea" wide />
+      <MentionBox w={w} label="Note for the hiring team" />
       <Check label="Private to admins and this job’s hiring managers" name="private" />
     </Form>
     <FollowUp app={app} w={w} mutate={mutate} />
     {!feed.length && <p className="empty">Nothing has happened on this candidate yet.</p>}
     <ul className="list">{feed.map((e: D, i: number) => e.kind === 'note'
       ? <li key={e.note}><article className="card"><h4>{person(w, e.actor)} · {when(e.at)}{e.private && <> <Status tone="warn">private</Status></>}{e.edited && <> <Status>edited</Status></>}</h4><p className="pre">{e.text}</p>
-        {w.teamNotes.find((n: D) => n.id === e.note)?.author === me && <details><summary>Edit</summary><Form label="Save note" onSubmit={x => mutate('team-note', { id: e.note, text: x.text })}><Field label="Note" name="text" type="textarea" wide defaultValue={e.text} /></Form></details>}</article></li>
+        {w.teamNotes.find((n: D) => n.id === e.note)?.author === me && <details><summary>Edit</summary><Form label="Save note" onSubmit={x => mutate('team-note', { id: e.note, text: x.text })}><MentionBox w={w} label="Note" defaultValue={e.text} /></Form></details>}</article></li>
       : <li key={i}><small>{when(e.at)}</small> {line(e, w)}</li>)}</ul>
   </section>
 }

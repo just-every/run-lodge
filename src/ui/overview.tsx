@@ -9,6 +9,7 @@ import { Tasks } from './tasks'
 import { InterviewerActivity } from './activity-report'
 import { YourWork } from './your-work'
 import { InternalJobs } from './internal'
+import { Alerts, NotificationSettings } from './notifications'
 import { home } from '../lodge/views/home'
 
 export function Overview({ w, mutate, go, follow }: PageProps) {
@@ -48,6 +49,7 @@ export function Overview({ w, mutate, go, follow }: PageProps) {
     <div className="pair">
       <div>
         {w.notifications.length > 0 && <section className="card"><h2>For your attention</h2><ul className="list rich">{w.notifications.map((n: D) => <li key={n.id}><button onClick={() => n.application ? go('Applications', { app: n.application, job: undefined }) : undefined}><Icon name="clock" /><span><strong>{n.kind === 'task-due' ? `${n.overdue ? 'Overdue' : 'Due today'}: ${n.reason}` : n.kind === 'esign' ? n.title : `${person(w, n.by)} corrected a released scorecard`}</strong><small>{[n.application ? w.applications.find((a: D) => a.id === n.application)?.candidateName : w.candidates.find((c: D) => c.id === n.candidate)?.name, n.kind === 'task-due' ? (n.by !== w.actor.email ? 'set by ' + person(w, n.by) : '') : n.reason, n.kind === 'task-due' ? n.at : recent(n.at)].filter(Boolean).join(' · ')}</small></span></button></li>)}</ul></section>}
+        <Alerts w={w} mutate={mutate} follow={follow} />
         <Tasks w={w} mutate={mutate} go={go} />
         <InterviewerActivity w={w} go={go} />
         {decisions.length > 0 && <section className="card"><h2>Waiting for your decision</h2><ul className="list rich">{decisions.map(id => {
@@ -64,8 +66,9 @@ export function Overview({ w, mutate, go, follow }: PageProps) {
             {w.coordination.awaitingTimes.map((t: D) => <li key={t.interview}><button onClick={() => go('Applications', { app: t.application, job: undefined })}><Icon name="calendar" /><span><strong>{w.applications.find((a: D) => a.id === t.application)?.candidateName}: times proposed</strong><small>{t.title.split(':')[0]} · {t.responded.length} of {t.best[0]?.of ?? t.responded.length} on the panel and the candidate have answered</small></span></button></li>)}</ul>
         </section>}
       </div>
-      <YourWork w={w} follow={follow} />
+      <YourWork w={w} follow={follow} mutate={mutate} />
       <InternalJobs w={w} mutate={mutate} />
+      <NotificationSettings w={w} mutate={mutate} />
     </div>
   </div>
 }

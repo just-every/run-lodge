@@ -25,6 +25,7 @@ import { fieldsImportPage } from './fields-import-page.mjs'
 import { fieldsPage } from './fields-page.mjs'
 import { blindPage } from './blind-page.mjs'
 import { bulkPage } from './bulk-page.mjs'
+import { notifyPage } from './notify-page.mjs'
 import { folderEntries, zip } from './zip.mjs'
 
 const evidence = resolve(process.env.LODGE_EVIDENCE ?? '.cache/lodge-browser-proof')
@@ -95,6 +96,8 @@ try {
     // DATA-003: one applicant on each of two jobs selected from their board views, a previewed bulk tag applied to both.
     await bulkPage(browser, { root, origin: server.origin, run, jobs: [lead, hand], evidence })
     await resumeIntakePage(browser, { root, origin: server.origin, job: lead, evidence })
+    // TEAM-002/003: @mentions from the note box, the home list and the notification settings.
+    await notifyPage(browser, { root, origin: server.origin, run, job: lead, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await documentsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await offersPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await esignPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })

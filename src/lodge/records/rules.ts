@@ -3,6 +3,7 @@ import { isAdmin, managesVacancy, requireAdmin, requireCan, requireManages, requ
 import { date, now, oneOf, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { closeApplication, closeChoice } from './rejections'
 import { jobForm } from './questions'
+import { notifyAssigned } from '../notify/emit'
 
 // SCREEN-002: rules on a job's objective screening answers (SCREEN-001). A rule
 // matches an exact value or numeric/date bounds and then routes the application
@@ -106,7 +107,11 @@ function act(s: State, rule: Data, version: Data, app: Data, path: string, live:
     s.put('stage-event', uid(), { application: app.id, from: app.stage, to: then.stage, reason: `Routed by ${by}`, actor: by, at: now() })
     return s.put('application', app.id, { ...app, stage: then.stage })
   }
-  if (then.kind === 'assign') return s.put('application', app.id, { ...app, reviewers: [...new Set([...(app.reviewers ?? []), then.reviewer])] })
+  if (then.kind === 'assign') {
+    const next = s.put('application', app.id, { ...app, reviewers: [...new Set([...(app.reviewers ?? []), then.reviewer])] })
+    if (live && !(app.reviewers ?? []).includes(then.reviewer)) notifyAssigned(s, next, [then.reviewer], null)
+    return next
+  }
   if (then.kind === 'tag') return s.put('application', app.id, { ...app, tags: [...new Set([...(app.tags ?? []), then.tag])] })
   if (then.kind !== 'propose-reject') return app
   const auto = live ? autoFor(rule, version, app.submittedAt) : null

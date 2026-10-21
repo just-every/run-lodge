@@ -3,6 +3,7 @@ import { requireCan, requireMember, requireRole } from '../core/access'
 import { canonical, now, oneOf, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { kickoffTerms } from './kickoffs'
 import { settleOpenings } from './openings'
+import { notifyApproval, notifyOffer } from '../notify/emit'
 
 // Approvals bind a person's decision to the exact version of what they saw.
 // Changing the subject afterwards makes the approval stale: it no longer
@@ -49,6 +50,7 @@ export async function requestApproval(s: State, a: Actor, kind: Subject, record:
   if (pending?.status === 'pending') s.put('approval', pending.id, { ...s.get('approval', pending.id), status: 'superseded', decidedAt: now() })
   const approval = s.put('approval', uid(), { subjectKind: kind, subjectId: record.id, version: await versionOf(s, kind, record), terms: terms(s, kind, record), requestedBy: a.email, approver: approver.email, status: 'pending', requestedAt: now(), purpose })
   s.audit(a, 'approval-requested', `${kind}:${record.id}`, { approval: approval.id, approver: approver.email })
+  notifyApproval(s, approval, a.email)
   return approval
 }
 
@@ -74,6 +76,7 @@ export async function decide(s: State, a: Actor, b: Data) {
   requireThat(approval.version === current, 'The subject changed after approval was requested; request approval again', 409)
   const result = s.put('approval', approval.id, { ...approval, status: decision, reason, decidedBy: a.email, decidedAt: now() })
   s.audit(a, 'approval-' + decision, `${approval.subjectKind}:${approval.subjectId}`, { approval: approval.id, reason })
+  if (approval.subjectKind === 'offer') notifyOffer(s, subject, a.email, decision === 'approved' ? 'approved' : 'not approved')
   // REQ-001: a headcount decision opens (or refuses) the job's openings.
   if (approval.subjectKind === 'vacancy') settleOpenings(s, a, subject, decision)
   return result

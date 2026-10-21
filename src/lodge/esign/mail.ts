@@ -14,10 +14,10 @@ const origin = (env: Bindings) => runtimeBindings(env).AUTH_ORIGIN
 
 export type Delivery = { outcome: 'handed'; provider: string } | { outcome: 'failed'; provider: string; reason: string }
 
-export async function deliver(env: Bindings, to: string, subject: string, text: string): Promise<Delivery> {
+export async function deliver(env: Bindings, to: string, subject: string, text: string, kind = 'esign'): Promise<Delivery> {
   const provider = env.MAIL_PROVIDER ?? 'not configured'
   try {
-    const result = await operatorMail(env)!.send({ from: env.MAIL_FROM, to: [to], subject, text, deliveryId: 'esign-' + crypto.randomUUID() } as unknown as MailMessage)
+    const result = await operatorMail(env)!.send({ from: env.MAIL_FROM, to: [to], subject, text, deliveryId: kind + '-' + crypto.randomUUID() } as unknown as MailMessage)
     return result.status === 'accepted' || result.status === 'development' ? { outcome: 'handed', provider } : { outcome: 'failed', provider, reason: String(result.status) }
   } catch { return { outcome: 'failed', provider, reason: 'mail provider error' } }
 }

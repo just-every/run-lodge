@@ -2177,3 +2177,13 @@ test('CRM-005 invited agencies own frozen submissions, reviewed credit and coars
   const { checkAgency } = await import('./agency-flow.mjs')
   await checkAgency(t)
 })
+
+test('TEAM-002 @mentions raise access-checked notifications and never widen access', async () => {
+  const { checkMentions } = await import('./notify-flow.mjs')
+  await checkMentions()
+})
+
+test('TEAM-003 personal notification subscriptions, role defaults, the daily digest and live access at send time', async () => {
+  const { checkNotifications } = await import('./notify-flow.mjs')
+  await checkNotifications()
+})

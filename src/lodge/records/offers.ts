@@ -7,6 +7,7 @@ import { cancelTasks } from './tasks'
 import { templateVersion } from './offer-templates'
 import { renderOfferDocument } from '../views/offer-document'
 import { fill, namedOpening } from './openings'
+import { notifyOffer } from '../notify/emit'
 
 // Flow 11: an offer record, its approval packet, the approval bound to the
 // exact terms, and the recorded outcome. Accepting records the hire and opens
@@ -96,6 +97,7 @@ export async function outcome(s: State, a: Actor, b: Data) {
   if (result === 'accepted') return accept(s, a, o, app, vacancy, reason)
   const record = s.put('offer', o.id, { ...o, status: result, outcomeReason: reason, outcomeBy: a.email, outcomeAt: now() })
   s.audit(a, 'offer-' + result, 'offer:' + o.id, { reason })
+  notifyOffer(s, record, a.email, result)
   return record
 }
 
@@ -107,6 +109,7 @@ export function accept(s: State, a: Actor | null, o: Data, app: Data, vacancy: D
   s.put('vacancy', vacancy.id, { ...filled, hires: (vacancy.hires ?? 0) + 1 })
   s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'hired', reason: 'Offer accepted: ' + reason, actor: a?.email ?? 'candidate (native e-signature)', at: now() })
   cancelTasks(s, app.id, 'Application hired')
+  notifyOffer(s, record, a?.email ?? null, 'accepted')
   s.audit(a, 'offer-accepted', 'offer:' + o.id, { reason, ...(extra.signature ? { signature: extra.signature.kind, sha256: extra.signature.sha256 } : {}) })
   return record
 }

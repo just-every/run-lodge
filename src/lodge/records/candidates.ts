@@ -6,6 +6,7 @@ import { date, email, list, now, oneOf, optionalEmail, optionalText, requireThat
 import { storeDocument } from './documents'
 import { cancelTasks } from './tasks'
 import { initialCredit } from './sources'
+import { notifyApplication } from '../notify/emit'
 
 // Flows 4 and 5: candidates with source, consent and retention metadata; one
 // candidate linked to several applications; possible duplicates surfaced for a
@@ -37,6 +38,7 @@ export function startApplication(s: State, actor: Actor | null, candidate: Data,
   const application = s.put('application', uid(), { candidate: candidate.id, vacancy: vacancy.id, stage: vacancy.stages[0].id, status: 'active', source, rubricVersion: vacancy.rubrics.at(-1).version, reviewers: [], feedbackReleased: false, submittedAt: now(), ...extra, customValues })
   requireStageFields(s, vacancy, application, application.stage)
   s.put('stage-event', uid(), { application: application.id, from: null, to: application.stage, reason: received, actor: actor?.email ?? 'applicant', at: now() })
+  notifyApplication(s, vacancy, application, actor?.email ?? null)
   return application
 }
 

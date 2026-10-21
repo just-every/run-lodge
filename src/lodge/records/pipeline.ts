@@ -5,6 +5,7 @@ import { holdsFor } from './retention'
 import { cancelTasks } from './tasks'
 import { cancelRejectionEmails, closeApplication, closeChoice } from './rejections'
 import { email, list, now, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { notifyAssigned } from '../notify/emit'
 
 // Flows 6 and 7: who reviews an application, and every stage move with its
 // reason, actor and time kept as readable history.
@@ -18,6 +19,7 @@ export function assignReviewers(s: State, a: Actor, b: Data) {
     requireThat(canReview({ owner: m.owner, roles: m.roles }), `${r} needs the interviewer role`)
   }
   const record = s.put('application', app.id, { ...app, reviewers: [...new Set(reviewers)] })
+  notifyAssigned(s, record, record.reviewers.filter((r: string) => !(app.reviewers ?? []).includes(r)), a.email)
   s.audit(a, 'reviewers-assigned', 'application:' + app.id, { reviewers: record.reviewers })
   return record
 }

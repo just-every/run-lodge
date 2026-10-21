@@ -1,6 +1,7 @@
 import type { State } from '../core/state'
 import { assignedTo, canSeeScorecard, hiringManagers, managesVacancy, requireApplication, requireCan, requireManages } from '../core/access'
 import { now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { notifyFeedback, notifyScorecard } from '../notify/emit'
 
 // Flow 9: each interviewer writes their own scorecard against the rubric
 // version the application was opened with. Colleagues' scorecards stay hidden
@@ -62,6 +63,7 @@ export function scorecard(s: State, a: Actor, b: Data) {
     notes: optionalText(b.notes, 'Notes', 8000), status: submit ? 'submitted' : 'draft', updatedAt: now(), ...(submit ? { submittedAt: now() } : {}),
   })
   s.audit(a, submit ? 'scorecard-submitted' : 'scorecard-saved', 'application:' + app.id)
+  if (submit) notifyScorecard(s, app, record, a.email)
   return record
 }
 
@@ -135,6 +137,7 @@ export function releaseFeedback(s: State, a: Actor, b: Data) {
   const reason = waiting.length ? text(b.reason, `Reason for releasing before ${waiting.join(', ')} submit`, 1000) : optionalText(b.reason, 'Reason', 1000)
   const record = s.put('application', app.id, { ...app, feedbackReleased: true, feedbackReleasedAt: now(), feedbackReleasedBy: a.email })
   s.audit(a, 'feedback-released', 'application:' + app.id, { waiting, reason })
+  notifyFeedback(s, record, a.email)
   return record
 }
 

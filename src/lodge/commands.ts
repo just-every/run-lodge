@@ -48,6 +48,8 @@ import { providerSetup, reviewProviderSetup } from './operations/providers'
 import { esignDisclosure, esignSigner } from './esign/disclosure'
 import { esignMoveSigner, esignVoid } from './esign/envelope'
 import { grantsOf } from './core/store'
+import { mentionPolicy } from './notify/mentions'
+import { alertRead, notifyDefault, notifyPref } from './notify/prefs'
 
 export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
 
@@ -58,6 +60,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  */
 export const commands: Record<string, Command> = {
   'legacy-link': legacyLink,
+  'mention-policy': mentionPolicy, 'notify-pref': notifyPref, 'notify-default': notifyDefault, 'alert-read': alertRead,
   agency, 'agency-job': agencyJob, 'agency-submit': agencySubmit, 'agency-review': agencyReview, 'agency-progress': agencyProgress, 'agency-fee': agencyFee,
   'sandbox-create': createSandbox, 'sandbox-edit': editSandbox, 'sandbox-preview': previewSandbox, 'sandbox-deploy': deploySandbox, 'sandbox-rollback': rollbackSandbox,
   'provider-setup': providerSetup, 'provider-review': reviewProviderSetup,

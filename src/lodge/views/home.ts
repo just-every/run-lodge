@@ -21,7 +21,9 @@ import { businessZone, fromWall, toWall } from '../core/time'
 //   application 14 or more whole days in its stage or an interview still
 //   collecting times.
 // Everything is derived, so an item leaves once it is submitted, decided,
-// canceled or its access is revoked. @mentions join with TEAM-002.
+// canceled or its access is revoked;
+// - mentions: unread @mentions of them (TEAM-002), each linking to the candidate, or linkless text for a mention of
+//   something they cannot open; a mention leaves once read or once the access it was sent under is gone.
 
 const DAY = 86_400_000
 export const STALLED_DAYS = 14
@@ -62,6 +64,9 @@ export function home(w: Data, now = Date.now()) {
   const offers = w.offers.filter((o: Data) => o.status === 'draft' && (o.approvedNow || !(o.approval?.status === 'pending' && o.approval.version === o.version)))
     .map((o: Data) => ({ kind: 'offer', id: o.id, title: o.title, action: o.approvedNow ? 'record-outcome' : 'request-approval', ...about(app(o.application)), link: link({ application: o.application }) }))
 
+  const mentions = (w.alerts ?? []).filter((x: Data) => x.event === 'mention' && !x.read)
+    .map((x: Data) => ({ kind: 'mention', id: x.id, title: x.title, text: x.detail, by: x.by, at: x.at, textOnly: x.textOnly, ...(x.application ? about(app(x.application)) : {}), link: x.link }))
+
   const attention = w.vacancies.filter((v: Data) => v.manages && v.status === 'open').flatMap((v: Data) => {
     const active = w.applications.filter((a: Data) => a.vacancy === v.id && a.status === 'active')
     const stalled = active.filter((a: Data) => Math.floor((now - Date.parse(a.history.at(-1)?.at ?? a.submittedAt)) / DAY) >= STALLED_DAYS).length
@@ -69,6 +74,6 @@ export function home(w: Data, now = Date.now()) {
     return stalled || unscheduled ? [{ kind: 'attention', id: v.id, vacancy: v.id, job: v.title, stalled, unscheduled, link: link({ job: v.id }) }] : []
   })
 
-  const groups = { interviews, scorecards, approvals, reviews, mentions: [] as Data[], tasks, offers, attention }
+  const groups = { interviews, scorecards, approvals, reviews, mentions, tasks, offers, attention }
   return { ...groups, counts: Object.fromEntries(Object.entries(groups).map(([k, v]) => [k, v.length])) as Record<keyof typeof groups, number>, overdue: scorecards.filter((x: Data) => x.overdue).length + tasks.filter((x: Data) => x.overdue).length }
 }

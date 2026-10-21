@@ -1,4 +1,4 @@
-import { resumeIntakeMaintenance } from './lodge/resumes/maintenance'
+import { afterWrite, scheduledRun } from './lodge/notify/run'
 import { withDemo } from './modules/demo/index.mjs'
 import { seedDemo } from './demo'
 import start from '@tanstack/react-start/server-entry'
@@ -28,9 +28,7 @@ function noTransform(response: Response): Response {
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers })
 }
 
-export default withDemo({
-  scheduled: resumeIntakeMaintenance,
-  async fetch(request, env, execution) {
+async function route(request: Request, env: Bindings, execution: ExecutionContext): Promise<Response> {
     const asset = await staticAssetResponse(request, env)
     if (asset) return asset
     const auth = await authResponse(request, env)
@@ -47,5 +45,9 @@ export default withDemo({
     if (new URL(request.url).pathname.startsWith('/events/')) return eventPages.fetch(request, env, execution)
     if (/^\/privacy-requests(\/|$)/.test(new URL(request.url).pathname)) return privacyPages.fetch(request, env, execution)
     return dispatch(request, () => api.fetch(request, env, execution), async () => noTransform(await start.fetch(request)))
-  },
+}
+
+export default withDemo({
+  scheduled: scheduledRun,
+  async fetch(request, env, execution) { return afterWrite(request, await route(request, env, execution), env) },
 } satisfies ExportedHandler<Bindings>, { seed: seedDemo })

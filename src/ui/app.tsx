@@ -43,6 +43,7 @@ export function App() {
     if (at('application')) setNav(n => ({ ...n, tab: 'Applications', app: at('application'), job: null }))
     else if (at('job')) setNav(n => ({ ...n, tab: 'Applications', job: at('job'), app: '' }))
     else if (at('approval')) { setNav(n => ({ ...n, tab: 'Approvals' })); setFocus('approval-' + at('approval')) }
+    else if (at('candidate')) setNav(n => ({ ...n, tab: 'Candidates' }))
     else if (at('task')) { setNav(n => ({ ...n, tab: 'Overview' })); setFocus('task-' + at('task')) }
   }
   useEffect(() => { follow(location.href); reload().catch(e => setError(e.message)) }, [])
