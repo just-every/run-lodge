@@ -2,16 +2,21 @@
 // by emailed code on a phone-width page, consents, signs, and the employer's designated signer countersigns.
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
-import { command } from './browser-runtime.mjs'
+import { readdir } from 'node:fs/promises'
 import { api, current, session } from './browser-journey.mjs'
 
-/** Messages the local mail outbox captured, newest last (`rer outbox --json`). */
+/** Messages the dev server's own captured-mail table holds (the local database under .wrangler), newest last. */
 async function outbox(root) {
- const text = await command(root, ['outbox', '--json'])
+ const { DatabaseSync } = await import('node:sqlite')
+ const files = []
+ const walk = async dir => { for (const entry of await readdir(dir, { withFileTypes: true })) { if (entry.name === 'node_modules' || entry.name === '.git') continue; const path = join(dir, entry.name); if (entry.isDirectory()) await walk(path); else if (entry.name.endsWith('.sqlite')) files.push(path) } }
+ await walk(join(root, '.wrangler')).catch(() => {})
  const found = []
- const walk = value => { if (Array.isArray(value)) value.forEach(walk); else if (value && typeof value === 'object') { if (value.message?.text) found.push(value.message); else if (value.text && value.to) found.push(value); else Object.values(value).forEach(walk) } }
- for (const line of text.split('\n')) { try { walk(JSON.parse(line)) } catch { /* not a JSON line */ } }
- if (!found.length) { const start = text.indexOf('{'), alt = text.indexOf('['); try { walk(JSON.parse(text.slice(Math.min(...[start, alt].filter(i => i >= 0))))) } catch { /* no JSON */ } }
+ for (const file of files) {
+  const db = new DatabaseSync(file, { readOnly: true })
+  try { for (const row of db.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY sequence').all()) found.push(JSON.parse(row.message)) } catch { /* another table file */ } finally { db.close() }
+ }
+ assert.ok(found.length || files.length, 'a local database exists under .wrangler')
  return found
 }
 const latest = async (root, to, pattern) => (await outbox(root)).filter(m => m.to.includes(to) && pattern.test(m.subject + m.text)).at(-1)

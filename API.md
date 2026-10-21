@@ -486,3 +486,22 @@ if its first post later goes live: map the intended post explicitly.
 manages, with old source URLs and currently available hosted destinations.
 Board/feed readback and source arrivals are explicitly unavailable. This is a
 mapping report, not proof of source migration, reposting or completed cutover.
+
+### Native e-signature (OFFER-005)
+
+`esign-disclosure` (owner/hiring admin) saves an immutable, fingerprinted version of the
+electronic-signature disclosure with `reviewed: true` and optional `fee`, `contactName`, `contactEmail`
+(both or neither) and `extra`. `esign-signer { email, designate? }` (owner/hiring admin) designates, or with
+`designate: false` removes, a person who may countersign offers for the employer; the owner is always eligible.
+`offer-template` takes `native`, `countersign` and `signer` for a reviewed version; they sit inside the offer's
+approval hash through its document.
+
+`POST /api/lodge/esign/send { offer, days?, countersign?, signer? }` (a person with offer rights, never an agent)
+sends the approved offer: a signing link by mail now, and a six-digit code mailed separately when the candidate asks
+for it at `/sign/<token>`. Refused unless installation mail is set up, the disclosure is reviewed, the offer has no
+outcome, its exact document and terms are approved now and its template version chooses the native path. One
+in-flight envelope per offer. `esign-void { id, reason }` and `esign-move-signer { id, signer }` are commands.
+`POST /api/lodge/esign/countersign { id, name, hash }` (the designated signer, signed in within 15 minutes) seals the
+PDF and certificate and records the hire. The sealed PDF and certificate are candidate documents
+(`/api/lodge/download/document/:id`) that agents never read. The workspace shows each offer's `esign` status without
+any hash, token or code. Candidates use `/sign/<token>` and, after completion, `/copy/<token>`; neither signs anyone in.

@@ -188,6 +188,7 @@ export async function checkEsign() {
   seen = await view(manager, offer.id)
   assert.equal(seen.status, 'voided'); assert.equal(seen.voidReason, 'offer-edited')
   assert.equal((await h.send(c.path)).status, 404)
+  assert.equal((await h.send(c.path + '/sign', form({ name: 'Taylor Rivers', hash: offer.document.sha256 }), c.cookie, PHONE)).status, 404, 'a candidate holding the old hash cannot sign after the concurrent edit')
   assert.equal((await h.send('/api/lodge/esign/countersign', { id: e3, name: 'Dana Signer', hash: offer.document.sha256 }, signer).then(r => r.status)) >= 400, true, 'a voided envelope cannot be countersigned')
 
   // E4: an email change voids; a corrected address gets a fresh envelope under the same approval.

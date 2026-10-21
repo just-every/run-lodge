@@ -36,3 +36,17 @@ and right-to-work checks happen elsewhere.
 
 An application that was closed stays closed: its offer can be withdrawn, never
 accepted.
+
+## Sign natively in Lodge
+
+Without a signature provider you can send the approved offer for **Lodge-native electronic signature**. Under
+**Vacancies → Electronic signature** the owner or a hiring admin reviews the consent disclosure and designates the
+people who countersign for the employer; a reviewed offer template version then chooses **native signature** and may
+require countersignature. On an approved offer, **Send for native signature** emails the candidate a link. The
+candidate asks for a one-time code (a separate email), reads and agrees to the disclosure, reviews the exact approved
+document and signs with a typed name. The designated signer then countersigns from the same offer; Lodge seals a PDF
+of the approved text with a signature page and issues a completion certificate listing both parties, their verified
+emails, IP addresses, user agents, times and every fingerprint. Completion records the hire and the HR handoff carries
+the signature record. Changing the offer, the candidate's email or the application, or recording an outcome, voids
+the signing request. The seal is tamper-evident by its SHA-256; it is not a PKI digital signature, and Lodge does not
+verify anyone's authority to sign.
