@@ -11,6 +11,9 @@ async function fits(page, label) {
  assert.ok(scroll <= width + 1, `${label}: no sideways scrolling (${scroll} > ${width})`)
 }
 
+// A manager lands on the board; the home list and settings sit on the Overview tab.
+const overview = async page => { await page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Overview', exact: true }).click(); await page.getByRole('heading', { name: 'Your work' }).waitFor() }
+
 export async function notifyPage(browser, { root, origin, run, job, evidence, ownerEmail }) {
  for (const width of [1440, 390]) {
   const name = `Mention Person ${width}`
@@ -37,7 +40,7 @@ export async function notifyPage(browser, { root, origin, run, job, evidence, ow
    await page.getByText('Saved.', { exact: true }).waitFor()
 
    // The colleague with access: the mention is on their home, links to the candidate and leaves once opened.
-   await owner.page.goto(origin + '/app')
+   await owner.page.goto(origin + '/app'); await overview(owner.page)
    const work = owner.page.getByRole('heading', { name: 'Your work' }).locator('..')
    const mention = work.getByRole('link', { name: /mentioned you on/ })
    await mention.waitFor()
@@ -48,7 +51,7 @@ export async function notifyPage(browser, { root, origin, run, job, evidence, ow
    assert.equal((await current(owner.context, origin)).alerts.find(x => x.event === 'mention')?.read, true, 'opening it marked it read')
 
    // The colleague without access: the text, no link, and the candidate stays closed to them.
-   await interviewer.page.goto(origin + '/app')
+   await interviewer.page.goto(origin + '/app'); await overview(interviewer.page)
    const text = interviewer.page.getByRole('heading', { name: 'Your work' }).locator('..').getByRole('listitem').filter({ hasText: 'mentioned you in a note' })
    await text.waitFor()
    assert.equal(await text.getByRole('link').getAttribute('href'), '#', 'no link to the candidate')
@@ -57,7 +60,7 @@ export async function notifyPage(browser, { root, origin, run, job, evidence, ow
    await interviewer.page.screenshot({ path: join(evidence, `TEAM-002-nolink-${width}.png`), fullPage: true })
 
    // TEAM-003: the manager's own setting for the job, saved from the settings card.
-   await manager.page.goto(origin + '/app')
+   await manager.page.goto(origin + '/app'); await overview(manager.page)
    const settings = manager.page.getByRole('heading', { name: 'Notification settings' }).locator('..')
    await settings.locator('summary', { hasText: job.title }).click()
    await settings.getByLabel(`New application: email for ${job.title}`).selectOption('digest')
