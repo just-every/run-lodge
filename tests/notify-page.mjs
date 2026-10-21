@@ -22,6 +22,7 @@ export async function notifyPage(browser, { root, origin, run, job, evidence, ow
    const w = await current(manager.context, origin), app = w.applications.find(a => a.candidateName === name)
    const page = manager.page
    await page.goto(origin + '/app?application=' + app.id)
+   await page.getByRole('tab', { name: 'Notes', exact: true }).click()
    const box = page.getByLabel('Note for the hiring team')
    await box.fill('Please look at this one, @ivy')
    const options = page.getByRole('listbox', { name: 'People you can mention' })
