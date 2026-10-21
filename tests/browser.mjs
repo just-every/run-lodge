@@ -14,6 +14,7 @@ import { command, freePort, fresh, report, start } from './browser-runtime.mjs'
 import { api, current, journey, screens, session } from './browser-journey.mjs'
 import { careersPage, careersSite, embedFallback, embedPage, embedRefused } from './board-page.mjs'
 import { offersPage } from './offer-page.mjs'
+import { esignPage } from './esign-page.mjs'
 import { documentsPage } from './document-page.mjs'
 import { operationsPage } from './operations-page.mjs'
 import { agencyPage } from './agency-page.mjs'
@@ -96,6 +97,7 @@ try {
     await resumeIntakePage(browser, { root, origin: server.origin, job: lead, evidence })
     await documentsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await offersPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+    await esignPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await fieldsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await fieldsImportPage(browser, { root, origin: server.origin, evidence })
     await blindPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })

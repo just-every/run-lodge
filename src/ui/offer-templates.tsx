@@ -1,4 +1,5 @@
 import type { PageProps } from './app'
+import { TemplateSigning } from './esign'
 import { Check, Field, Form, memberOptions, type D } from './shared'
 
 export const offerReference = (value: string) => { if (!value) return undefined; const [id, version] = value.split('@'); return { id, version: Number(version) } }
@@ -7,12 +8,13 @@ export const offerTemplateOptions = (w: D) => (w.offerTemplates ?? []).flatMap((
 
 function TemplateForm({ w, mutate, template }: Pick<PageProps, 'w' | 'mutate'> & { template?: D }) {
   const latest = template?.versions.at(-1)
-  return <Form label={template ? 'Save reviewed version' : 'Create reviewed offer template'} reset={!template} onSubmit={x => mutate('offer-template', { id: template?.id, name: x.name, body: x.body, contingencies: x.contingencies, normalApprover: x.normalApprover, exceptionApprover: x.exceptionApprover, reviewed: x.reviewed === true })}>
+  return <Form label={template ? 'Save reviewed version' : 'Create reviewed offer template'} reset={!template} onSubmit={x => mutate('offer-template', { id: template?.id, name: x.name, body: x.body, contingencies: x.contingencies, normalApprover: x.normalApprover, exceptionApprover: x.exceptionApprover, native: x.native === true, countersign: x.countersign === true, signer: x.signer || undefined, reviewed: x.reviewed === true })}>
     <Field label="Offer template name" name="name" defaultValue={template?.name} />
     <Field label="Document template" name="body" type="textarea" wide defaultValue={latest?.body} hint="Merge fields: {{candidateName}}, {{title}}, {{location}}, {{employmentType}}, {{pay}}, {{startDate}}, {{bonus}}, {{equity}}, {{contingencies}}, {{terms}}" />
     <Field label="Employer-reviewed contingencies" name="contingencies" type="textarea" wide defaultValue={latest?.contingencies} required={false} />
     <Field label="Normal offer approver" name="normalApprover" defaultValue={latest?.normalApprover} options={memberOptions(w.members, 'approver')} />
     <Field label="Compensation exception approver" name="exceptionApprover" defaultValue={latest?.exceptionApprover} options={memberOptions(w.members, 'approver')} />
+    <TemplateSigning latest={latest} w={w} />
     <Check name="reviewed" label="I confirm the employer has reviewed this template and its contingencies" />
   </Form>
 }

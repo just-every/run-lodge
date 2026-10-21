@@ -1,3 +1,4 @@
+import { EsignPanel } from './esign'
 import { OfferDocument, OfferForm } from './offer-form'
 import type { PageProps } from './app'
 import { day, money } from './format'
@@ -38,11 +39,12 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
     <h3>Offer</h3>
     {list.map((o: D) => <article key={o.id} className="card">
       <h4>{o.title} · {money(o.salary)} · starts {day(o.startDate)}{o.opening && ` · opening ${v?.openings?.find((x: D) => x.id === o.opening)?.code ?? ''}`} {o.status === 'draft' ? approvalState(o, w) : <Status tone={tone(o.status)}>{o.status}</Status>}</h4>
-      {o.signature && <p className="hint"><strong>{o.signature.label[0].toUpperCase() + o.signature.label.slice(1)}.</strong> Signed original <a href={`/api/lodge/download/document/${o.signature.document}`}>on file</a> ({o.signature.method === 'hris' ? 'signed in the HR system' : o.signature.method === 'paper' ? 'signed on paper' : 'signed in another tool'}), SHA-256 {o.signature.sha256.slice(0, 12)}…, attested by {person(w, o.signature.attestedBy)}{o.signature.differences ? `; differences: ${o.signature.differences}` : '; no differences named'}.</p>}
+      {o.signature && o.signature.kind !== 'native' && <p className="hint"><strong>{o.signature.label[0].toUpperCase() + o.signature.label.slice(1)}.</strong> Signed original <a href={`/api/lodge/download/document/${o.signature.document}`}>on file</a> ({o.signature.method === 'hris' ? 'signed in the HR system' : o.signature.method === 'paper' ? 'signed on paper' : 'signed in another tool'}), SHA-256 {o.signature.sha256.slice(0, 12)}…, attested by {person(w, o.signature.attestedBy)}{o.signature.differences ? `; differences: ${o.signature.differences}` : '; no differences named'}.</p>}
       {o.rangeWarning && <p className="warn">{o.rangeWarning}.</p>}
       {o.conditional && <p className="hint">Conditional offer: any background check comes after it.</p>}
       {o.terms && <p className="pre">{o.terms}</p>}
       <OfferDocument offer={o} app={app} v={v} w={w} mutate={mutate} />
+      <EsignPanel offer={o} app={app} w={w} mutate={mutate} />
       <p><a href={`/api/lodge/download/packet/${o.id}`}>Approval packet (JSON)</a>{o.status === 'accepted' && <> · <a href={`/api/lodge/download/handoff/${o.id}`}>HR handoff (JSON)</a></>}</p>
       {o.status === 'draft' && <>
         {!o.approvedNow && o.document && <Form label="Request document approval" compact onSubmit={() => mutate('request-offer-approval', { id: o.id })}><p>Routed to {person(w, o.rangeWarning ? o.document.exceptionApprover : o.document.normalApprover)}{o.rangeWarning ? ' for the compensation exception' : ''}.</p></Form>}

@@ -1,3 +1,4 @@
+import { EsignSettings } from './esign'
 import type { PageProps } from './app'
 import { VacancyInternal } from './internal'
 import { EMPLOYMENT_TYPES, vacancyFacts } from '../lodge/core/labels'
@@ -140,6 +141,7 @@ export function Vacancies({ w, mutate, go, nav }: PageProps) {
       })}</Table>}
     <Sourcing w={w} />
     <OfferTemplates w={w} mutate={mutate} />
+    <EsignSettings w={w} mutate={mutate} />
     <Templates w={w} mutate={mutate} />
     <Kickoffs w={w} mutate={mutate} select={select} />
   </div>

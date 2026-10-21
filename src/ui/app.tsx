@@ -48,7 +48,7 @@ export function App() {
   useEffect(() => { follow(location.href); reload().catch(e => setError(e.message)) }, [])
   useEffect(() => { if (w && focus) { document.getElementById(focus)?.scrollIntoView({ block: 'center' }); setFocus(null) } }, [w, focus, nav.tab])
   async function mutate(op: string, body: D) {
-    const result = await call('command/' + op, body)
+    const result = await call(op.startsWith('esign/') ? op : 'command/' + op, body)
     setNotice('Saved.')
     await reload()
     return result
