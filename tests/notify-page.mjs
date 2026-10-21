@@ -52,7 +52,7 @@ export async function notifyPage(browser, { root, origin, run, job, evidence, ow
 
    // The colleague without access: the text, no link, and the candidate stays closed to them.
    await interviewer.page.goto(origin + '/app'); await overview(interviewer.page)
-   const text = interviewer.page.getByRole('heading', { name: 'Your work' }).locator('..').getByRole('listitem').filter({ hasText: 'mentioned you in a note' })
+   const text = interviewer.page.getByRole('heading', { name: 'Your work' }).locator('..').getByRole('listitem').filter({ hasText: 'mentioned you in a note' }).first() // the 390 pass also sees the 1440 pass's unread mention
    await text.waitFor()
    assert.equal(await text.getByRole('link').getAttribute('href'), '#', 'no link to the candidate')
    assert.ok(!(await current(interviewer.context, origin)).applications.some(a => a.id === app.id))
