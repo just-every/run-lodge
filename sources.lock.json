@@ -3395,7 +3395,7 @@
       "executable": false
     },
     "tests/notify-page.mjs": {
-      "sha256": "f942b90c79a568704aa0c01fd9d7d94c767037a6f14d894eb5a3d0f9a09671f4",
+      "sha256": "de4f6bd2c95d4791788dc1b8d1506e447c0724c27f43c90ae7b9d1b9021b32cd",
       "executable": false
     },
     "tests/offer-documents.mjs": {
