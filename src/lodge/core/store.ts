@@ -1,6 +1,7 @@
 import { requireStageFields } from '../fields/values'
 import { operatorAuth, runtimeBindings, type Bindings } from '../../auth.server'
 import { recordBlindReveals } from '../records/blind-review'
+import { settleEnvelopes } from '../esign/envelope'
 import { State, type Row } from './state'
 import { Fault, requireThat, uid, type Actor, type Data, type Role } from './types'
 
@@ -39,6 +40,8 @@ export async function save(db: D1Database, state: State, actor: Actor | null, ex
     if (app.status === 'active' && (!before || before.stage !== app.stage || before.status !== app.status)) requireStageFields(state, state.get('vacancy', app.vacancy), app, app.stage)
   }
   recordBlindReveals(state, actor)
+  // OFFER-005: an edit, email change, closure or outcome voids the offer's signing envelope in this same batch.
+  await settleEnvelopes(state)
   const { writes, fences, scans } = state.pending()
   if (!writes.length && !extra.length) return
   const guard = (sql: string, params: unknown[]) => db.prepare(`INSERT INTO l_guard SELECT CASE WHEN ${sql} THEN 1 ELSE 0 END`).bind(...params)
@@ -77,7 +80,7 @@ export async function signedIn(request: Request, original: Bindings): Promise<Se
 }
 
 /** REQ-004: a member's department grants with every sub-department, and office grants; none when empty. */
-function grantsOf(state: State, m: Data) {
+export function grantsOf(state: State, m: Data) {
   if (!m.grantDepartments?.length && !m.grantOffices?.length) return undefined
   const departments = new Set<string>(m.grantDepartments ?? [])
   // OPS-004: a granted department's level reaches its sub-departments; levels met twice combine.

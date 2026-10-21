@@ -2156,6 +2156,11 @@ test('OFFER-001 reviewed hourly and annual documents bind compensation routing, 
   await checkOfferDocuments()
 })
 
+test('OFFER-005 native e-signature: send, verify, consent, sign, countersign, seal, void, erase', async () => {
+  const { checkEsign } = await import('./esign.mjs')
+  await checkEsign()
+})
+
 // Application-specific privacy is an independent public-door journey.
 test('REVIEW-002 name-blind review across reads, reveals and return', async t => {
   const { checkBlindReview } = await import('./blind-flow.mjs')

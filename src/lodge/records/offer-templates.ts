@@ -1,5 +1,6 @@
 import type { State } from '../core/state'
 import { requireAdmin, requireMember, requireManages, requireCan } from '../core/access'
+import { isDesignated } from '../esign/disclosure'
 import { email, integer, now, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 
 export const OFFER_MERGE_FIELDS = ['candidateName', 'title', 'location', 'employmentType', 'pay', 'startDate', 'bonus', 'equity', 'contingencies', 'terms'] as const
@@ -13,6 +14,8 @@ export interface OfferTemplateSnapshot {
   normalApprover: string
   exceptionApprover: string
   contingencies: string
+  /** OFFER-005: the version chooses Lodge-native signature, may require countersignature and names its default signer. */
+  signing?: { native: true; countersign: boolean; signer: string | null }
   reviewedBy: string
   at: string
 }
@@ -35,6 +38,16 @@ export function offerApprover(s: State, value: unknown, label: string): string {
   return address
 }
 
+/** The native-signing choices of a reviewed version; they sit inside the offer's approval hash through its document. */
+function signingChoice(s: State, b: Data, last?: Data): OfferTemplateSnapshot['signing'] {
+  const native = (b.native ?? !!last?.signing?.native) === true
+  const countersign = (b.countersign ?? !!last?.signing?.countersign) === true
+  if (!native) { requireThat(!countersign, 'Countersignature applies to Lodge-native signature; choose it first'); return undefined }
+  const signer = countersign ? email(b.signer ?? last?.signing?.signer, 'Default countersigner') : null
+  if (signer) requireThat(isDesignated(s, signer), 'The default countersigner must be a designated offer signer', 409)
+  return { native: true, countersign, signer }
+}
+
 /** Each employer review creates a new version; previously selected versions never change. */
 export function offerTemplate(s: State, a: Actor, b: Data) {
   requireAdmin(a)
@@ -50,6 +63,7 @@ export function offerTemplate(s: State, a: Actor, b: Data) {
     normalApprover: offerApprover(s, b.normalApprover ?? last?.normalApprover, 'Normal approver'),
     exceptionApprover: offerApprover(s, b.exceptionApprover ?? last?.exceptionApprover, 'Compensation exception approver'),
     contingencies: optionalText(b.contingencies ?? last?.contingencies, 'Employer-reviewed contingencies', 8000),
+    ...(signing => signing ? { signing } : {})(signingChoice(s, b, last)),
     reviewedBy: a.email, at,
   }
   const record = s.put('offer-template', current?.id ?? uid(), {

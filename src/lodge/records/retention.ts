@@ -75,6 +75,8 @@ export function candidateRecords(s: State, candidateId: string) {
     application: apps, 'stage-event': byApp('stage-event'), interview: byApp('interview'), scorecard: byApp('scorecard'),
     'interview-note': byApp('interview-note'), notification: byApp('notification'), 'team-note': byApp('team-note'), task: byApp('task'), debrief: byApp('debrief'), 'rule-match': byApp('rule-match'), 'rejection-email': byApp('rejection-email'), review: byApp('review'), 'fair-chance-record': byApp('fair-chance-record'), 'event-capture': byApp('event-capture'), message: messages, offer: offers, receipt: byApp('receipt'), monitoring: byApp('monitoring'),
     approval: s.scan('approval').filter(x => subjects.has(x.subjectId)),
+    // OFFER-005: signing envelopes (consent, IPs, user agents, code counts) and their queued notices are candidate offer records.
+    'esign-envelope': byApp('esign-envelope'), 'esign-notice': byApp('esign-notice'),
     document: byApp('document'), 'resume-extraction': byApp('resume-extraction'), 'blind-identity': byApp('blind-identity'),
     // Resume staging is a local transfer: any successful erasure invalidates all pending copies.
     'resume-intake': s.scan('resume-intake').filter(r => r.status !== 'committed' || candidateIds.has(r.candidate)),

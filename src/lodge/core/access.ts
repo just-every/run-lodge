@@ -189,6 +189,8 @@ export function canSeeContact(s: State, a: Actor, candidate: Data) {
 export function canSeeDocument(s: State, a: Actor, doc: Data) {
   if (isAgency(a)) return false
   if (doc.restricted && !isAdmin(a)) return false
+  // OFFER-005: a natively signed PDF or certificate follows offer rights on its job, and never reaches an agent.
+  if (doc.esign) { const app = s.find('application', doc.application), vacancy = app && s.find('vacancy', app.vacancy); return !a.agent && !!vacancy && managesVacancy(a, vacancy) && can(s, a, vacancy, 'offers') && !blindFor(s, a, app) }
   if (doc.application && s.find('application', doc.application)) {
     // A transferred application carries its source's attachments to the new job's team.
     for (let app = s.find('application', doc.application), hops = 0; app && hops < 20; app = app.transferredTo && s.find('application', app.transferredTo), hops++)

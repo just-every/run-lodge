@@ -11,6 +11,8 @@ import { duplicateSuggestions, transferredFrom } from '../records/candidates'
 import { panel, summary, versioned } from '../records/scorecards'
 import { funnel, history } from '../records/pipeline'
 import { rangeCheck } from '../records/offers'
+import { envelopeView, envelopesOf } from '../esign/envelope'
+import { disclosureHistory, signerList, SIGNING_NOTICE } from '../esign/disclosure'
 import { retentionReview } from '../records/retention'
 import { missingTerms } from '../records/vacancies'
 import { coordination } from '../agents/coordination'
@@ -110,7 +112,9 @@ export async function workspaceRecords(s: State, a: Actor) {
     // OPS-004: offers stay with the people whose level on the job creates and sees them.
     if (!vacancy || !managesVacancy(a, vacancy) || !can(s, a, vacancy, 'offers')) continue
     const approval = latestApproval(s, 'offer', o.id), version = await versionOf(s, 'offer', o)
-    offers.push({ ...o, version, approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, rangeWarning: rangeCheck(vacancy, o) })
+    // OFFER-005: the signing envelopes of this offer, without any hash, token or code (and without IPs or user agents for an agent).
+    const envelopes = envelopesOf(s, o.id).sort((x, y) => x.sentAt.localeCompare(y.sentAt)).map(e => envelopeView(e, a.agent))
+    offers.push({ ...o, version, approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, rangeWarning: rangeCheck(vacancy, o), esign: envelopes.at(-1) ?? null, esignHistory: envelopes })
   }
 
   const messages: Data[] = []
@@ -182,6 +186,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     questions: library(s, a),
     // REQ-002: job templates, for the admins who keep them and the managers who start jobs from them.
     offerTemplates: admin || a.roles.includes('manager') ? s.all('offer-template') : [],
+    // OFFER-005: the reviewed disclosure versions and the designated offer signers, for the people who send offers; the signer reads their own designation notice.
+    esign: a.agent || isAgency(a) ? null : { disclosure: disclosureHistory(s), signers: admin || a.roles.includes('manager') ? signerList(s) : [], me: signerList(s).find(x => x.email === a.email) ?? null, notice: SIGNING_NOTICE },
     jobTemplates: admin || a.roles.includes('manager') ? s.all('job-template').sort((x, y) => x.name.localeCompare(y.name)) : [],
     // REQ-004: the department hierarchy and office list, which every member may read.
     departments: s.all('department'), offices: s.all('office'),

@@ -13,6 +13,7 @@ import { publicPages } from './lodge/http/public'
 import { embedPages, isEmbedPage } from './lodge/http/embed'
 import { eventPages } from './lodge/http/event-pages'
 import { privacyPages } from './lodge/http/privacy-pages'
+import { isSignPage, signPages } from './lodge/http/sign-pages'
 
 // Applicant pages are plain server-rendered HTML; /api/* is Lodge's JSON API;
 // every other document (the /app workspace) is TanStack Start.
@@ -41,6 +42,7 @@ export default withDemo({
     const lobby = await lobbyResponse(request, runtimeBindings(env), identity)
     if (lobby) return lobby
     if (isPublicPage(new URL(request.url).pathname)) return publicPages.fetch(request, env, execution)
+    if (isSignPage(new URL(request.url).pathname)) return signPages.fetch(request, env, execution)
     if (isEmbedPage(new URL(request.url).pathname)) return embedPages.fetch(request, env, execution)
     if (new URL(request.url).pathname.startsWith('/events/')) return eventPages.fetch(request, env, execution)
     if (/^\/privacy-requests(\/|$)/.test(new URL(request.url).pathname)) return privacyPages.fetch(request, env, execution)

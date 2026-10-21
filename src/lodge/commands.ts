@@ -45,6 +45,9 @@ import { decideProposal, propose } from './agents/proposals'
 import { debrief, decideDebrief, editDebrief } from './agents/debriefs'
 import { createSandbox, editSandbox, previewSandbox, deploySandbox, rollbackSandbox } from './operations/sandbox'
 import { providerSetup, reviewProviderSetup } from './operations/providers'
+import { esignDisclosure, esignSigner } from './esign/disclosure'
+import { esignMoveSigner, esignVoid } from './esign/envelope'
+import { grantsOf } from './core/store'
 
 export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
 
@@ -78,6 +81,7 @@ export const commands: Record<string, Command> = {
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
   message, 'request-message-approval': requestMessageApproval,
   'offer-template': offerTemplate, 'job-offer-template': jobOfferTemplate, offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome, 'offer-signed-outside': signedOutside,
+  'esign-disclosure': esignDisclosure, 'esign-signer': esignSigner, 'esign-void': esignVoid, 'esign-move-signer': (s, a, b) => esignMoveSigner(s, a, b, m => grantsOf(s, m)),
   hold, 'release-hold': releaseHold, 'extend-retention': extendRetention, 'data-request': dataRequest, 'complete-data-request': completeRequest, 'extend-data-request': extendRequest, 'refuse-data-request': refuseRequest, 'cpra-notice': saveCpraNotice, 'permission-level': permissionLevel, 'delete-permission-level': deletePermissionLevel, 'job-levels': jobLevels,
   propose, 'decide-proposal': decideProposal, debrief, 'edit-debrief': editDebrief, 'decide-debrief': decideDebrief,
 }

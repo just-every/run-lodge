@@ -36,5 +36,6 @@ export async function renderOfferDocument(s: State, application: Data, terms: Da
     text, sha256: await sha256(text),
     template: { id: snapshot.templateId, version: snapshot.version, name: snapshot.name },
     normalApprover, exceptionApprover,
+    ...(snapshot.signing?.native ? { signing: snapshot.signing } : {}),
   }
 }

@@ -100,14 +100,14 @@ export async function outcome(s: State, a: Actor, b: Data) {
 }
 
 /** Acceptance records the hire: the application closes as hired, the named opening fills and its tasks are canceled. */
-function accept(s: State, a: Actor, o: Data, app: Data, vacancy: Data, reason: string, extra: Data = {}) {
+export function accept(s: State, a: Actor | null, o: Data, app: Data, vacancy: Data, reason: string, extra: Data = {}) {
   const filled = fill(vacancy, o, app.id)
-  const record = s.put('offer', o.id, { ...o, status: 'accepted', outcomeReason: reason, outcomeBy: a.email, outcomeAt: now(), ...extra })
+  const record = s.put('offer', o.id, { ...o, status: 'accepted', outcomeReason: reason, outcomeBy: a?.email ?? 'candidate (native e-signature)', outcomeAt: now(), ...extra })
   s.put('application', app.id, { ...app, status: 'hired', closedAt: now() })
   s.put('vacancy', vacancy.id, { ...filled, hires: (vacancy.hires ?? 0) + 1 })
-  s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'hired', reason: 'Offer accepted: ' + reason, actor: a.email, at: now() })
+  s.put('stage-event', uid(), { application: app.id, from: app.stage, to: 'hired', reason: 'Offer accepted: ' + reason, actor: a?.email ?? 'candidate (native e-signature)', at: now() })
   cancelTasks(s, app.id, 'Application hired')
-  s.audit(a, 'offer-accepted', 'offer:' + o.id, { reason, ...(extra.signature ? { signature: 'outside', sha256: extra.signature.sha256 } : {}) })
+  s.audit(a, 'offer-accepted', 'offer:' + o.id, { reason, ...(extra.signature ? { signature: extra.signature.kind, sha256: extra.signature.sha256 } : {}) })
   return record
 }
 

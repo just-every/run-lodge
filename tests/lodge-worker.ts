@@ -7,6 +7,7 @@ import { publicPages } from '../src/lodge/http/public'
 import { embedPages, isEmbedPage } from '../src/lodge/http/embed'
 import { eventPages } from '../src/lodge/http/event-pages'
 import { privacyPages } from '../src/lodge/http/privacy-pages'
+import { isSignPage, signPages } from '../src/lodge/http/sign-pages'
 
 export default {
   scheduled: resumeIntakeMaintenance,
@@ -15,6 +16,7 @@ export default {
     if (auth) return auth
     const path = new URL(request.url).pathname
     if (path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
+    if (isSignPage(path)) return signPages.fetch(request, env, execution)
     if (isEmbedPage(path)) return embedPages.fetch(request, env, execution)
     if (path.startsWith('/events/')) return eventPages.fetch(request, env, execution)
     if (/^\/privacy-requests(\/|$)/.test(path)) return privacyPages.fetch(request, env, execution)

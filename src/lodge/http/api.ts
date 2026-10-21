@@ -34,6 +34,8 @@ import { importJobs, imports } from '../move-in/imports'
 import { deploymentHealth } from '../../base/deployment-health'
 import { requireIntake } from '../resumes/intake'
 import { boardApi } from './board'
+import { mountEsign } from './esign'
+import { flushNotices } from '../esign/mail'
 
 // Lodge's private HTTP surface. The app and an owner's coding agent use the
 // same routes (see API.md); each request resolves the person from the native
@@ -48,6 +50,11 @@ api.get('/health', c => c.json({ status: 'ok', ...deploymentHealth(c.env) }))
 api.use('/api/lodge/*', async (c, next) => {
   await next()
   c.header('cache-control', 'no-store'); c.header('x-content-type-options', 'nosniff'); c.header('referrer-policy', 'no-referrer')
+})
+// OFFER-005: terms-free void and completion notices queued by this request's own transaction go out after it commits.
+api.use('/api/lodge/*', async (c, next) => {
+  await next()
+  if (c.req.method !== 'GET' && c.res.status < 400) await flushNotices(c.env)
 })
 // ATTR-009: the public job board answers under /api/board with its own errors and CORS.
 api.route('/api/board', boardApi)
@@ -343,3 +350,5 @@ api.get('/api/lodge/download/candidate/:id', async c => {
   const { body: result } = await candidateExport(c.env.DB, state, actor, c.req.param('id'), c.req.query('request') || undefined)
   return recorded(c, state, actor, json(result, 'candidate-export.json'))
 })
+
+mountEsign(api, { context, person, body })
