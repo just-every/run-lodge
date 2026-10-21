@@ -48,6 +48,7 @@ import { providerSetup, reviewProviderSetup } from './operations/providers'
 import { esignDisclosure, esignSigner } from './esign/disclosure'
 import { esignMoveSigner, esignVoid } from './esign/envelope'
 import { grantsOf } from './core/store'
+import { contactBasis, cutover, cutoverPreview, cutoverUndo } from './move-in/cutover'
 import { mentionPolicy } from './notify/mentions'
 import { alertRead, notifyDefault, notifyPref } from './notify/prefs'
 
@@ -59,7 +60,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
-  'legacy-link': legacyLink,
+  'legacy-link': legacyLink, 'cutover-preview': cutoverPreview, cutover, 'cutover-undo': cutoverUndo, 'contact-basis': contactBasis,
   'mention-policy': mentionPolicy, 'notify-pref': notifyPref, 'notify-default': notifyDefault, 'alert-read': alertRead,
   agency, 'agency-job': agencyJob, 'agency-submit': agencySubmit, 'agency-review': agencyReview, 'agency-progress': agencyProgress, 'agency-fee': agencyFee,
   'sandbox-create': createSandbox, 'sandbox-edit': editSandbox, 'sandbox-preview': previewSandbox, 'sandbox-deploy': deploySandbox, 'sandbox-rollback': rollbackSandbox,

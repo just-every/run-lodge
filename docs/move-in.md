@@ -32,6 +32,19 @@ resumed from **Import batches**.
 
 Imported records never grant access, send anything or reopen a job.
 
+## Move open applications into a live job
+
+Imported applications are history until you move them. On this screen the
+owner prepares the live job first (stages, rubric, interview plan and terms),
+then chooses the imported job and the live job, says which live stage each
+source stage becomes, whether to adopt the source's approval of the job (only
+if the source approved it) or ask for a fresh approval, whether the people may
+be contacted, and optionally the old job address so old links keep working.
+**Preview cutover** writes nothing; **Approve this cutover** moves exactly what
+was previewed. Nobody is emailed. People moved in cannot be sent a message
+until a contact basis is recorded. **Undo** removes live applications nobody
+has touched since and keeps any that were moved, noted or scored.
+
 ## Undo
 
 **Undo unchanged records** removes what the batch imported, except records a

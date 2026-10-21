@@ -30,7 +30,7 @@ export function Alerts({ w, mutate, follow }: Pick<PageProps, 'w' | 'mutate' | '
   if (!rows.length) return null
   const open = async (x: D) => { if (!x.read) await mutate('alert-read', { id: x.id }); if (x.link) follow(x.link) }
   return <section className="card"><h2>Notifications</h2>
-    <ul className="list rich">{rows.slice(0, 12).map(x => <li key={x.id}>
+    <ul className="list rich">{rows.slice(0, 6).map(x => <li key={x.id}>
       <button onClick={() => open(x)} disabled={!x.link && x.read}><Icon name={x.event === 'mention' ? 'mail' : 'alert'} /><span><strong>{x.title}</strong><small>{[x.detail, recent(x.at)].filter(Boolean).join(' · ')}</small></span>{!x.read && <Status tone="warn">new</Status>}{x.textOnly && <Status>no link</Status>}</button>
     </li>)}</ul>
     {rows.some(x => !x.read) && <button onClick={() => mutate('alert-read', { all: true })}>Mark all read</button>}

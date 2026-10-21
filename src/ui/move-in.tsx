@@ -3,6 +3,7 @@ import type { PageProps } from './app'
 import { day } from './format'
 import { sentence } from './names'
 import { call, Field, fileFrom, Form, readFile, Table, type D } from './shared'
+import { Cutover } from './cutover'
 
 const AREAS: D = { job: 'Jobs', member: 'Team members', candidate: 'Candidates', 'candidate-row': 'Candidate rows set aside', application: 'Applications', file: 'Files', comment: 'Comments', rating: 'Ratings', event: 'Events', 'inbound-message': 'Messages received', 'outbound-message': 'Messages sent' }
 const KINDS: D = { vacancy: 'Job', candidate: 'Candidate', application: 'Application', document: 'File', 'source-member': 'Workable team member', 'imported-note': 'Comment', 'imported-rating': 'Rating', 'imported-message': 'Message' }
@@ -37,7 +38,7 @@ function Preview({ preview, onCommit }: { preview: D; onCommit: () => Promise<vo
   </section>
 }
 
-export function MoveIn({ w, reload, setNotice }: PageProps) {
+export function MoveIn({ w, mutate, reload, setNotice }: PageProps) {
   const [fieldTemplate, setFieldTemplate] = useState('')
   const [preview, setPreview] = useState<D | null>(null), [file, setFile] = useState<D | null>(null), [status, setStatus] = useState<D | null>(null)
   const act = async (op: string, id: string) => { const r = await call('import/' + op, { id }); setNotice(`Batch ${r.job?.state ?? 'updated'}.`); await reload(); if (op === 'status') setStatus(r) }
@@ -59,6 +60,7 @@ export function MoveIn({ w, reload, setNotice }: PageProps) {
     <h2>Import batches</h2>
     <Table heads={['Batch', 'State', 'Progress', '']} empty="No imports yet.">{w.importJobs.map((j: D) => <tr key={j.id}><td title={j.id}>{batchName(j)}</td><td>{sentence(j.state.replace(/_/g, ' '))}{j.error ? ` · ${j.error}` : ''}</td><td>{j.checkpoint}/{j.total}</td>
       <td>{j.mine && <span className="row-actions">{['applying', 'undoing', 'rolling_back', 'failed'].includes(j.state) && <button onClick={() => act('resume', j.id)}>Resume</button>}{j.state === 'completed' && <button onClick={() => act('undo', j.id)}>Undo unchanged records</button>}<button onClick={() => act('status', j.id)}>Details</button></span>}</td></tr>)}</Table>
+    <Cutover w={w} mutate={mutate} />
     {status && <section className="card"><h3>{batchName(w.importJobs.find((j: D) => j.id === status.job.id) ?? {})}</h3><p>{sentence(status.job.state.replace(/_/g, ' '))} · {status.job.checkpoint}/{status.job.total}</p>
       <p>Original files kept: {status.originals.filter((o: D) => o.status === 'retained').length} of {status.originals.length}</p>
       {status.undo?.dispositions?.length > 0 && <ul>{status.undo.dispositions.map((d: D) => <li key={d.effectId}>{imported(w, status.undo.dispositions, d)}: {d.disposition} ({d.reason})</li>)}</ul>}</section>}

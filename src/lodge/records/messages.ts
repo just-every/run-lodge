@@ -13,6 +13,8 @@ export function message(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   requireManages(a, s.get('vacancy', app.vacancy))
   const candidate = s.get('candidate', app.candidate)
+  // MIG-008: people moved in from another system are not contactable until the employer records a basis.
+  requireThat(!app.activated || app.contactBasis?.basis === 'application', 'Record a basis for contacting people moved in from another system before drafting a message to them', 409)
   const fields = {
     application: app.id, purpose: oneOf(b.purpose, PURPOSES, 'Purpose'),
     to: email(b.to ?? candidate.email, 'Recipient'), subject: text(b.subject, 'Subject', 200), body: text(b.body, 'Message', 20000),

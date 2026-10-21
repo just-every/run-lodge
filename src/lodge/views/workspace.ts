@@ -160,6 +160,7 @@ export async function workspaceRecords(s: State, a: Actor) {
   // Follow-ups and tasks the reader owns or set, while what they point at stays in view.
   const tasks = s.all('task').filter(t => (t.owner === scope(a) || t.createdBy === scope(a)) && (t.application ? appIds.has(t.application) : !t.candidate || visibleCandidates.has(t.candidate))).sort((x, y) => x.due.localeCompare(y.due))
   const today = businessToday(s)
+  const movedIn = new Map<string, string>(applications.filter(x => x.activated && !x.activated.undone).map(x => [x.activated.from, x.id]))
   const teamNotes = s.all('team-note').filter(n => visibleCandidates.has(n.candidate) && canSeeTeamNote(s, a, n)).sort((x, y) => x.at.localeCompare(y.at))
   return blindProjection(s, a, fieldProjection(s, a, {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
@@ -216,6 +217,8 @@ export async function workspaceRecords(s: State, a: Actor) {
     ],
     // TEAM-002/003: the reader's due alerts (mentions among them, shown on HOME-001) and their notification settings.
     alerts: alertsView(s, a), notify: notifyView(s, a),
+    // MIG-008: the owner's cutovers of imported jobs into live ones.
+    cutovers: a.owner && !a.agent ? s.all('cutover').sort((x, y) => y.at.localeCompare(x.at)) : [],
     messages, offers, approvals,
     restricted: admin ? s.all('monitoring').filter(m => !hiddenApp(m.application)) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.
@@ -232,9 +235,10 @@ export async function workspaceRecords(s: State, a: Actor) {
     // Counts across the whole business, confidential jobs and private candidates included, without identity.
     totals: admin ? { openVacancies: live.filter(v => v.status === 'open').length, draftVacancies: live.filter(v => v.status === 'draft').length, activeApplications: active.length, candidates: s.all('candidate').filter(c => !c.deleted && !c.mergedInto && !c.imported).length } : null,
     importedHistory: {
-      notes: s.all('imported-note').filter(n => appIds.has(n.application)),
-      ratings: s.all('imported-rating').filter(n => appIds.has(n.application)),
-      messages: s.all('imported-message').filter(n => applications.some(app => app.id === n.application && managed.some(v => v.id === app.vacancy))),
+      // MIG-008: what was said about an imported application is read on the live application it was moved into.
+      notes: s.all('imported-note').filter(n => appIds.has(n.application) || movedIn.has(n.application)).map(n => ({ ...n, application: movedIn.get(n.application) ?? n.application })),
+      ratings: s.all('imported-rating').filter(n => appIds.has(n.application) || movedIn.has(n.application)).map(n => ({ ...n, application: movedIn.get(n.application) ?? n.application })),
+      messages: s.all('imported-message').map(n => ({ ...n, application: movedIn.get(n.application) ?? n.application })).filter(n => applications.some(app => app.id === n.application && managed.some(v => v.id === app.vacancy))),
       members: admin ? s.all('source-member') : [],
     },
     coordination: coordination(s, a),

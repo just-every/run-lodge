@@ -195,7 +195,8 @@ export function canSeeDocument(s: State, a: Actor, doc: Data) {
     // A transferred application carries its source's attachments to the new job's team.
     for (let app = s.find('application', doc.application), hops = 0; app && hops < 20; app = app.transferredTo && s.find('application', app.transferredTo), hops++)
       if (canSeeApplication(s, a, app) && !blindFor(s, a, app)) return true
-    return false
+    // MIG-008: the files of an imported application belong to the live application it was moved into.
+    return s.all('application').some(x => x.activated?.from === doc.application && canSeeApplication(s, a, x) && !blindFor(s, a, x))
   }
   const candidate = s.find('candidate', doc.candidate)
   if (s.all('application').some(app => app.candidate === doc.candidate && canSeeApplication(s, a, app) && blindFor(s, a, app))) return s.all('application').some(app => app.candidate === doc.candidate && canSeeApplication(s, a, app) && !blindFor(s, a, app))

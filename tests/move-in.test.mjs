@@ -125,3 +125,8 @@ test('MIG-009 old source links resolve only to currently public mapped jobs and 
   const { checkLegacyLinks } = await import('./legacy-links.mjs')
   await checkLegacyLinks(t)
 })
+
+test('MIG-008 mapped, previewed and approved cutover of open imported applications into live jobs, with contact gate and undo', async () => {
+  const { checkCutover } = await import('./cutover-flow.mjs')
+  await checkCutover()
+})

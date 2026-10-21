@@ -94,7 +94,7 @@ managers; send its `id` to edit your own, history kept; write `@` and an active 
 `mention-policy` (admins: `{ refuseWithoutAccess }`), `notify-pref` (your own choice for a job you are on:
 `{ vacancy, event, email?, inApp? }`, each `off | immediate | digest | inherit`; events `application`, `assigned`, `approval`,
 `scorecard`, `feedback`, `interview`, `offer`, `mention`), `notify-default` (admins: the same for a REQ-003 `role`), `alert-read`
-(`{ id }` or `{ all: true }`), `task` (a follow-up on a `candidate` or
+(`{ id }` or `{ all: true }`), `cutover-preview` and `cutover` (owner: `{ importedJob, target, stages: { <source stage>: <stage id> }, approval: adopt | fresh, contactBasis: none | application, attest?, contactNote?, sourceUrl?, fingerprint }`; the preview writes nothing and the activation carries its fingerprint), `cutover-undo` (`{ id }`), `contact-basis` (admins: `{ application, attest: true, note }`), `task` (a follow-up on a `candidate` or
 `application`, or for admins and managers `kind: "task"`, with `note`, `due` date and `owner`),
 `complete-task`, `message`,
 `request-message-approval`, `offer`, `request-offer-approval`,
