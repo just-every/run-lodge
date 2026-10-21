@@ -79,7 +79,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a2547a36ea925655b0d0b003d76987de05c58ae2ec0f37ab74ddc3dd3cdc34d6",
+      "sha256": "b1677282eac36be6950c82d68a00507700fab4e20bf5202a0ed0ef2facc6c7d5",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -767,7 +767,7 @@
       "executable": false
     },
     "src/lodge/agency/access.ts": {
-      "sha256": "73bd207e0719246af282c7120aee72a3beb99e2e59a4c8e1c7266798329dd61c",
+      "sha256": "58585f871b78d2b0bbde0ed91f8be50139c64942698999b8341c0b9f3d4d3201",
       "executable": false
     },
     "src/lodge/agency/records.ts": {
@@ -775,7 +775,7 @@
       "executable": false
     },
     "src/lodge/agency/views.ts": {
-      "sha256": "a51480d52994c1945c6410c0c11b3d017bf22b3623900a37e6543b25e45671c4",
+      "sha256": "9bd7735e4149016ffd662b6306b913065466e22783b15ab7170f3f9b7e168cf9",
       "executable": false
     },
     "src/lodge/agents/coordination.ts": {
@@ -3195,11 +3195,11 @@
       "executable": false
     },
     "tests/agency-flow.mjs": {
-      "sha256": "21e4348a49ec2f0efaa49b6aeb51ae9e669aa932c69d810641cb2d0265828877",
+      "sha256": "a293d8eb0e5982aadb6c3fdde515a87fbb78e0e92d2ac51f40cd886c1949b9f6",
       "executable": false
     },
     "tests/agency-page.mjs": {
-      "sha256": "8b71fc477f9d0c7f71c18cac0eb621db770e3aa8fd6a8e86a439f97046a4a27e",
+      "sha256": "4c3a518ab00f22414b927100c2a66385562c5721157704f3cbd207a901b7fe3b",
       "executable": false
     },
     "tests/agents.test.mjs": {

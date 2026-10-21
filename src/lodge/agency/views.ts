@@ -2,7 +2,7 @@ import type { State } from '../core/state'
 import { isAdmin, managesVacancy } from '../core/access'
 import type { Actor, Data } from '../core/types'
 import { listings } from '../records/posts'
-import { agencyFor, creditedHire, invited } from './access'
+import { agencyFor, creditedHire, invited, staffSeesSubmission } from './access'
 
 const fileView = (s: State, files: Data[]) => files.filter(f => !s.find('document', f.id)?.restricted).map(f => ({ id: f.id, name: f.name, mediaType: f.mediaType, bytes: f.size }))
 const feesView = (sub: Data) => sub.fees.map((f: Data) => ({ id: f.id, label: f.label, amountCents: f.amountCents, status: f.status }))
@@ -19,5 +19,5 @@ export function portal(s: State, a: Actor) {
 export function employerAgencies(s: State, a: Actor) {
   if (!isAdmin(a) || a.agent) return []
   const jobs = s.all('vacancy').filter(v => managesVacancy(a, v)).map(v => v.id)
-  return s.all('agency').map(agency => ({ ...agency, jobs: s.all('agency-job').filter(j => j.agency === agency.id && jobs.includes(j.vacancy)), submissions: s.all('agency-submission').filter(sub => sub.agency === agency.id && jobs.includes(sub.vacancy)).map(sub => ({ ...sub, files: fileView(s, sub.files) })) }))
+  return s.all('agency').map(agency => ({ ...agency, jobs: s.all('agency-job').filter(j => j.agency === agency.id && jobs.includes(j.vacancy)), submissions: s.all('agency-submission').filter(sub => sub.agency === agency.id && staffSeesSubmission(s, a, sub)).map(sub => ({ ...sub, files: fileView(s, sub.files) })) }))
 }

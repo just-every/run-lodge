@@ -1,6 +1,6 @@
 import { mergeRule } from '../records/sources'
 import type { State } from '../core/state'
-import { isAgency, requireAdmin, requireManages } from '../core/access'
+import { isAdmin, isAgency, canSeeApplication, managesVacancy as manages, requireAdmin, requireManages } from '../core/access'
 import { Fault, requireThat, scope, type Actor, type Data } from '../core/types'
 
 const absent = () => new Fault(404, 'Agency record not found')
@@ -21,10 +21,15 @@ export function staffJob(s: State, a: Actor, id: unknown) {
   requireManages(a, v)
   return v
 }
+export function staffSeesSubmission(s: State, a: Actor, sub: Data) {
+  const v = s.find('vacancy', sub.vacancy)
+  const app = sub.application && s.find('application', sub.application)
+  return isAdmin(a) && !!v && manages(a, v) && (!sub.application || (!!app && canSeeApplication(s, a, app)))
+}
+
 export function staffSubmission(s: State, a: Actor, id: unknown) {
   const submission = s.find('agency-submission', id)
-  if (!submission) throw absent()
-  staffJob(s, a, submission.vacancy)
+  if (!submission || !staffSeesSubmission(s, a, submission)) throw absent()
   return submission
 }
 export function ownSubmission(s: State, a: Actor, id: unknown) {
