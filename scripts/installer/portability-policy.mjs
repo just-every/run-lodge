@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { PortabilityError } from '@runeditrun/rer/modules/portability';
 import { validateCandidateLineage } from './candidate-lineage.mjs';
+import { validateAgencyRecords } from './agency-policy.mjs';
 
 const refuse = condition => { if (!condition) throw new PortabilityError('lodge_staged_validation', 409); };
 
@@ -18,7 +19,16 @@ export async function validateStaged({ read }) {
  }
  const get = (kind, id) => records.get(kind + ':' + id);
  const reference = (kind, id) => { refuse(typeof id === 'string' && !!get(kind, id)); return get(kind, id); };
+ const original = value => {
+  const blob = reference('blob', value.id);
+  refuse(typeof value.mediaType === 'string' && /^[\w.+-]+\/[\w.+-]+$/.test(value.mediaType) && blob.mediaType === value.mediaType);
+  refuse(typeof blob.base64 === 'string' && blob.base64.length > 0 && /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(blob.base64));
+  const bytes = Buffer.from(blob.base64, 'base64');
+  refuse(bytes.toString('base64') === blob.base64 && Number.isSafeInteger(value.size) && value.size > 0 && bytes.length === value.size);
+  refuse(typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256) && createHash('sha256').update(bytes).digest('hex') === value.sha256);
+ };
  validateCandidateLineage(rows.filter(row => row.kind === 'candidate').map(row => get(row.kind, row.id)), refuse);
+ const agencyFiles = validateAgencyRecords({ rows, get, reference, refuse, original });
  for (const row of rows) {
   const value = get(row.kind, row.id);
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
@@ -41,7 +51,7 @@ export async function validateStaged({ read }) {
   }
   if (row.kind === 'blob') {
    const staged = get('resume-intake', row.id);
-   refuse(!!get('document', row.id) || !!staged && staged.status !== 'committed');
+   refuse(!!get('document', row.id) || !!staged && staged.status !== 'committed' || agencyFiles.has(row.id));
   }
   const stagedOriginal = row.kind === 'resume-intake' && value.status !== 'committed';
   if (row.kind !== 'document' && !stagedOriginal) continue;
@@ -49,12 +59,7 @@ export async function validateStaged({ read }) {
    reference('candidate', value.candidate);
    if (value.application) refuse(reference('application', value.application).candidate === value.candidate);
   }
-  const blob = reference('blob', row.id);
-  refuse(typeof value.mediaType === 'string' && /^[\w.+-]+\/[\w.+-]+$/.test(value.mediaType) && blob.mediaType === value.mediaType);
-  refuse(typeof blob.base64 === 'string' && blob.base64.length > 0 && /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(blob.base64));
-  const bytes = Buffer.from(blob.base64, 'base64');
-  refuse(bytes.toString('base64') === blob.base64 && Number.isSafeInteger(value.size) && value.size > 0 && bytes.length === value.size);
-  refuse(typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256) && createHash('sha256').update(bytes).digest('hex') === value.sha256);
+  original({ ...value, id: row.id });
   refuse(value.kind !== 'right-to-work' || value.restricted === true);
  }
  return true;

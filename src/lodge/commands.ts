@@ -1,3 +1,5 @@
+import { isAgency } from './core/access'
+import { agency, agencyJob, agencySubmit, agencyReview, agencyProgress, agencyFee } from './agency/records'
 import { fieldSchema, fieldValues, hiringViews } from './fields/commands'
 import type { State } from './core/state'
 import { Fault, type Actor, type Data } from './core/types'
@@ -51,6 +53,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  agency, 'agency-job': agencyJob, 'agency-submit': agencySubmit, 'agency-review': agencyReview, 'agency-progress': agencyProgress, 'agency-fee': agencyFee,
   'sandbox-create': createSandbox, 'sandbox-edit': editSandbox, 'sandbox-preview': previewSandbox, 'sandbox-deploy': deploySandbox, 'sandbox-rollback': rollbackSandbox,
   'provider-setup': providerSetup, 'provider-review': reviewProviderSetup,
   'field-schema': fieldSchema, 'field-values': fieldValues, 'hiring-view': hiringViews,
@@ -81,6 +84,7 @@ export const commands: Record<string, Command> = {
 const AGENT_COMMANDS = new Set(['propose', 'debrief'])
 
 export async function run(s: State, a: Actor, op: string, body: Data) {
+  if (isAgency(a) && op !== 'agency-submit') throw new Fault(404, 'Agency record not found')
   const command = Object.hasOwn(commands, op) ? commands[op] : undefined
   if (!command) throw new Fault(404, 'Unknown action')
   if (a.agent && !AGENT_COMMANDS.has(op)) throw new Fault(403, 'Agent members propose changes; a person approves and applies them')

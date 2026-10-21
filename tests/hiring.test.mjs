@@ -2167,3 +2167,8 @@ test('DATA-001 typed hiring fields, scoped discovery, imports and reviewed confi
   const { checkFields } = await import('./fields-flow.mjs')
   await checkFields(t)
 })
+
+test('CRM-005 invited agencies own frozen submissions, reviewed credit and coarse progress through live scoped doors', async t => {
+  const { checkAgency } = await import('./agency-flow.mjs')
+  await checkAgency(t)
+})

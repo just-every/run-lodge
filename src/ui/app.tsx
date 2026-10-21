@@ -18,6 +18,7 @@ import { Kit } from './kit'
 import { openProposals } from './pipeline/facts'
 import { useZone } from './format'
 import { businessZone } from '../lodge/core/time'
+import { AgencyPortal } from './agency-portal'
 
 /** Where the workspace is: the screen, and on it the open application, the job on the board and the open vacancy. */
 export interface Nav { tab: string; app: string | null; job: string | null; vacancy: string | null }
@@ -29,7 +30,10 @@ export function App() {
   const [nav, setNav] = useState<Nav>({ tab: '', app: null, job: null, vacancy: null })
   // An interview kit opens straight from its calendar invitation link (/app?kit=<interview>).
   const [kit, setKit] = useState<string | null>(null)
-  async function reload() { setW(await call('state')) }
+  async function reload() {
+    try { setW(await call('state')); setError('') }
+    catch (e) { setW(undefined); setError((e as Error).message); throw e }
+  }
   // HOME-001 links name the exact work item: ?application=, ?job=, ?approval= or ?task= (a kit keeps its own URL).
   const [focus, setFocus] = useState<string | null>(null)
   function follow(href: string) {
@@ -49,8 +53,9 @@ export function App() {
     await reload()
     return result
   }
+  useZone(businessZone(w?.business ?? { timeZone: w?.agencyPortal?.timeZone }))
   if (!w) return <main className="loading"><img src="/brand/mark.svg" alt="" width="52" height="34" /><h1>Lodge</h1>{error ? <p role="alert">{error} · <a href="/signin?returnTo=%2Fapp">Sign in</a></p> : <p>Opening your hiring workspace…</p>}</main>
-  useZone(businessZone(w.business))
+  if (w.agencyPortal) return <AgencyPortal w={w} mutate={mutate} reload={reload} notice={notice} />
   const { actor } = w
   const admin = actor.owner || actor.roles.includes('admin'), manager = admin || actor.roles.includes('manager')
   const me = actor.email

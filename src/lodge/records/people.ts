@@ -41,9 +41,10 @@ export function member(s: State, a: Actor, b: Data) {
   const address = email(b.email, 'Member email')
   const existing = s.find('member', address)
   requireThat(!existing?.owner, 'The owner keeps every role', 409)
+  requireThat(!existing?.roles?.includes('agency'), 'Manage this identity through Agency collaboration', 409)
   const agent = b.agent === true
   const actsFor = agent ? email(b.actsFor, 'The person this agent works for') : null
-  if (actsFor) { const principal = s.find('member', actsFor); requireThat(principal?.active && !principal.agent && actsFor !== address, 'An agent acts for an active person') }
+  if (actsFor) { const principal = s.find('member', actsFor); requireThat(principal?.active && !principal.agent && !principal.roles?.includes('agency') && actsFor !== address, 'An agent acts for an active person') }
   // An agent's roles come from the person it acts for; it never holds roles of its own.
   const roles = agent ? [] : list(b.roles, 'Roles', ROLES.length, r => oneOf(r, ROLES, 'Role'))
   requireThat(roles.length > 0 || agent || b.active === false, 'Choose at least one role')

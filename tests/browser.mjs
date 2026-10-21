@@ -15,6 +15,7 @@ import { careersPage, careersSite, embedFallback, embedPage, embedRefused } from
 import { offersPage } from './offer-page.mjs'
 import { documentsPage } from './document-page.mjs'
 import { operationsPage } from './operations-page.mjs'
+import { agencyPage } from './agency-page.mjs'
 import { postsPage } from './posts-page.mjs'
 import { eventsPage } from './events-page.mjs'
 import { resumeIntakePage } from './resume-page.mjs'
@@ -85,6 +86,7 @@ try {
     await embedFallback(browser, { lodge: server.origin, site: site.origin, job: { title: 'Yard lead' }, email: 'noor@example.test' })
     // ATTR-012: a job approved for two offices gets a post per width, put live in the app and opened from the careers page.
     const hand = await postsPage(browser, { root, origin: server.origin, run, offices: [yard, await run('office', { name: 'Queens yard' })], evidence })
+    await agencyPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     // CRM-009: a campus fair on a phone: online and offline captures, the sign-out warning, QR self-registration; the pool at 1440.
     await eventsPage(browser, { root, origin: server.origin, job: { title: 'Yard lead' }, evidence })
     // DATA-003: one applicant on each of two jobs selected from their board views, a previewed bulk tag applied to both.

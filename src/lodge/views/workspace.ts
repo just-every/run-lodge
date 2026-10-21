@@ -1,10 +1,11 @@
+import { employerAgencies } from '../agency/views'
 import { fieldProjection, fieldResult } from './fields'
 import { blindResult } from '../core/blind'
 import { blindProjection } from './blind-review'
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
-import { cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy, can, permissionsOn, SEEDED_LEVELS } from '../core/access'
-import { scope, type Actor, type Data } from '../core/types'
+import { isAgency, cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy, can, permissionsOn, SEEDED_LEVELS } from '../core/access'
+import { requireThat, scope, type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { duplicateSuggestions, transferredFrom } from '../records/candidates'
 import { panel, summary, versioned } from '../records/scorecards'
@@ -72,6 +73,7 @@ export function concealer(s: State, a: Actor, appIds: Set<string>) {
  * here they cannot reach any other way.
  */
 export async function workspaceRecords(s: State, a: Actor) {
+  requireThat(!isAgency(a), 'Agency record not found', 404)
   const admin = isAdmin(a)
   const applications = s.all('application').filter(app => canSeeApplication(s, a, app))
   const appIds = new Set(applications.map(x => x.id))
@@ -159,7 +161,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     business: s.all('business')[0] ?? null,
     sandboxes: sandboxesView(s, a), providerSetup: admin && !a.agent ? await providerSummary(s) : null,
     members: s.all('member').map(m => admin ? m : { email: m.email, name: m.name, roles: m.roles, active: m.active }),
-    vacancies,
+    vacancies, agencies: employerAgencies(s, a),
     // Kickoffs: admins see all; a manager sees their own and those behind the jobs they run.
     kickoffs: s.all('kickoff').filter(k => admin || k.author === scope(a) || managed.some(v => v.id === k.vacancy)),
     applications: projected,

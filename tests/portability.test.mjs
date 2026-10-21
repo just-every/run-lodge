@@ -34,6 +34,22 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   for (const [key,value] of Object.entries({ name: 'Public archive applicant', email: 'public@example.test', consent: 'yes', noticeVersion: '1', accommodation: 'Accessible room', monitoring: 'Prefer not to say' })) form.append(key,value)
   assert.equal((await src.send('/jobs/' + publicVacancy.slug, form)).status, 200)
   const doc = await src.command('document', { candidate: candidate.id, name: 'resume.txt', kind: 'resume', mediaType: 'text/plain', base64: Buffer.from('ORIGINAL-ARCHIVE-DOCUMENT').toString('base64') })
+  // CRM-005: both pending originals and accepted, subsequently merged people travel.
+  const agency = await src.command('agency', { name: 'Archive Recruiting', email: 'archive-agency@example.test' })
+  await src.command('agency-job', { agency: agency.id, vacancy: vacancy.id, feeTerms: 'USD 2,000 on start' })
+  assert.equal((await src.send('/api/lodge/invite', { email: agency.email }, src.owner)).status, 200)
+  const mailRows = await src.db.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY sequence DESC').all()
+  const mail = mailRows.results.map(r => JSON.parse(r.message)).find(m => m.to.includes(agency.email))
+  const token = new URL(mail.text.match(/http:\/\/\S+\/auth\/confirm\?token=\S+/)[0]).searchParams.get('token')
+  const agencyCookie = (await src.send('/auth/confirm', { token })).cookie
+  const submission = { vacancy: vacancy.id, name: 'Agency archive applicant', email: 'agency-applicant@example.test', consentNote: 'Candidate agreed to this submission', confirmed: true, resume: { name: 'agency.txt', mediaType: 'text/plain', base64: Buffer.from('AGENCY-FROZEN-ORIGINAL').toString('base64') } }
+  const pending = await src.command('agency-submit', submission, agencyCookie)
+  const toAccept = await src.command('agency-submit', { ...submission, name: 'Accepted agency applicant', email: 'accepted-agency@example.test' }, agencyCookie)
+  const accepted = await src.command('agency-review', { id: toAccept.id, outcome: 'Accepted-credited', reason: 'Consent and ownership reviewed' })
+  const survivor = (await src.command('candidate', { name: 'Merged agency applicant', source: 'Direct', consentBasis: 'manual' })).candidate
+  await src.command('review-duplicate', { keep: survivor.id, other: accepted.candidate, decision: 'merge', reason: 'Same person' })
+  const pendingFile = (await src.state(agencyCookie)).agencyPortal.submissions.find(s => s.id === pending.id).files[0]
+  await src.command('agency', { ...agency, active: false })
   const people=[]
   for (const name of ['Lineage A','Lineage B','Lineage C','Deleted person']) people.push((await src.command('candidate',{name,source:'Direct',consentBasis:'manual'})).candidate)
   const [a,b,c,deleted]=people
@@ -58,7 +74,24 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
    const row=items.find(i=>i.kind==='row'&&i.table==='l_records'&&i.row.kind==='candidate'&&i.row.id===id).row
    row.value=JSON.stringify({...JSON.parse(row.value),...changes})
   }
+  const agencyRow = (items, kind, id) => items.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id).row
+  const changeAgency = (items, kind, id, changes) => {
+   const row = agencyRow(items, kind, id)
+   row.value = JSON.stringify({ ...JSON.parse(row.value), ...changes })
+  }
+  const removeAgency = (items, kind, id) => items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id), 1)
   const mutations = [
+   ['missing agency reference', (_d,_b,items) => changeAgency(items, 'agency-submission', pending.id, { agency: 'missing-agency' })],
+   ['missing agency vacancy', (_d,_b,items) => changeAgency(items, 'agency-job', agency.id + ':' + vacancy.id, { vacancy: 'missing-vacancy' })],
+   ['missing agency member', (_d,_b,items) => removeAgency(items, 'member', agency.email)],
+   ['mixed agency capabilities', (_d,_b,items) => changeAgency(items, 'member', agency.email, { roles: ['agency', 'admin'] })],
+   ['agency private grant', (_d,_b,items) => changeAgency(items, 'member', agency.email, { seePrivate: true })],
+   ['agency agent', (_d,_b,items) => changeAgency(items, 'member', agency.email, { agent: true, actsFor: 'owner@example.test' })],
+   ['missing agency original', (_d,_b,items) => removeAgency(items, 'blob', pendingFile.id)],
+   ['tampered agency original', (_d,_b,items) => changeAgency(items, 'blob', pendingFile.id, { base64: Buffer.from('TAMPERED-AGENCY-ORIGINAL').toString('base64') })],
+   ['missing accepted agency candidate', (_d,_b,items) => changeAgency(items, 'agency-submission', accepted.id, { candidate: 'missing-candidate' })],
+   ['missing accepted agency application', (_d,_b,items) => changeAgency(items, 'agency-submission', accepted.id, { application: 'missing-application' })],
+   ['unrelated accepted agency candidate', (_d,_b,items) => changeAgency(items, 'agency-submission', accepted.id, { candidate: candidate.id })],
    ['dangling merged candidate', (_d,_b,items)=>changePerson(items,a.id,{mergedInto:'missing-person'})],
    ...[null,42,{},[],false,''].map(value=>['malformed merged target '+JSON.stringify(value),(_d,_b,items)=>changePerson(items,a.id,{mergedInto:value})]),
    ['self merge', (_d,_b,items)=>changePerson(items,a.id,{mergedInto:a.id})],
@@ -73,12 +106,12 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
    ['empty bytes', (d, b) => { b.base64 = ''; d.size = 0; d.sha256 = createHash('sha256').update('').digest('hex') }],
    ['media mismatch', (d, b) => { b.mediaType = 'application/pdf' }],
    ['malformed media type', (d, b) => { d.mediaType = b.mediaType = 'text/plain\r\nInjected: yes' }],
-   ['missing blob', (_d, _b, items) => { items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'blob'), 1) }],
+   ['missing blob', (_d, _b, items) => removeAgency(items, 'blob', doc.id)],
    ['malformed blob JSON', (_d, _b, _items, row) => { row.value = '{broken' }],
    ['missing candidate reference', d => { d.candidate = 'no-such-candidate' }],
    ['missing vacancy reference', (_d, _b, items) => { const row = items.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'application').row; row.value = JSON.stringify({ ...JSON.parse(row.value), vacancy: 'no-such-vacancy' }) }],
    ['missing document application', d => { d.application = 'no-such-application' }],
-   ['orphan blob document', (_d, _b, items) => { items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'document'), 1) }],
+   ['orphan blob document', (_d, _b, items) => removeAgency(items, 'document', doc.id)],
    ...['interview', 'interview-note', 'scorecard', 'stage-event', 'message', 'offer', 'receipt', 'monitoring'].map(kind => ['detached ' + kind, (_d, _b, items) => {
     const row = items.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind).row
     row.value = JSON.stringify({ ...JSON.parse(row.value), application: 'no-such-application' })
@@ -88,8 +121,8 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   ]
   async function archive(mutate) {
    const items = structuredClone(originalItems), manifest = structuredClone(records[0])
-   const docRow = items.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'document').row
-   const blobRow = items.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'blob').row
+   const docRow = agencyRow(items, 'document', doc.id)
+   const blobRow = agencyRow(items, 'blob', doc.id)
    const document = JSON.parse(docRow.value), blob = JSON.parse(blobRow.value)
    mutate?.(document, blob, items, blobRow)
    docRow.value = JSON.stringify(document)
@@ -119,7 +152,7 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
    } finally { await target.imports.abort(id) }
   }
   const valid = await archive(), invalid = []
-  for (const name of ['detached hiring application','dangling merged candidate','merge cycle']) invalid.push([name,await archive(mutations.find(([label])=>label===name)[1])])
+  for (const name of ['detached hiring application','dangling merged candidate','merge cycle','missing agency original']) invalid.push([name,await archive(mutations.find(([label])=>label===name)[1])])
   const id = await target.imports.create(valid.manifest)
   await target.imports.uploadPart(id, 0, valid.part)
   await target.imports.finalize(id, { contentHash: valid.closing.contentHash, archiveHash: valid.closing.archiveHash })
@@ -131,6 +164,10 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   assert.equal(download.status, 200)
   assert.equal(download.text, 'ORIGINAL-ARCHIVE-DOCUMENT')
   assert.equal(createHash('sha256').update(download.text).digest('hex'), doc.sha256)
+  assert.equal((await dst.send('/api/lodge/agency/file/' + pendingFile.id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
+  assert.equal((await dst.send('/api/lodge/download/document/' + accepted.files[0].id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
+  const agencyPerson = await dst.signIn(agency.email)
+  assert.equal((await dst.send('/api/lodge/state', undefined, agencyPerson)).status, 403, 'restored revoked agency stays revoked')
   const restored=await dst.send('/api/lodge/download/candidate/'+a.id,undefined,owner)
   assert.equal(restored.status,200)
   assert.deepEqual(restored.value.candidate.mergedFrom,[b.id])

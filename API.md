@@ -425,3 +425,24 @@ original size, type and digest, and candidate/application/document references.
 `hiring-view {id: vacancyId, views}` saves job team views. Each has `id`, `name`, a case-insensitive whitespace-separated `query` whose terms all match, `tags` that must all exist, and `filters: [{field: fieldId, equals: typedValue}]` that must all match exactly. Restricted predicates remain owner/admin only. Views operate on the current reader’s projected records. No ranking or inferred attributes are used.
 
 Hosted and embedded forms post `cf-<fieldId>` controls. Board JSON, staff, internal, event and reviewed-resume intake accept `customValues`. Workable preview/commit optionally accept `fieldTemplate: vacancyId`; explicit `importColumn` headers map typed values and the reviewed fingerprint includes the template schema. Imported records stay inert and field IDs belong to the imported job. OPS-003 clones schema/views, reports required-field gaps and visible scope/view impacts on isolated selected data, fences revisions at deployment and restores the previous configuration on rollback.
+
+## Agency collaboration (CRM-005)
+
+The owner or a hiring admin creates an exclusive agency membership with `agency`
+(`email`, `name`, `active`), selects jobs and fee terms with `agency-job`, then the
+owner uses `POST /api/lodge/invite` to issue the ordinary native sign-in invitation.
+Agency members receive only `agencyPortal` from `GET /api/lodge/state`. Their
+`agency-submit` command takes `vacancy`, candidate contact fields, `summary`,
+`consentNote`, `confirmed: true` and an optional original `resume` file. It returns
+a submission receipt, never a candidate match or canonical identifier.
+
+Staff use `agency-review` to record the explicit ownership outcome and reason,
+optionally selecting an existing candidate for acceptance. `agency-progress`
+shares only coarse progress, feedback explicitly addressed to the agency, and
+interview start/end/format. `agency-fee` records USD cents for a credited hire;
+`fee` selects an existing milestone to reconcile. These are employer records,
+not provider sends or payments. Agencies download their own unrestricted original
+uploads at `/api/lodge/agency/file/:id` and their permitted JSON projection at
+`/api/lodge/agency/export`. Every request checks live membership and job grants.
+Employer search, records, reports, audit, files, exports and agent doors refuse
+agency identities. See CONTRACT.md for the exact ct-approved boundary.

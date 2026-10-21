@@ -6,13 +6,15 @@ import { Fault, requireThat, scope, type Actor, type Data, type Role } from './t
 // agent read is built from these checks, so a restricted interviewer gets the
 // same answer through each of them.
 
-export const isAdmin = (a: Actor) => a.owner || a.roles.includes('admin')
-export const canReview = (a: Pick<Actor, 'owner' | 'roles'>) => a.owner || a.roles.some(role => ['admin', 'manager', 'interviewer'].includes(role))
+/** CRM-005 agencies never acquire employer authority, even from stale assignments. */
+export const isAgency = (a: Pick<Actor, 'owner' | 'roles'>) => !a.owner && a.roles.includes('agency')
+export const isAdmin = (a: Actor) => a.owner || (!isAgency(a) && a.roles.includes('admin'))
+export const canReview = (a: Pick<Actor, 'owner' | 'roles'>) => !isAgency(a) && (a.owner || a.roles.some(role => ['admin', 'manager', 'interviewer'].includes(role)))
 export const onPanel = (a: Actor, interview: Data) => canReview(a) && (interview.participants ?? []).includes(scope(a))
-export const has = (a: Actor, role: Role) => a.owner || a.roles.includes(role)
+export const has = (a: Actor, role: Role) => !isAgency(a) && (a.owner || a.roles.includes(role))
 
 export function requireRole(a: Actor, ...roles: Role[]) {
-  if (!a.owner && !roles.some(r => a.roles.includes(r))) throw new Fault(403, 'Your Lodge role does not allow this')
+  if (isAgency(a) || (!a.owner && !roles.some(r => a.roles.includes(r)))) throw new Fault(403, 'Your Lodge role does not allow this')
 }
 
 export function requireAdmin(a: Actor) {
@@ -50,6 +52,7 @@ const granted = (a: Actor, vacancy: Data) => !!a.grants && ((!!vacancy.departmen
  * except confidential ones they are not cleared for.
  */
 export function managesVacancy(a: Actor, vacancy: Data) {
+  if (isAgency(a)) return false
   if (isAdmin(a) && cleared(a, vacancy, 'confidential')) return true
   if (!a.roles.includes('manager')) return false
   return runsJob(scope(a), vacancy) || !!vacancy.levels?.members?.[scope(a)] || (granted(a, vacancy) && cleared(a, vacancy, 'confidential'))
@@ -94,6 +97,7 @@ function assignedLevels(s: State, a: Actor, vacancy: Data): Data[] | null {
 
 /** What this person may do on this job (OPS-004), read from the saved records on every request. */
 export function permissionsOn(s: State, a: Actor, vacancy: Data): Set<Permission> {
+  if (isAgency(a)) return new Set()
   // Admins hold every permission business-wide; seeing private candidates stays with the owner and "see private" holders (OPS-005).
   if (isAdmin(a) && cleared(a, vacancy, 'confidential')) return new Set(PERMISSIONS.filter(p => p !== 'private' || a.owner || a.seePrivate))
   const levels = assignedLevels(s, a, vacancy)
@@ -119,6 +123,7 @@ export function assignedTo(s: State, a: Actor, application: Data) {
 }
 
 export function canSeeApplication(s: State, a: Actor, application: Data) {
+  if (isAgency(a)) return false
   // A deactivated member keeps their history but loses every view at once.
   if (!a.owner && !a.roles.length) return false
   s.get('application', application.id)
@@ -139,6 +144,7 @@ export function requireApplication(s: State, a: Actor, id: unknown): Data {
 
 /** CRM-009: who sees an event and its pool: the owner and admins, the event's owner, and the hiring teams (REQ-003) of its linked jobs. */
 export function seesEvent(s: State, a: Actor, e: Data) {
+  if (isAgency(a)) return false
   if (!a.owner && !a.roles.length) return false
   if (isAdmin(a)) return true
   const who = scope(a)
@@ -152,6 +158,7 @@ const inSeenPool = (s: State, a: Actor, candidate: Data) => s.all('event-capture
 const privateByLevel = (s: State, a: Actor, candidate: Data) => s.all('application').some(app => { const v = app.candidate === candidate.id && s.find('vacancy', app.vacancy); return !!v && managesVacancy(a, v) && can(s, a, v, 'private') })
 
 export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
+  if (isAgency(a)) return false
   if (!cleared(a, candidate, 'private') && !privateByLevel(s, a, candidate)) return false
   if (inSeenPool(s, a, candidate)) return true
   const apps = s.all('application').filter(app => app.candidate === candidate.id)
@@ -162,6 +169,7 @@ export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
 
 /** Contact details stay with the people who run the vacancy; interviewers see names. */
 export function canSeeContact(s: State, a: Actor, candidate: Data) {
+  if (isAgency(a)) return false
   if (isAdmin(a)) return canSeeCandidate(s, a, candidate)
   if (!cleared(a, candidate, 'private') && !privateByLevel(s, a, candidate)) return false
   if (inSeenPool(s, a, candidate)) return true
@@ -179,6 +187,7 @@ export function canSeeContact(s: State, a: Actor, candidate: Data) {
  * anything marked restricted) are visible to the owner and hiring admins only.
  */
 export function canSeeDocument(s: State, a: Actor, doc: Data) {
+  if (isAgency(a)) return false
   if (doc.restricted && !isAdmin(a)) return false
   if (doc.application && s.find('application', doc.application)) {
     // A transferred application carries its source's attachments to the new job's team.

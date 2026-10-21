@@ -1,3 +1,4 @@
+import { candidateRecords } from '../records/retention'
 import type { State } from '../core/state'
 import { readBlob } from '../core/store'
 import { requireAdmin } from '../core/access'
@@ -60,7 +61,14 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
     requireThat(blob, 'The file bytes are missing', 409)
     documents.push({ ...d, base64: blob.base64 })
   }
+  const agencySubmissions = []
+  for (const sub of candidateRecords(s, id)['agency-submission']) {
+    const files = []
+    for (const file of sub.files) { const blob = await readBlob(db, file.id); requireThat(blob, 'The agency original bytes are missing', 409); files.push({ ...file, base64: blob.base64 }) }
+    agencySubmissions.push({ ...sub, files })
+  }
   const body = {
+    agencySubmissions,
     format: 'lodge-candidate-export-1', exportedAt: now(), exportedBy: a.email,
     candidate, mergedCandidates: mergedCandidates(view.mergedCandidates, id),
     application: applications, 'stage-event': applications.flatMap(app => app.history),

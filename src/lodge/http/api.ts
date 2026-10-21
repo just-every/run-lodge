@@ -1,3 +1,5 @@
+import { portal } from '../agency/views'
+import { agencyFile } from '../agency/access'
 import { fieldResult } from '../views/fields'
 import { savedHiringView } from '../views/field-views'
 import { blindFor, blindResult } from '../core/blind'
@@ -5,7 +7,7 @@ import { Hono, type Context } from 'hono'
 import type { Bindings } from '../../auth.server'
 import { runtimeBindings } from '../../auth.server'
 import { actorFor, load, readBlob, save, signedIn } from '../core/store'
-import { can, canSeeApplication, isAdmin, managesVacancy, onPanel, requireApplication, requireDocument } from '../core/access'
+import { isAgency, can, canSeeApplication, isAdmin, managesVacancy, onPanel, requireApplication, requireDocument } from '../core/access'
 import { Fault, requireThat, type Actor, type Data } from '../core/types'
 import type { State } from '../core/state'
 import { run } from '../commands'
@@ -58,10 +60,11 @@ api.onError((error, c) => {
 /** Routes that change records outside a proposal are for people, not agent members. */
 const person = (a: Actor) => requireThat(!a.agent, 'Agent members propose changes; a person approves and applies them', 403)
 
-async function context(c: C) {
+async function context(c: C, agencyDoor = false) {
   const session = await signedIn(c.req.raw, c.env)
   const state = await load(c.env.DB)
   const actor = actorFor(session, state)
+  requireThat(!isAgency(actor) || (agencyDoor && !actor.agent), 'Agency record not found', 404)
   return { state, actor }
 }
 
@@ -76,15 +79,32 @@ const attachment = (content: BodyInit, type: string, name: string) => new Respon
 const json = (value: unknown, name: string) => attachment(JSON.stringify(value, null, 2), 'application/json; charset=utf-8', name)
 
 api.get('/api/lodge/state', async c => {
-  const { state, actor } = await context(c)
+  const { state, actor } = await context(c, true)
+  if (isAgency(actor)) return c.json(portal(state, actor))
   return c.json({ ...await workspace(state, actor), importJobs: await importJobs(c.env.DB, actor, state) })
 })
 
 api.post('/api/lodge/command/:op', async c => {
-  const { state, actor } = await context(c)
+  const { state, actor } = await context(c, c.req.param('op') === 'agency-submit')
   const result = await run(state, actor, c.req.param('op'), await body(c))
   await save(c.env.DB, state, actor)
   return c.json(fieldResult(state, actor, blindResult(state, actor, result)))
+})
+
+api.get('/api/lodge/agency/export', async c => {
+  const { state, actor } = await context(c, true)
+  const result = portal(state, actor)
+  state.audit(actor, 'agency-own-exported', 'agency:' + result.agencyPortal.name)
+  return recorded(c, state, actor, json(result.agencyPortal, 'agency-submissions.json'))
+})
+api.get('/api/lodge/agency/file/:id', async c => {
+  const { state, actor } = await context(c, true)
+  const file = agencyFile(state, actor, c.req.param('id'))
+  const blob = await readBlob(c.env.DB, file.id)
+  requireThat(blob, 'Agency record not found', 404)
+  const data = Uint8Array.from(atob(blob.base64), ch => ch.charCodeAt(0))
+  state.audit(actor, 'agency-original-downloaded', 'agency-file:' + file.id)
+  return recorded(c, state, actor, attachment(data, file.mediaType, file.name))
 })
 
 api.get('/api/lodge/search', async c => {

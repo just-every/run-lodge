@@ -17,6 +17,7 @@ import { OfferTemplates, JobOfferTemplate } from './offer-templates'
 import { JobCopies, Templates } from './templates'
 import { JobFields } from './fields'
 import { JobHiringViews } from './hiring-views'
+import { Agencies } from './agencies'
 
 export function VacancyStatus({ v }: { v: D }) {
   if (v.imported) return <Status>imported history</Status>
@@ -91,6 +92,7 @@ function Detail({ v, w, mutate, go, select }: { v: D; select: (id: string) => vo
     {!v.imported && <Openings v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <Posts v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <Team v={v} w={w} mutate={mutate} />}
+    {v.manages && (w.actor.owner || w.actor.roles.includes('admin')) && <Agencies v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <JobQuestions v={v} w={w} mutate={mutate} />}
     {!v.imported && <JobFields v={v} w={w} mutate={mutate} />}
     {!v.imported && <JobHiringViews v={v} mutate={mutate} />}
