@@ -462,6 +462,23 @@ internal-only or unavailable posts return the same unavailable page with a link
 to current openings. The original vendor's domain cannot be redirected by Lodge.
 The employer's existing embed snippet carries `gh_jid` from the host page and
 opens its mapped Greenhouse role inside the frame, preserving `utm_*` fields.
+For another source, configure the existing script with `data-legacy-source` (the
+saved mapping's source) and `data-legacy-parameter` (the host page's old job-ID
+parameter). For example, a Workable link using `?wjob=old-42` uses:
+
+```html
+<script src="https://your-lodge.example/embed.js"
+        data-legacy-source="workable" data-legacy-parameter="wjob" async></script>
+```
+
+This explicit source/parameter configuration takes precedence over automatic
+`gh_jid` handling. Without the configured parameter the frame shows current
+roles. The frame route accepts the resulting `legacy_source` / `legacy_job`
+pair; repeated IDs, incomplete pairs and mixed Greenhouse/generic selectors
+show the same unavailable page as an unknown mapping. The redirect and
+unavailable response use `no-store`, so closing a job or pausing its post takes
+effect on the next visit. This changes links on the employer's site only; it
+does not redirect a provider domain or prove a completed source cutover.
 A mapping to a job's fallback page does not automatically choose a different post
 if its first post later goes live: map the intended post explicitly.
 

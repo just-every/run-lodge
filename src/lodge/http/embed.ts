@@ -49,8 +49,17 @@ embedPages.get('/embed.js', c => {
   const origin = runtimeBindings(c.env).AUTH_ORIGIN
   const script = `(() => {
   const me = document.currentScript, origin = ${JSON.stringify(origin)}
-  const params = new URLSearchParams()
-  for (const [key, value] of new URLSearchParams(location.search)) if (key.startsWith('utm_') || key === 'gh_jid') params.set(key, value)
+  const params = new URLSearchParams(), hostParams = new URLSearchParams(location.search)
+  const source = me.dataset.legacySource, parameter = me.dataset.legacyParameter
+  const configured = !!(source && parameter)
+  for (const [key, value] of hostParams) {
+    if (key.startsWith('utm_')) params.set(key, value)
+    else if (!configured && key === 'gh_jid') params.append(key, value)
+  }
+  if (configured && hostParams.has(parameter)) {
+    params.set('legacy_source', source)
+    for (const value of hostParams.getAll(parameter)) params.append('legacy_job', value)
+  }
   for (const key of ['department', 'office', 'remote']) if (me.dataset[key]) params.set(key, me.dataset[key])
   const frame = document.createElement('iframe')
   frame.src = origin + '/embed/jobs' + (params.size ? '?' + params : '')
@@ -74,9 +83,12 @@ embedPages.get('/embed/jobs', async c => {
   const s = await load(c.env.DB)
   const embed = embedding(s)
   if (!embed) return notSetUp()
-  const oldId = c.req.query('gh_jid')
-  if (oldId !== undefined) {
-    const l = legacyListing(s, 'greenhouse', oldId, 'embed')
+  const greenhouse = c.req.queries('gh_jid'), sources = c.req.queries('legacy_source'), jobs = c.req.queries('legacy_job')
+  if (greenhouse || sources || jobs) {
+    // A link must identify exactly one source/job pair, never silently choose among conflicting IDs.
+    const old = greenhouse?.length === 1 && !sources && !jobs ? { source: 'greenhouse', id: greenhouse[0] }
+      : !greenhouse && sources?.length === 1 && jobs?.length === 1 ? { source: sources[0], id: jobs[0] } : null
+    const l = old ? legacyListing(s, old.source, old.id, 'embed') : null
     c.header('cache-control', 'no-store')
     const carried = query(campaignOf(c.req.query()))
     return l ? c.redirect('/embed/jobs/' + l.slug + carried, 302) : page('Not found', '<h1>This role is not available</h1><p><a href="/embed/jobs">See open roles</a></p>', 404, embed)

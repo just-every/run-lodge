@@ -14,7 +14,8 @@ export async function careersSite(root) {
   const html = await readFile(join(root, 'docs/careers-page-example.html'))
   const server = createServer((request, response) => {
     const url = new URL(request.url, 'http://site'), lodge = url.searchParams.get('lodge') ?? ''
-    const snippet = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Join us</title></head><body style="margin:0;padding:16px;font-family:sans-serif"><h1>Join us</h1><script src="${lodge}/embed.js" data-department="${url.searchParams.get('department') ?? ''}" async></script><noscript><a href="${lodge}/jobs">See our open roles</a></noscript></body></html>`
+    const attr = key => (url.searchParams.get(key) ?? '').replaceAll('&', '&amp;').replaceAll('\"', '&quot;').replaceAll('<', '&lt;')
+    const snippet = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Join us</title></head><body style="margin:0;padding:16px;font-family:sans-serif"><h1>Join us</h1><script src="${lodge}/embed.js" data-department="${attr('department')}" data-legacy-source="${attr('legacy-source')}" data-legacy-parameter="${attr('legacy-parameter')}" async></script><noscript><a href="${lodge}/jobs">See our open roles</a></noscript></body></html>`
     response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
     response.end(url.pathname === '/embed-host' ? snippet : html)
   })

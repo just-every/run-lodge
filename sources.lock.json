@@ -79,7 +79,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "657861ed750d8bda20d32d6d43f4a3c0f29d7a978bea339727badf92ac4f1604",
+      "sha256": "1534c8602ca8be635dab191721f1e060726086a4be9d4aee09d25d6d5b6bce8b",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -91,7 +91,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "68171008ebd5847cc09f10522a164968382c74e24845dd9f6c51dd70ce0c8657",
+      "sha256": "d7696a9664966681f32a28e8c50d707b808fea56c16ce913bf136fe99b5da887",
       "executable": false
     },
     "base-copies.json": {
@@ -103,7 +103,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f9baa03932745ed7146bb3203398e81d59278818c06b9b7594239fbfd8aa86d1",
+      "sha256": "938a598a66bbeb6d4cfb90f4044e02193a446ff3a6e8a76904e3543a0e0c9376",
       "executable": false
     },
     "DEMO.md": {
@@ -863,7 +863,7 @@
       "executable": false
     },
     "src/lodge/http/embed.ts": {
-      "sha256": "04bdcb0d0a751e976bbe4d86679c9afe5fa3cd2807c18f4a7d49cc020d778c2d",
+      "sha256": "ede65b963e1c5930f597a33cde2b5c17eed831c67411160e8ba7dce0dfcb7a79",
       "executable": false
     },
     "src/lodge/http/event-pages.ts": {
@@ -3223,7 +3223,7 @@
       "executable": false
     },
     "tests/board-page.mjs": {
-      "sha256": "c8a531a82070abfe65cb48cd22c7222dc4a7a80dff9b00efcf90b9aad16bd11d",
+      "sha256": "c3961879a5ace2b01baabf84f803df6511921e51b2d2220590cfd0cc99858c26",
       "executable": false
     },
     "tests/browser-journey.mjs": {
@@ -3275,11 +3275,11 @@
       "executable": false
     },
     "tests/legacy-links.mjs": {
-      "sha256": "c3137bfb249f1e8ee059433f531b56a9c3e7350f2308708e84ff2cfe46995018",
+      "sha256": "1b0d1de17c56631c5ce860fc26be1beef76e5da2277f0f6a9b493d5e9254b9c5",
       "executable": false
     },
     "tests/legacy-page.mjs": {
-      "sha256": "29d5ec569ee0e4fa2f10f735c8f411ce6117276b4fe2b809ef1bf63abd8794cc",
+      "sha256": "ae43811901ebd1768f221aa2ffdc6cd7b2d6ebbdce7b3f3e93d13971be64fcdf",
       "executable": false
     },
     "tests/lodge-worker.ts": {
