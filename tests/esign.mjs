@@ -101,7 +101,7 @@ export async function checkEsign() {
   assert.ok(!JSON.stringify(sent.value).includes(token) && !JSON.stringify(await h.state(manager)).includes(token), 'staff never read link material')
   const first = await h.send(base)
   assert.equal(first.status, 200); assert.match(first.text, /Offer for signature/); assert.match(first.text, /t\*\*\*@example\.test/)
-  assert.equal(first.headers.get('cache-control'), 'no-store'); assert.equal(first.headers.get('referrer-policy'), 'no-referrer')
+  assert.equal(first.headers.get('cache-control'), 'no-store'); assert.equal(first.headers.get('referrer-policy'), 'same-origin')
   assert.match(first.headers.get('content-security-policy'), /frame-ancestors 'none'/)
   assert.equal((await h.send(base + '/code', form({}), '', { origin: 'https://evil.example' })).status, 403, 'exact Origin')
   assert.equal((await h.send('/sign/' + '0'.repeat(64))).status, 404)
@@ -287,5 +287,57 @@ export async function checkEsign() {
   assert.equal((await download(complete.sealed.document)).status, 404); assert.equal((await download(complete.sealed.certificate)).status, 404)
   assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='esign-envelope' OR kind='esign-notice' OR (kind='document' AND json_extract(value,'$.esign') IS NOT NULL)").first()).n, 0)
   assert.equal((await h.send(copyPath, undefined, opened.cookie)).status, 404, 'the copy link refuses after erasure')
+ } finally { await h.close() }
+}
+
+/**
+ * The candidate's pages in a real browser at 1440 and 390, served by the same Worker the API test uses (local `rer dev`
+ * captures no mail, so the code and link are read from the test mail edge): code, consent, review, sign, completion.
+ */
+export async function candidateScreens(browser, evidence) {
+ const { join } = await import('node:path')
+ const h = await harness()
+ try {
+  const t = await scenario(h)
+  await t.cmd('esign-disclosure', { reviewed: true, contactName: 'Hiring desk', contactEmail: 'hiring@example.test' })
+  for (const [width, name] of [[1440, 'Rowan Eastman'], [390, 'Mina Okafor']]) {
+   const email = name.toLowerCase().replace(' ', '.') + '@example.test'
+   const applied = await t.person(name), offer = await t.offerFor(applied, width === 1440 ? 0 : 1)
+   await t.approve(offer)
+   const sent = await h.send('/api/lodge/esign/send', { offer: offer.id }, t.manager)
+   assert.equal(sent.status, 200, JSON.stringify(sent.value))
+   const context = await browser.newContext({ viewport: { width, height: 900 } }), page = await context.newPage(), errors = []
+   page.on('pageerror', e => errors.push(e.message))
+   const fits = async label => { const m = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth })); const wide = m.scroll > m.width + 1 ? await page.evaluate(() => [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 4).map(e => e.tagName + '.' + e.className + ':' + Math.round(e.getBoundingClientRect().right))) : []; assert.ok(m.scroll <= m.width + 1, `${label} at ${width}: no sideways scrolling (${m.scroll} > ${m.width}) ${wide}`) }
+   const shot = async step => { await fits(step); await page.screenshot({ path: join(evidence, `OFFER-005-${step}-${width}.png`), fullPage: true }) }
+   try {
+    const token = await linkOf(h, email, 'sign')
+    await page.goto(h.origin + '/sign/' + token)
+    await page.getByRole('heading', { name: 'Offer for signature' }).waitFor()
+    await page.getByRole('button', { name: 'Email me a code' }).click()
+    await page.getByText(/We emailed a code/).waitFor()
+    await shot('verify')
+    await page.getByLabel('Six-digit code').fill(await codeOf(h, email))
+    await page.getByRole('button', { name: 'Verify' }).click()
+    await page.getByRole('heading', { name: 'Consent to electronic signing' }).waitFor()
+    await shot('consent')
+    await page.getByLabel(/I have read this and I agree/).check()
+    await page.getByRole('button', { name: 'Agree', exact: true }).click()
+    await page.getByRole('heading', { name: 'Review the offer' }).waitFor()
+    assert.ok((await page.locator('pre.sign-doc').textContent()).includes('USD 100000.00 per year'))
+    await shot('sign')
+    await page.getByLabel('Type your full name').fill(name)
+    await page.getByRole('button', { name: 'Sign', exact: true }).click()
+    await page.getByText(/waits for Example Builders to countersign/).waitFor()
+    await shot('signed')
+    const envelope = (await h.state(t.manager)).offers.find(o => o.id === offer.id).esign
+    const countersigned = await h.send('/api/lodge/esign/countersign', { id: envelope.id, name: 'Dana Signer', hash: offer.document.sha256 }, await h.signIn('dana.signer@example.test'))
+    assert.equal(countersigned.status, 200, JSON.stringify(countersigned.value))
+    await page.reload()
+    await page.getByRole('link', { name: 'Download the signed offer (PDF)' }).waitFor()
+    await shot('completed')
+    assert.deepEqual(errors, [])
+   } finally { await context.close() }
+  }
  } finally { await h.close() }
 }

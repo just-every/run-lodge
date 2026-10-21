@@ -8,10 +8,15 @@ import { embedPages, isEmbedPage } from '../src/lodge/http/embed'
 import { eventPages } from '../src/lodge/http/event-pages'
 import { privacyPages } from '../src/lodge/http/privacy-pages'
 import { isSignPage, signPages } from '../src/lodge/http/sign-pages'
+import publicCss from '../public/lodge-public.css'
+import themeCss from '../public/rer-theme.css'
 
 export default {
   scheduled: resumeIntakeMaintenance,
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
+    // The stylesheets a hosted Worker serves from its assets, so pages in a browser look as shipped.
+    const sheet = ({ '/lodge-public.css': publicCss, '/rer-theme.css': themeCss } as Record<string, string>)[new URL(request.url).pathname]
+    if (sheet) return new Response(sheet, { headers: { 'content-type': 'text/css' } })
     const auth = await authResponse(request, env)
     if (auth) return auth
     const path = new URL(request.url).pathname

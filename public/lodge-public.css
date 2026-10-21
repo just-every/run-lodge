@@ -47,4 +47,4 @@ html.rer-themed .lodge-public :is(input,textarea,select):focus{border-color:var(
 .lodge-public .sign-doc{box-sizing:border-box;max-width:100%;max-height:60vh;overflow:auto;margin:12px 0;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius-control);background:var(--rer-surface);font:inherit;font-size:15px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 .lodge-public .disclosure{margin:12px 0;padding:4px 16px;border:1px solid var(--line);border-radius:var(--radius-control)}
 .lodge-public .downloads{padding-left:20px}.lodge-public .downloads li{margin:8px 0}
-.lodge-public .sign-doc,.lodge-public code{overflow-wrap:anywhere;word-break:break-all}
+.lodge-public code{overflow-wrap:anywhere;word-break:break-all}

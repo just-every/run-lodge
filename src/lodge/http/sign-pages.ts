@@ -24,13 +24,14 @@ export const isSignPage = (path: string) => path.startsWith('/sign/') || path.st
 
 async function shell(title: string, body: string, status = 200) {
   const response = await page(title, body, status)
-  response.headers.set('referrer-policy', 'no-referrer')
+  // same-origin sends nothing to other sites; browsers send Origin: null on form posts under no-referrer, which the exact-Origin check would refuse.
+  response.headers.set('referrer-policy', 'same-origin')
   return response
 }
 const unavailable = () => shell('Not available', '<h1>This link is not available</h1><p>The signing request may have ended. Contact the employer who sent it.</p>', 404)
 const secret = (c: C) => runtimeBindings(c.env).SESSION_SECRET
 const mask = (address: string) => address.replace(/^(.).*(@.*)$/, '$1***$2')
-const attachment = (bytes: Uint8Array | string, type: string, name: string, extra: Record<string, string> = {}) => new Response(bytes as BodyInit, { headers: { 'content-type': type, 'content-disposition': `attachment; filename="${name}"`, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer', ...extra } })
+const attachment = (bytes: Uint8Array | string, type: string, name: string, extra: Record<string, string> = {}) => new Response(bytes as BodyInit, { headers: { 'content-type': type, 'content-disposition': `attachment; filename="${name}"`, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'same-origin', ...extra } })
 
 function session(c: C, name: string, path: string, token: string, until: string) {
   const age = Math.max(0, Math.floor((Date.parse(until) - Date.now()) / 1000))

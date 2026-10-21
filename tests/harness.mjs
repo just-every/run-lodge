@@ -25,7 +25,7 @@ async function freePort() {
 export async function harness({ claim = true, bindings = {} } = {}) {
   const port = await freePort(), origin = `http://127.0.0.1:${port}`
   const dir = await mkdtemp(join(tmpdir(), 'lodge-test-'))
-  const bundle = await build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(process.cwd(), 'tests/mail-edge.mjs') })) } }], external: ['node:*'], target: 'es2023', logLevel: 'error' })
+  const bundle = await build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(process.cwd(), 'tests/mail-edge.mjs') })) } }], external: ['node:*'], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' })
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'],
