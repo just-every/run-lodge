@@ -93,7 +93,7 @@ export async function agencyPage(browser, { root, origin, run, evidence, ownerEm
       await review.getByLabel('Amount (USD cents)', { exact: false }).fill('1500000')
       await review.getByLabel('Fee status', { exact: false }).selectOption('due')
       await review.getByRole('button', { name: 'Record fee milestone', exact: true }).click()
-      await review.getByRole('cell', { name: 'Placement on start', exact: true }).waitFor()
+      await review.locator('table').getByText('Placement on start', { exact: true }).waitFor()
       await fits(page, evidence, 'employer-fee', width)
       await portal.getByRole('button', { name: 'Refresh', exact: true }).click()
       await portal.getByText('Placement on start', { exact: true }).waitFor()

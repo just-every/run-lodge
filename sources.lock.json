@@ -3199,7 +3199,7 @@
       "executable": false
     },
     "tests/agency-page.mjs": {
-      "sha256": "7d684b84da39a30653b960025f01dcee1d12c7c2d2f3be9a9677fd020b17b708",
+      "sha256": "7c2c7703cfce910d5ed5150171f9d0a6089235cd615db9a5b96aac620326a0c2",
       "executable": false
     },
     "tests/agents.test.mjs": {
