@@ -116,7 +116,7 @@ export function deleteCandidate(s: State, a: Actor, b: Data) {
   text(b.reason, 'Reason for deletion', 1000)
   const records = candidateRecords(s, c.id)
   const candidateIds = new Set([c.id, ...records.candidate.map(person => person.id)])
-  const vacancyIds = new Set(records.application.map(app => app.vacancy))
+  const vacancyIds = new Set([...records.application, ...records['agency-submission']].map(record => record.vacancy))
   const holds = s.scan('hold').filter(h => h.status === 'active' && (candidateIds.has(h.candidate) || vacancyIds.has(h.vacancy)))
   requireThat(!holds.length, 'A legal hold covers this candidate; release it before deleting', 409)
   requireThat(!records.application.some(x => x.status === 'active'), 'Close this candidate’s active applications before deleting', 409)

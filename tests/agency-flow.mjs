@@ -135,6 +135,13 @@ export async function checkAgency(t) {
   const reasons = (await state()).rejectionReasons
   const withdrawal = reasons.find(r => r.group === 'withdrew')
   await cmd('move', { application: samePerson.application, to: 'withdrawn', closeReason: withdrawal.id, note: 'Candidate withdrew from second role' })
+  const pendingJob = await job('Pending-only agency role')
+  await cmd('agency-job', { agency: two.id, vacancy: pendingJob.id, feeTerms: 'USD 9,000 on start' })
+  await cmd('agency-submit', { ...input, vacancy: pendingJob.id }, cookie2)
+  const hold = await cmd('hold', { vacancy: pendingJob.id, reason: 'Preserve the pending agency submission' })
+  const held = await send('/api/lodge/delete-candidate', { candidate: accepted.candidate, confirm: 'Adrian Employer Correction', reason: 'Candidate requested erasure' }, h.owner)
+  assert.equal(held.status, 409, 'a hold on a pending-only agency job protects its frozen copy too')
+  await cmd('release-hold', { id: hold.id, reason: 'Preservation released' })
   const erased = await send('/api/lodge/delete-candidate', { candidate: accepted.candidate, confirm: 'Adrian Employer Correction', reason: 'Candidate requested erasure' }, h.owner)
   assert.equal(erased.status, 200, erased.text)
   assert.deepEqual((await state(cookie2)).agencyPortal.submissions, [])
