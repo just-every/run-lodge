@@ -1,5 +1,4 @@
 import { publicReceipt } from '../careers/receipt'
-import { employerBrand } from '../careers/brand'
 import { careersDomainView } from '../careers/domain'
 import type { Bindings } from '../../auth.server'
 import { connectorSummary } from '../connectors/views'
@@ -171,7 +170,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
   return blindProjection(s, a, fieldProjection(s, a, {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
-    careers: admin && !a.agent && s.find('business', 'main') ? { brand: employerBrand(s), ...careersDomainView(s, a, env ?? { AUTH_ORIGIN: 'https://unconfigured.invalid' }) } : null,
+    careers: admin && !a.agent && s.find('business', 'main') ? { brand: s.find('careers-brand', 'main') ?? null, ...careersDomainView(s, a, env ?? { AUTH_ORIGIN: 'https://unconfigured.invalid' }) } : null,
     connectors: connectorSummary(s, a),
     sandboxes: sandboxesView(s, a), providerSetup: admin && !a.agent ? await providerSummary(s) : null,
     members: s.all('member').map(m => admin ? m : { email: m.email, name: m.name, roles: m.roles, active: m.active }),
