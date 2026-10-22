@@ -47,7 +47,7 @@ export function createCareersDomainEdge() {
         return json(edge.domain)
       }
       if (path.endsWith('/workers/domains/synthetic-lodge-8') && request.method === 'GET') return edge.domain ? json(edge.domain) : json(null, 404)
-      if (path.endsWith('/workers/domains/synthetic-lodge-8') && request.method === 'DELETE') { edge.domain = null; return json(null) }
+      if (path.endsWith('/workers/domains/synthetic-lodge-8') && request.method === 'DELETE') { edge.domain = null; return new Response(null, { status: 204 }) }
       throw new Error('Unexpected synthetic domain edge request: ' + request.method + ' ' + path)
     },
   }

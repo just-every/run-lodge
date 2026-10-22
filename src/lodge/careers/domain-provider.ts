@@ -50,7 +50,9 @@ export class CareersDomainProvider {
         headers: { authorization: `Bearer ${this.env.CAREERS_CF_API_TOKEN}`, 'content-type': 'application/json' },
         ...(body ? { body: JSON.stringify(body) } : {}),
       })
-      result = await response.json() as Data
+      const text = await response.text()
+      if (method === 'DELETE' && response.ok && !text.trim()) return { success: true, result: null }
+      result = JSON.parse(text) as Data
     } catch { throw new Fault(502, 'Cloudflare could not be reached; check the installation configuration and try again') }
     requireThat(response.ok && result?.success === true, 'Cloudflare refused the domain request; check permissions and domain configuration', 502)
     return result
