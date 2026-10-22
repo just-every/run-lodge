@@ -1,3 +1,4 @@
+import { careersSite } from './board-page.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { brandInput, careersJob, employerLogo } from './careers-flow.mjs'
@@ -88,23 +89,31 @@ export async function careersPage(browser, { root, origin, run, evidence, ownerE
     } finally { await owner.context.close() }
   }
   await careersPublicPage(browser, { origin, jobs, evidence })
-  for (const width of [1440,390]) {
-    const context = await browser.newContext({ viewport: { width, height: 1000 }, javaScriptEnabled: false })
-    try {
-      const page = await context.newPage()
-      await page.goto(origin + '/embed/jobs/' + jobs.remote.slug)
-      await page.getByRole('img', { name: /Example Builders/ }).waitFor()
-      await page.getByRole('textbox', { name: 'Full name', exact: true }).fill('Morgan Embed ' + width)
-      await page.getByRole('textbox', { name: 'Email', exact: true }).fill(`morgan-embed-${width}@example.test`)
-      await page.getByRole('checkbox', { name: /I have read privacy notice/ }).check()
-      await shot(page, evidence, 'embed-application', width)
-      await page.getByRole('button', { name: 'Submit application', exact: true }).click()
-      const code = await page.locator('[data-recovery-code]').textContent()
-      await page.getByRole('link', { name: 'Recover a receipt', exact: true }).click()
-      await page.getByRole('textbox', { name: 'Private recovery code', exact: true }).fill(code)
-      await page.getByRole('button', { name: 'Recover receipt', exact: true }).click()
-      await page.getByRole('heading', { name: 'Application received', exact: true }).waitFor()
-      await shot(page, evidence, 'embed-recovered', width)
-    } finally { await context.close() }
-  }
+  const site = await careersSite(root)
+  try {
+    await run('job-board', { token: 'synthetic-lodge-1', allowedOrigins: [site.origin] })
+    for (const width of [1440,390]) {
+      const context = await browser.newContext({ viewport: { width, height: 1000 } })
+      try {
+        const page = await context.newPage()
+        await page.goto(site.origin + '/embed-host?lodge=' + encodeURIComponent(origin))
+        const frame = page.frameLocator('iframe[title="Open roles"]')
+        await frame.getByRole('img', { name: /Example Builders/ }).waitFor()
+        await frame.getByRole('link', { name: jobs.remote.title, exact: true }).click()
+        await frame.getByRole('img', { name: /Example Builders/ }).waitFor()
+        await frame.getByRole('textbox', { name: 'Full name', exact: true }).fill('Morgan Embed ' + width)
+        await frame.getByRole('textbox', { name: 'Email', exact: true }).fill(`morgan-embed-${width}@example.test`)
+        await frame.getByRole('checkbox', { name: /I have read privacy notice/ }).check()
+        await shot(page, evidence, 'embed-application', width)
+        await frame.getByRole('button', { name: 'Submit application', exact: true }).click()
+        const code = await frame.locator('[data-recovery-code]').textContent()
+        await frame.getByRole('link', { name: 'Recover a receipt', exact: true }).click()
+        await frame.getByRole('textbox', { name: 'Private recovery code', exact: true }).fill(code)
+        await frame.getByRole('button', { name: 'Recover receipt', exact: true }).click()
+        await frame.getByRole('heading', { name: 'Application received', exact: true }).waitFor()
+        await frame.getByRole('img', { name: /Example Builders/ }).waitFor()
+        await shot(page, evidence, 'embed-recovered', width)
+      } finally { await context.close() }
+    }
+  } finally { await site.close() }
 }
