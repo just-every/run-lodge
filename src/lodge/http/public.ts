@@ -15,10 +15,11 @@ import { pay as payRange, vacancyFacts } from '../core/labels'
 import { businessZone, isZone, times } from '../core/time'
 import { load, save } from '../core/store'
 import type { State } from '../core/state'
-import { Fault, bytesToBase64, type Data } from '../core/types'
+import { Fault, bytesToBase64, requireThat, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
 import { APPLICATION_PAGE, MONITORING_OPTIONS, interviewByToken, submit, type Door } from '../records/intake'
 import { listingBySlug, listings, shownJob } from '../records/posts'
+import { RESUME_TYPES } from '../records/job-board'
 import { candidateAvailability } from '../records/interviews'
 import { jobForm } from '../records/questions'
 import { departmentPath, subtree } from '../records/org'
@@ -153,7 +154,7 @@ ${cpra ? cpraSection(cpra) : ''}
 <label><input type="checkbox" name="consent" value="yes" required> I have read privacy notice version ${esc(notice.version)}${cpra ? ` and California notice version ${esc(cpra.version)}` : ''}.</label>
 <label><input type="checkbox" name="talentPool" value="yes"${values.talentPool === 'yes' ? ' checked' : ''}> You may contact me about other suitable roles while you keep my details.</label>
 <button type="submit">Submit application</button>
-</form>${draftTools(SOURCE_UI)}`
+</form>${draftTools(SOURCE_UI, questions)}`
 }
 
 publicPages.get('/careers/logo', async c => {
@@ -226,6 +227,8 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   }
   try {
     const resume = await upload(data.get('resume'))
+    // A resume restored from a saved draft is held to the same type and size rules as one chosen just now.
+    if (resume) requireThat(RESUME_TYPES[resume.name.split('.').pop()?.toLowerCase() ?? ''] !== undefined, `Resumes may be ${Object.keys(RESUME_TYPES).join(', ')} files`)
     const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given, customValues: submittedCustomFields(v, values) } as any, door, l.post)
     const copy = receipt.language !== 'en' ? uiCopy(l.post!) : SOURCE_UI
     const code = await receiptRecoveryCode(s, receipt, copy)

@@ -1,4 +1,5 @@
 import { careersPage as employerCareersPage } from './careers-page.mjs'
+import { careersDraftPage } from './careers-draft-page.mjs'
 import { connectorsPage } from './connectors-page.mjs'
 import { referralsPage } from './referrals-page.mjs'
 import { languagesPage } from './languages-page.mjs'
@@ -97,6 +98,7 @@ try {
     const hand = await postsPage(browser, { root, origin: server.origin, run, offices: [yard, await run('office', { name: 'Queens yard' })], evidence })
     await languagesPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await employerCareersPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+    await careersDraftPage(browser, { root, origin: server.origin, run, evidence })
     await referralsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await agencyPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     // CRM-009: a campus fair on a phone: online and offline captures, the sign-out warning, QR self-registration; the pool at 1440.

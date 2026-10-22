@@ -69,7 +69,7 @@ ${custom}${questions.length ? `<fieldset><legend>${m('questions')}</legend>${que
 <details><summary>${m('notice', { version: notice.version })}</summary>${paragraphs(tr.notice)}</details><input type="hidden" name="noticeVersion" value="${esc(notice.version)}">${california}
 <label><input type="checkbox" name="consent" value="yes" required> ${m(cpra ? 'consentCalifornia' : 'consent', { version: notice.version, californiaVersion: cpra?.version })}</label>
 <label><input type="checkbox" name="talentPool" value="yes"${values.talentPool === 'yes' ? ' checked' : ''}> ${m('talentPool')}</label>
-<button type="submit">${m('submit')}</button></form>${draftTools(copy)}`
+<button type="submit">${m('submit')}</button></form>${draftTools(copy, questions)}`
 }
 
 export function translatedReceipt(receipt: Data, contact: string, timeZone: string, language: string,

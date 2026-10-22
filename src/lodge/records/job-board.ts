@@ -22,7 +22,7 @@ import { cpraNotice, inCalifornia } from './privacy'
 export const BOARD_SOURCE = 'Careers page (API)'
 export const SUBMITS_PER_HOUR = 10
 const IDEMPOTENCY_HOURS = 24
-const RESUME_TYPES: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain', rtf: 'application/rtf', odt: 'application/vnd.oasis.opendocument.text' }
+export const RESUME_TYPES: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain', rtf: 'application/rtf', odt: 'application/vnd.oasis.opendocument.text' }
 
 export const boardSettings = (s: State): Data | undefined => s.find('job-board', 'main')
 
