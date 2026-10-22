@@ -1,0 +1,11 @@
+{
+  "id": "8a42108fc155138867119e0b36576d7b955250c1",
+  "zone_id": "e7b4a4cb93088b96f08e7c4cfd5c08c3",
+  "zone_name": "loadseed.com",
+  "hostname": "careers-sx-lodge-c22.loadseed.com",
+  "service": "lodge-sx-c22-proof",
+  "environment": "production",
+  "cert_id": "b2933c93-1d79-4535-a1a7-c2e17f02a6b7",
+  "previews_enabled": false,
+  "enabled": true
+}
