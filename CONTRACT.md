@@ -318,7 +318,7 @@ The existing Base-backed runtime, authentication, archive/import-kit and erasure
 
 ## Status
 
-Judged from the code and tests at commit `37ae483` (22 October 2026).
+Judged from the code and tests at commit `d1e2b2a` (22 October 2026).
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
