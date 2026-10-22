@@ -1,3 +1,7 @@
+import { publicReceipt } from '../careers/receipt'
+import { employerBrand } from '../careers/brand'
+import { careersDomainView } from '../careers/domain'
+import type { Bindings } from '../../auth.server'
 import { connectorSummary } from '../connectors/views'
 import { referralsView, employerReferrals } from '../referrals/views'
 import { employerAgencies } from '../agency/views'
@@ -77,7 +81,7 @@ export function concealer(s: State, a: Actor, appIds: Set<string>) {
  * command surface all read this same projection, so what a person cannot see
  * here they cannot reach any other way.
  */
-export async function workspaceRecords(s: State, a: Actor) {
+export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
   requireThat(!isAgency(a), 'Agency record not found', 404)
   const admin = isAdmin(a)
   const applications = s.all('application').filter(app => canSeeApplication(s, a, app))
@@ -167,6 +171,7 @@ export async function workspaceRecords(s: State, a: Actor) {
   return blindProjection(s, a, fieldProjection(s, a, {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
+    careers: admin && !a.agent && s.find('business', 'main') ? { brand: employerBrand(s), ...careersDomainView(s, a, env ?? { AUTH_ORIGIN: 'https://unconfigured.invalid' }) } : null,
     connectors: connectorSummary(s, a),
     sandboxes: sandboxesView(s, a), providerSetup: admin && !a.agent ? await providerSummary(s) : null,
     members: s.all('member').map(m => admin ? m : { email: m.email, name: m.name, roles: m.roles, active: m.active }),
@@ -180,7 +185,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     ...intakeLifecycleView(s, a),
     resumeExtractions: s.all('resume-extraction').filter(r => { const c = s.find('candidate', r.candidate); return c && canSeeContact(s, a, c) }),
     mergedCandidates: admin ? s.all('candidate').filter(c => c.mergedInto && !hiddenCandidate(c.mergedInto)) : [],
-    receipts: admin ? s.all('receipt').filter(r => !hiddenApp(r.application)) : [],
+    receipts: admin ? s.all('receipt').filter(r => !hiddenApp(r.application)).map(publicReceipt) : [],
     duplicateReviews: admin ? s.all('duplicate-review').filter(r => !hiddenCandidate(r.first) && !hiddenCandidate(r.second)) : [],
     documents: s.all('document').filter(d => canSeeDocument(s, a, s.get('document', d.id))),
     interviews,
@@ -252,8 +257,8 @@ export async function workspaceRecords(s: State, a: Actor) {
 
 export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
 
-export async function workspace(s: State, a: Actor) {
-  const records = await workspaceRecords(s, a)
+export async function workspace(s: State, a: Actor, env?: Bindings) {
+  const records = await workspaceRecords(s, a, env)
   return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication)))), interviewerActivity: interviewerActivity(s, a, records) }
 }
 

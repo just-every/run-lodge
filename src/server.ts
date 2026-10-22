@@ -1,3 +1,4 @@
+import { careersHostResponse } from './lodge/careers/host'
 import { afterWrite, scheduledRun } from './lodge/notify/run'
 import { withDemo } from './modules/demo/index.mjs'
 import { seedDemo } from './demo'
@@ -17,7 +18,7 @@ import { isSignPage, signPages } from './lodge/http/sign-pages'
 
 // Applicant pages are plain server-rendered HTML; /api/* is Lodge's JSON API;
 // every other document (the /app workspace) is TanStack Start.
-const isPublicPage = (path: string) => path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')
+const isPublicPage = (path: string) => path.startsWith('/careers/') || path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')
 
 // Start documents keep their own cache policy and add no-transform, so no proxy
 // rewrites the HTML React hydrates (Cloudflare's email address obfuscation
@@ -29,6 +30,8 @@ function noTransform(response: Response): Response {
 }
 
 async function route(request: Request, env: Bindings, execution: ExecutionContext): Promise<Response> {
+    const careers = await careersHostResponse(request, env, async req => await staticAssetResponse(req, env) ?? (/^\/privacy-requests(\/|$)/.test(new URL(req.url).pathname) ? privacyPages.fetch(req, env, execution) : publicPages.fetch(req, env, execution)))
+    if (careers) return careers
     const asset = await staticAssetResponse(request, env)
     if (asset) return asset
     const auth = await authResponse(request, env)

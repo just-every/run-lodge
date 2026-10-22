@@ -58,7 +58,7 @@ ${r.refusal ? `<dt>Why</dt><dd>${esc(r.refusal.reason)}</dd>` : r.status === 'co
 privacyPages.get('/privacy-requests', () => page('Privacy requests', form()))
 
 privacyPages.post('/privacy-requests', async c => {
-  sameOrigin(c)
+  await sameOrigin(c)
   // The attempt counts before anything else is read, and is kept even when the request is refused.
   const counted = await load(c.env.DB)
   const within = await countAttempt(counted, runtimeBindings(c.env).SESSION_SECRET, c.req.header('cf-connecting-ip') ?? '', new Date(), 'privacy-request-attempts', REQUESTS_PER_HOUR)

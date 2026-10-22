@@ -52,7 +52,7 @@ eventPages.get('/events/:token', async c => {
 })
 
 eventPages.post('/events/:token', async c => {
-  sameOrigin(c)
+  await sameOrigin(c)
   if (Number(c.req.header('content-length') ?? 0) > MAX_DOCUMENT_BYTES * 1.5) return page('Too large', '<h1>That upload is too large</h1><p>Files may be at most 1 MB. Go back and choose a smaller file.</p>', 413)
   // The attempt counts before anything else is read, and is kept even when the registration is refused.
   const counted = await load(c.env.DB)

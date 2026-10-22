@@ -1,3 +1,4 @@
+import { draftTools } from '../careers/draft'
 import { requireThat, type Data } from '../core/types'
 import { schemaOf } from '../fields/schema'
 import { MONITORING_OPTIONS } from '../records/intake'
@@ -45,9 +46,9 @@ export function translatedForm(v: Data, business: Data, error: string, values: D
     const help = f.restricted ? `<small>${m('restrictedHelp')}</small>` : ''
     if (f.type === 'choice' || f.type === 'boolean') {
       const options = f.type === 'boolean' ? [['true', copy.yes], ['false', copy.no]] : f.choices.map((o, i) => [o, q.choices[i]])
-      return `<label>${label}${help}<select name="${esc(name)}"${req}><option value="">${m('choose')}</option>${options.map(([value, title]) => `<option value="${esc(value)}"${values[name] === value ? ' selected' : ''}>${esc(title)}</option>`).join('')}</select></label>`
+      return `<label${f.restricted ? ' data-draft-private' : ''}>${label}${help}<select name="${esc(name)}"${req}><option value="">${m('choose')}</option>${options.map(([value, title]) => `<option value="${esc(value)}"${values[name] === value ? ' selected' : ''}>${esc(title)}</option>`).join('')}</select></label>`
     }
-    return `<label>${label}${help}<input name="${esc(name)}" type="${f.type === 'text' ? 'text' : esc(f.type)}" value="${esc(values[name])}"${req}></label>`
+    return `<label${f.restricted ? ' data-draft-private' : ''}>${label}${help}<input name="${esc(name)}" type="${f.type === 'text' ? 'text' : esc(f.type)}" value="${esc(values[name])}"${req}></label>`
   }).join('')
   const california = cpra ? `<details><summary>${m('californiaNotice', { version: cpra.version })}</summary>${paragraphs(tr.cpra.intro || '')}<dl>${tr.cpra.categories.map((category: Data) => `<dt>${esc(category.category)}</dt><dd>${esc(category.collected)} ${esc(category.purposes)} ${esc(category.retention)}</dd>`).join('')}</dl><p>${esc(tr.cpra.saleStatement)}</p><p>${m('californiaRequest')}</p></details><input type="hidden" name="cpraNoticeVersion" value="${esc(cpra.version)}">` : ''
   return `<h1>${esc(v.title)}</h1><p class="meta">${facts}${pay ? `<br>${m('salary', { pay })}` : ''}</p>${paragraphs(v.description || '')}
@@ -67,7 +68,7 @@ ${custom}${questions.length ? `<fieldset><legend>${m('questions')}</legend>${que
 <details><summary>${m('notice', { version: notice.version })}</summary>${paragraphs(tr.notice)}</details><input type="hidden" name="noticeVersion" value="${esc(notice.version)}">${california}
 <label><input type="checkbox" name="consent" value="yes" required> ${m(cpra ? 'consentCalifornia' : 'consent', { version: notice.version, californiaVersion: cpra?.version })}</label>
 <label><input type="checkbox" name="talentPool" value="yes"${values.talentPool === 'yes' ? ' checked' : ''}> ${m('talentPool')}</label>
-<button type="submit">${m('submit')}</button></form>`
+<button type="submit">${m('submit')}</button></form>${draftTools(copy)}`
 }
 
 export function translatedReceipt(receipt: Data, contact: string, timeZone: string, language: string,

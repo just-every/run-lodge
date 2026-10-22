@@ -10,6 +10,10 @@ import branding from './branding.json'
 const theme = { href: '/rer-theme.css', productName: branding.name, accentColor: branding.primaryColor }
 
 export interface Bindings {
+ CAREERS_CF_API_TOKEN?: string
+ CAREERS_CF_ACCOUNT_ID?: string
+ CAREERS_CF_ZONE_ID?: string
+ CAREERS_CF_WORKER?: string
  DB: D1Database
  /** Built browser files; hosted deploys run the Worker first (staticAssetResponse). */
  ASSETS?: Fetcher

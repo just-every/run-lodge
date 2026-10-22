@@ -1,3 +1,4 @@
+import { CareersSettings } from './careers-settings'
 import { ConnectorSettings } from './connectors'
 import type { PageProps } from './app'
 import { call, Check, Field, Form, Status, Table, type D } from './shared'
@@ -52,6 +53,7 @@ export function People({ w, mutate, setNotice }: PageProps) {
     {(w.actor.owner || w.actor.roles.includes('admin')) && <InternalSettings w={w} mutate={mutate} />}
     {w.fairChance && <FairChanceSettings w={w} mutate={mutate} />}
     <ConnectorSettings w={w} mutate={mutate} />
+    <CareersSettings w={w} mutate={mutate} />
     <p className="hint">Interviewers see only the applications they are assigned to, without contact details. Restricted documents and voluntary monitoring answers stay with the owner and hiring admins.</p>
   </div>
 }

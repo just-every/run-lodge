@@ -24,7 +24,7 @@ try {
     for (const [as, roles, name] of [['manager', ['manager'], 'Morgan Lee'], ['approver', ['approver'], 'Parker Jones'], ['interviewer', ['interviewer'], 'Ivy Chen']]) await run('member', { email: as + '@dev.localhost', roles, name })
     const options = { root: clone.root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email }
     for (const clause of process.argv.slice(2)) {
-      const [file, fn] = ({ 'ATTR-007': ['languages-page', 'languagesPage'], 'CRM-003': ['referrals-page', 'referralsPage'], 'INT-002': ['connectors-page', 'connectorsPage'] })[clause] ?? []
+      const [file, fn] = ({ 'ATTR-001': ['careers-page', 'careersPage'], 'ATTR-007': ['languages-page', 'languagesPage'], 'CRM-003': ['referrals-page', 'referralsPage'], 'INT-002': ['connectors-page', 'connectorsPage'] })[clause] ?? []
       if (!file) throw new Error('Name a supported clause')
       await (await import('./' + file + '.mjs'))[fn](browser, options)
       console.log(clause + ': own screens and end states passed at 1440 and 390')

@@ -1,3 +1,4 @@
+import { careersDomainChallenge, careersDomainOperation } from '../careers/domain'
 import { isEmployeeOnly } from '../core/access'
 import { referralsView } from '../referrals/views'
 import { referralFile } from '../referrals/access'
@@ -94,12 +95,14 @@ api.get('/api/lodge/state', async c => {
   const { state, actor } = await context(c, true, true)
   if (isEmployeeOnly(actor)) return c.json({ actor: { email: actor.email, name: actor.name, roles: actor.roles }, referralPortal: { name: state.get('business', 'main').name, timeZone: state.get('business', 'main').timeZone }, referrals: referralsView(state, actor) })
   if (isAgency(actor)) return c.json(portal(state, actor))
-  return c.json({ ...await workspace(state, actor), importJobs: await importJobs(c.env.DB, actor, state) })
+  return c.json({ ...await workspace(state, actor, runtimeBindings(c.env)), importJobs: await importJobs(c.env.DB, actor, state) })
 })
 
 api.post('/api/lodge/command/:op', async c => {
   const { state, actor } = await context(c, c.req.param('op') === 'agency-submit', ['referral-alerts', 'referral-submit', 'apply-internal'].includes(c.req.param('op')))
-  const result = await run(state, actor, c.req.param('op'), await body(c))
+  const op = c.req.param('op'), input = await body(c)
+  if (['careers-domain-verify', 'careers-domain-connect', 'careers-domain-disconnect'].includes(op)) return c.json(await careersDomainOperation(runtimeBindings(c.env), actor, op.slice('careers-domain-'.length) as 'verify' | 'connect' | 'disconnect', input))
+  const result = op === 'careers-domain-challenge' ? careersDomainChallenge(state, actor, input, runtimeBindings(c.env)) : await run(state, actor, op, input)
   await save(c.env.DB, state, actor)
   return c.json(fieldResult(state, actor, blindResult(state, actor, result)))
 })

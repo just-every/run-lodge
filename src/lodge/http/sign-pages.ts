@@ -62,7 +62,7 @@ async function render(c: C, s: State, e: Data, token: string, error = '', notice
 
 /** Resolve the link and its envelope, run a step, and always save what it recorded (a wrong code count, a lock, an expiry). */
 async function step<T extends { ok: boolean; message?: string; status?: number }>(c: C, work: (s: State, e: Data) => Promise<T>) {
-  sameOrigin(c)
+  await sameOrigin(c)
   const token = c.req.param('token') ?? ''
   const s = await load(c.env.DB), e = await byLink(s, token)
   if (!e) return { response: await unavailable() }
@@ -164,7 +164,7 @@ signPages.get('/copy/:token', async c => {
 })
 
 async function copyStep<T extends { ok: boolean; message?: string; status?: number }>(c: C, work: (s: State, e: Data) => Promise<T>) {
-  sameOrigin(c)
+  await sameOrigin(c)
   const token = c.req.param('token') ?? '', s = await load(c.env.DB), e = await byCopyLink(s, token)
   if (!e) return { response: await unavailable() }
   const result = await work(s, e)

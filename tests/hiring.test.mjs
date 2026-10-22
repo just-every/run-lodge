@@ -2198,3 +2198,14 @@ test('CRM-003 consented employee referrals reconcile identities and expose only 
   const { checkReferrals } = await import('./referrals-flow.mjs')
   await checkReferrals(t)
 })
+
+
+test('ATTR-001 employer careers branding, private receipt recovery and verified custom domains', async () => {
+  const { checkCareers } = await import('./careers-flow.mjs')
+  const { careersDomainBindings, createCareersDomainEdge, checkCareersDomain, checkCareersDomainUnavailable } = await import('./careers-domain-flow.mjs')
+  const ordinary = await harness()
+  try { await checkCareers(ordinary); await checkCareersDomainUnavailable(ordinary) } finally { await ordinary.close() }
+  const edge = createCareersDomainEdge()
+  const configured = await harness({ bindings: careersDomainBindings, outboundService: edge.fetch })
+  try { await checkCareersDomain(configured, edge) } finally { await configured.close() }
+})

@@ -22,7 +22,7 @@ async function freePort() {
 }
 
 /** A Worker with every migration; `claim: false` leaves it empty, as a restore destination. */
-export async function harness({ claim = true, bindings = {} } = {}) {
+export async function harness({ claim = true, bindings = {}, outboundService } = {}) {
   const port = await freePort(), origin = `http://127.0.0.1:${port}`
   const dir = await mkdtemp(join(tmpdir(), 'lodge-test-'))
   const bundle = await build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(process.cwd(), 'tests/mail-edge.mjs') })) } }], external: ['node:*'], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' })
@@ -30,6 +30,7 @@ export async function harness({ claim = true, bindings = {} } = {}) {
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'],
       d1Databases: { DB: 'lodge' },
+      ...(outboundService ? { outboundService } : {}),
       bindings: { AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: 'local-test-secret-not-production-0123456789', SETUP_TOKEN, MAIL_PROVIDER: 'development', MAIL_FROM: 'Lodge <lodge@example.test>', ...bindings },
     }),
     resourcePersistencePath: dir,

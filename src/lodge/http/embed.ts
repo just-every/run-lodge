@@ -1,3 +1,6 @@
+import { recoverReceipt } from '../careers/receipt'
+import { businessZone } from '../core/time'
+import { SOURCE_UI } from '../languages/copy'
 import { uiCopy } from '../languages/copy'
 import { legacyListing } from '../move-in/legacy-links'
 import { Hono, type Context } from 'hono'
@@ -11,7 +14,7 @@ import { boardSettings } from '../records/job-board'
 import { listingBySlug, listings, shownJob, type Listing } from '../records/posts'
 import { departmentPath, subtree } from '../records/org'
 import { jobForm } from '../records/questions'
-import { apply, cpraFor, esc, form, page } from './public'
+import { apply, cpraFor, esc, form, page, careersDocument, recoveryForm, receiptPage, sameOrigin, formBody } from './public'
 
 // ATTR-008: the job board and application form inside the employer's own site.
 // The admin's snippet (People → Public job board) loads /embed.js, which frames
@@ -23,6 +26,8 @@ import { apply, cpraFor, esc, form, page } from './public'
 type C = Context<{ Bindings: Bindings }>
 export const embedPages = new Hono<{ Bindings: Bindings }>()
 embedPages.onError(async error => error instanceof Fault ? page('Not accepted', `<h1>That did not go through</h1><p role="alert">${esc(error.message)}</p>`, error.status) : page('Error', '<h1>Something went wrong</h1><p>Nothing was saved. Please try again.</p>', 500))
+
+embedPages.use('*', careersDocument)
 
 export const EMBED_SOURCE = 'Careers page (embedded)'
 const CAMPAIGN = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content']
@@ -111,6 +116,18 @@ embedPages.get('/embed/jobs', async c => {
   const carried = query(Object.fromEntries(Object.entries({ ...campaign, department: wantDepartment?.id ?? '', office: wantOffice?.id ?? '', remote: remoteOnly ? 'true' : '' }).filter(([, v]) => v)))
   const list = open.length ? `<ul class="roles">${open.map(v => `<li><a href="/embed/jobs/${esc(v.slug)}${esc(carried)}">${esc(v.title)}</a><span>${esc(vacancyFacts(v, false).join(' · '))}</span></li>`).join('')}</ul>` : all.length ? '<p>No open roles match these filters.</p>' : '<p>There are no open roles right now.</p>'
   return page('Open roles', `<h1>Open roles${business ? ' at ' + esc(business.name) : ''}</h1>${filters}${list}`, 200, embed)
+})
+
+embedPages.get('/embed/receipt', async c => {
+  const embed = embedding(await load(c.env.DB))
+  return embed ? page(SOURCE_UI.recoverTitle, recoveryForm(SOURCE_UI, '/embed/receipt'), 200, embed) : notSetUp()
+})
+embedPages.post('/embed/receipt', async c => {
+  await sameOrigin(c)
+  const s = await load(c.env.DB), embed = embedding(s)
+  if (!embed) return notSetUp()
+  const r = await recoverReceipt(s, (await formBody(c)).get('code'))
+  return receiptPage(r, s.get('business','main').accommodationContact, businessZone(s.find('business','main')), r.recoveryCopy, embed)
 })
 
 embedPages.get('/embed/jobs/:slug', async c => {

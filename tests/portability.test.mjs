@@ -69,6 +69,10 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   const records = []
   for await (const record of readArchive(await service.exports.download(exportId))) records.push(record)
   const originalItems = records.filter(r => r.kind === 'part').flatMap(p => p.items)
+  for (const item of originalItems.filter(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'receipt')) {
+   const receipt = JSON.parse(item.row.value)
+   assert.equal(receipt.recoveryHash, undefined, 'receipt recovery credentials never travel in an installation archive')
+  }
   await service.exports.abort(exportId)
   // Stop the source before opening the destination: a single live Worker at a time.
   await src.close(); sourceClosed = true

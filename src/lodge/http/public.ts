@@ -1,3 +1,7 @@
+import { draftTools } from '../careers/draft'
+import { receiptRecoveryCode, recoverReceipt } from '../careers/receipt'
+import { employerBrand, brandHtml, brandCss } from '../careers/brand'
+import { careersHost } from '../careers/domain'
 import { translatedForm, translatedReceipt, uiCopy, SOURCE_UI } from '../languages/forms'
 import { legacyListing } from '../move-in/legacy-links'
 import { customFieldControls, submittedCustomFields } from '../fields/public'
@@ -26,6 +30,17 @@ import type { Listing } from '../records/posts'
 type C = Context<{ Bindings: Bindings }>
 export const publicPages = new Hono<{ Bindings: Bindings }>()
 publicPages.onError(async error => error instanceof Fault ? page('Not accepted', `<h1>That did not go through</h1><p role="alert">${esc(error.message)}</p>`, error.status) : page('Error', '<h1>Something went wrong</h1><p>Nothing was saved. Please try again.</p>', 500))
+export async function careersDocument(c: C, next: () => Promise<void>) {
+  await next()
+  if (!c.res.headers.get('content-type')?.includes('text/html') || !/^\/(jobs|embed)(\/|$)/.test(new URL(c.req.url).pathname)) return
+  const s = await load(c.env.DB), brand = employerBrand(s)
+  if (!brand) return
+  let html = await c.res.text()
+  html = html.replace('class="rer-themed"', 'class="rer-themed employer-careers"').replace('class="lodge-public', 'class="employer-careers lodge-public')
+    .replace('</head>', '<link rel="stylesheet" href="/careers/brand.css"></head>').replace(/(<main[^>]*>)/, '$1' + brandHtml(brand, s.find('business', 'main')?.name ?? 'Employer'))
+  c.res = new Response(html, { status: c.res.status, headers: c.res.headers })
+}
+publicPages.use('*', careersDocument)
 
 const theme = { href: '/rer-theme.css', productName: branding.name, accentColor: branding.primaryColor }
 export const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
@@ -39,8 +54,8 @@ const paragraphs = (v: string) => esc(v).split(/\n{2,}/).map(p => `<p>${p.replac
 export async function page(title: string, body: string, status = 200, embed?: { ancestors: string[] }, language = 'en') {
   const frame = await themeFrame(theme)
   const ancestors = embed?.ancestors.length ? embed.ancestors.join(' ') : "'none'"
-  return new Response(`<!doctype html><html lang="${esc(language)}"${frame.htmlClass}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(branding.name)}</title>${fontHead}${frame.head}<link rel="stylesheet" href="/lodge-public.css">${embed ? '<script src="/embed/frame.js" defer></script>' : ''}</head><body><main class="lodge-public${embed ? ' embedded' : ''}">${embed ? '' : frame.brand}${body}</main></body></html>`, {
-    status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'strict-origin', 'x-content-type-options': 'nosniff', 'content-security-policy': `default-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors ${ancestors}; ${embed ? "script-src 'self'; " : ''}${frame.policy}` },
+  return new Response(`<!doctype html><html lang="${esc(language)}"${frame.htmlClass}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(branding.name)}</title>${fontHead}${frame.head}<link rel="stylesheet" href="/lodge-public.css">${embed ? '<script src="/embed/frame.js" defer></script>' : ''}<script src="/careers-form.js" defer></script></head><body><main class="lodge-public${embed ? ' embedded' : ''}">${embed ? '' : frame.brand}${body}</main></body></html>`, {
+    status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'strict-origin', 'x-content-type-options': 'nosniff', 'content-security-policy': `default-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors ${ancestors}; script-src 'self'; ${frame.policy}` },
   })
 }
 
@@ -50,9 +65,11 @@ export async function formBody(c: C) {
   try { return await c.req.formData() } catch { throw new Fault(400, 'Send this form from its page') }
 }
 
-export function sameOrigin(c: C) {
+export async function sameOrigin(c: C) {
   const origin = runtimeBindings(c.env).AUTH_ORIGIN
-  if (new URL(c.req.url).origin !== origin || c.req.header('origin') !== origin) throw new Fault(403, 'Submit this form from its own page')
+  const url = new URL(c.req.url)
+  const allowed = url.origin === origin || url.protocol === 'https:' && careersHost(await load(c.env.DB), url.hostname)
+  if (!allowed || c.req.header('origin') !== url.origin) throw new Fault(403, 'Submit this form from its own page')
 }
 
 publicPages.get('/jobs/legacy/:source/:id', async c => {
@@ -71,12 +88,13 @@ publicPages.get('/jobs', async c => {
   const offices = (v: Data): string[] => v.offices
   const wantDepartment = s.find('department', c.req.query('department')), wantOffice = s.find('office', c.req.query('office'))
   const within = wantDepartment ? subtree(s, wantDepartment.id) : null
-  const open = all.filter(v => (!within || within.has(v.departmentId)) && (!wantOffice || offices(v).includes(wantOffice.id)))
+  const search = (c.req.query('q') ?? '').trim().toLowerCase().slice(0, 160), location = c.req.query('location') ?? '', remote = c.req.query('remote') === 'true'
+  const open = all.filter(v => (!within || within.has(v.departmentId)) && (!wantOffice || offices(v).includes(wantOffice.id)) && (!search || [v.title,v.description,v.department,v.location].join(' ').toLowerCase().includes(search)) && (!location || v.location === location) && (!remote || v.workMode === 'remote'))
   const usedDepartments = new Set<string>()
   for (const v of all) for (let d = s.find('department', v.departmentId); d; d = d.parent ? s.find('department', d.parent) : undefined) { if (usedDepartments.has(d.id)) break; usedDepartments.add(d.id) }
   const usedOffices = new Set(all.flatMap(offices))
   const choose = (name: string, label: string, ids: string[], nameOf: (id: string) => string, picked?: string) => `<label>${label}<select name="${name}"><option value="">All</option>${ids.map(id => [id, nameOf(id)]).sort((x, y) => x[1].localeCompare(y[1])).map(([id, n]) => `<option value="${esc(id)}"${id === picked ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>`
-  const filters = usedDepartments.size || usedOffices.size ? `<form method="get" action="/jobs" class="filters">${usedDepartments.size ? choose('department', 'Department', [...usedDepartments], id => departmentPath(s, id), wantDepartment?.id) : ''}${usedOffices.size ? choose('office', 'Office', [...usedOffices], id => s.find('office', id)?.name ?? '', wantOffice?.id) : ''}<button type="submit">Show roles</button></form>` : ''
+  const filters = `<form method="get" action="/jobs" class="filters"><label>Search roles<input name="q" value="${esc(search)}" maxlength="160"></label>${choose('location', 'Location', [...new Set(all.map(v => v.location).filter(Boolean))], x => x, location)}<label>Work mode<select name="remote"><option value="">Any</option><option value="true"${remote ? ' selected' : ''}>Remote only</option></select></label>${usedDepartments.size ? choose('department', 'Department', [...usedDepartments], id => departmentPath(s, id), wantDepartment?.id) : ''}${usedOffices.size ? choose('office', 'Office', [...usedOffices], id => s.find('office', id)?.name ?? '', wantOffice?.id) : ''}<button type="submit">Show roles</button></form>`
   return page('Open roles', `<h1>Open roles${business ? ' at ' + esc(business.name) : ''}</h1>${filters}${open.length ? `<ul class="roles">${open.map(v => `<li><a href="/jobs/${esc(v.slug)}">${esc(v.title)}</a><span>${esc(vacancyFacts(v, false).join(' · '))}</span></li>`).join('')}</ul>` : all.length ? '<p>No open roles match these filters. <a href="/jobs">See all open roles</a>.</p>' : '<p>There are no open roles right now.</p>'}`)
 })
 
@@ -133,8 +151,29 @@ ${cpra ? cpraSection(cpra) : ''}
 <label><input type="checkbox" name="consent" value="yes" required> I have read privacy notice version ${esc(notice.version)}${cpra ? ` and California notice version ${esc(cpra.version)}` : ''}.</label>
 <label><input type="checkbox" name="talentPool" value="yes"${values.talentPool === 'yes' ? ' checked' : ''}> You may contact me about other suitable roles while you keep my details.</label>
 <button type="submit">Submit application</button>
-</form>`
+</form>${draftTools(SOURCE_UI)}`
 }
+
+publicPages.get('/careers/logo', async c => {
+  const logo = employerBrand(await load(c.env.DB))?.logo
+  return logo ? new Response(Uint8Array.from(atob(logo.base64), x => x.charCodeAt(0)), { headers: { 'content-type': logo.mediaType, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } }) : new Response('Not found', { status: 404 })
+})
+publicPages.get('/careers/brand.css', async c => new Response(brandCss(employerBrand(await load(c.env.DB))), { headers: { 'content-type': 'text/css', 'cache-control': 'no-store' } }))
+
+export async function receiptPage(receipt: Data, contact: string, zone: string, copy: Data, embed?: { ancestors: string[] }, code?: string) {
+  const body = translatedReceipt(receipt, contact, zone, receipt.language ?? 'en', copy)
+  const recovery = code ? `<section aria-label="${esc(copy.recoverTitle)}"><h2>${esc(copy.recoverTitle)}</h2><p>${esc(copy.recoverHelp)}</p><dl><dt>${esc(copy.recoverCode)}</dt><dd><code data-recovery-code>${esc(code)}</code></dd></dl><p><a href="${embed ? '/embed/receipt' : '/jobs/receipt'}">${esc(copy.recoveryLink)}</a></p></section>` : ''
+  return page(copy.received, body + recovery, 200, embed, receipt.language ?? 'en')
+}
+export function recoveryForm(copy: Data, action: string) {
+  return `<h1>${esc(copy.recoverTitle)}</h1><form method="post" action="${esc(action)}"><label>${esc(copy.recoverCode)}<input name="code" required autocomplete="off" maxlength="64" pattern="[a-f0-9]{64}"></label><button type="submit">${esc(copy.recoverSubmit)}</button></form>`
+}
+publicPages.get('/jobs/receipt', c => page(SOURCE_UI.recoverTitle, recoveryForm(SOURCE_UI, '/jobs/receipt')))
+publicPages.post('/jobs/receipt', async c => {
+  await sameOrigin(c)
+  const s = await load(c.env.DB), data = await formBody(c), r = await recoverReceipt(s, data.get('code'))
+  return receiptPage(r, s.get('business','main').accommodationContact, businessZone(s.find('business','main')), r.recoveryCopy)
+})
 
 publicPages.get('/jobs/:slug', async c => {
   const s = await load(c.env.DB)
@@ -154,7 +193,7 @@ publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
  * with the refusal.
  */
 export async function apply(c: C, door: Door, embed?: { ancestors: string[]; action: string; hidden: Record<string, string> }) {
-  sameOrigin(c)
+  await sameOrigin(c)
   if (Number(c.req.header('content-length') ?? 0) > MAX_DOCUMENT_BYTES * 1.5) return page('Too large', '<h1>That upload is too large</h1><p>Files may be at most 1 MB. Go back and choose a smaller file.</p>', 413, embed)
   const s = await load(c.env.DB)
   // ATTR-012: the slug names the job's own page or one of its live posts on this destination.
@@ -173,9 +212,10 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   try {
     const resume = await upload(data.get('resume'))
     const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given, customValues: submittedCustomFields(v, values) } as any, door, l.post)
+    const copy = receipt.language !== 'en' ? uiCopy(l.post!) : SOURCE_UI
+    const code = await receiptRecoveryCode(s, receipt, copy)
     await save(c.env.DB, s, null)
-    if (receipt.language !== 'en') { const copy = uiCopy(l.post!); return page(copy.received, translatedReceipt(receipt, accommodationContact, businessZone(s.find('business', 'main')), receipt.language, copy), 200, embed, receipt.language) }
-    return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd>${receipt.cpraNoticeVersion ? `<dt>California privacy notice</dt><dd>Version ${esc(receipt.cpraNoticeVersion)}</dd>` : ''}</dl><p>To ask about adjustments, contact ${esc(accommodationContact)} and quote the receipt. To see, correct or delete your information, use <a href="/privacy-requests">/privacy-requests</a> with this receipt and your email.</p>`, 200, embed)
+    return receiptPage(receipt, accommodationContact, businessZone(s.find('business', 'main')), copy, embed, code)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     const shown: Data = { ...shownJob(s, l), customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }
@@ -194,7 +234,7 @@ publicPages.get('/availability/:token', async c => {
 })
 
 publicPages.post('/availability/:token', async c => {
-  sameOrigin(c)
+  await sameOrigin(c)
   const s = await load(c.env.DB)
   let iv: Data
   try { iv = interviewByToken(s, c.req.param('token')) } catch { return notFound() }

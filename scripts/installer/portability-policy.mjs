@@ -69,6 +69,14 @@ export async function validateStaged({ read }) {
 
 export const policy = {
  product: 'just-every/hiring-lodge',
+ exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'receipt') {
+   const value = JSON.parse(row.value);
+   delete value.recoveryHash; delete value.recoveryExpires; delete value.recoveryCopy;
+   return { ...row, value: JSON.stringify(value) };
+  }
+  return row;
+ },
  // Base's operator identities travel with the archive so restored memberships keep their people;
  // sessions, tokens, dependency keys and pending links stay behind (Base's default exclusions).
  includeTables: ['oa_operators', 'oa_bootstrap', 'oa_external_identities', 'oa_invitation_cancellations', 'oa_tokens', 'oa_auth_settings', 'oa_auth_audit', 'oa_domain_rules', 'oa_logout_events', 'oc_owner_claims', 'oc_idp_grants'],

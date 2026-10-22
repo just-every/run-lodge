@@ -12,9 +12,9 @@ export function customFieldControls(v: Data, values: Data) {
     const help = f.restricted ? '<small>Only hiring administrators can read this answer.</small>' : ''
     if (f.type === 'choice' || f.type === 'boolean') {
       const options = f.type === 'boolean' ? [['true', 'Yes'], ['false', 'No']] : f.choices.map(choice => [choice, choice])
-      return `<label>${label}${help}<select name="${esc(name)}"${req}><option value="">Choose…</option>${options.map(([value, title]) => `<option value="${esc(value)}"${selected(value)}>${esc(title)}</option>`).join('')}</select></label>`
+      return `<label${f.restricted ? ' data-draft-private' : ''}>${label}${help}<select name="${esc(name)}"${req}><option value="">Choose…</option>${options.map(([value, title]) => `<option value="${esc(value)}"${selected(value)}>${esc(title)}</option>`).join('')}</select></label>`
     }
-    return `<label>${label}${help}<input name="${esc(name)}" type="${f.type === 'text' ? 'text' : f.type}"${f.type === 'number' ? ' step="any"' : ' maxlength="8000"'} value="${esc(values[name])}"${req}></label>`
+    return `<label${f.restricted ? ' data-draft-private' : ''}>${label}${help}<input name="${esc(name)}" type="${f.type === 'text' ? 'text' : f.type}"${f.type === 'number' ? ' step="any"' : ' maxlength="8000"'} value="${esc(values[name])}"${req}></label>`
   }).join('\n')
 }
 
