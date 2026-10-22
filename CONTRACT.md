@@ -318,7 +318,7 @@ The existing Base-backed runtime, authentication, archive/import-kit and erasure
 
 ## Status
 
-Judged from the code and tests at commit `0dc8ca8` (22 October 2026).
+Judged from the code and tests at commit `37ae483` (22 October 2026).
 
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
@@ -356,7 +356,7 @@ Judged from the code and tests at commit `0dc8ca8` (22 October 2026).
 | `ATTR-004` | US pay-transparency postings and salary-history guards | target | partial | `src/lodge/records/vacancies.ts`; `src/lodge/http/public.ts` | One approved USD range is required to publish and shown on the job page; per-location ranges, configured jurisdiction rules, benefits text and salary-history guards are absent. |
 | `ATTR-005` | Internal job board and internal applicants | target | done | `tests/hiring.test.mjs`; `src/lodge/records/internal.ts`; `src/lodge/core/access.ts`; `src/lodge/views/openings-report.ts`; `src/ui/internal.tsx` |  |
 | `ATTR-006` | Niche and campus boards: Handshake, Wellfound, Built In and Dice | target | missing |  | No niche or campus board connection exists. |
-| `ATTR-007` | English and Spanish job posts and applications | target | done | `tests/languages-flow.mjs` (checkLanguages, run by `tests/hiring.test.mjs` ATTR-007): English/Spanish publishing, versioned notice/accommodation/EEO text, receipt language, bilingual answer snapshots, missing/stale translation refusal on hosted/embed/API and further-language completeness; `tests/languages-page.mjs` (languagesPage): no-JavaScript Spanish form through accessible roles/names, Spanish receipt/recovery and bilingual reviewer screen at 1440/390; `tests/further-language-page.mjs` (furtherLanguagePage): reviewed French vocabulary and no-JavaScript form/receipt/recovery at 1440/390; `tests/languages-mail.mjs` (checkLanguageMail): every current candidate-email kind through the mail network edge in Spanish and French |  |
+| `ATTR-007` | English and Spanish job posts and applications | target | done | `tests/languages-flow.mjs` (checkLanguages, run by `tests/hiring.test.mjs` ATTR-007): English/Spanish publishing, versioned notice/accommodation/EEO text, receipt/recovery language and localized refusals, bilingual answer snapshots, missing/stale translation refusal on hosted/embed/API and further-language completeness; `tests/languages-page.mjs` (languagesPage): no-JavaScript Spanish form through accessible roles/names, Spanish receipt/recovery and bilingual reviewer screen at 1440/390; `tests/further-language-page.mjs` (furtherLanguagePage): reviewed French vocabulary and no-JavaScript form/receipt/recovery at 1440/390; `tests/languages-mail.mjs` (checkLanguageMail): every current candidate-email kind through the mail network edge in Spanish and French |  |
 | `ATTR-008` | Embeddable job board and application form | target | done | `tests/hiring.test.mjs`; `tests/board-page.mjs`; `src/lodge/http/embed.ts`; `src/lodge/http/public.ts`; `src/ui/job-board.tsx` |  |
 | `ATTR-009` | Public job-board API for the employer's own careers page | target | done | `tests/hiring.test.mjs`; `tests/board-page.mjs`; `src/lodge/http/board.ts`; `src/lodge/records/job-board.ts`; `src/ui/job-board.tsx`; `docs/careers-page-example.html`; `API.md` |  |
 | `ATTR-010` | Indeed Apply with screening questions and disposition sync | target | missing |  | No Indeed connection, apply webhook, screener-question mapping or disposition sync exists. |
