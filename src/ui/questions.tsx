@@ -44,5 +44,5 @@ function QuestionForm({ q, mutate }: { q?: D; mutate: PageProps['mutate'] }) {
 export function Answers({ app }: { app: D }) {
   if (!app.answers?.length) return null
   const shown = (x: D) => x.type === 'yes-no' ? (x.value === 'yes' ? 'Yes' : 'No') : x.type === 'file' ? <a href={`/api/lodge/download/document/${x.value.document}`}>{x.value.name}</a> : Array.isArray(x.value) ? x.value.join(', ') : String(x.value)
-  return <details open><summary>Screening answers</summary><dl className="terms">{app.answers.map((x: D) => <div key={x.question}><dt>{x.text} <span className="muted">(version {x.version})</span></dt><dd>{shown(x)}</dd></div>)}</dl></details>
+  return <details open><summary>Screening answers</summary><dl className="terms">{app.answers.map((x: D) => <div key={x.question}><dt>{x.text}{x.sourceText && <small lang="en">Source: {x.sourceText}</small>} <span className="muted">(version {x.version})</span></dt><dd>{shown(x)}</dd></div>)}</dl></details>
 }

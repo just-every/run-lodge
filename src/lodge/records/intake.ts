@@ -1,3 +1,4 @@
+import { requireTranslation } from '../languages/posts'
 import type { State } from '../core/state'
 import { Fault, about, email, now, optionalText, requireThat, sha256, canonical, text, uid, type Data } from '../core/types'
 import { candidateFields, retentionUntil, startApplication } from './candidates'
@@ -51,6 +52,7 @@ function likelySpamReasons(s: State, vacancy: Data, address: string, fingerprint
 
 /** Take one application; `post` is the ATTR-012 post it came through, recorded on the application. */
 export async function submit(s: State, vacancy: Data, input: Submission, door: Door = APPLICATION_PAGE, post: Data | null = null) {
+  requireTranslation(s, vacancy, post)
   const business = s.get('business', 'main')
   const notice = business.notices.at(-1)
   // The applicant must have been shown the current notice; a stale page is refused, not silently upgraded.
@@ -71,13 +73,13 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const earlier = door.oncePerJob && s.scan('application').find(x => x.vacancy === vacancy.id && x.status === 'active' && s.find('candidate', x.candidate)?.email === address)
   if (earlier) return { receipt: await repeat(s, vacancy, earlier, door, notice.version, post, cpra?.version), accommodationContact: business.accommodationContact }
   const candidate = s.put('candidate', uid(), {
-    ...fields, source: door.source, createdAt: now(), retainUntil: retentionUntil(s),
+    ...fields, language: post?.language ?? 'en', source: door.source, createdAt: now(), retainUntil: retentionUntil(s),
     consent: { basis: 'application', noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), talentPool, at: now(), recordedBy: 'applicant' },
   })
   const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
   const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
-  const application = startApplication(s, null, candidate, vacancy, door.source, { coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
+  const application = startApplication(s, null, candidate, vacancy, door.source, { language: post?.language ?? 'en', coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await stored('resume', () => storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume!.name, mediaType: input.resume!.mediaType, base64: input.resume!.base64, kind: 'resume', source: door.source }))
   if (answered.length) {
     for (const x of answered) if (x.type === 'file') {
@@ -95,7 +97,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   if (monitoring) s.put('monitoring', uid(), { application: application.id, type: 'voluntary-monitoring', answer: monitoring, at: now() })
   const code = 'LDG-' + uid().slice(0, 8).toUpperCase()
   const receipt = s.put('receipt', code, {
-    application: application.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), submittedAt: application.submittedAt,
+    language: post?.language ?? 'en', application: application.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), submittedAt: application.submittedAt,
     digest: await sha256(canonical({ ...fields, coverNote: application.coverNote, resume: input.resume?.base64 ?? null, talentPool })),
   })
   s.audit(null, 'application-received', 'application:' + application.id, { receipt: code })
@@ -110,7 +112,7 @@ async function repeat(s: State, vacancy: Data, earlier: Data, door: Door, notice
   const code = 'LDG-' + uid().slice(0, 8).toUpperCase()
   const at = now()
   s.put('application', earlier.id, { ...s.get('application', earlier.id), repeatSubmissions: [...(earlier.repeatSubmissions ?? []), { at, receipt: code, door: door.source, ...(post ? { post: post.id } : {}) }] })
-  const receipt = s.put('receipt', code, { application: earlier.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion, ...(cpraNoticeVersion ? { cpraNoticeVersion } : {}), submittedAt: at, repeat: true })
+  const receipt = s.put('receipt', code, { language: post?.language ?? 'en', application: earlier.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion, ...(cpraNoticeVersion ? { cpraNoticeVersion } : {}), submittedAt: at, repeat: true })
   s.audit(null, 'application-repeat', 'application:' + earlier.id, { receipt: code })
   return receipt
 }

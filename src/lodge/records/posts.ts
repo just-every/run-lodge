@@ -1,3 +1,5 @@
+import { requireTranslation, translationReady, translationSource } from '../languages/posts'
+import { canonical } from '../core/types'
 import type { State } from '../core/state'
 import { requireCan, requireManages } from '../core/access'
 import { list, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
@@ -20,7 +22,7 @@ import { attachable } from './questions'
 export const DESTINATIONS = ['careers', 'embed', 'api'] as const
 export type Destination = typeof DESTINATIONS[number]
 /** Post languages; ATTR-007 adds Spanish and further languages. */
-export const LANGUAGES = ['en'] as const
+export const LANGUAGES = ['en', 'es'] as const
 
 /** The offices a job was approved for: its office and the other approved offices in its LDG-001 terms. */
 export const approvedOffices = (v: Data): string[] => [...new Set([v.officeId, ...(v.locations ?? [])].filter(Boolean))] as string[]
@@ -64,6 +66,11 @@ export function jobPost(s: State, a: Actor, b: Data) {
   }
   requireThat(fields.destinations.length > 0, 'Choose where this post appears')
   const post: Data = current ? { ...current, ...fields, updatedAt: now(), updatedBy: a.email } : { id: uid().slice(0, 8), slug: slugOf(fields.title), ...fields, status: 'draft', history: [], createdBy: a.email, createdAt: now() }
+  if (b.translation !== undefined) {
+    requireThat(b.translation && typeof b.translation === 'object' && !Array.isArray(b.translation) && canonical(b.translation).length <= 100000, 'Send translation text, at most 100 KB')
+    post.translation = { ...b.translation, source: translationSource(s, v, post), reviewedBy: b.translation.reviewed === true ? a.email : null, reviewedAt: now() }
+  }
+  if (post.status === 'live') requireTranslation(s, v, post)
   const record = s.put('vacancy', v.id, { ...v, posts: current ? posts.map(p => p.id === post.id ? post : p) : [...posts, post] })
   s.audit(a, current ? 'post-edited' : 'post-created', 'vacancy:' + v.id, { post: post.id, title: post.title })
   return record
@@ -79,6 +86,7 @@ export function postStatus(s: State, a: Actor, b: Data) {
   if (status === 'live') {
     requireThat(v.status === 'open', 'Publish the job first; its posts go live on its approved terms', 409)
     locations(s, v, post.locations)
+    requireTranslation(s, v, post)
   }
   requireThat(status !== 'paused' || post.status === 'live', 'Only a live post pauses', 409)
   const record = s.put('vacancy', v.id, { ...v, posts: v.posts.map((p: Data) => p.id === post.id ? { ...p, status, history: [...p.history, { status, by: a.email, at: now() }] } : p) })
@@ -108,7 +116,7 @@ export function listings(s: State, destination: Destination): Listing[] {
     if (!shown || (v.confidential && destination !== 'careers')) continue
     const offices = [v.officeId, ...(v.openings ?? []).filter((o: Data) => o.status === 'open').map((o: Data) => o.officeId)].filter(Boolean) as string[]
     if (v.confidential || !goneLive(v)) { out.push({ v, post: null, id: v.id, slug: v.slug, title: shown.title, description: v.description || '', offices: [...new Set(offices)] }); continue }
-    for (const p of v.posts) if (p.status === 'live' && p.destinations.includes(destination)) out.push({ v, post: p, id: p.id, slug: p.slug, title: p.title, description: p.description, offices: p.locations })
+    for (const p of v.posts) if (p.status === 'live' && p.destinations.includes(destination) && translationReady(s, v, p)) out.push({ v, post: p, id: p.id, slug: p.slug, title: p.title, description: p.description, offices: p.locations })
   }
   return out.sort((x, y) => x.title.localeCompare(y.title))
 }
@@ -120,5 +128,18 @@ export const listingById = (s: State, destination: Destination, id: string) => l
 export function shownJob(s: State, l: Listing): Data {
   const job = publicPosting(l.v)!
   if (!l.post) return job
-  return { ...job, title: l.post.title, description: l.post.description, location: l.offices.map(id => s.find('office', id)?.name).filter(Boolean).join(' · ') }
+  return { ...job, language: l.post.language, translation: l.post.translation, title: l.post.title, description: l.post.description, location: l.offices.map(id => s.find('office', id)?.name).filter(Boolean).join(' · ') }
+}
+
+/** Save employer-reviewed text for the source versions visible in this request. */
+export function postTranslation(s: State, a: Actor, b: Data) {
+  const v = live(s, a, b.vacancy)
+  const p = (v.posts ?? []).find((x: Data) => x.id === b.post)
+  requireThat(p && p.status !== 'closed' && p.language !== 'en', 'Choose a translated post', 404)
+  requireThat(b.translation && typeof b.translation === 'object' && !Array.isArray(b.translation) && canonical(b.translation).length <= 100000, 'Send translation text, at most 100 KB')
+  const post = { ...p, translation: { ...b.translation, source: translationSource(s, v, p), reviewedBy: b.translation.reviewed === true ? a.email : null, reviewedAt: now() } }
+  if (post.status === 'live') requireTranslation(s, v, post)
+  const record = s.put('vacancy', v.id, { ...v, posts: v.posts.map((x: Data) => x.id === post.id ? post : x) })
+  s.audit(a, 'post-translation-reviewed', 'vacancy:' + v.id, { post: post.id, language: post.language, reviewed: !!post.translation.reviewedBy })
+  return record
 }

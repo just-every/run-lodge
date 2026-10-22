@@ -1,3 +1,4 @@
+import { PostTranslation } from './post-translation'
 import type { PageProps } from './app'
 import { when } from './format'
 import { Check, Field, Form, Status, Table, type D } from './shared'
@@ -14,17 +15,18 @@ function PostForm({ v, w, post, mutate }: { v: D; w: D; post?: D; mutate: PagePr
   const offices: string[] = [v.officeId, ...(v.locations ?? [])].filter(Boolean)
   const extra: D[] = (w.questions ?? []).filter((q: D) => !(v.questions ?? []).some((x: D) => x.question === q.id))
   return <Form label={post ? 'Save post' : 'Add post'} reset={!post} onSubmit={x => mutate('job-post', {
-    vacancy: v.id, post: post?.id, title: x.postTitle, description: x.postText, language: 'en',
+    vacancy: v.id, post: post?.id, title: x.postTitle, description: x.postText, language: x.language,
     locations: offices.filter(id => x['at-' + id]), destinations: WHERE.map(([k]) => k).filter(k => x['on-' + k]),
     questions: extra.filter(q => x['ask-' + q.id]).map(q => ({ question: q.id })),
   })}>
+    <Field label="Post language" name="language" defaultValue={post?.language ?? 'en'} options={[{ value: 'en', label: 'English' }, { value: 'es', label: 'Español' }]} />
     <Field label="Post title" name="postTitle" defaultValue={post?.title ?? v.title} />
     <Field label="What this post says to applicants" name="postText" type="textarea" wide required={false} defaultValue={post?.description ?? v.description} />
     <fieldset className="wide"><legend>Where the post is (approved offices only)</legend>
       {offices.map(id => <Check key={id} name={'at-' + id} label={w.offices?.find((o: D) => o.id === id)?.name ?? id} defaultChecked={post ? post.locations.includes(id) : offices.length === 1} />)}</fieldset>
     <fieldset className="wide"><legend>Where it appears</legend>
       {WHERE.map(([k, label]) => <Check key={k} name={'on-' + k} label={label} defaultChecked={post ? post.destinations.includes(k) : true} />)}
-      <small>Job boards join this list as their connections arrive. Posts are in English; Spanish comes with translated posts.</small></fieldset>
+      <small>Job boards join this list as their connections arrive. Spanish posts need an employer-reviewed translation before going live.</small></fieldset>
     {extra.length > 0 && <fieldset className="wide"><legend>Extra questions on this post</legend>
       {extra.map(q => <Check key={q.id} name={'ask-' + q.id} label={q.versions.at(-1).text} defaultChecked={post?.questions?.some((x: D) => x.question === q.id)} />)}</fieldset>}
   </Form>
@@ -51,6 +53,7 @@ export function Posts({ v, w, mutate }: { v: D } & Pick<PageProps, 'w' | 'mutate
         <Form label="Close post" compact onSubmit={() => mutate('post-status', { vacancy: v.id, post: p.id, status: 'closed' })} />
       </div>
       <PostForm v={v} w={w} post={p} mutate={mutate} />
+      {p.language === 'es' && <PostTranslation v={v} w={w} post={p} mutate={mutate} />}
     </details>)}
     {live && v.manages && (offices.length
       ? <details><summary>Add a post</summary><PostForm v={v} w={w} mutate={mutate} /></details>

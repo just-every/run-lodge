@@ -115,13 +115,13 @@ function departmentChain(s: State, id: unknown) {
 
 /** One job or post as the board shows it; `content` adds the description, `detail` the application form. */
 export function boardJob(s: State, l: Listing, origin: string, token: string, content: boolean, detail = false): Data {
-  const v = l.v
+  const v = l.v, spanish = l.post?.language === 'es', tr = l.post?.translation
   const offices = l.offices.map(id => s.find('office', id)).filter(Boolean).map(o => ({ id: o!.id, name: o!.name }))
   const c = v.compensation
   // Today a job has one approved range for all its locations; ATTR-004 adds a range per location.
   const where = (l.post ? '' : v.location) || offices.map(o => o.name).join(', ')
   const job: Data = {
-    id: l.id, jobId: v.id, postId: l.post?.id ?? null, title: l.title, departments: departmentChain(s, v.departmentId), department: v.departmentId ? departmentPath(s, v.departmentId) : v.department || null,
+    language: l.post?.language ?? 'en', id: l.id, jobId: v.id, postId: l.post?.id ?? null, title: l.title, departments: departmentChain(s, v.departmentId), department: v.departmentId ? departmentPath(s, v.departmentId) : v.department || null,
     offices, location: (l.post ? where : v.location) || null, employmentType: v.employmentType, workMode: v.workMode, remote: v.workMode === 'remote',
     pay: c ? [{ location: where || null, currency: c.currency, min: c.min, max: c.max, period: c.period, minorUnits: 2 }] : [],
     payTransparency: c ? `Pay${where ? ' for ' + where : ''}: ${pay(c).replace(/ /g, ' ')}` : null,
@@ -143,13 +143,13 @@ export function boardJob(s: State, l: Listing, origin: string, token: string, co
       { name: 'coverNote', label: 'Cover note', type: 'long-text', required: false },
       { name: 'accommodation', label: 'Adjustments you need', type: 'long-text', required: false },
       { name: 'talentPool', label: 'You may contact me about other suitable roles while you keep my details', type: 'yes-no', required: false },
-    ],
-    questions: jobForm(s, v, l.post).map((q: Data) => ({ id: q.question, text: q.text, type: q.type, required: !!q.required, options: q.options ?? [], help: q.help || null, ...(q.type === 'file' ? { maxBytes: MAX_DOCUMENT_BYTES } : {}) })),
-    voluntaryQuestions: [{ id: 'monitoring', text: 'How do you describe your gender?', options: MONITORING_OPTIONS, required: false, note: 'Kept apart from the application and never shown to the people assessing it.' }],
-    privacyNotice: { version: notice.version, text: notice.text },
+    ].map(f => ({ ...f, label: spanish ? ({ name: 'Nombre completo', email: 'Correo electrónico', phone: 'Teléfono', location: 'Lugar de residencia', resume: 'Currículum', coverNote: 'Carta de presentación', accommodation: 'Adaptaciones que necesita', talentPool: 'Pueden contactarme sobre otros puestos adecuados mientras conserven mis datos' } as Data)[f.name] : f.label })),
+    questions: jobForm(s, v, l.post).map((q: Data) => ({ id: q.question, text: q.text, type: q.type, required: !!q.required, options: q.options ?? [], ...(q.optionLabels ? { optionLabels: q.optionLabels } : {}), help: q.help || null, ...(q.type === 'file' ? { maxBytes: MAX_DOCUMENT_BYTES } : {}) })),
+    voluntaryQuestions: [{ id: 'monitoring', text: spanish ? tr.monitoring : 'How do you describe your gender?', options: MONITORING_OPTIONS, ...(spanish ? { optionLabels: tr.monitoringOptions } : {}), required: false, note: spanish ? 'Se guarda por separado y nunca se muestra a quienes evalúan su solicitud.' : 'Kept apart from the application and never shown to the people assessing it.' }],
+    privacyNotice: { version: notice.version, text: spanish ? tr.notice : notice.text },
     // PRIV-001: a California job carries the CPRA notice; submit its version as cpraNoticeVersion.
-    californiaNotice: inCalifornia(s, v, l.post) ? cpraNotice(s) : null,
-    accommodationContact: business.accommodationContact,
+    californiaNotice: inCalifornia(s, v, l.post) ? { ...cpraNotice(s), ...(spanish ? tr.cpra : {}) } : null,
+    accommodationContact: business.accommodationContact, ...(spanish ? { accommodationText: tr.accommodation } : {}),
   }
 }
 

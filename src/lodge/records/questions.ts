@@ -80,7 +80,9 @@ export function jobForm(s: State, v: Data, post?: Data | null) {
   const fairChance = !!fairChancePlace(s, v)
   return [...(v.questions ?? []), ...(post?.questions ?? []).filter((x: Data) => !(v.questions ?? []).some((q: Data) => q.question === x.question))].flatMap((x: Data) => {
     const q = s.find('question', x.question)
-    return q && !(fairChance && CRIMINAL_HISTORY.test(currentVersion(q).text)) ? [{ question: q.id, required: x.required, ...currentVersion(q) }] : []
+    if (!q || (fairChance && CRIMINAL_HISTORY.test(currentVersion(q).text))) return []
+    const source = currentVersion(q), translated = post?.language !== 'en' && post?.translation?.questions?.[q.id]
+    return [{ question: q.id, required: x.required, ...source, ...(translated ? { sourceText: source.text, text: translated.text, help: translated.help, optionLabels: translated.options, language: post!.language } : {}) }]
   })
 }
 
@@ -113,7 +115,7 @@ function checked(q: Data, raw: Answer | undefined) {
       case 'short-text': value = text(raw, label, 300); break
       case 'long-text': value = text(raw, label, 8000); break
     }
-    return [{ question: q.question as string, version: q.version as number, text: q.text as string, type: q.type as QuestionType, objective: q.objective as boolean, value }]
+    return [{ question: q.question as string, version: q.version as number, text: q.text as string, ...(q.sourceText ? { sourceText: q.sourceText, language: q.language } : {}), type: q.type as QuestionType, objective: q.objective as boolean, value }]
 }
 
 /** Library questions for the people who keep or attach them. */

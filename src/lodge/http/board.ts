@@ -128,5 +128,5 @@ boardApi.post('/v1/:token/jobs/:id/applications', async c => {
   }, { source, path: BOARD_SOURCE, entry: BOARD_SOURCE, campaign: campaign(b.campaign), oncePerJob: true }, l.post)
   rememberReceipt(fresh, once, receipt.id)
   await save(c.env.DB, fresh, null)
-  return c.json({ receipt: receipt.id, submittedAt: receipt.submittedAt, noticeVersion: receipt.noticeVersion, cpraNoticeVersion: receipt.cpraNoticeVersion ?? null, accommodationContact }, 201, headers)
+  return c.json({ receipt: receipt.id, language: receipt.language, message: receipt.language === 'es' ? 'Solicitud recibida' : 'Application received', submittedAt: receipt.submittedAt, noticeVersion: receipt.noticeVersion, cpraNoticeVersion: receipt.cpraNoticeVersion ?? null, accommodationContact }, 201, headers)
 })

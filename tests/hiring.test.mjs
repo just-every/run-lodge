@@ -2187,3 +2187,8 @@ test('TEAM-003 personal notification subscriptions, role defaults, the daily dig
   const { checkNotifications } = await import('./notify-flow.mjs')
   await checkNotifications()
 })
+
+test('ATTR-007 Spanish posts and applications preserve reviewed source versions', async () => {
+  const { checkLanguages } = await import('./languages-flow.mjs')
+  await checkLanguages()
+})

@@ -1,3 +1,4 @@
+import { languagesPage } from './languages-page.mjs'
 import { legacyPage } from './legacy-page.mjs'
 // LDG-015 and LDG-017, plus the human journeys at 1440 and 390: a fresh clone of
 // the committed HEAD run only through the pinned `rer` verbs, the whole hiring
@@ -91,6 +92,7 @@ try {
     await embedFallback(browser, { lodge: server.origin, site: site.origin, job: { title: 'Yard lead' }, email: 'noor@example.test' })
     // ATTR-012: a job approved for two offices gets a post per width, put live in the app and opened from the careers page.
     const hand = await postsPage(browser, { root, origin: server.origin, run, offices: [yard, await run('office', { name: 'Queens yard' })], evidence })
+    await languagesPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await agencyPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     // CRM-009: a campus fair on a phone: online and offline captures, the sign-out warning, QR self-registration; the pool at 1440.
     await eventsPage(browser, { root, origin: server.origin, job: { title: 'Yard lead' }, evidence })

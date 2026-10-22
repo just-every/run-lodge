@@ -1,3 +1,4 @@
+import { spanishForm, spanishReceipt } from '../languages/spanish'
 import { legacyListing } from '../move-in/legacy-links'
 import { customFieldControls, submittedCustomFields } from '../fields/public'
 import { Hono, type Context } from 'hono'
@@ -35,10 +36,10 @@ const paragraphs = (v: string) => esc(v).split(/\n{2,}/).map(p => `<p>${p.replac
  * may be framed only by the origins the admin listed, and loads the one script
  * that tells the host page its height.
  */
-export async function page(title: string, body: string, status = 200, embed?: { ancestors: string[] }) {
+export async function page(title: string, body: string, status = 200, embed?: { ancestors: string[] }, language = 'en') {
   const frame = await themeFrame(theme)
   const ancestors = embed?.ancestors.length ? embed.ancestors.join(' ') : "'none'"
-  return new Response(`<!doctype html><html lang="en"${frame.htmlClass}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(branding.name)}</title>${fontHead}${frame.head}<link rel="stylesheet" href="/lodge-public.css">${embed ? '<script src="/embed/frame.js" defer></script>' : ''}</head><body><main class="lodge-public${embed ? ' embedded' : ''}">${embed ? '' : frame.brand}${body}</main></body></html>`, {
+  return new Response(`<!doctype html><html lang="${esc(language)}"${frame.htmlClass}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(branding.name)}</title>${fontHead}${frame.head}<link rel="stylesheet" href="/lodge-public.css">${embed ? '<script src="/embed/frame.js" defer></script>' : ''}</head><body><main class="lodge-public${embed ? ' embedded' : ''}">${embed ? '' : frame.brand}${body}</main></body></html>`, {
     status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'strict-origin', 'x-content-type-options': 'nosniff', 'content-security-policy': `default-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors ${ancestors}; ${embed ? "script-src 'self'; " : ''}${frame.policy}` },
   })
 }
@@ -80,15 +81,15 @@ publicPages.get('/jobs', async c => {
 })
 
 /** SCREEN-001: the job's screening questions, each labelled, named q-<question id>. */
-function questionFields(questions: Data[], values: Data) {
+export function questionFields(questions: Data[], values: Data, spanish = false) {
   return questions.map(q => {
-    const name = 'q-' + q.question, label = esc(q.text) + (q.required ? '' : ' (optional)'), req = q.required ? ' required' : ''
+    const name = 'q-' + q.question, label = esc(q.text) + (q.required ? '' : spanish ? ' (opcional)' : ' (optional)'), req = q.required ? ' required' : ''
     const help = q.help ? `<small>${esc(q.help)}</small>` : ''
     const picked = (o: string) => values[name] === o || (Array.isArray(values[name]) && values[name].includes(o))
     switch (q.type) {
-      case 'yes-no': return `<fieldset><legend>${label}</legend>${help}${['yes', 'no'].map(o => `<label><input type="radio" name="${name}" value="${o}"${picked(o) ? ' checked' : ''}${req}> ${o === 'yes' ? 'Yes' : 'No'}</label>`).join('')}</fieldset>`
-      case 'single-choice': return `<label>${label}${help}<select name="${name}"${req}><option value="">Choose…</option>${q.options.map((o: string) => `<option${picked(o) ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`
-      case 'multiple-choice': return `<fieldset><legend>${label}</legend>${help}${q.options.map((o: string) => `<label><input type="checkbox" name="${name}" value="${esc(o)}"${picked(o) ? ' checked' : ''}> ${esc(o)}</label>`).join('')}</fieldset>`
+      case 'yes-no': return `<fieldset><legend>${label}</legend>${help}${['yes', 'no'].map(o => `<label><input type="radio" name="${name}" value="${o}"${picked(o) ? ' checked' : ''}${req}> ${o === 'yes' ? (spanish ? 'Sí' : 'Yes') : 'No'}</label>`).join('')}</fieldset>`
+      case 'single-choice': return `<label>${label}${help}<select name="${name}"${req}><option value="">${spanish ? 'Elija…' : 'Choose…'}</option>${q.options.map((o: string, i: number) => `<option value="${esc(o)}"${picked(o) ? ' selected' : ''}>${esc(q.optionLabels?.[i] ?? o)}</option>`).join('')}</select></label>`
+      case 'multiple-choice': return `<fieldset><legend>${label}</legend>${help}${q.options.map((o: string, i: number) => `<label><input type="checkbox" name="${name}" value="${esc(o)}"${picked(o) ? ' checked' : ''}> ${esc(q.optionLabels?.[i] ?? o)}</label>`).join('')}</fieldset>`
       case 'number': return `<label>${label}${help}<input name="${name}" type="number" step="any" value="${esc(values[name])}"${req}></label>`
       case 'date': return `<label>${label}${help}<input name="${name}" type="date" value="${esc(values[name])}"${req}></label>`
       case 'file': return `<label>${label}${help}<input name="${name}" type="file"${req}></label>`
@@ -106,6 +107,7 @@ export const cpraSection = (n: Data) => `<details><summary>California applicant 
 <input type="hidden" name="cpraNoticeVersion" value="${esc(n.version)}">`
 
 export function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = [], action = `/jobs/${v.slug}`, hidden: Record<string, string> = {}, cpra: Data | null = null) {
+  if (v.language === 'es') return spanishForm(v, business, error, values, questions, action, hidden, cpra, questionFields)
   const notice = business.notices.at(-1)
   const pay = v.compensation ? payRange(v.compensation) : ''
   const field = (name: string, label: string, type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
@@ -139,7 +141,9 @@ publicPages.get('/jobs/:slug', async c => {
   const l = listingBySlug(s, 'careers', c.req.param('slug'))
   if (!l) return notFound()
   const shown = shownJob(s, l)
-  return page(shown.title, form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)))
+  const alternatives = listings(s, 'careers').filter(x => x.v.id === l.v.id)
+  const languages = alternatives.length > 1 ? `<nav aria-label="${shown.language === 'es' ? 'Idioma' : 'Language'}">${alternatives.map(x => `<a href="/jobs/${esc(x.slug)}" lang="${esc(x.post?.language ?? 'en')}">${x.post?.language === 'es' ? 'Español' : 'English'}</a>`).join(' · ')}</nav>` : ''
+  return page(shown.title, languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)), 200, undefined, shown.language ?? 'en')
 })
 
 publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
@@ -170,11 +174,12 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
     const resume = await upload(data.get('resume'))
     const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given, customValues: submittedCustomFields(v, values) } as any, door, l.post)
     await save(c.env.DB, s, null)
+    if (receipt.language === 'es') return page('Solicitud recibida', spanishReceipt(receipt, accommodationContact), 200, embed, 'es')
     return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd>${receipt.cpraNoticeVersion ? `<dt>California privacy notice</dt><dd>Version ${esc(receipt.cpraNoticeVersion)}</dd>` : ''}</dl><p>To ask about adjustments, contact ${esc(accommodationContact)} and quote the receipt. To see, correct or delete your information, use <a href="/privacy-requests">/privacy-requests</a> with this receipt and your email.</p>`, 200, embed)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     const shown: Data = { ...shownJob(s, l), customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }
-    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden, cpraFor(s, l)), error.status, embed)
+    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden, cpraFor(s, l)), error.status, embed, shown.language ?? 'en')
   }
 }
 
