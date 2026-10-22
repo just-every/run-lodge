@@ -15,11 +15,12 @@ function PostForm({ v, w, post, mutate }: { v: D; w: D; post?: D; mutate: PagePr
   const offices: string[] = [v.officeId, ...(v.locations ?? [])].filter(Boolean)
   const extra: D[] = (w.questions ?? []).filter((q: D) => !(v.questions ?? []).some((x: D) => x.question === q.id))
   return <Form label={post ? 'Save post' : 'Add post'} reset={!post} onSubmit={x => mutate('job-post', {
-    vacancy: v.id, post: post?.id, title: x.postTitle, description: x.postText, language: x.language,
+    vacancy: v.id, post: post?.id, title: x.postTitle, description: x.postText, language: x.language === 'other' ? x.languageTag : x.language,
     locations: offices.filter(id => x['at-' + id]), destinations: WHERE.map(([k]) => k).filter(k => x['on-' + k]),
     questions: extra.filter(q => x['ask-' + q.id]).map(q => ({ question: q.id })),
   })}>
-    <Field label="Post language" name="language" defaultValue={post?.language ?? 'en'} options={[{ value: 'en', label: 'English' }, { value: 'es', label: 'Español' }]} />
+    <Field label="Post language" name="language" defaultValue={post && !['en', 'es'].includes(post.language) ? 'other' : post?.language ?? 'en'} options={[{ value: 'en', label: 'English' }, { value: 'es', label: 'Español' }, { value: 'other', label: 'Another language' }]} />
+    <Field label="Other language tag (for Another language)" name="languageTag" required={false} defaultValue={post && !['en', 'es'].includes(post.language) ? post.language : ''} hint="For example fr for French or de for German. Complete and review its application and receipt text before publishing." />
     <Field label="Post title" name="postTitle" defaultValue={post?.title ?? v.title} />
     <Field label="What this post says to applicants" name="postText" type="textarea" wide required={false} defaultValue={post?.description ?? v.description} />
     <fieldset className="wide"><legend>Where the post is (approved offices only)</legend>
@@ -53,7 +54,7 @@ export function Posts({ v, w, mutate }: { v: D } & Pick<PageProps, 'w' | 'mutate
         <Form label="Close post" compact onSubmit={() => mutate('post-status', { vacancy: v.id, post: p.id, status: 'closed' })} />
       </div>
       <PostForm v={v} w={w} post={p} mutate={mutate} />
-      {p.language === 'es' && <PostTranslation v={v} w={w} post={p} mutate={mutate} />}
+      {p.language !== 'en' && <PostTranslation v={v} w={w} post={p} mutate={mutate} />}
     </details>)}
     {live && v.manages && (offices.length
       ? <details><summary>Add a post</summary><PostForm v={v} w={w} mutate={mutate} /></details>

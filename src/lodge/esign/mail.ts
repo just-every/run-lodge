@@ -1,4 +1,4 @@
-import { spanishInvitation, spanishCode, spanishNotice } from '../languages/signing-mail'
+import { translatedInvitation, translatedCode, translatedNotice } from '../languages/signing-mail'
 import { operatorMail } from '../../mail.server.mjs'
 import { runtimeBindings, type Bindings } from '../../auth.server'
 import type { MailMessage } from '../../modules/operator-auth/index.mjs'
@@ -25,15 +25,15 @@ export async function deliver(env: Bindings, to: string, subject: string, text: 
 
 const contactLine = (e: Data) => `Questions? Contact ${e.contact.name} at ${e.contact.email}.`
 
-export const invitationMail = (env: Bindings, e: Data, token: string) => e.language === 'es' ? spanishInvitation(e, origin(env), token) : ({
+export const invitationMail = (env: Bindings, e: Data, token: string) => e.language && e.language !== 'en' ? translatedInvitation(e, origin(env), token) : ({
   subject: `${e.businessName} sent you an offer to sign electronically`,
   text: `${e.businessName} has sent you an offer for electronic signature.\n\nOpen this link: ${origin(env)}/sign/${token}\n\nYou will be asked for a one-time code, which is emailed separately. The link expires ${e.expiresAt}.\n\nThis email carries no offer terms. ${contactLine(e)}\n`,
 })
-export const codeMail = (e: Data, code: string, purpose: 'sign' | 'copy') => e.language === 'es' ? spanishCode(e, code, purpose) : ({
+export const codeMail = (e: Data, code: string, purpose: 'sign' | 'copy') => e.language && e.language !== 'en' ? translatedCode(e, code, purpose) : ({
   subject: `Your one-time code for ${e.businessName}`,
   text: `Your one-time code is ${code}\n\nIt works for ${purpose === 'sign' ? 'your offer signing page' : 'your signed copy'} for 10 minutes. If you did not ask for it, ignore this email.\n`,
 })
-const noticeMail = (env: Bindings, n: Data) => n.language === 'es' ? spanishNotice(n, origin(env)) : n.kind === 'void'
+const noticeMail = (env: Bindings, n: Data) => n.language && n.language !== 'en' ? translatedNotice(n, origin(env)) : n.kind === 'void'
   ? { subject: `${n.businessName}: this signing request is no longer active`, text: `This signing request is no longer active. Contact ${n.contact.name} at ${n.contact.email}.\n` }
   : { subject: `${n.businessName}: your signed offer copy`, text: `Your offer is signed. Open your copy here: ${origin(env)}/copy/${n.copyToken}\n\nYou will be asked for a fresh one-time code, emailed to you.\nThis email carries no offer terms. ${contactLine(n)}\n` }
 

@@ -1,16 +1,22 @@
-import type { Data } from '../core/types'
+import { requireThat, type Data } from '../core/types'
+import { SPANISH } from './copy'
 
-const contact = (e: Data) => `¿Tiene preguntas? Contacte a ${e.contact.name} en ${e.contact.email}.`
-
-/** Transactional candidate mail already shipped by OFFER-005 follows the application's chosen language. */
-export const spanishInvitation = (e: Data, origin: string, token: string) => ({
-  subject: `${e.businessName} le envió una oferta para firmar electrónicamente`,
-  text: `${e.businessName} le envió una oferta para firma electrónica.\n\nAbra este enlace: ${origin}/sign/${token}\n\nSe le pedirá un código de un solo uso, enviado por correo por separado. El enlace vence el ${e.expiresAt}.\n\nEste correo no contiene los términos de la oferta. ${contact(e)}\n`,
+const copyOf = (e: Data): Record<string, string> => e.language === 'es' ? SPANISH : e.languageUi
+function words(e: Data, key: string, values: Data) {
+  const template = copyOf(e)?.[key]
+  requireThat(typeof template === 'string' && template.trim(), 'Missing reviewed candidate email text', 409)
+  return template.replace(/\{([a-zA-Z]+)\}/g, (_: string, name: string) => {
+    requireThat(Object.hasOwn(values, name), 'Missing candidate email value', 409)
+    return String(values[name])
+  })
+}
+const facts = (e: Data) => ({ businessName: e.businessName, contactName: e.contact.name, contactEmail: e.contact.email })
+export const translatedInvitation = (e: Data, origin: string, token: string) => ({
+  subject: words(e, 'signInvitationSubject', facts(e)), text: words(e, 'signInvitationText', { ...facts(e), link: `${origin}/sign/${token}`, expiresAt: e.expiresAt }),
 })
-export const spanishCode = (e: Data, code: string, purpose: 'sign' | 'copy') => ({
-  subject: `Su código de un solo uso para ${e.businessName}`,
-  text: `Su código de un solo uso es ${code}\n\nSirve para ${purpose === 'sign' ? 'la página de firma de su oferta' : 'su copia firmada'} durante 10 minutos. Si no lo solicitó, ignore este correo.\n`,
+export const translatedCode = (e: Data, code: string, purpose: 'sign' | 'copy') => ({
+  subject: words(e, 'signCodeSubject', facts(e)), text: words(e, 'signCodeText', { ...facts(e), code, purpose: words(e, purpose === 'sign' ? 'signPurpose' : 'copyPurpose', {}) }),
 })
-export const spanishNotice = (n: Data, origin: string) => n.kind === 'void'
-  ? { subject: `${n.businessName}: esta solicitud de firma ya no está activa`, text: `Esta solicitud de firma ya no está activa. ${contact(n)}\n` }
-  : { subject: `${n.businessName}: su copia de la oferta firmada`, text: `Su oferta está firmada. Abra su copia aquí: ${origin}/copy/${n.copyToken}\n\nSe le pedirá un nuevo código de un solo uso, enviado por correo.\nEste correo no contiene los términos de la oferta. ${contact(n)}\n` }
+export const translatedNotice = (n: Data, origin: string) => ({
+  subject: words(n, n.kind === 'void' ? 'signVoidSubject' : 'signCopySubject', facts(n)), text: words(n, n.kind === 'void' ? 'signVoidText' : 'signCopyText', { ...facts(n), link: `${origin}/copy/${n.copyToken}` }),
+})

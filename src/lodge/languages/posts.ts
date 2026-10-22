@@ -1,13 +1,23 @@
+import { SOURCE_UI } from './copy'
 import type { State } from '../core/state'
 import { canonical, requireThat, type Data } from '../core/types'
 import { jobForm } from '../records/questions'
 import { schemaOf } from '../fields/schema'
 import { cpraNotice, inCalifornia } from '../records/privacy'
 
+/** A new language uses the same reviewed post bundle, with a complete form/receipt vocabulary. */
+export function languageTag(value: unknown) {
+  requireThat(typeof value === 'string' && value.length <= 35, 'Choose a language tag, such as en, es or fr')
+  let tag = ''
+  try { tag = Intl.getCanonicalLocales(value)[0] ?? '' } catch { /* Invalid tags are refused below. */ }
+  requireThat(tag && Intl.DateTimeFormat.supportedLocalesOf([tag]).length > 0, 'Choose a language supported by this installation')
+  return tag.toLowerCase()
+}
+
 /** The source versions the employer reviews, including optional/restricted form text. */
 export function translationSource(s: State, v: Data, post: Data) {
   const business = s.get('business', 'main')
-  return canonical({ notice: business.notices.at(-1), accommodation: business.accommodationContact,
+  return canonical({ language: post.language, ...(post.language !== 'es' ? { interface: SOURCE_UI } : {}), notice: business.notices.at(-1), accommodation: business.accommodationContact,
     questions: jobForm(s, v, { ...post, language: 'en' }),
     fields: schemaOf(v).filter(f => f.record !== 'vacancy'),
     cpra: inCalifornia(s, v, post) ? cpraNotice(s) : null })
@@ -19,6 +29,14 @@ export function requireTranslation(s: State, v: Data, post?: Data | null) {
   const t = post.translation
   requireThat(t?.reviewedBy && t.source === translationSource(s, v, post), 'Review the translation against the current notice and question versions before publishing this language', 409)
   const present = (value: unknown, label: string) => requireThat(typeof value === 'string' && value.trim(), `Missing ${post.language} translation: ${label}`, 409)
+  if (post.language !== 'es') {
+    for (const [key, source] of Object.entries(SOURCE_UI)) {
+      present(t.ui?.[key], 'application text: ' + source)
+      const required = (source.match(/\{[a-zA-Z]+\}/g) ?? []).sort()
+      const given = (String(t.ui[key]).match(/\{[a-zA-Z]+\}/g) ?? []).sort()
+      requireThat(canonical(required) === canonical(given), `Keep the named values in the translation of: ${source}`, 409)
+    }
+  }
   present(t.notice, 'privacy notice'); present(t.accommodation, 'accommodation text'); present(t.monitoring, 'voluntary question')
   requireThat(Array.isArray(t.monitoringOptions) && t.monitoringOptions.length === 5, 'Translate every voluntary answer option', 409)
   t.monitoringOptions.forEach((x: unknown) => present(x, 'voluntary answer option'))

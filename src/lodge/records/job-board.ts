@@ -1,3 +1,4 @@
+import { uiCopy, translatedPay } from '../languages/copy'
 import type { State } from '../core/state'
 import { requireAdmin } from '../core/access'
 import { pay } from '../core/labels'
@@ -115,7 +116,7 @@ function departmentChain(s: State, id: unknown) {
 
 /** One job or post as the board shows it; `content` adds the description, `detail` the application form. */
 export function boardJob(s: State, l: Listing, origin: string, token: string, content: boolean, detail = false): Data {
-  const v = l.v, spanish = l.post?.language === 'es', tr = l.post?.translation
+  const v = l.v, translated = !!l.post && l.post.language !== 'en', tr = l.post?.translation, copy = translated ? uiCopy(l.post!) : null
   const offices = l.offices.map(id => s.find('office', id)).filter(Boolean).map(o => ({ id: o!.id, name: o!.name }))
   const c = v.compensation
   // Today a job has one approved range for all its locations; ATTR-004 adds a range per location.
@@ -124,7 +125,7 @@ export function boardJob(s: State, l: Listing, origin: string, token: string, co
     language: l.post?.language ?? 'en', id: l.id, jobId: v.id, postId: l.post?.id ?? null, title: l.title, departments: departmentChain(s, v.departmentId), department: v.departmentId ? departmentPath(s, v.departmentId) : v.department || null,
     offices, location: (l.post ? where : v.location) || null, employmentType: v.employmentType, workMode: v.workMode, remote: v.workMode === 'remote',
     pay: c ? [{ location: where || null, currency: c.currency, min: c.min, max: c.max, period: c.period, minorUnits: 2 }] : [],
-    payTransparency: c ? `Pay${where ? ' for ' + where : ''}: ${pay(c).replace(/ /g, ' ')}` : null,
+    payTransparency: c ? (translated ? copy!.salary.replace(/\{pay\}/g, () => translatedPay(c, copy!)) + (where ? ` (${where})` : '') : `Pay${where ? ' for ' + where : ''}: ${pay(c).replace(/ /g, ' ')}`) : null,
     publishedAt: v.publishedAt, updatedAt: v.updatedAt && v.updatedAt > v.publishedAt ? v.updatedAt : v.publishedAt,
     url: `${origin}/jobs/${l.slug}`,
   }
@@ -143,13 +144,13 @@ export function boardJob(s: State, l: Listing, origin: string, token: string, co
       { name: 'coverNote', label: 'Cover note', type: 'long-text', required: false },
       { name: 'accommodation', label: 'Adjustments you need', type: 'long-text', required: false },
       { name: 'talentPool', label: 'You may contact me about other suitable roles while you keep my details', type: 'yes-no', required: false },
-    ].map(f => ({ ...f, label: spanish ? ({ name: 'Nombre completo', email: 'Correo electrónico', phone: 'Teléfono', location: 'Lugar de residencia', resume: 'Currículum', coverNote: 'Carta de presentación', accommodation: 'Adaptaciones que necesita', talentPool: 'Pueden contactarme sobre otros puestos adecuados mientras conserven mis datos' } as Data)[f.name] : f.label })),
+    ].map(f => ({ ...f, label: copy ? copy[f.name === 'accommodation' ? 'accommodation' : f.name] : f.label })),
     questions: jobForm(s, v, l.post).map((q: Data) => ({ id: q.question, text: q.text, type: q.type, required: !!q.required, options: q.options ?? [], ...(q.optionLabels ? { optionLabels: q.optionLabels } : {}), help: q.help || null, ...(q.type === 'file' ? { maxBytes: MAX_DOCUMENT_BYTES } : {}) })),
-    voluntaryQuestions: [{ id: 'monitoring', text: spanish ? tr.monitoring : 'How do you describe your gender?', options: MONITORING_OPTIONS, ...(spanish ? { optionLabels: tr.monitoringOptions } : {}), required: false, note: spanish ? 'Se guarda por separado y nunca se muestra a quienes evalúan su solicitud.' : 'Kept apart from the application and never shown to the people assessing it.' }],
-    privacyNotice: { version: notice.version, text: spanish ? tr.notice : notice.text },
+    voluntaryQuestions: [{ id: 'monitoring', text: translated ? tr.monitoring : 'How do you describe your gender?', options: MONITORING_OPTIONS, ...(translated ? { optionLabels: tr.monitoringOptions } : {}), required: false, note: translated ? copy!.monitoringHelp : 'Kept apart from the application and never shown to the people assessing it.' }],
+    privacyNotice: { version: notice.version, text: translated ? tr.notice : notice.text },
     // PRIV-001: a California job carries the CPRA notice; submit its version as cpraNoticeVersion.
-    californiaNotice: inCalifornia(s, v, l.post) ? { ...cpraNotice(s), ...(spanish ? tr.cpra : {}) } : null,
-    accommodationContact: business.accommodationContact, ...(spanish ? { accommodationText: tr.accommodation } : {}),
+    californiaNotice: inCalifornia(s, v, l.post) ? { ...cpraNotice(s), ...(translated ? tr.cpra : {}) } : null,
+    accommodationContact: business.accommodationContact, ...(translated ? { accommodationText: tr.accommodation } : {}),
   }
 }
 

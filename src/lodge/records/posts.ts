@@ -1,4 +1,4 @@
-import { requireTranslation, translationReady, translationSource } from '../languages/posts'
+import { requireTranslation, translationReady, translationSource, languageTag } from '../languages/posts'
 import { canonical } from '../core/types'
 import type { State } from '../core/state'
 import { requireCan, requireManages } from '../core/access'
@@ -21,8 +21,6 @@ import { attachable } from './questions'
 /** Where a post can appear today. Each board joins this list with its own clause (ATTR-002, ATTR-003, ATTR-006). */
 export const DESTINATIONS = ['careers', 'embed', 'api'] as const
 export type Destination = typeof DESTINATIONS[number]
-/** Post languages; ATTR-007 adds Spanish and further languages. */
-export const LANGUAGES = ['en', 'es'] as const
 
 /** The offices a job was approved for: its office and the other approved offices in its LDG-001 terms. */
 export const approvedOffices = (v: Data): string[] => [...new Set([v.officeId, ...(v.locations ?? [])].filter(Boolean))] as string[]
@@ -61,7 +59,7 @@ export function jobPost(s: State, a: Actor, b: Data) {
     description: optionalText(b.description, 'Post description', 20000),
     locations: locations(s, v, b.locations),
     questions: attachable(s, v, b.questions ?? []).filter(x => !(v.questions ?? []).some((q: Data) => q.question === x.question)),
-    language: oneOf(b.language ?? 'en', LANGUAGES, 'Post language'),
+    language: languageTag(b.language ?? 'en'),
     destinations: [...new Set(list(b.destinations, 'Destinations', DESTINATIONS.length, x => oneOf(x, DESTINATIONS, 'Destination')))],
   }
   requireThat(fields.destinations.length > 0, 'Choose where this post appears')

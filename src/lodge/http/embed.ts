@@ -1,3 +1,4 @@
+import { uiCopy } from '../languages/copy'
 import { legacyListing } from '../move-in/legacy-links'
 import { Hono, type Context } from 'hono'
 import { runtimeBindings, type Bindings } from '../../auth.server'
@@ -121,7 +122,7 @@ embedPages.get('/embed/jobs/:slug', async c => {
   const values = c.req.query(), campaign = campaignOf(values)
   const back = query(Object.fromEntries(FILTERS.concat(CAMPAIGN).filter(k => values[k]).map(k => [k, values[k]])))
   const v: Data = { ...shownJob(s, l), slug: l.slug }
-  return page(v.title, `<p><a href="/embed/jobs${esc(back)}">${l.post?.language === 'es' ? '← Todos los puestos' : '← All open roles'}</a></p>${form(v, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), `/embed/jobs/${l.slug}`, campaign, cpraFor(s, l))}`, 200, embed, l.post?.language ?? 'en')
+  return page(v.title, `<p><a href="/embed/jobs${esc(back)}">${l.post && l.post.language !== 'en' ? '← ' + esc(uiCopy(l.post).back) : '← All open roles'}</a></p>${form(v, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), `/embed/jobs/${l.slug}`, campaign, cpraFor(s, l))}`, 200, embed, l.post?.language ?? 'en')
 })
 
 embedPages.post('/embed/jobs/:slug', async c => {

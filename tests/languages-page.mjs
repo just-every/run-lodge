@@ -1,3 +1,4 @@
+import { furtherLanguagePage } from './further-language-page.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
@@ -66,4 +67,5 @@ export async function languagesPage(browser, { root, origin, run, evidence, owne
     const response = await owner.context.request.post(origin + '/api/lodge/command/post-status', { headers: { origin }, data: { vacancy: job.id, post: es.id, status: 'live' } })
     assert.equal(response.status(), 409, 'a missing Spanish question refuses publishing')
   } finally { await owner.context.close() }
+  await furtherLanguagePage(browser, { root, origin, run, evidence, job, q })
 }

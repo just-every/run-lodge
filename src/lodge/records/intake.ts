@@ -73,13 +73,13 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const earlier = door.oncePerJob && s.scan('application').find(x => x.vacancy === vacancy.id && x.status === 'active' && s.find('candidate', x.candidate)?.email === address)
   if (earlier) return { receipt: await repeat(s, vacancy, earlier, door, notice.version, post, cpra?.version), accommodationContact: business.accommodationContact }
   const candidate = s.put('candidate', uid(), {
-    ...fields, language: post?.language ?? 'en', source: door.source, createdAt: now(), retainUntil: retentionUntil(s),
+    ...fields, language: post?.language ?? 'en', ...(post?.translation?.ui ? { languageUi: post.translation.ui } : {}), source: door.source, createdAt: now(), retainUntil: retentionUntil(s),
     consent: { basis: 'application', noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), talentPool, at: now(), recordedBy: 'applicant' },
   })
   const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
   const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
-  const application = startApplication(s, null, candidate, vacancy, door.source, { language: post?.language ?? 'en', coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
+  const application = startApplication(s, null, candidate, vacancy, door.source, { language: post?.language ?? 'en', ...(post?.translation?.ui ? { languageUi: post.translation.ui } : {}), coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await stored('resume', () => storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume!.name, mediaType: input.resume!.mediaType, base64: input.resume!.base64, kind: 'resume', source: door.source }))
   if (answered.length) {
     for (const x of answered) if (x.type === 'file') {
