@@ -1,7 +1,7 @@
 /** Employer-authored French scaffold for the further-language HTTP journey. */
 export const FRENCH = {
   draftTitle: "Enregistrer et reprendre sur cet appareil",
-  draftHelp: "Choisissez Enregistrer pour conserver les réponses textuelles dans ce navigateur pendant sept jours. Utilisez un appareil privé. Les fichiers, consentements et réponses privées ne sont pas conservés. Joignez de nouveau les fichiers et relisez l’avis avant l’envoi.",
+  draftHelp: "Choisissez Enregistrer pour conserver les réponses textuelles dans ce navigateur pendant 24 heures. Utilisez un appareil privé. Les fichiers, consentements et réponses privées ne sont pas conservés. Joignez de nouveau les fichiers et relisez l’avis avant l’envoi.",
   draftSave: "Enregistrer le brouillon sur cet appareil",
   draftResume: "Reprendre le brouillon enregistré",
   draftClear: "Supprimer le brouillon enregistré",
@@ -12,7 +12,7 @@ export const FRENCH = {
   recoverTitle: "Récupérer un reçu de candidature",
   recoverCode: "Code privé de récupération",
   recoverSubmit: "Récupérer le reçu",
-  recoverHelp: "Conservez ce code privé pour retrouver ce reçu pendant 90 jours. Il donne accès au reçu uniquement, sans candidature ni état du recrutement.",
+  recoverHelp: "Conservez ce code privé pour retrouver ce reçu pendant 24 heures. Il donne accès au reçu uniquement, sans candidature ni état du recrutement.",
   recoveryLink: "Récupérer un reçu",
   language: 'Langue', back: 'Tous les postes',
   optional: ' (facultatif)', yes: 'Oui', no: 'Non', choose: 'Choisir…',

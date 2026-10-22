@@ -565,10 +565,10 @@ colors. Both text/background and primary/background must meet AA contrast.
 Public `/jobs`, its applications/receipts and `/embed/jobs` use that brand.
 `/jobs` also accepts `q`, `location` and `remote=true`, alongside department/office.
 
-An applicant explicitly saves a text draft on their own browser for seven days;
+An applicant explicitly saves a text draft on their own browser for 24 hours;
 files, consent and restricted answers are excluded. A changed form or notice
 refuses an older draft. After submitting, the applicant can retain a private
-256-bit code and POST it to `/jobs/receipt` or `/embed/receipt` for 90 days. This
+256-bit code and POST it to `/jobs/receipt` or `/embed/receipt` for 24 hours. This
 reveals only that receipt, not application contents or progress. Only its hash
 is stored; workspace/candidate exports and installation archives omit recovery
 material. Erasure invalidates it with the receipt. These device retention and

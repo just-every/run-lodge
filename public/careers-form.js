@@ -18,7 +18,7 @@ for (const tools of document.querySelectorAll('[data-careers-draft]')) {
   tools.querySelector('[data-draft-resume]').onclick = () => {
     try {
       const draft = JSON.parse(localStorage.getItem(key))
-      if (!draft || !Array.isArray(draft.values) || !Number.isFinite(draft.savedAt) || draft.schema !== schema || Date.now() - draft.savedAt > 7 * 86400000) { localStorage.removeItem(key); status.textContent = status.dataset.unavailable; return }
+      if (!draft || !Array.isArray(draft.values) || !Number.isFinite(draft.savedAt) || draft.schema !== schema || Date.now() - draft.savedAt > 86400000) { localStorage.removeItem(key); status.textContent = status.dataset.unavailable; return }
       const values = new Map(draft.values)
       for (const control of controls) {
         const value = values.get(control.name)

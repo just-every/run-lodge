@@ -3,7 +3,7 @@ import { requireThat, type Data } from '../core/types'
 
 export const SPANISH: Record<string, string> = {
   draftTitle: "Guardar y continuar en este dispositivo",
-  draftHelp: "Elija Guardar para conservar las respuestas de texto en este navegador durante siete días. Use un dispositivo privado. No se guardan archivos, consentimiento ni respuestas de adaptación o seguimiento. Vuelva a adjuntar los archivos y revise el aviso antes de enviar.",
+  draftHelp: "Elija Guardar para conservar las respuestas de texto en este navegador durante 24 horas. Use un dispositivo privado. No se guardan archivos, consentimiento ni respuestas de adaptación o seguimiento. Vuelva a adjuntar los archivos y revise el aviso antes de enviar.",
   draftSave: "Guardar borrador en este dispositivo",
   draftResume: "Continuar borrador guardado",
   draftClear: "Eliminar borrador guardado",
@@ -14,7 +14,7 @@ export const SPANISH: Record<string, string> = {
   recoverTitle: "Recuperar un comprobante de solicitud",
   recoverCode: "Código privado de recuperación",
   recoverSubmit: "Recuperar comprobante",
-  recoverHelp: "Conserve este código privado para recuperar este comprobante durante 90 días. Solo permite ver el comprobante, no la solicitud ni el estado de contratación.",
+  recoverHelp: "Conserve este código privado para recuperar este comprobante durante 24 horas. Solo permite ver el comprobante, no la solicitud ni el estado de contratación.",
   recoveryLink: "Recuperar un comprobante",
   language: 'Idioma', back: 'Todos los puestos',
   optional: ' (opcional)', yes: 'Sí', no: 'No', choose: 'Elija…',
@@ -56,7 +56,7 @@ export const SPANISH: Record<string, string> = {
 /** Employer-facing source labels and placeholder contract for every scaffold field. */
 export const SOURCE_UI: Record<string, string> = {
   draftTitle: "Save and resume on this device",
-  draftHelp: "Choose Save to keep text answers on this browser for seven days. Use a private device. Files, privacy consent and private monitoring or accommodation answers are not saved; attach files and review consent again before submitting.",
+  draftHelp: "Choose Save to keep text answers on this browser for 24 hours. Use a private device. Files, privacy consent and private monitoring or accommodation answers are not saved; attach files and review consent again before submitting.",
   draftSave: "Save draft on this device",
   draftResume: "Resume saved draft",
   draftClear: "Delete saved draft",
@@ -67,7 +67,7 @@ export const SOURCE_UI: Record<string, string> = {
   recoverTitle: "Recover an application receipt",
   recoverCode: "Private recovery code",
   recoverSubmit: "Recover receipt",
-  recoverHelp: "Keep this private code to recover this receipt for 90 days. It gives access only to this receipt, not your application or hiring status.",
+  recoverHelp: "Keep this private code to recover this receipt for 24 hours. It gives access only to this receipt, not your application or hiring status.",
   recoveryLink: "Recover a receipt",
   language: 'Language', back: 'All open roles',
   optional: ' (optional)', yes: 'Yes', no: 'No', choose: 'Choose…',

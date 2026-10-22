@@ -81,7 +81,8 @@ export async function careersPage(browser, { root, origin, run, evidence, ownerE
       await card.getByLabel(/^Employer logo \(/).setInputFiles({ name: logo.name, mimeType: logo.mediaType, buffer: Buffer.from(logo.base64, 'base64') })
       await card.getByRole('button', { name: 'Save careers branding', exact: true }).click()
       await card.getByText('Saved logo: ' + logo.name, { exact: true }).waitFor()
-      await shot(page, evidence, 'settings', width)
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
+      await page.getByRole('region', { name: 'Employer careers site', exact: true }).screenshot({ path: join(evidence, `careers-settings-${width}.png`) })
     } finally { await owner.context.close() }
   }
   await careersPublicPage(browser, { origin, jobs, evidence })

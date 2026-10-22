@@ -4,7 +4,7 @@ import { Fault, sha256, type Data } from '../core/types'
 /** A recovery code proves possession, not identity; it reveals only the original receipt. */
 export async function receiptRecoveryCode(s: State, receipt: Data, copy: Data) {
   const code = Array.from(crypto.getRandomValues(new Uint8Array(32)), x => x.toString(16).padStart(2, '0')).join('')
-  s.put('receipt', receipt.id, { ...receipt, recoveryHash: await sha256(code), recoveryExpires: new Date(Date.now() + 90 * 86400000).toISOString(), recoveryCopy: copy })
+  s.put('receipt', receipt.id, { ...receipt, recoveryHash: await sha256(code), recoveryExpires: new Date(Date.now() + 86400000).toISOString(), recoveryCopy: copy })
   return code
 }
 
