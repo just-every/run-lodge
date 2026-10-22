@@ -509,3 +509,50 @@ in-flight envelope per offer. `esign-void { id, reason }` and `esign-move-signer
 PDF and certificate and records the hire. The sealed PDF and certificate are candidate documents
 (`/api/lodge/download/document/:id`) that agents never read. The workspace shows each offer's `esign` status without
 any hash, token or code. Candidates use `/sign/<token>` and, after completion, `/copy/<token>`; neither signs anyone in.
+
+### Employee referrals (CRM-003)
+
+A person with the `employee` role alone receives the referral portal at `/app` and
+`GET /api/lodge/state`; other private hiring reads and commands answer not found.
+Active employer members can also use Employee referrals on Overview. Agencies and
+agents have no referral portal.
+
+`referral-alerts { enabled }` records explicit opt-in to in-app opportunity alerts.
+`referral-submit { vacancy, name, email, phone?, consentNote, confirmed: true,
+resume, answers? }` freezes the employee's input and required original resume. Its
+receipt does not reveal an existing candidate match. Jobs must currently accept
+external applications on a public destination and must not be confidential.
+
+A person who runs the job uses `referral-review { id, outcome, candidate?, reason,
+creditEmployee?, creditReason? }`: `accepted` can create a person or select an
+existing one, `duplicate` selects an existing person, and `declined` links none.
+A new application automatically credits the referring employee; an existing active
+application keeps its attribution unless a reasoned change is explicitly chosen.
+`referral-progress { id, progress }` deliberately shares only `received`,
+`in progress`, `closed` or `hired`; the last three must match the linked application's
+state. Owner/admin `referral-bonus { id, label, amountCents, status, approved: true }`
+records an employer-approved USD milestone on a hire currently attributed to that
+employee under the source merge rule. It executes no payroll or payment.
+
+`GET /api/lodge/referral/export` exports the employee's own frozen submissions and
+shared progress. `GET /api/lodge/referral/file/:id` returns their contributed file
+(or a scoped recruiter download), without canonical candidate access. Candidate
+exports/erasure and installation archives include the frozen copies and originals.
+Email opportunity/referral updates remain pending; no mail delivery is claimed.
+
+### Connector registry (INT-002 foundation)
+
+Owner/admin people maintain metadata with `connector-register { provider, scopes,
+sender?, organizer?, mappings?, bindings?, generation? }`. The catalog in the
+workspace lists the named apps and implemented/unavailable adapters. Scopes are
+requested declarations, mappings use catalog fields, and `bindings` contains only
+allowlisted installation binding names. Credential values are refused.
+
+`connector-binding-change { provider, generation, action }` supports
+`rotation-recorded` and `disconnect`. These record external setup changes and
+advance the registry generation; provider revocation and secret rotation are
+performed separately in installation/provider setup. Neither registration nor a
+recorded change tests access or starts synchronization. Health remains `unknown`.
+Durable provider operations and reconciliation remain INT-002 work, together with
+the actual mail/calendar/DocuSign/HRIS connection journeys; the registry does not
+stand in for them.

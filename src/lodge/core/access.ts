@@ -8,6 +8,7 @@ import { Fault, requireThat, scope, type Actor, type Data, type Role } from './t
 
 /** CRM-005 agencies never acquire employer authority, even from stale assignments. */
 export const isAgency = (a: Pick<Actor, 'owner' | 'roles'>) => !a.owner && a.roles.includes('agency')
+export const isEmployeeOnly = (a: Pick<Actor, 'owner' | 'roles'>) => !a.owner && a.roles.length === 1 && a.roles[0] === 'employee'
 export const isAdmin = (a: Actor) => a.owner || (!isAgency(a) && a.roles.includes('admin'))
 export const canReview = (a: Pick<Actor, 'owner' | 'roles'>) => !isAgency(a) && (a.owner || a.roles.some(role => ['admin', 'manager', 'interviewer'].includes(role)))
 export const onPanel = (a: Actor, interview: Data) => canReview(a) && (interview.participants ?? []).includes(scope(a))

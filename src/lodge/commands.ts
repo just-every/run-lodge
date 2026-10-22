@@ -1,3 +1,6 @@
+import { connectorRegister, connectorBindingChange } from './connectors/records'
+import { referralAlerts, referralSubmit, referralReview, referralProgress, referralBonus } from './referrals/records'
+import { isEmployeeOnly } from './core/access'
 import { legacyLink } from './move-in/legacy-links'
 import { isAgency } from './core/access'
 import { agency, agencyJob, agencySubmit, agencyReview, agencyProgress, agencyFee } from './agency/records'
@@ -60,6 +63,8 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'connector-register': connectorRegister, 'connector-binding-change': connectorBindingChange,
+  'referral-alerts': referralAlerts, 'referral-submit': referralSubmit, 'referral-review': referralReview, 'referral-progress': referralProgress, 'referral-bonus': referralBonus,
   'legacy-link': legacyLink, 'cutover-preview': cutoverPreview, cutover, 'cutover-undo': cutoverUndo, 'contact-basis': contactBasis,
   'mention-policy': mentionPolicy, 'notify-pref': notifyPref, 'notify-default': notifyDefault, 'alert-read': alertRead,
   agency, 'agency-job': agencyJob, 'agency-submit': agencySubmit, 'agency-review': agencyReview, 'agency-progress': agencyProgress, 'agency-fee': agencyFee,
@@ -94,6 +99,7 @@ export const commands: Record<string, Command> = {
 const AGENT_COMMANDS = new Set(['propose', 'debrief'])
 
 export async function run(s: State, a: Actor, op: string, body: Data) {
+  if (isEmployeeOnly(a) && !['referral-alerts', 'referral-submit', 'apply-internal'].includes(op)) throw new Fault(404, 'Referral not found')
   if (isAgency(a) && op !== 'agency-submit') throw new Fault(404, 'Agency record not found')
   const command = Object.hasOwn(commands, op) ? commands[op] : undefined
   if (!command) throw new Fault(404, 'Unknown action')

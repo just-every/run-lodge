@@ -1,3 +1,4 @@
+import { staffSeesReferral } from '../referrals/access'
 import { staffSeesSubmission } from '../agency/access'
 import { candidateRecords } from '../records/retention'
 import type { State } from '../core/state'
@@ -68,8 +69,14 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
     for (const file of sub.files) { const blob = await readBlob(db, file.id); requireThat(blob, 'The agency original bytes are missing', 409); files.push({ ...file, base64: blob.base64 }) }
     agencySubmissions.push({ ...sub, files })
   }
+  const referrals = []
+  for (const row of candidateRecords(s, id).referral.filter(r => staffSeesReferral(s, a, r))) {
+    const files = []
+    for (const file of row.files) { const blob = await readBlob(db, file.id); requireThat(blob, 'The referral original bytes are missing', 409); files.push({ ...file, base64: blob.base64 }) }
+    referrals.push({ ...row, files })
+  }
   const body = {
-    agencySubmissions,
+    agencySubmissions, referrals,
     format: 'lodge-candidate-export-1', exportedAt: now(), exportedBy: a.email,
     candidate, mergedCandidates: mergedCandidates(view.mergedCandidates, id),
     application: applications, 'stage-event': applications.flatMap(app => app.history),

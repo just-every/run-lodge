@@ -1,3 +1,4 @@
+import { ConnectorSettings } from './connectors'
 import type { PageProps } from './app'
 import { call, Check, Field, Form, Status, Table, type D } from './shared'
 import { Org } from './org'
@@ -8,7 +9,7 @@ import { JobBoardSettings } from './job-board'
 import { InternalSettings } from './internal'
 import { FairChanceSettings } from './fair-chance'
 
-const ROLES = [['admin', 'Hiring admin'], ['manager', 'Hiring manager'], ['interviewer', 'Interviewer'], ['approver', 'Approver']]
+const ROLES = [['admin', 'Hiring admin'], ['manager', 'Hiring manager'], ['interviewer', 'Interviewer'], ['approver', 'Approver'], ['employee', 'Employee referrals']]
 
 /** Every zone this browser knows, with the one already chosen (or this computer's, for a new business) among them. */
 function zones(current: string) {
@@ -50,6 +51,7 @@ export function People({ w, mutate, setNotice }: PageProps) {
     {(w.actor.owner || w.actor.roles.includes('admin')) && <JobBoardSettings w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <InternalSettings w={w} mutate={mutate} />}
     {w.fairChance && <FairChanceSettings w={w} mutate={mutate} />}
+    <ConnectorSettings w={w} mutate={mutate} />
     <p className="hint">Interviewers see only the applications they are assigned to, without contact details. Restricted documents and voluntary monitoring answers stay with the owner and hiring admins.</p>
   </div>
 }

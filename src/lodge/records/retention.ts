@@ -93,6 +93,7 @@ export function candidateRecords(s: State, candidateId: string) {
   const linked = submissions.filter(r => candidateIds.has(r.candidate) || appIds.has(r.application))
   const contacts = new Set([...s.scan('candidate').filter(c => candidateIds.has(c.id)), ...linked].map(c => c.email?.toLowerCase()).filter(Boolean))
   records['agency-submission'] = submissions.filter(r => linked.includes(r) || contacts.has(r.email?.toLowerCase()))
+  records.referral = s.scan('referral').filter(r => candidateIds.has(r.candidate) || appIds.has(r.application) || contacts.has(r.email?.toLowerCase()))
   const related = new Set([candidateId, ...Object.values(records).flat().map(r => r.id)])
   // Include every status and the entire packet. Sources, citations, typed inputs
   // and applied result ids can each be the only remaining link to the person.
@@ -118,7 +119,7 @@ export function deleteCandidate(s: State, a: Actor, b: Data) {
   text(b.reason, 'Reason for deletion', 1000)
   const records = candidateRecords(s, c.id)
   const candidateIds = new Set([c.id, ...records.candidate.map(person => person.id)])
-  const vacancyIds = new Set([...records.application, ...records['agency-submission']].map(record => record.vacancy))
+  const vacancyIds = new Set([...records.application, ...records['agency-submission'], ...records.referral].map(record => record.vacancy))
   const holds = s.scan('hold').filter(h => h.status === 'active' && (candidateIds.has(h.candidate) || vacancyIds.has(h.vacancy)))
   requireThat(!holds.length, 'A legal hold covers this candidate; release it before deleting', 409)
   requireThat(!records.application.some(x => x.status === 'active'), 'Close this candidate’s active applications before deleting', 409)
@@ -129,7 +130,7 @@ export function deleteCandidate(s: State, a: Actor, b: Data) {
     counts[kind] = rows.length
     for (const r of rows) {
       if (kind === 'document') removeDocument(s, r.id)
-      else if (kind === 'agency-submission') { for (const file of r.files) s.drop('blob', file.id); s.remove(kind, r.id) }
+      else if ((kind === 'agency-submission' || kind === 'referral')) { for (const file of r.files) s.drop('blob', file.id); s.remove(kind, r.id) }
       else { if (kind === 'resume-intake' && r.status !== 'committed') s.drop('blob', r.id); s.remove(kind, r.id) }
     }
   }

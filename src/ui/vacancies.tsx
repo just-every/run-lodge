@@ -1,3 +1,4 @@
+import { ReferralReview } from './referrals'
 import { EsignSettings } from './esign'
 import type { PageProps } from './app'
 import { VacancyInternal } from './internal'
@@ -94,6 +95,7 @@ function Detail({ v, w, mutate, go, select }: { v: D; select: (id: string) => vo
     {!v.imported && v.manages && <Posts v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <Team v={v} w={w} mutate={mutate} />}
     {v.manages && (w.actor.owner || w.actor.roles.includes('admin')) && <Agencies v={v} w={w} mutate={mutate} />}
+    {!v.imported && v.manages && <ReferralReview v={v} w={w} mutate={mutate} />}
     {!v.imported && v.manages && <JobQuestions v={v} w={w} mutate={mutate} />}
     {!v.imported && <JobFields v={v} w={w} mutate={mutate} />}
     {!v.imported && <JobHiringViews v={v} mutate={mutate} />}

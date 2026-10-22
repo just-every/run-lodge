@@ -1,3 +1,4 @@
+import { ReferralPortal } from './referrals'
 import { useEffect, useState } from 'react'
 import { call, type D } from './shared'
 import { Rail, type Tab } from './shell/rail'
@@ -54,9 +55,10 @@ export function App() {
     await reload()
     return result
   }
-  useZone(businessZone(w?.business ?? { timeZone: w?.agencyPortal?.timeZone }))
+  useZone(businessZone(w?.business ?? { timeZone: w?.agencyPortal?.timeZone ?? w?.referralPortal?.timeZone }))
   if (!w) return <main className="loading"><img src="/brand/mark.svg" alt="" width="52" height="34" /><h1>Lodge</h1>{error ? <p role="alert">{error} · <a href="/signin?returnTo=%2Fapp">Sign in</a></p> : <p>Opening your hiring workspace…</p>}</main>
   if (w.agencyPortal) return <AgencyPortal w={w} mutate={mutate} reload={reload} notice={notice} />
+  if (w.referralPortal) return <ReferralPortal w={w} mutate={mutate} reload={reload} notice={notice} />
   const { actor } = w
   const admin = actor.owner || actor.roles.includes('admin'), manager = admin || actor.roles.includes('manager')
   const me = actor.email

@@ -1,3 +1,6 @@
+import { isEmployeeOnly } from '../core/access'
+import { referralsView } from '../referrals/views'
+import { referralFile } from '../referrals/access'
 import { legacyReport } from '../move-in/legacy-links'
 import { portal } from '../agency/views'
 import { agencyFile } from '../agency/access'
@@ -68,10 +71,11 @@ api.onError((error, c) => {
 /** Routes that change records outside a proposal are for people, not agent members. */
 const person = (a: Actor) => requireThat(!a.agent, 'Agent members propose changes; a person approves and applies them', 403)
 
-async function context(c: C, agencyDoor = false) {
+async function context(c: C, agencyDoor = false, employeeDoor = false) {
   const session = await signedIn(c.req.raw, c.env)
   const state = await load(c.env.DB)
   const actor = actorFor(session, state)
+  requireThat(!isEmployeeOnly(actor) || (employeeDoor && !actor.agent), 'Referral not found', 404)
   requireThat(!isAgency(actor) || (agencyDoor && !actor.agent), 'Agency record not found', 404)
   return { state, actor }
 }
@@ -87,16 +91,32 @@ const attachment = (content: BodyInit, type: string, name: string) => new Respon
 const json = (value: unknown, name: string) => attachment(JSON.stringify(value, null, 2), 'application/json; charset=utf-8', name)
 
 api.get('/api/lodge/state', async c => {
-  const { state, actor } = await context(c, true)
+  const { state, actor } = await context(c, true, true)
+  if (isEmployeeOnly(actor)) return c.json({ actor: { email: actor.email, name: actor.name, roles: actor.roles }, referralPortal: { name: state.get('business', 'main').name, timeZone: state.get('business', 'main').timeZone }, referrals: referralsView(state, actor) })
   if (isAgency(actor)) return c.json(portal(state, actor))
   return c.json({ ...await workspace(state, actor), importJobs: await importJobs(c.env.DB, actor, state) })
 })
 
 api.post('/api/lodge/command/:op', async c => {
-  const { state, actor } = await context(c, c.req.param('op') === 'agency-submit')
+  const { state, actor } = await context(c, c.req.param('op') === 'agency-submit', ['referral-alerts', 'referral-submit', 'apply-internal'].includes(c.req.param('op')))
   const result = await run(state, actor, c.req.param('op'), await body(c))
   await save(c.env.DB, state, actor)
   return c.json(fieldResult(state, actor, blindResult(state, actor, result)))
+})
+
+api.get('/api/lodge/referral/export', async c => {
+  const { state, actor } = await context(c, false, true)
+  const result = referralsView(state, actor)
+  state.audit(actor, 'referral-own-exported', 'member:' + actor.email)
+  return recorded(c, state, actor, json(result, 'employee-referrals.json'))
+})
+api.get('/api/lodge/referral/file/:id', async c => {
+  const { state, actor } = await context(c, false, true)
+  const file = referralFile(state, actor, c.req.param('id'))
+  const blob = await readBlob(c.env.DB, file.id)
+  requireThat(blob, 'Referral not found', 404)
+  state.audit(actor, 'referral-original-downloaded', 'referral-file:' + file.id)
+  return recorded(c, state, actor, attachment(Uint8Array.from(atob(blob.base64), ch => ch.charCodeAt(0)), file.mediaType, file.name))
 })
 
 api.get('/api/lodge/agency/export', async c => {

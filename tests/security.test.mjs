@@ -170,3 +170,9 @@ test('DATA-006 inline originals and restricted-view audit obey live reviewer aut
   assert.equal((await h.send('/api/lodge/view/document/' + h.document.id + '?access=1', undefined, h.panel)).status, 403)
  } finally { await h.close() }
 })
+
+
+test('INT-002 admin connector registry refuses credentials and never fabricates provider access', async () => {
+ const h = await fixture()
+ try { const { checkConnectors } = await import('./connectors-flow.mjs'); await checkConnectors(h) } finally { await h.close() }
+})

@@ -1,3 +1,4 @@
+import { syncReferralAlerts } from '../referrals/records'
 import { requireStageFields } from '../fields/values'
 import { operatorAuth, runtimeBindings, type Bindings } from '../../auth.server'
 import { recordBlindReveals } from '../records/blind-review'
@@ -39,6 +40,7 @@ export async function save(db: D1Database, state: State, actor: Actor | null, ex
     const before = state.original('application', app.id)
     if (app.status === 'active' && (!before || before.stage !== app.stage || before.status !== app.status)) requireStageFields(state, state.get('vacancy', app.vacancy), app, app.stage)
   }
+  syncReferralAlerts(state)
   recordBlindReveals(state, actor)
   // OFFER-005: an edit, email change, closure or outcome voids the offer's signing envelope in this same batch.
   await settleEnvelopes(state)

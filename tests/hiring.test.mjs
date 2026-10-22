@@ -2192,3 +2192,9 @@ test('ATTR-007 Spanish posts and applications preserve reviewed source versions'
   const { checkLanguages } = await import('./languages-flow.mjs')
   await checkLanguages()
 })
+
+
+test('CRM-003 consented employee referrals reconcile identities and expose only shared progress', async t => {
+  const { checkReferrals } = await import('./referrals-flow.mjs')
+  await checkReferrals(t)
+})

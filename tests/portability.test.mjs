@@ -50,6 +50,10 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   await src.command('review-duplicate', { keep: survivor.id, other: accepted.candidate, decision: 'merge', reason: 'Same person' })
   const pendingFile = (await src.state(agencyCookie)).agencyPortal.submissions.find(s => s.id === pending.id).files[0]
   await src.command('agency', { ...agency, active: false })
+  const employee = await src.member('archive-employee@example.test', ['employee'], 'Archive Employee')
+  const referral = await src.command('referral-submit', { vacancy: vacancy.id, name: 'Referral archive applicant', email: 'referral-archive@example.test', consentNote: 'Candidate agreed to sharing the resume', confirmed: true, resume: { name: 'referral.txt', mediaType: 'text/plain', base64: Buffer.from('REFERRAL-FROZEN-ORIGINAL').toString('base64') } }, employee)
+  const referralFile = (await src.state(employee)).referrals.submissions.find(r => r.id === referral.id).files[0]
+
   const people=[]
   for (const name of ['Lineage A','Lineage B','Lineage C','Deleted person']) people.push((await src.command('candidate',{name,source:'Direct',consentBasis:'manual'})).candidate)
   const [a,b,c,deleted]=people
@@ -81,6 +85,8 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   }
   const removeAgency = (items, kind, id) => items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id), 1)
   const mutations = [
+   ['missing referral original', (_d,_b,items) => removeAgency(items, 'blob', referralFile.id)],
+   ['missing referral member', (_d,_b,items) => removeAgency(items, 'member', 'archive-employee@example.test')],
    ['missing agency reference', (_d,_b,items) => changeAgency(items, 'agency-submission', pending.id, { agency: 'missing-agency' })],
    ['missing agency vacancy', (_d,_b,items) => changeAgency(items, 'agency-job', agency.id + ':' + vacancy.id, { vacancy: 'missing-vacancy' })],
    ['missing agency member', (_d,_b,items) => removeAgency(items, 'member', agency.email)],
@@ -166,6 +172,9 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   assert.equal(createHash('sha256').update(download.text).digest('hex'), doc.sha256)
   assert.equal((await dst.send('/api/lodge/agency/file/' + pendingFile.id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
   assert.equal((await dst.send('/api/lodge/download/document/' + accepted.files[0].id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
+  const employeeRestored = await dst.signIn('archive-employee@example.test')
+  assert.equal((await dst.send('/api/lodge/referral/file/' + referralFile.id, undefined, employeeRestored)).text, 'REFERRAL-FROZEN-ORIGINAL')
+  assert.equal((await dst.state(employeeRestored)).referrals.submissions[0].name, 'Referral archive applicant')
   const agencyPerson = await dst.signIn(agency.email)
   assert.equal((await dst.send('/api/lodge/state', undefined, agencyPerson)).status, 403, 'restored revoked agency stays revoked')
   const restored=await dst.send('/api/lodge/download/candidate/'+a.id,undefined,owner)

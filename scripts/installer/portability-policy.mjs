@@ -1,3 +1,4 @@
+import { validateReferralRecords } from './referral-policy.mjs';
 import { createHash } from 'node:crypto';
 import { PortabilityError } from '@runeditrun/rer/modules/portability';
 import { validateCandidateLineage } from './candidate-lineage.mjs';
@@ -28,6 +29,7 @@ export async function validateStaged({ read }) {
   refuse(typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256) && createHash('sha256').update(bytes).digest('hex') === value.sha256);
  };
  validateCandidateLineage(rows.filter(row => row.kind === 'candidate').map(row => get(row.kind, row.id)), refuse);
+ const referralFiles = validateReferralRecords({ rows, get, reference, refuse, original });
  const agencyFiles = validateAgencyRecords({ rows, get, reference, refuse, original });
  for (const row of rows) {
   const value = get(row.kind, row.id);
@@ -51,7 +53,7 @@ export async function validateStaged({ read }) {
   }
   if (row.kind === 'blob') {
    const staged = get('resume-intake', row.id);
-   refuse(!!get('document', row.id) || !!staged && staged.status !== 'committed' || agencyFiles.has(row.id));
+   refuse(!!get('document', row.id) || !!staged && staged.status !== 'committed' || agencyFiles.has(row.id) || referralFiles.has(row.id));
   }
   const stagedOriginal = row.kind === 'resume-intake' && value.status !== 'committed';
   if (row.kind !== 'document' && !stagedOriginal) continue;

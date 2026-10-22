@@ -19,8 +19,8 @@ export function requireThat(condition: unknown, message: string, status = 400): 
 export const uid = () => crypto.randomUUID()
 export const now = () => new Date().toISOString()
 
-export type Role = 'admin' | 'manager' | 'interviewer' | 'approver' | 'agency'
-export const ROLES: Role[] = ['admin', 'manager', 'interviewer', 'approver']
+export type Role = 'admin' | 'manager' | 'interviewer' | 'approver' | 'agency' | 'employee'
+export const ROLES: Role[] = ['admin', 'manager', 'interviewer', 'approver', 'employee']
 
 /** The signed-in person behind a request, resolved from the native session only. */
 export interface Actor {

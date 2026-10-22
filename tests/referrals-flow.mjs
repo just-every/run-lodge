@@ -1,0 +1,103 @@
+import assert from 'node:assert/strict'
+import { BUSINESS, harness } from './harness.mjs'
+const resume = { name: 'referral-original.txt', mediaType: 'text/plain', base64: Buffer.from('Consented referral resume: site safety experience').toString('base64') }
+
+export async function checkReferrals(t) {
+  const h = await harness(); t.after(() => h.close())
+  const { command: cmd, state, send } = h
+  await cmd('business', BUSINESS)
+  const one = await h.member('employee-one@example.test', ['employee'], 'Employee One')
+  const two = await h.member('employee-two@example.test', ['employee'], 'Employee Two')
+  async function job(title) {
+    const v = await cmd('vacancy', { title, location: 'Brooklyn, NY', manager: 'owner@example.test', headcount: 3, description: 'Run crews on occupied sites.', compensation: { currency: 'USD', min: 8000000, max: 10000000, period: 'year' } })
+    await cmd('rubric', { id: v.id, criteria: [{ name: 'Safety', description: 'Evidence of running a safe crew' }] })
+    await cmd('interview-plan', { id: v.id, plan: [{ name: 'Site walk', stageName: 'Interview', durationMinutes: 45 }] })
+    const request = await cmd('request-vacancy-approval', { id: v.id, approver: 'owner@example.test' })
+    const approval = (await state()).approvals.find(x => x.id === request.id)
+    await cmd('decide-approval', { id: request.id, version: approval.currentVersion, decision: 'approved', reason: 'Plan reviewed' })
+    return cmd('publish', { id: v.id })
+  }
+  await cmd('referral-alerts', { enabled: true }, one)
+  const v = await job('Referral crew supervisor')
+  const mine = async () => (await state(one)).referrals
+  assert.ok((await mine()).alerts.some(a => a.vacancy === v.id), 'explicit opt-in receives an in-app opportunity alert')
+  assert.deepEqual((await state(two)).referrals.alerts, [], 'no default opt-in')
+  const input = { vacancy: v.id, name: 'Morgan Crews', email: 'morgan-crews@example.test', consentNote: 'Morgan agreed to this role and sharing this resume by phone.', confirmed: true, resume }
+  await cmd('referral-submit', { ...input, confirmed: false }, one, 400)
+  await cmd('referral-submit', { ...input, resume: null }, one, 400)
+  await cmd('referral-submit', { ...input, resume: { ...resume, base64: Buffer.alloc(1_000_001).toString('base64') } }, one, 413)
+  const existing = await cmd('candidate', { name: input.name, email: input.email, source: 'Careers fair', consentBasis: 'manual', vacancy: v.id })
+  const beforeCredit = existing.application.credit
+  const duplicate = await cmd('referral-submit', input, one)
+  const fresh = await cmd('referral-submit', { ...input, name: 'Jordan Fresh', email: 'jordan-fresh@example.test' }, one)
+  assert.deepEqual(Object.keys(duplicate).sort(), ['id', 'status'], 'receipt reveals no database match')
+  assert.equal((await mine()).submissions.find(x => x.id === duplicate.id).status, 'submitted')
+  assert.equal((await state(two)).referrals.submissions.length, 0)
+  const reviewed = await cmd('referral-review', { id: duplicate.id, outcome: 'duplicate', candidate: existing.candidate.id, reason: 'Same consented person and existing active application' })
+  assert.equal(reviewed.application, existing.application.id)
+  assert.deepEqual((await state()).applications.find(x => x.id === reviewed.application).credit, beforeCredit, 'reconciliation preserves existing attribution')
+  assert.equal((await state()).candidates.filter(c => c.email === input.email).length, 1)
+  const known = (await cmd('candidate', { name: 'Known Person', email: 'known@example.test', source: 'Prior contact', consentBasis: 'manual' })).candidate
+  const knownReferral = await cmd('referral-submit', { ...input, name: known.name, email: known.email }, one)
+  const knownReview = await cmd('referral-review', { id: knownReferral.id, outcome: 'accepted', candidate: known.id, reason: 'Existing identity, new application for this job' })
+  assert.equal(knownReview.candidate, known.id)
+  assert.equal((await state()).applications.find(a => a.id === knownReview.application).credit.who, 'employee-one@example.test')
+  assert.equal((await state()).candidates.filter(c => c.email === known.email).length, 1)
+
+  const accepted = await cmd('referral-review', { id: fresh.id, outcome: 'accepted', reason: 'New person; permission reviewed' })
+  const app = (await state()).applications.find(x => x.id === accepted.application)
+  assert.deepEqual([app.source, app.credit.kind, app.credit.who], ['Employee referral', 'employee', 'employee-one@example.test'])
+  assert.equal((await mine()).submissions.find(x => x.id === fresh.id).status, 'submitted', 'internal reconciliation does not silently share progress')
+  await cmd('referral-progress', { id: fresh.id, progress: 'hired' }, h.owner, 409)
+  await cmd('referral-progress', { id: fresh.id, progress: 'in progress' })
+  assert.equal((await mine()).submissions.find(x => x.id === fresh.id).status, 'in progress')
+  const frozen = (await mine()).submissions.find(x => x.id === fresh.id)
+  assert.equal((await send('/api/lodge/referral/file/' + frozen.files[0].id, undefined, one)).text, Buffer.from(resume.base64, 'base64').toString())
+  for (const cookie of [one, two]) {
+    const otherId = cookie === one ? existing.application.id : accepted.application
+    assert.equal((await send('/api/lodge/command/referral-review', { id: fresh.id, outcome: 'declined', reason: 'Attempt' }, cookie)).status, 404)
+    assert.equal((await send('/api/lodge/command/source-credit', { application: otherId, kind: 'employee', who: 'employee-two@example.test', reason: 'Attempt' }, cookie)).status, 404)
+  }
+  assert.equal((await send('/api/lodge/referral/file/' + frozen.files[0].id, undefined, two)).status, 404)
+  assert.equal((await send('/api/lodge/referral/file/missing', undefined, two)).status, 404)
+  const exported = await send('/api/lodge/referral/export', undefined, one)
+  assert.equal(exported.status, 200)
+  assert.equal(exported.value.submissions.length, 3)
+  const safe = JSON.stringify(exported.value)
+  for (const secret of ['scorecards', 'creditHistory', 'decisionReason', existing.candidate.id, accepted.application]) assert.ok(!safe.includes(secret), 'own export excludes ' + secret)
+  const ownState = await state(one)
+  assert.equal((ownState.scorecards ?? []).length, 0)
+  assert.equal((ownState.applications ?? []).length, 0)
+  assert.equal((await send('/api/lodge/search?q=Morgan', undefined, one)).status, 404)
+  await cmd('referral-bonus', { id: fresh.id, label: 'Start date', amountCents: 50000, status: 'approved', approved: true }, h.owner, 409)
+  const opening = (await state()).vacancies.find(x => x.id === v.id).openings[0]
+  const offer = await cmd('offer', { application: app.id, title: v.title, startDate: '2027-04-01', salary: { currency: 'USD', amount: 9500000, period: 'year' }, opening: opening.id })
+  const request = await cmd('request-offer-approval', { id: offer.id, approver: 'owner@example.test' })
+  const approval = (await state()).approvals.find(x => x.id === request.id)
+  await cmd('decide-approval', { id: request.id, decision: 'approved', version: approval.currentVersion, reason: 'Terms approved' })
+  await cmd('offer-outcome', { id: offer.id, outcome: 'accepted', reason: 'Candidate signed' })
+  assert.equal((await mine()).submissions.find(x => x.id === fresh.id).status, 'in progress', 'hire does not automatically disclose status')
+  await cmd('referral-bonus', { id: fresh.id, label: 'First day', amountCents: 50000, status: 'approved', approved: false }, h.owner, 400)
+  await cmd('referral-bonus', { id: fresh.id, label: 'First day', amountCents: 50000, status: 'approved', approved: true })
+  assert.equal((await mine()).submissions.find(x => x.id === fresh.id).milestones[0].amountCents, 50000)
+  const report = await send('/api/lodge/reports/sources', undefined, h.owner)
+  assert.ok(report.value.byCredit.some(x => x.kind === 'employee' && x.who === 'employee-one@example.test' && x.hires === 1))
+  await cmd('move', { application: existing.application.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Closed prior application before identity reconciliation' })
+  await cmd('review-duplicate', { keep: existing.candidate.id, other: accepted.candidate, decision: 'merge', reason: 'Recruiter confirmed one identity' })
+  assert.equal((await state()).applications.find(x => x.id === app.id).credit.who, 'employee-one@example.test')
+  await cmd('source-settings', { onMerge: 'first-touch' })
+  await cmd('referral-bonus', { id: fresh.id, label: 'Later milestone', amountCents: 10000, status: 'approved', approved: true }, h.owner, 409)
+  const erasedExport = await send('/api/lodge/download/candidate/' + existing.candidate.id, undefined, h.owner)
+  assert.ok(erasedExport.value.referrals.some(r => r.id === fresh.id && r.files[0].base64 === resume.base64), 'candidate export includes frozen referral originals after a merge')
+  await cmd('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Withdrawn before erasure' }, h.owner, 409)
+  // A hired application is already closed; erasure removes its referrals, including frozen duplicate input.
+  const erased = await send('/api/lodge/delete-candidate', { candidate: existing.candidate.id, confirm: input.name, reason: 'Candidate asked for deletion' }, h.owner)
+  assert.equal(erased.status, 200, JSON.stringify(erased.value))
+  assert.equal((await send('/api/lodge/referral/file/' + frozen.files[0].id, undefined, one)).status, 404)
+  assert.ok(!(await mine()).submissions.some(r => r.id === fresh.id || r.id === duplicate.id))
+  await cmd('referral-alerts', { enabled: false }, one)
+  assert.deepEqual((await mine()).alerts, [])
+  await cmd('member', { email: 'employee-one@example.test', name: 'Employee One', roles: ['employee'], active: false })
+  assert.notEqual((await send('/api/lodge/referral/export', undefined, one)).status, 200)
+  assert.notEqual((await send('/api/lodge/referral/file/' + frozen.files[0].id, undefined, one)).status, 200)
+}

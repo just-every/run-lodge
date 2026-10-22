@@ -1,3 +1,4 @@
+import { Referrals } from './referrals'
 import type { PageProps } from './app'
 import { daysSince, recent, since, weekday } from './format'
 import { Icon, type IconName } from './icons'
@@ -67,6 +68,7 @@ export function Overview({ w, mutate, go, follow }: PageProps) {
         </section>}
       </div>
       <YourWork w={w} follow={follow} mutate={mutate} />
+      <Referrals w={w} mutate={mutate} />
       <InternalJobs w={w} mutate={mutate} />
       <NotificationSettings w={w} mutate={mutate} />
     </div>
