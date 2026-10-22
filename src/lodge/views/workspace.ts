@@ -170,7 +170,7 @@ export async function workspaceRecords(s: State, a: Actor) {
     connectors: connectorSummary(s, a),
     sandboxes: sandboxesView(s, a), providerSetup: admin && !a.agent ? await providerSummary(s) : null,
     members: s.all('member').map(m => admin ? m : { email: m.email, name: m.name, roles: m.roles, active: m.active }),
-    referrals: !a.agent ? referralsView(s, a) : null, referralReviews: employerReferrals(s, a),
+    referrals: !a.agent && s.find('business', 'main') ? referralsView(s, a) : null, referralReviews: employerReferrals(s, a),
     vacancies, agencies: employerAgencies(s, a),
     // Kickoffs: admins see all; a manager sees their own and those behind the jobs they run.
     kickoffs: s.all('kickoff').filter(k => admin || k.author === scope(a) || managed.some(v => v.id === k.vacancy)),
