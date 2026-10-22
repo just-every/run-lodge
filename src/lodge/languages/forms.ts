@@ -1,3 +1,4 @@
+import { times } from '../core/time'
 import { draftTools } from '../careers/draft'
 import { requireThat, type Data } from '../core/types'
 import { schemaOf } from '../fields/schema'
@@ -78,7 +79,7 @@ export function translatedReceipt(receipt: Data, contact: string, timeZone: stri
   const m = (key: string, substitutions: Data = {}) => message(copy, key, substitutions)
   requireThat(Intl.DateTimeFormat.supportedLocalesOf([language]).length === 1, 'Receipt date language is unavailable', 409)
   const formatter = new Intl.DateTimeFormat(language, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone, timeZoneName: 'short' })
-  const date = new Date(receipt.submittedAt), time = formatter.format(date)
+  const date = new Date(receipt.submittedAt), time = language === 'en' ? times(timeZone).stamped(receipt.submittedAt) : formatter.format(date)
   const zone = formatter.formatToParts(date).find(part => part.type === 'timeZoneName')?.value
   return `<h1>${m('received')}</h1><p>${m('thanks')}</p><dl><dt>${m('receipt')}</dt><dd>${esc(receipt.id)}</dd><dt>${m('job')}</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>${m('receivedAt')}</dt><dd><time datetime="${esc(receipt.submittedAt)}">${m('receiptTime', { time, zone })}</time></dd><dt>${m('privacyNotice')}</dt><dd>${m('version', { version: receipt.noticeVersion })}</dd>${receipt.cpraNoticeVersion ? `<dt>${m('californiaPrivacyNotice')}</dt><dd>${m('version', { version: receipt.cpraNoticeVersion })}</dd>` : ''}</dl><p>${m('receiptHelp', { contact })}</p>`
 }
