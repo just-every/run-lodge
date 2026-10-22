@@ -34,7 +34,7 @@ export function notifyManagers(s: State, e: Data, title: string, reason = '') {
 
 /** Terms-free mail waiting for the transactional sender; the row is claimed before sending and never resent blindly. */
 export function queueNotice(s: State, e: Data, kind: 'void' | 'completion', extra: Data = {}) {
-  s.put('esign-notice', uid(), { kind, envelope: e.id, offer: e.offer, application: e.application, candidate: e.candidate, to: e.recipient, businessName: e.businessName, contact: e.contact, status: 'pending', at: now(), ...extra })
+  s.put('esign-notice', uid(), { kind, language: e.language ?? 'en', envelope: e.id, offer: e.offer, application: e.application, candidate: e.candidate, to: e.recipient, businessName: e.businessName, contact: e.contact, status: 'pending', at: now(), ...extra })
 }
 
 /** Ends the live material (link, code, sessions); the record stays as offer history until erasure. */
@@ -127,7 +127,7 @@ export async function createEnvelope(s: State, a: Actor, b: SendInput, grants: (
   const token = newToken(), id = uid(), at = now()
   const envelope = s.put('esign-envelope', id, {
     offer: offer.id, application: app.id, candidate: candidate.id, vacancy: vacancy.id, status: 'active',
-    recipient: candidate.email.toLowerCase(), recipientName: candidate.name, businessName: business.name, contact,
+    language: app.language ?? candidate.language ?? 'en', recipient: candidate.email.toLowerCase(), recipientName: candidate.name, businessName: business.name, contact,
     sentBy: a.email, sentAt: at, expiresAt: new Date(Date.parse(at) + days * 86_400_000).toISOString(), linkVersion: 1, linkHash: await tokenHash(token),
     termsVersion: await versionOf(s, 'offer', offer), documentSha256: offer.document.sha256, template: offer.document.template,
     countersign: { required, signer, designation: signer ? designationOf(s, signer) : null, moves: [] },

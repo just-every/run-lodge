@@ -1,3 +1,4 @@
+import { checkLanguageMail } from './languages-mail.mjs'
 import assert from 'node:assert/strict'
 import { BUSINESS, harness } from './harness.mjs'
 
@@ -57,6 +58,7 @@ export async function checkLanguages() {
     assert.equal(embedded.status, 200); assert.match(embedded.text, /<html lang="es"/); assert.match(embedded.text, /Enviar solicitud/)
     const apiReceipt = await h.send('/api/board/v1/warehouse/jobs/' + es.id + '/applications', { name: 'María Vidal', email: 'maria@example.test', noticeVersion: 1, consent: true, answers: { [q.id]: 'Weekends' } })
     assert.equal(apiReceipt.status, 201); assert.equal(apiReceipt.value.language, 'es'); assert.equal(apiReceipt.value.message, 'Solicitud recibida')
+    await checkLanguageMail(h, app, job)
     await cmd('post-status', { vacancy: job.id, post: es.id, status: 'paused' })
     await cmd('post-translation', { vacancy: job.id, post: es.id, translation: { ...tr, questions: {} } })
     const missing = await cmd('post-status', { vacancy: job.id, post: es.id, status: 'live' }, h.owner, 409)

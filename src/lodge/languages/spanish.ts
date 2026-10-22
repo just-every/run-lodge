@@ -43,6 +43,7 @@ ${custom}${questions.length ? `<fieldset><legend>Preguntas del empleador</legend
 <button type="submit">Enviar solicitud</button></form>`
 }
 
-export function spanishReceipt(receipt: Data, contact: string) {
-  return `<h1>Solicitud recibida</h1><p>Gracias. Guarde este comprobante.</p><dl><dt>Comprobante</dt><dd>${esc(receipt.id)}</dd><dt>Puesto</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Fecha de recepción</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(receipt.submittedAt)}</time></dd><dt>Aviso de privacidad</dt><dd>Versión ${esc(receipt.noticeVersion)}</dd>${receipt.cpraNoticeVersion ? `<dt>Aviso de California</dt><dd>Versión ${esc(receipt.cpraNoticeVersion)}</dd>` : ''}</dl><p>Para solicitar adaptaciones, contacte a ${esc(contact)} e indique su comprobante. Para ver, corregir o eliminar sus datos, use <a href="/privacy-requests">/privacy-requests</a> con este comprobante y su correo electrónico.</p>`
+export function spanishReceipt(receipt: Data, contact: string, timeZone: string) {
+  const received = new Intl.DateTimeFormat('es-US', { dateStyle: 'medium', timeStyle: 'short', timeZone }).format(new Date(receipt.submittedAt)) + ' (' + timeZone + ')'
+  return `<h1>Solicitud recibida</h1><p>Gracias. Guarde este comprobante.</p><dl><dt>Comprobante</dt><dd>${esc(receipt.id)}</dd><dt>Puesto</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Fecha de recepción</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(received)}</time></dd><dt>Aviso de privacidad</dt><dd>Versión ${esc(receipt.noticeVersion)}</dd>${receipt.cpraNoticeVersion ? `<dt>Aviso de California</dt><dd>Versión ${esc(receipt.cpraNoticeVersion)}</dd>` : ''}</dl><p>Para solicitar adaptaciones, contacte a ${esc(contact)} e indique su comprobante. Para ver, corregir o eliminar sus datos, use <a href="/privacy-requests">/privacy-requests</a> con este comprobante y su correo electrónico.</p>`
 }

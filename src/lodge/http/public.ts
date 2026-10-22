@@ -174,7 +174,7 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
     const resume = await upload(data.get('resume'))
     const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given, customValues: submittedCustomFields(v, values) } as any, door, l.post)
     await save(c.env.DB, s, null)
-    if (receipt.language === 'es') return page('Solicitud recibida', spanishReceipt(receipt, accommodationContact), 200, embed, 'es')
+    if (receipt.language === 'es') return page('Solicitud recibida', spanishReceipt(receipt, accommodationContact, businessZone(s.find('business', 'main'))), 200, embed, 'es')
     return page('Application received', `<h1>Application received</h1><p>Thank you. Keep this receipt for your records.</p><dl><dt>Receipt</dt><dd>${esc(receipt.id)}</dd><dt>Role</dt><dd>${esc(receipt.vacancyTitle)}</dd><dt>Received</dt><dd><time datetime="${esc(receipt.submittedAt)}">${esc(times(businessZone(s.find('business', 'main'))).stamped(receipt.submittedAt))}</time></dd><dt>Privacy notice</dt><dd>Version ${esc(receipt.noticeVersion)}</dd>${receipt.cpraNoticeVersion ? `<dt>California privacy notice</dt><dd>Version ${esc(receipt.cpraNoticeVersion)}</dd>` : ''}</dl><p>To ask about adjustments, contact ${esc(accommodationContact)} and quote the receipt. To see, correct or delete your information, use <a href="/privacy-requests">/privacy-requests</a> with this receipt and your email.</p>`, 200, embed)
   } catch (error) {
     if (!(error instanceof Fault)) throw error

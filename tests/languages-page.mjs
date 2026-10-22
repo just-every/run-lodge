@@ -30,7 +30,7 @@ export async function languagesPage(browser, { root, origin, run, evidence, owne
       await page.screenshot({ path: join(evidence, `ATTR-007-translations-${width}.png`), fullPage: true })
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
     } finally { await owner.context.close() }
-    const visitor = await browser.newContext({ viewport: { width, height: 1000 }, javaScriptEnabled: false })
+    const visitor = await browser.newContext({ viewport: { width, height: 1000 }, javaScriptEnabled: false, locale: 'es-ES' })
     try {
       const page = await visitor.newPage()
       await page.goto(origin + '/jobs')
@@ -52,9 +52,10 @@ export async function languagesPage(browser, { root, origin, run, evidence, owne
     try {
       const w = await current(reviewer.context, origin), app = w.applications.find(a => a.candidateName === 'Lucía Torres ' + width)
       await reviewer.page.goto(origin + '/app?application=' + app.id)
-      await reviewer.page.getByText('Screening answers', { exact: true }).waitFor()
-      await reviewer.page.getByText('¿Puede trabajar por la noche?', { exact: false }).waitFor()
-      await reviewer.page.getByText('Source: Can you work at night?', { exact: true }).waitFor()
+      const panel = reviewer.page.getByRole('tabpanel', { name: 'Overview', exact: true })
+      await panel.getByText('Screening answers', { exact: true }).waitFor()
+      await panel.getByText('¿Puede trabajar por la noche?', { exact: false }).waitFor()
+      await panel.getByText('Source: Can you work at night?', { exact: true }).waitFor()
       await reviewer.page.screenshot({ path: join(evidence, `ATTR-007-review-${width}.png`), fullPage: true })
     } finally { await reviewer.context.close() }
   }
