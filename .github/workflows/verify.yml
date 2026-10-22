@@ -5,7 +5,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Reclaim unused hosted-runner SDKs
@@ -26,6 +26,21 @@ jobs:
       # rer verify's hydration check launches the Chromium the seed's Playwright pins.
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec rer verify
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reclaim unused hosted-runner SDKs
+        shell: bash
+        run: |
+          sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /usr/local/.ghcup
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile && pnpm exec rer install
+      - run: pnpm exec playwright install --with-deps chromium
       - run: node tests/browser.mjs
         env:
           LODGE_EVIDENCE: ${{ runner.temp }}/lodge-proof
