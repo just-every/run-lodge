@@ -80,7 +80,7 @@ export async function fieldsPage(browser, { root, origin, run, evidence, ownerEm
    // A typed boolean uses an explicit yes/no select so false is distinct from missing.
    await intake.getByLabel('Shift available', { exact: false }).selectOption('true')
    await intake.getByLabel('Private screening detail', { exact: false }).fill('intake-private-' + suffix)
-   await intake.getByLabel('Resume', { exact: false }).setInputFiles({ name: 'handling.txt', mimeType: 'text/plain', buffer: Buffer.from(name + '\nExperience: palletplanning' + suffix + '\n') })
+   await intake.getByLabel(/^Resume \(/).setInputFiles({ name: 'handling.txt', mimeType: 'text/plain', buffer: Buffer.from(name + '\nExperience: palletplanning' + suffix + '\n') })
    await intake.getByLabel('I have read privacy notice', { exact: false }).check()
    await screenshot(intake, evidence, 'intake', width)
    await intake.getByRole('button', { name: 'Submit application', exact: true }).click()

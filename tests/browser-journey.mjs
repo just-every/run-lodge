@@ -93,7 +93,7 @@ export async function journey(browser, root, origin, width, evidence) {
     await form.goto(origin + slug)
     await form.getByLabel('Full name').fill(person)
     await form.getByLabel('Email').fill(`dana${width}@example.test`)
-    await form.getByLabel('Resume', { exact: false }).setInputFiles({ name: 'resume.txt', mimeType: 'text/plain', buffer: Buffer.from(`${person}\nSite supervisor 2018-2026\n`) })
+    await form.getByLabel(/^Resume \(/).setInputFiles({ name: 'resume.txt', mimeType: 'text/plain', buffer: Buffer.from(`${person}\nSite supervisor 2018-2026\n`) })
     await form.getByLabel('I have read privacy notice', { exact: false }).check()
     await shot(form, evidence, 'application-page', width)
     await form.getByRole('button', { name: 'Submit application' }).click()

@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url'
 import { mkdir, rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { fresh, command, freePort, start } from './browser-runtime.mjs'
-import { api, current, session } from './browser-journey.mjs'
+import { api, current, journey, session } from './browser-journey.mjs'
 import { BUSINESS } from './harness.mjs'
 
 const { chromium } = await import(process.env.LODGE_PLAYWRIGHT_MODULE ? pathToFileURL(resolve(process.env.LODGE_PLAYWRIGHT_MODULE)).href : '@playwright/test')
@@ -24,6 +24,11 @@ try {
     for (const [as, roles, name] of [['manager', ['manager'], 'Morgan Lee'], ['approver', ['approver'], 'Parker Jones'], ['interviewer', ['interviewer'], 'Ivy Chen']]) await run('member', { email: as + '@dev.localhost', roles, name })
     const options = { root: clone.root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email }
     for (const clause of process.argv.slice(2)) {
+      if (clause === 'LDG-003') {
+        for (const width of [1440, 390]) await journey(browser, clone.root, server.origin, width, evidence)
+        console.log(clause + ': hiring journey passed at 1440 and 390')
+        continue
+      }
       const [file, fn] = ({ 'ATTR-001': ['careers-page', 'careersPage'], 'ATTR-007': ['languages-page', 'languagesPage'], 'CRM-003': ['referrals-page', 'referralsPage'], 'INT-002': ['connectors-page', 'connectorsPage'] })[clause] ?? []
       if (!file) throw new Error('Name a supported clause')
       await (await import('./' + file + '.mjs'))[fn](browser, options)

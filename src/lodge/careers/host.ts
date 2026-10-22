@@ -5,7 +5,10 @@ import { careersDomainProbe, careersHost } from './domain'
 /** A careers hostname never becomes a second origin for sign-in or private APIs. */
 export async function careersHostResponse(request: Request, env: Bindings, serve: (request: Request) => Promise<Response>): Promise<Response | null> {
   const url = new URL(request.url)
-  if (url.origin === runtimeBindings(env).AUTH_ORIGIN) return null
+  const installationOrigin = runtimeBindings(env).AUTH_ORIGIN
+  // An emitted Worker can serve its bootstrap/health doors before setup has
+  // configured an origin. Once configured, every other host is public-only.
+  if (!installationOrigin || url.origin === installationOrigin) return null
   const absent = () => new Response('Not found', { status: 404, headers: { 'cache-control': 'no-store' } })
   if (url.protocol !== 'https:') return absent()
   const state = await load(env.DB)
