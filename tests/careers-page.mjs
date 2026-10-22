@@ -81,6 +81,7 @@ export async function careersPage(browser, { root, origin, run, evidence, ownerE
       await card.getByLabel(/^Employer logo \(/).setInputFiles({ name: logo.name, mimeType: logo.mediaType, buffer: Buffer.from(logo.base64, 'base64') })
       await card.getByRole('button', { name: 'Save careers branding', exact: true }).click()
       await card.getByText('Saved logo: ' + logo.name, { exact: true }).waitFor()
+      await page.waitForFunction(() => document.querySelector('[aria-label="Careers branding"] input[type=file]')?.files.length === 0)
       assert.equal(await card.locator('input[type=file]').evaluate(e => e.files.length), 0, 'saving clears the contributed upload before another edit')
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
       await page.getByRole('region', { name: 'Employer careers site', exact: true }).screenshot({ path: join(evidence, `careers-settings-${width}.png`) })

@@ -34,7 +34,7 @@ async function api(path, { method = 'GET', body, assetToken } = {}) {
 const delay = ms => new Promise(r => setTimeout(r, ms))
 try {
   await mkdir(evidence, { recursive: true })
-  try { await api('/workers/scripts/' + worker); throw new Error('Sandbox Worker already exists; refusing to replace it') } catch (e) { if (e.status !== 404) throw e }
+  try { await api('/workers/scripts/' + worker + '/settings'); throw new Error('Sandbox Worker already exists; refusing to replace it') } catch (e) { if (e.status !== 404) throw e }
   assert.equal((await api('/d1/database?name=' + worker)).length, 0, 'sandbox database name must be unused')
   assert.equal((await api('/zones/' + zone + '/dns_records?name=' + hostname)).length, 0)
   assert.equal((await api('/workers/domains')).filter(d => d.hostname === hostname).length, 0)
