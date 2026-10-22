@@ -1,3 +1,4 @@
+import { recoveryUi } from '../careers/recovery-copy'
 import { draftTools } from '../careers/draft'
 import { receiptRecoveryCode, recoverReceipt } from '../careers/receipt'
 import { employerBrand, brandHtml, brandCss } from '../careers/brand'
@@ -160,15 +161,19 @@ publicPages.get('/careers/logo', async c => {
 })
 publicPages.get('/careers/brand.css', async c => new Response(brandCss(employerBrand(await load(c.env.DB))), { headers: { 'content-type': 'text/css', 'cache-control': 'no-store' } }))
 
-export async function receiptPage(receipt: Data, contact: string, zone: string, copy: Data, embed?: { ancestors: string[] }, code?: string) {
+export async function receiptPage(receipt: Data, contact: string, zone: string, copy: Data, embed?: { ancestors: string[] }, code?: string, slug?: string) {
   const body = translatedReceipt(receipt, contact, zone, receipt.language ?? 'en', copy)
-  const recovery = code ? `<section aria-label="${esc(copy.recoverTitle)}"><h2>${esc(copy.recoverTitle)}</h2><p>${esc(copy.recoverHelp)}</p><dl><dt>${esc(copy.recoverCode)}</dt><dd><code data-recovery-code>${esc(code)}</code></dd></dl><p><a href="${embed ? '/embed/receipt' : '/jobs/receipt'}">${esc(copy.recoveryLink)}</a></p></section>` : ''
+  const recoveryPath = (embed ? '/embed/receipt' : '/jobs/receipt') + (receipt.language !== 'en' ? '?' + new URLSearchParams({ language: receipt.language, ...(slug ? { post: slug } : {}) }) : '')
+  const recovery = code ? `<section aria-label="${esc(copy.recoverTitle)}"><h2>${esc(copy.recoverTitle)}</h2><p>${esc(copy.recoverHelp)}</p><dl><dt>${esc(copy.recoverCode)}</dt><dd><code data-recovery-code>${esc(code)}</code></dd></dl><p><a href="${esc(recoveryPath)}">${esc(copy.recoveryLink)}</a></p></section>` : ''
   return page(copy.received, body + recovery, 200, embed, receipt.language ?? 'en')
 }
 export function recoveryForm(copy: Data, action: string) {
   return `<h1>${esc(copy.recoverTitle)}</h1><form method="post" action="${esc(action)}"><label>${esc(copy.recoverCode)}<input name="code" required autocomplete="off" maxlength="64" pattern="[a-f0-9]{64}"></label><button type="submit">${esc(copy.recoverSubmit)}</button></form>`
 }
-publicPages.get('/jobs/receipt', c => page(SOURCE_UI.recoverTitle, recoveryForm(SOURCE_UI, '/jobs/receipt')))
+publicPages.get('/jobs/receipt', async c => {
+  const s = await load(c.env.DB), selected = recoveryUi(s, c.req.query('language'), c.req.query('post'), 'careers')
+  return page(selected.copy.recoverTitle, recoveryForm(selected.copy, '/jobs/receipt'), 200, undefined, selected.language)
+})
 publicPages.post('/jobs/receipt', async c => {
   await sameOrigin(c)
   const s = await load(c.env.DB), data = await formBody(c), r = await recoverReceipt(s, data.get('code'))
@@ -215,7 +220,7 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
     const copy = receipt.language !== 'en' ? uiCopy(l.post!) : SOURCE_UI
     const code = await receiptRecoveryCode(s, receipt, copy)
     await save(c.env.DB, s, null)
-    return receiptPage(receipt, accommodationContact, businessZone(s.find('business', 'main')), copy, embed, code)
+    return receiptPage(receipt, accommodationContact, businessZone(s.find('business', 'main')), copy, embed, code, l.slug)
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     const shown: Data = { ...shownJob(s, l), customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }

@@ -48,6 +48,12 @@ export async function languagesPage(browser, { root, origin, run, evidence, owne
       await page.getByRole('heading', { name: 'Solicitud recibida', exact: true }).waitFor()
       assert.match(await page.textContent('main'), /LDG-[0-9A-F]{8}/)
       await page.screenshot({ path: join(evidence, `ATTR-007-receipt-${width}.png`), fullPage: true })
+      const code = await page.locator('[data-recovery-code]').textContent()
+      await page.getByRole('link', { name: 'Recuperar un comprobante', exact: true }).click()
+      await page.getByRole('textbox', { name: 'Código privado de recuperación', exact: true }).fill(code)
+      await page.getByRole('button', { name: 'Recuperar comprobante', exact: true }).click()
+      await page.getByRole('heading', { name: 'Solicitud recibida', exact: true }).waitFor()
+      await page.screenshot({ path: join(evidence, `ATTR-007-recovered-${width}.png`), fullPage: true })
     } finally { await visitor.close() }
     const reviewer = await session(browser, root, origin, 'owner', width)
     try {

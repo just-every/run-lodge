@@ -1,6 +1,6 @@
+import { recoveryUi } from '../careers/recovery-copy'
 import { recoverReceipt } from '../careers/receipt'
 import { businessZone } from '../core/time'
-import { SOURCE_UI } from '../languages/copy'
 import { uiCopy } from '../languages/copy'
 import { legacyListing } from '../move-in/legacy-links'
 import { Hono, type Context } from 'hono'
@@ -119,8 +119,10 @@ embedPages.get('/embed/jobs', async c => {
 })
 
 embedPages.get('/embed/receipt', async c => {
-  const embed = embedding(await load(c.env.DB))
-  return embed ? page(SOURCE_UI.recoverTitle, recoveryForm(SOURCE_UI, '/embed/receipt'), 200, embed) : notSetUp()
+  const s = await load(c.env.DB), embed = embedding(s)
+  if (!embed) return notSetUp()
+  const selected = recoveryUi(s, c.req.query('language'), c.req.query('post'), 'embed')
+  return page(selected.copy.recoverTitle, recoveryForm(selected.copy, '/embed/receipt'), 200, embed, selected.language)
 })
 embedPages.post('/embed/receipt', async c => {
   await sameOrigin(c)

@@ -44,6 +44,12 @@ export async function furtherLanguagePage(browser, { root, origin, run, evidence
       await page.getByRole('heading', { name: 'Candidature reçue', exact: true }).waitFor()
       assert.equal(await page.locator('html').getAttribute('lang'), 'fr')
       await page.screenshot({ path: join(evidence, `ATTR-007-further-receipt-${width}.png`), fullPage: true })
+      const code = await page.locator('[data-recovery-code]').textContent()
+      await page.getByRole('link', { name: FRENCH.recoveryLink, exact: true }).click()
+      await page.getByRole('textbox', { name: FRENCH.recoverCode, exact: true }).fill(code)
+      await page.getByRole('button', { name: FRENCH.recoverSubmit, exact: true }).click()
+      await page.getByRole('heading', { name: FRENCH.received, exact: true }).waitFor()
+      await page.screenshot({ path: join(evidence, `ATTR-007-further-recovered-${width}.png`), fullPage: true })
     } finally { await visitor.close() }
   }
 }
