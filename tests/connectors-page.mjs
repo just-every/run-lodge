@@ -22,7 +22,7 @@ export async function connectorsPage(browser, { root, origin, run, evidence, own
       assert.equal(rotated.health, 'unknown')
       assert.ok(rotated.generation > before.generation)
       await card.getByRole('button', { name: 'Disconnect DocuSign registry', exact: true }).click()
-      await card.getByRole('button', { name: 'Disconnect DocuSign registry', exact: true }).waitFor({ state: 'detached' })
+      await card.locator('p').filter({ hasText: /^disconnected · generation/ }).waitFor()
       assert.equal((await current(s.context, origin)).connectors.catalog.find(p => p.id === 'docusign').registration.status, 'disconnected')
       await page.screenshot({ path: join(evidence, `INT-002-registry-${width}.png`), fullPage: true })
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'connector forms fit viewport')
