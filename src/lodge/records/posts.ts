@@ -1,3 +1,4 @@
+import { publishRecoveryUi } from '../careers/recovery-copy'
 import { requireTranslation, translationReady, translationSource, languageTag } from '../languages/posts'
 import { canonical } from '../core/types'
 import type { State } from '../core/state'
@@ -69,6 +70,7 @@ export function jobPost(s: State, a: Actor, b: Data) {
     post.translation = { ...b.translation, source: translationSource(s, v, post), reviewedBy: b.translation.reviewed === true ? a.email : null, reviewedAt: now() }
   }
   if (post.status === 'live') requireTranslation(s, v, post)
+  if (post.status === 'live' && !v.confidential && !v.internalOnly && post.destinations.some((d: string) => d === 'careers' || d === 'embed')) publishRecoveryUi(s, post)
   const record = s.put('vacancy', v.id, { ...v, posts: current ? posts.map(p => p.id === post.id ? post : p) : [...posts, post] })
   s.audit(a, current ? 'post-edited' : 'post-created', 'vacancy:' + v.id, { post: post.id, title: post.title })
   return record
@@ -85,6 +87,7 @@ export function postStatus(s: State, a: Actor, b: Data) {
     requireThat(v.status === 'open', 'Publish the job first; its posts go live on its approved terms', 409)
     locations(s, v, post.locations)
     requireTranslation(s, v, post)
+    if (!v.confidential && !v.internalOnly && post.destinations.some((d: string) => d === 'careers' || d === 'embed')) publishRecoveryUi(s, post)
   }
   requireThat(status !== 'paused' || post.status === 'live', 'Only a live post pauses', 409)
   const record = s.put('vacancy', v.id, { ...v, posts: v.posts.map((p: Data) => p.id === post.id ? { ...p, status, history: [...p.history, { status, by: a.email, at: now() }] } : p) })
@@ -137,6 +140,7 @@ export function postTranslation(s: State, a: Actor, b: Data) {
   requireThat(b.translation && typeof b.translation === 'object' && !Array.isArray(b.translation) && canonical(b.translation).length <= 100000, 'Send translation text, at most 100 KB')
   const post = { ...p, translation: { ...b.translation, source: translationSource(s, v, p), reviewedBy: b.translation.reviewed === true ? a.email : null, reviewedAt: now() } }
   if (post.status === 'live') requireTranslation(s, v, post)
+  if (post.status === 'live' && !v.confidential && !v.internalOnly && post.destinations.some((d: string) => d === 'careers' || d === 'embed')) publishRecoveryUi(s, post)
   const record = s.put('vacancy', v.id, { ...v, posts: v.posts.map((x: Data) => x.id === post.id ? post : x) })
   s.audit(a, 'post-translation-reviewed', 'vacancy:' + v.id, { post: post.id, language: post.language, reviewed: !!post.translation.reviewedBy })
   return record

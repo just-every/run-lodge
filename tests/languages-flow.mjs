@@ -79,11 +79,12 @@ export async function checkLanguages() {
     const frenchApp = (await h.state()).applications.find(a => a.candidateName === 'Éloïse Martin')
     assert.deepEqual([frenchApp.answers[0].text, frenchApp.answers[0].sourceText, frenchApp.language], ['Pouvez-vous travailler la nuit ?', 'Can you work at night?', 'fr'])
     await checkLanguageMail(h, frenchApp, job, { language: 'fr', address: 'eloise@example.test', name: 'Éloïse Martin' })
+    await cmd('post-status', { vacancy: job.id, post: fr.id, status: 'paused' })
     for (const [post, original] of [[es, receipt], [fr, frenchReceipt]]) {
       const code = /data-recovery-code>([a-f0-9]{64})</.exec(original.text)[1]
       const recovery = new FormData(); recovery.set('code', code)
       for (const path of ['/jobs/receipt', '/embed/receipt']) {
-        const languageForm = await h.send(path + '?' + new URLSearchParams({ language: post.language, post: post.slug }))
+        const languageForm = await h.send(path + '?' + new URLSearchParams({ language: post.language }))
         assert.equal(languageForm.status, 200)
         assert.ok(languageForm.text.includes('<html lang="' + post.language + '"'))
         const restored = await h.send(path, recovery)
@@ -92,7 +93,7 @@ export async function checkLanguages() {
         assert.ok(!restored.text.includes(code), 'recovery never exposes its possession code again')
       }
     }
-    assert.equal((await h.send('/jobs/receipt?language=fr&post=unpublished')).status, 404, 'a custom language never silently falls back to English')
+    assert.equal((await h.send('/jobs/receipt?language=zz')).status, 404, 'a custom language never silently falls back to English')
 
     await cmd('post-status', { vacancy: job.id, post: es.id, status: 'paused' })
     await cmd('post-translation', { vacancy: job.id, post: es.id, translation: { ...tr, questions: {} } })

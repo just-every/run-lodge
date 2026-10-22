@@ -121,7 +121,7 @@ embedPages.get('/embed/jobs', async c => {
 embedPages.get('/embed/receipt', async c => {
   const s = await load(c.env.DB), embed = embedding(s)
   if (!embed) return notSetUp()
-  const selected = recoveryUi(s, c.req.query('language'), c.req.query('post'), 'embed')
+  const selected = recoveryUi(s, c.req.query('language'))
   return page(selected.copy.recoverTitle, recoveryForm(selected.copy, '/embed/receipt'), 200, embed, selected.language)
 })
 embedPages.post('/embed/receipt', async c => {
