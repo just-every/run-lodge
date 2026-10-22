@@ -22,7 +22,17 @@ export async function checkReferrals(t) {
   const mine = async () => (await state(one)).referrals
   assert.ok((await mine()).alerts.some(a => a.vacancy === v.id), 'explicit opt-in receives an in-app opportunity alert')
   assert.deepEqual((await state(two)).referrals.alerts, [], 'no default opt-in')
+  const hidden = [await job('Referral confidential lead'), await job('Referral internal posting')]
+  await cmd('vacancy-privacy', { id: hidden[0].id, confidential: true, namedPeople: [] })
+  await cmd('vacancy-internal', { id: hidden[1].id, internalOnly: true })
+  const portal = (await state(one)).referrals
+  assert.ok(portal.jobs.some(j => j.id === v.id) && hidden.every(j => !portal.jobs.some(x => x.id === j.id)), 'confidential and internal-only jobs are absent from the referral portal')
+  assert.ok(hidden.every(j => !portal.alerts.some(x => x.vacancy === j.id)), 'no alert for jobs the public cannot see')
+  const agent = await h.member('synthetic-lodge-21@example.test', ['employee'], 'Employee agent', { agent: true, actsFor: 'employee-one@example.test' })
   const input = { vacancy: v.id, name: 'Morgan Crews', email: 'morgan-crews@example.test', consentNote: 'Morgan agreed to this role and sharing this resume by phone.', confirmed: true, resume }
+  for (const j of hidden) await cmd('referral-submit', { ...input, vacancy: j.id }, one, 404)
+  await cmd('referral-submit', input, agent, 404)
+  assert.equal((await send('/api/lodge/referral/export', undefined, agent)).status, 404, 'an agent member has no referral portal')
   await cmd('referral-submit', { ...input, confirmed: false }, one, 400)
   await cmd('referral-submit', { ...input, resume: null }, one, 400)
   await cmd('referral-submit', { ...input, resume: { ...resume, base64: Buffer.alloc(1_000_001).toString('base64') } }, one, 413)
@@ -95,6 +105,15 @@ export async function checkReferrals(t) {
   assert.equal(erased.status, 200, JSON.stringify(erased.value))
   assert.equal((await send('/api/lodge/referral/file/' + frozen.files[0].id, undefined, one)).status, 404)
   assert.ok(!(await mine()).submissions.some(r => r.id === fresh.id || r.id === duplicate.id))
+  const declined = await cmd('referral-submit', { ...input, name: 'Dana Lee', email: 'dana-lee@example.test' }, one)
+  await cmd('referral-progress', { id: declined.id, progress: 'closed' }, h.owner, 409)
+  await cmd('referral-review', { id: declined.id, outcome: 'declined', reason: 'Not a fit for this role' })
+  await cmd('referral-progress', { id: declined.id, progress: 'in progress' }, h.owner, 409)
+  assert.equal((await mine()).submissions.find(x => x.id === declined.id).status, 'submitted', 'a decline is not disclosed until shared')
+  await cmd('referral-progress', { id: declined.id, progress: 'closed' })
+  const closed = (await mine()).submissions.find(x => x.id === declined.id)
+  assert.equal(closed.status, 'closed')
+  assert.ok(!JSON.stringify(closed).includes('Not a fit') && !JSON.stringify(closed).includes('declined'), 'the employee sees closed, never the decision or reason')
   await cmd('referral-alerts', { enabled: false }, one)
   assert.deepEqual((await mine()).alerts, [])
   await cmd('member', { email: 'employee-one@example.test', name: 'Employee One', roles: ['employee'], active: false })

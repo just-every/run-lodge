@@ -78,7 +78,7 @@ export function referralProgress(s: State, a: Actor, b: Data) {
   const r = staffReferral(s, a, b.id), progress = oneOf(b.progress, REFERRAL_PROGRESS, 'Employee-visible progress')
   const app = r.application ? s.get('application', r.application) : null
   requireThat(progress !== 'hired' || app?.status === 'hired', 'Share hired only after the application records a hire', 409)
-  requireThat(progress !== 'closed' || (!!app && app.status !== 'active'), 'Share closed only after the application is closed', 409)
+  requireThat(progress !== 'closed' || r.outcome === 'declined' || (!!app && app.status !== 'active'), 'Share closed only after the application is closed or the referral is declined', 409)
   requireThat(progress !== 'in progress' || app?.status === 'active', 'Reconcile this referral to an active application before sharing in progress', 409)
   const row = s.put('referral', r.id, { ...r, progress, sharedAt: now(), sharedBy: a.email })
   s.audit(a, 'referral-progress-shared', 'referral:' + r.id, { progress })

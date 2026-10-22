@@ -22,7 +22,7 @@ async function readAnswers(job: D, form: HTMLFormElement) {
   return answers
 }
 function Milestones({ rows }: { rows: D[] }) {
-  return <>{rows.map(m => <p key={m.id}>{m.label} · {amount(m.amountCents)} USD · {m.status}</p>)}</>
+  return <>{rows.map(m => <p key={m.id}>{m.label} · {amount(m.amountCents)} USD · {m.status === 'paid' ? 'paid (recorded by the employer)' : m.status}</p>)}</>
 }
 /** Mounted in the existing shell for members and the employee-only portal. */
 export function Referrals({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
@@ -82,7 +82,7 @@ export function ReferralReview({ w, v, mutate }: Pick<PageProps, 'w' | 'mutate'>
       <Milestones rows={r.milestones ?? []} />
       {r.creditedHire && <details><summary>Record employer-approved bonus milestone</summary><Form label="Record bonus milestone" onSubmit={x => mutate('referral-bonus', { ...x, id: r.id, amountCents: Number(x.amountCents), approved: x.approved === true })}>
         <Field label="Approved bonus milestone" name="label" /><Field label="Approved USD bonus (cents)" name="amountCents" type="number" />
-        <Field label="Employer-recorded bonus state" name="status" options={['approved', 'due', 'paid'].map(value => ({ value, label: value }))} />
+        <Field label="Employer-recorded bonus state" name="status" options={[['approved', 'approved'], ['due', 'due'], ['paid', 'paid (recorded by the employer)']].map(([value, label]) => ({ value, label }))} />
         <Check name="approved" label="The employer approved this bonus milestone" />
       </Form></details>}
     </section>)}
