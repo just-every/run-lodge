@@ -2,7 +2,7 @@ import { careersSite } from './board-page.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { brandInput, careersJob, employerLogo } from './careers-flow.mjs'
-import { session } from './browser-journey.mjs'
+import { current, session } from './browser-journey.mjs'
 
 async function shot(page, evidence, name, width) {
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), name + ' fits viewport')
@@ -62,6 +62,9 @@ export async function careersPublicPage(browser, { origin, jobs, evidence, prefi
   }
 }
 export async function careersPage(browser, { root, origin, run, evidence, ownerEmail }) {
+  const keeper = await session(browser, root, origin, 'owner', 1440)
+  const previousBoard = (await current(keeper.context, origin)).jobBoard
+  await keeper.context.close()
   const jobRun = (op, body) => run(op, Object.fromEntries(Object.entries(body).map(([k,v]) => [k, v === 'owner@example.test' ? ownerEmail : v])))
   const jobs = { onsite: await careersJob(jobRun, 'Residential site supervisor'), remote: await careersJob(jobRun, 'Remote project coordinator', 'remote', 'Austin, TX') }
   const logo = await employerLogo()
@@ -115,5 +118,5 @@ export async function careersPage(browser, { root, origin, run, evidence, ownerE
         await shot(page, evidence, 'embed-recovered', width)
       } finally { await context.close() }
     }
-  } finally { await site.close() }
+  } finally { await site.close(); if (previousBoard) await run('job-board', { token: previousBoard.token, allowedOrigins: previousBoard.allowedOrigins }) }
 }
