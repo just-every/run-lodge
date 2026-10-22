@@ -7,7 +7,7 @@ import { SOURCE_UI, SPANISH, uiCopy } from '../languages/copy'
 export function publishRecoveryUi(s: State, post: Data) {
   if (post.language === 'en' || post.language === 'es') return
   const copy = uiCopy(post)
-  s.put('recovery-ui', post.language, { language: post.language, recoverTitle: copy.recoverTitle, recoverCode: copy.recoverCode, recoverSubmit: copy.recoverSubmit })
+  s.put('recovery-ui', post.language, { language: post.language, recoverTitle: copy.recoverTitle, recoverCode: copy.recoverCode, recoverSubmit: copy.recoverSubmit, recoverUnavailable: copy.recoverUnavailable })
 }
 
 /** Recovery's unauthenticated form never looks up a receipt or applicant. */

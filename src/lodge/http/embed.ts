@@ -1,6 +1,4 @@
 import { recoveryUi } from '../careers/recovery-copy'
-import { recoverReceipt } from '../careers/receipt'
-import { businessZone } from '../core/time'
 import { uiCopy } from '../languages/copy'
 import { legacyListing } from '../move-in/legacy-links'
 import { Hono, type Context } from 'hono'
@@ -14,7 +12,7 @@ import { boardSettings } from '../records/job-board'
 import { listingBySlug, listings, shownJob, type Listing } from '../records/posts'
 import { departmentPath, subtree } from '../records/org'
 import { jobForm } from '../records/questions'
-import { apply, cpraFor, esc, form, page, careersDocument, recoveryForm, receiptPage, sameOrigin, formBody } from './public'
+import { apply, cpraFor, esc, form, page, careersDocument, recoveryForm, recoverPage } from './public'
 
 // ATTR-008: the job board and application form inside the employer's own site.
 // The admin's snippet (People → Public job board) loads /embed.js, which frames
@@ -122,14 +120,11 @@ embedPages.get('/embed/receipt', async c => {
   const s = await load(c.env.DB), embed = embedding(s)
   if (!embed) return notSetUp()
   const selected = recoveryUi(s, c.req.query('language'))
-  return page(selected.copy.recoverTitle, recoveryForm(selected.copy, '/embed/receipt'), 200, embed, selected.language)
+  return page(selected.copy.recoverTitle, recoveryForm(selected.copy, '/embed/receipt', selected.language), 200, embed, selected.language)
 })
 embedPages.post('/embed/receipt', async c => {
-  await sameOrigin(c)
   const s = await load(c.env.DB), embed = embedding(s)
-  if (!embed) return notSetUp()
-  const r = await recoverReceipt(s, (await formBody(c)).get('code'))
-  return receiptPage(r, s.get('business','main').accommodationContact, businessZone(s.find('business','main')), r.recoveryCopy, embed)
+  return embed ? recoverPage(c, s, embed) : notSetUp()
 })
 
 embedPages.get('/embed/jobs/:slug', async c => {

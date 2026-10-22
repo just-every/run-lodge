@@ -14,6 +14,7 @@ import branding from '../../branding.json'
 import { pay as payRange, vacancyFacts } from '../core/labels'
 import { businessZone, isZone, times } from '../core/time'
 import { load, save } from '../core/store'
+import type { State } from '../core/state'
 import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
 import { APPLICATION_PAGE, MONITORING_OPTIONS, interviewByToken, submit, type Door } from '../records/intake'
@@ -167,18 +168,27 @@ export async function receiptPage(receipt: Data, contact: string, zone: string, 
   const recovery = code ? `<section aria-label="${esc(copy.recoverTitle)}"><h2>${esc(copy.recoverTitle)}</h2><p>${esc(copy.recoverHelp)}</p><dl><dt>${esc(copy.recoverCode)}</dt><dd><code data-recovery-code>${esc(code)}</code></dd></dl><p><a href="${esc(recoveryPath)}">${esc(copy.recoveryLink)}</a></p></section>` : ''
   return page(copy.received, body + recovery, 200, embed, receipt.language ?? 'en')
 }
-export function recoveryForm(copy: Data, action: string) {
+export function recoveryForm(copy: Data, action: string, language = 'en') {
+  if (language !== 'en') action += '?language=' + encodeURIComponent(language)
   return `<h1>${esc(copy.recoverTitle)}</h1><form method="post" action="${esc(action)}"><label>${esc(copy.recoverCode)}<input name="code" required autocomplete="off" maxlength="64" pattern="[a-f0-9]{64}"></label><button type="submit">${esc(copy.recoverSubmit)}</button></form>`
 }
 publicPages.get('/jobs/receipt', async c => {
   const s = await load(c.env.DB), selected = recoveryUi(s, c.req.query('language'))
-  return page(selected.copy.recoverTitle, recoveryForm(selected.copy, '/jobs/receipt'), 200, undefined, selected.language)
+  return page(selected.copy.recoverTitle, recoveryForm(selected.copy, '/jobs/receipt', selected.language), 200, undefined, selected.language)
 })
-publicPages.post('/jobs/receipt', async c => {
+export async function recoverPage(c: C, s: State, embed?: { ancestors: string[] }) {
   await sameOrigin(c)
-  const s = await load(c.env.DB), data = await formBody(c), r = await recoverReceipt(s, data.get('code'))
-  return receiptPage(r, s.get('business','main').accommodationContact, businessZone(s.find('business','main')), r.recoveryCopy)
-})
+  const selected = recoveryUi(s, c.req.query('language'))
+  try {
+    if (Number(c.req.header('content-length') ?? 0) > 4096) throw new Fault(413, 'Receipt not available')
+    const r = await recoverReceipt(s, (await formBody(c)).get('code'))
+    return receiptPage(r, s.get('business','main').accommodationContact, businessZone(s.find('business','main')), r.recoveryCopy, embed)
+  } catch (error) {
+    if (!(error instanceof Fault)) throw error
+    return page(selected.copy.recoverTitle, `<p role="alert">${esc(selected.copy.recoverUnavailable)}</p>` + recoveryForm(selected.copy, embed ? '/embed/receipt' : '/jobs/receipt', selected.language), error.status, embed, selected.language)
+  }
+}
+publicPages.post('/jobs/receipt', async c => recoverPage(c, await load(c.env.DB)))
 
 publicPages.get('/jobs/:slug', async c => {
   const s = await load(c.env.DB)

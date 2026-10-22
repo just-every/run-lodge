@@ -2,6 +2,7 @@ import { amount } from '../core/labels'
 import { requireThat, type Data } from '../core/types'
 
 export const SPANISH: Record<string, string> = {
+  recoverUnavailable: "Ese comprobante no está disponible. Revise su código privado y su vencimiento.",
   draftTitle: "Guardar y continuar en este dispositivo",
   draftHelp: "Elija Guardar para conservar las respuestas de texto en este navegador durante 24 horas. Use un dispositivo privado. No se guardan archivos, consentimiento ni respuestas de adaptación o seguimiento. Vuelva a adjuntar los archivos y revise el aviso antes de enviar.",
   draftSave: "Guardar borrador en este dispositivo",
@@ -55,6 +56,7 @@ export const SPANISH: Record<string, string> = {
 
 /** Employer-facing source labels and placeholder contract for every scaffold field. */
 export const SOURCE_UI: Record<string, string> = {
+  recoverUnavailable: "That receipt is not available. Check your private code and its expiry.",
   draftTitle: "Save and resume on this device",
   draftHelp: "Choose Save to keep text answers on this browser for 24 hours. Use a private device. Files, privacy consent and private monitoring or accommodation answers are not saved; attach files and review consent again before submitting.",
   draftSave: "Save draft on this device",

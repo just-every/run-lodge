@@ -1,5 +1,6 @@
 /** Employer-authored French scaffold for the further-language HTTP journey. */
 export const FRENCH = {
+  recoverUnavailable: "Ce reçu est indisponible. Vérifiez votre code privé et sa date d’expiration.",
   draftTitle: "Enregistrer et reprendre sur cet appareil",
   draftHelp: "Choisissez Enregistrer pour conserver les réponses textuelles dans ce navigateur pendant 24 heures. Utilisez un appareil privé. Les fichiers, consentements et réponses privées ne sont pas conservés. Joignez de nouveau les fichiers et relisez l’avis avant l’envoi.",
   draftSave: "Enregistrer le brouillon sur cet appareil",
