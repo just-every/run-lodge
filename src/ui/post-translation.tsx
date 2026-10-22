@@ -6,7 +6,8 @@ export function PostTranslation({ v, w, post, mutate }: { v: D; w: D; post: D; m
   const t = post.translation ?? {}, notice = w.business?.notices?.at(-1)
   const questions: D[] = [...(v.questions ?? []), ...(post.questions ?? [])].map((x: D) => w.questions.find((q: D) => q.id === x.question)).filter(Boolean)
   const fields: D[] = (v.customSchema ?? []).filter((f: D) => f.record !== 'vacancy')
-  const cpra = w.cpraNotice
+  const place = [v.location, ...[v.officeId, ...(v.locations ?? []), ...(post.locations ?? [])].map(id => w.offices?.find((o: D) => o.id === id)?.name)].filter(Boolean).join('; ')
+  const cpra = /(^|\W)(California|CA)(\W|$)/i.test(place) ? w.cpraNotice : null
   return <details><summary>Spanish translation for “{post.title}”</summary>
     <p>Translate the current source text below. A missing or outdated translation prevents publishing Spanish. Pause a live post before removing a translation. The post title and description above are its Spanish wording.</p>
     <Form label="Save reviewed translation" onSubmit={x => mutate('post-translation', { vacancy: v.id, post: post.id, translation: {
