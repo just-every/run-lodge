@@ -98,6 +98,31 @@ export async function careersDraftPage(browser, { root, origin, run, evidence })
       assert.deepEqual(answered.find(x => x.text === 'Tools you use').value, ['Hoist', 'Laser level'])
       assert.equal(answered.find(x => x.text === 'Can you work weekends?').value, 'yes')
 
+      // A restored attachment is checked again at submission: a draft edited to hold a disallowed type or an oversized file is refused.
+      f = await open()
+      await answer(f)
+      await press(page, 'Save draft on this device')
+      await f.status.getByText('Draft saved on this device.', { exact: false }).waitFor()
+      for (const [why, message] of [['type', /Resumes may be/], ['size', /at most 1 MB/]]) {
+        await page.evaluate(([why, big]) => {
+          const key = Object.keys(localStorage).find(k => k.startsWith('lodge-application-draft:')), draft = JSON.parse(localStorage[key])
+          for (const [name, saved] of draft.values) {
+            if (why === 'type' && name === 'resume') saved.files[0].name = 'casey.exe'
+            if (why === 'size' && name.startsWith('q-') && saved.files) saved.files[0].base64 = big
+          }
+          localStorage[key] = JSON.stringify(draft)
+        }, [why, Buffer.alloc(1_100_000, 7).toString('base64')])
+        await page.reload()
+        await press(page, 'Resume saved draft')
+        await f.consent.check()
+        await page.getByRole('button', { name: 'Submit application', exact: true }).click()
+        await page.getByRole('alert').filter({ hasText: message }).waitFor()
+        assert.equal(await page.getByRole('heading', { name: 'Application received' }).count(), 0, 'a restored ' + why + ' problem is refused at submission')
+        f = await open(); await answer(f)
+        await press(page, 'Save draft on this device')
+        await f.status.getByText('Draft saved on this device.', { exact: false }).waitFor()
+      }
+
       // Deleting the draft removes the answers and the files from the device together.
       f = await open()
       await answer(f)
