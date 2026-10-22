@@ -4,6 +4,10 @@ import { join } from 'node:path'
 import { brandInput, careersJob, employerLogo } from './careers-flow.mjs'
 import { current, session } from './browser-journey.mjs'
 
+async function brandedButton(button) {
+  const expected = 'rgb(' + [1,3,5].map(i => parseInt(brandInput.primaryColor.slice(i,i+2),16)).join(', ') + ')'
+  assert.equal(await button.evaluate(e => getComputedStyle(e).backgroundColor), expected, 'the employer primary color reaches the rendered control')
+}
 async function shot(page, evidence, name, width) {
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), name + ' fits viewport')
   await page.screenshot({ path: join(evidence, `careers-${name}-${width}.png`), fullPage: true })
@@ -18,11 +22,14 @@ export async function careersPublicPage(browser, { origin, jobs, evidence, prefi
       await page.getByRole('textbox', { name: 'Search roles', exact: true }).fill('coordinator')
       await page.getByRole('combobox', { name: /^Location/ }).selectOption('Austin, TX')
       await page.getByRole('combobox', { name: /^Work mode/ }).selectOption('true')
+      await brandedButton(page.getByRole('button', { name: 'Show roles', exact: true }))
       await page.getByRole('button', { name: 'Show roles', exact: true }).click()
       await page.getByRole('link', { name: jobs.remote.title, exact: true }).waitFor()
       assert.equal(await page.getByRole('link', { name: jobs.onsite.title, exact: true }).count(), 0)
       await shot(page, evidence, prefix + 'filtered', width)
       await page.goto(origin + '/jobs/' + jobs.onsite.slug)
+      await page.getByRole('img', { name: /Hudson Builders|Example Builders/ }).waitFor()
+      assert.ok((await page.locator('header.employer-brand').textContent()).includes(brandInput.intro))
       const name = page.getByRole('textbox', { name: 'Full name', exact: true })
       // Traverse the accessible keyboard order to the first application field.
       for (let tab = 0; tab < 20 && !await name.evaluate(e => e === document.activeElement); tab++) await page.keyboard.press('Tab')
@@ -43,6 +50,7 @@ export async function careersPublicPage(browser, { origin, jobs, evidence, prefi
       await page.getByLabel('Resume (optional, PDF, Word or text, up to 1 MB)', { exact: true }).setInputFiles({ name: 'avery-hudson.txt', mimeType: 'text/plain', buffer: Buffer.from('Avery Hudson: led safe occupied residential works for eight years.') })
       await page.getByRole('checkbox', { name: /I have read privacy notice/ }).check()
       await shot(page, evidence, prefix + 'resumed', width)
+      await brandedButton(page.getByRole('button', { name: 'Submit application', exact: true }))
       await page.getByRole('button', { name: 'Submit application', exact: true }).click()
       await page.getByRole('heading', { name: 'Application received', exact: true }).waitFor()
       const code = await page.locator('[data-recovery-code]').textContent()
@@ -108,6 +116,7 @@ export async function careersPage(browser, { root, origin, run, evidence, ownerE
         await frame.getByRole('textbox', { name: 'Email', exact: true }).fill(`morgan-embed-${width}@example.test`)
         await frame.getByRole('checkbox', { name: /I have read privacy notice/ }).check()
         await shot(page, evidence, 'embed-application', width)
+        await brandedButton(frame.getByRole('button', { name: 'Submit application', exact: true }))
         await frame.getByRole('button', { name: 'Submit application', exact: true }).click()
         const code = await frame.locator('[data-recovery-code]').textContent()
         await frame.getByRole('link', { name: 'Recover a receipt', exact: true }).click()
