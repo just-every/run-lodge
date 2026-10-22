@@ -5,9 +5,11 @@ import { listings } from '../records/posts'
 import { mergeRule } from '../records/sources'
 
 const absent = () => new Fault(404, 'Referral not found')
+/** An active human member of the employer (not an agent or an agency) may use the referral portal. */
+export const referringMember = (me: Data | undefined) => !!me?.active && !me.agent && !me.roles?.includes('agency') && (!!me.owner || !!me.roles?.length)
 export function employee(s: State, a: Actor) {
   const me = s.find('member', scope(a))
-  if (a.agent || isAgency(a) || !me?.active || me.agent || (!me.owner && !me.roles?.length)) throw absent()
+  if (a.agent || isAgency(a) || !me || !referringMember(me)) throw absent()
   return me
 }
 export function eligibleJobs(s: State) {

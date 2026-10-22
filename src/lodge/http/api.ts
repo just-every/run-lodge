@@ -93,7 +93,7 @@ const json = (value: unknown, name: string) => attachment(JSON.stringify(value, 
 
 api.get('/api/lodge/state', async c => {
   const { state, actor } = await context(c, true, true)
-  if (isEmployeeOnly(actor)) return c.json({ actor: { email: actor.email, name: actor.name, roles: actor.roles }, referralPortal: { name: state.get('business', 'main').name, timeZone: state.get('business', 'main').timeZone }, referrals: referralsView(state, actor) })
+  if (isEmployeeOnly(actor)) return c.json({ actor: { email: actor.email, name: actor.name, roles: actor.roles }, referralPortal: { name: state.get('business', 'main').name, timeZone: state.get('business', 'main').timeZone }, referrals: referralsView(state, actor, c.env) })
   if (isAgency(actor)) return c.json(portal(state, actor))
   return c.json({ ...await workspace(state, actor, runtimeBindings(c.env)), importJobs: await importJobs(c.env.DB, actor, state) })
 })
@@ -109,7 +109,7 @@ api.post('/api/lodge/command/:op', async c => {
 
 api.get('/api/lodge/referral/export', async c => {
   const { state, actor } = await context(c, false, true)
-  const result = referralsView(state, actor)
+  const result = referralsView(state, actor, c.env)
   state.audit(actor, 'referral-own-exported', 'member:' + actor.email)
   return recorded(c, state, actor, json(result, 'employee-referrals.json'))
 })

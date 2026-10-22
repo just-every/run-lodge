@@ -6,7 +6,7 @@ import { storeOriginal } from '../records/documents'
 import { ensureSource, sourceCredit } from '../records/sources'
 import { answers } from '../records/questions'
 import { evaluate } from '../records/rules'
-import { creditedEmployee, employee, eligibleJobs, referralJob, staffReferral } from './access'
+import { creditedEmployee, employee, eligibleJobs, referralJob, referringMember, staffReferral } from './access'
 
 export const REFERRAL_SOURCE = 'Employee referral'
 export const REFERRAL_PROGRESS = ['received', 'in progress', 'closed', 'hired'] as const
@@ -14,19 +14,24 @@ export function referralAlerts(s: State, a: Actor, b: Data) {
   const me = employee(s, a)
   requireThat(typeof b.enabled === 'boolean', 'Choose whether to receive job alerts')
   const pref = s.put('referral-pref', me.email, { employee: me.email, enabled: b.enabled, at: now() })
-  syncReferralAlerts(s)
+  syncReferralAlerts(s, true)
   s.audit(a, 'referral-alert-preference', 'member:' + me.email, { enabled: b.enabled })
   return pref
 }
-/** Called after writes that can publish a job. Each employee/job is raised once, only after explicit opt-in. */
-export function syncReferralAlerts(s: State) {
+/**
+ * Called after writes that can publish a job. Each employee/job is raised once, only after explicit opt-in. A job that
+ * is newly eligible also queues its email (CRM-010); the jobs already open when the employee opts in (`existing`) are
+ * listed in the portal but not mailed.
+ */
+export function syncReferralAlerts(s: State, existing = false) {
   const jobs = eligibleJobs(s)
   for (const pref of s.scan('referral-pref').filter(p => p.enabled)) {
-    const me = s.find('member', pref.employee)
-    if (!me?.active || me.agent || me.roles?.includes('agency') || (!me.owner && !me.roles?.length)) continue
+    if (!referringMember(s.find('member', pref.employee))) continue
     for (const { v } of jobs) {
       const id = pref.employee + ':' + v.id
-      if (!s.find('referral-job-alert', id)) s.put('referral-job-alert', id, { to: pref.employee, vacancy: v.id, at: now() })
+      if (s.find('referral-job-alert', id)) continue
+      s.put('referral-job-alert', id, { to: pref.employee, vacancy: v.id, at: now() })
+      if (!existing) s.put('referral-email', 'job:' + id, { kind: 'job', to: pref.employee, vacancy: v.id, emailState: 'queued', at: now() })
     }
   }
 }
@@ -81,6 +86,7 @@ export function referralProgress(s: State, a: Actor, b: Data) {
   requireThat(progress !== 'closed' || r.outcome === 'declined' || (!!app && app.status !== 'active'), 'Share closed only after the application is closed or the referral is declined', 409)
   requireThat(progress !== 'in progress' || app?.status === 'active', 'Reconcile this referral to an active application before sharing in progress', 409)
   const row = s.put('referral', r.id, { ...r, progress, sharedAt: now(), sharedBy: a.email })
+  if (s.find('referral-pref', r.employee)?.enabled === true) s.put('referral-email', `progress:${r.id}:${row.sharedAt}`, { kind: 'progress', to: r.employee, vacancy: r.vacancy, referral: r.id, emailState: 'queued', at: now() })
   s.audit(a, 'referral-progress-shared', 'referral:' + r.id, { progress })
   return row
 }

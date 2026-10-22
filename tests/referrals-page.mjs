@@ -25,8 +25,9 @@ export async function referralsPage(browser, { root, origin, run, evidence, owne
       const page = employee.page
       const portal = page.getByRole('region', { name: 'Employee referrals', exact: true })
       await portal.getByRole('heading', { name: 'Employee referrals', exact: true }).waitFor()
-      await portal.getByLabel('Show me job opportunity alerts in Lodge').check()
+      await portal.getByLabel('Send me job opportunity alerts').check()
       await portal.getByRole('button', { name: 'Save referral job alerts', exact: true }).click()
+      await portal.getByText(/also emailed to you/).waitFor()
       await portal.getByRole('region', { name: 'Referral job alerts' }).getByText(v.title, { exact: false }).waitFor()
       await shot(page, evidence, 'opted-in', width)
       await portal.getByText('Refer someone for ' + v.title, { exact: true }).click()

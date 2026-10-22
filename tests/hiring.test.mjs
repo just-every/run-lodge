@@ -2200,6 +2200,11 @@ test('CRM-003 consented employee referrals reconcile identities and expose only 
 })
 
 
+test('CRM-010 referral alerts and shared progress by installation email, claimed once and checked live', async () => {
+  const { checkReferralEmail } = await import('./referrals-email-flow.mjs')
+  await checkReferralEmail()
+})
+
 test('ATTR-001 employer careers branding, private receipt recovery and verified custom domains', async () => {
   const { checkCareers } = await import('./careers-flow.mjs')
   const { careersDomainBindings, createCareersDomainEdge, checkCareersDomain, checkCareersDomainUnavailable } = await import('./careers-domain-flow.mjs')

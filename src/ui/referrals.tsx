@@ -30,9 +30,9 @@ export function Referrals({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
   if (!p) return null
   return <section aria-label="Employee referrals" className="card">
     <h2>Employee referrals</h2>
-    <p className="hint">Refer someone who has agreed to share their details and resume. Updates appear here when the hiring team shares them. Email alerts are pending.</p>
+    <p className="hint">Refer someone who has agreed to share their details and resume. Updates appear here when the hiring team shares them. {p.emailAvailable ? 'With job alerts on, new jobs and shared updates on your referrals are also emailed to you; turning alerts off stops both the emails and the alerts here.' : 'Email updates are unavailable: this installation has no mail set up, so alerts and updates appear here only.'}</p>
     <Form label="Save referral job alerts" compact onSubmit={x => mutate('referral-alerts', { enabled: x.enabled === true })}>
-      <Check name="enabled" label="Show me job opportunity alerts in Lodge" defaultChecked={p.enabled} />
+      <Check name="enabled" label="Send me job opportunity alerts" defaultChecked={p.enabled} />
     </Form>
     {p.alerts?.length > 0 && <section aria-label="Referral job alerts"><h3>Job opportunity alerts</h3><ul>{p.alerts.map((x: D) => <li key={x.id}>{x.title} · {when(x.at)}</li>)}</ul></section>}
     <h3>Jobs accepting referrals</h3>
