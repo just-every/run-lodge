@@ -18,6 +18,8 @@ export async function referralsPage(browser, { root, origin, run, evidence, owne
     const email = `referral-employee-${width}@example.test`
     await run('member', { email, name: 'Referral Employee ' + width, roles: ['employee'] })
     const staff = await session(browser, root, origin, 'owner', width)
+    const invited = await staff.context.request.post(origin + '/api/lodge/invite', { headers: { origin }, data: { email } })
+    assert.equal(invited.status(), 200, 'the employer invites the employee identity before sign-in')
     const employee = await session(browser, root, origin, email, width)
     try {
       const page = employee.page
