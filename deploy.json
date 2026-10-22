@@ -3,7 +3,8 @@
   "project": "hiring/lodge",
   "compatibilityDate": "2026-09-08",
   "compatibilityFlags": [
-    "nodejs_compat"
+    "nodejs_compat",
+    "global_fetch_strictly_public"
   ],
   "d1": [
     {
@@ -32,6 +33,26 @@
     {
       "binding": "MAIL_API_KEY",
       "environment": "MAIL_API_KEY"
+    },
+    {
+      "binding": "CAREERS_CF_API_TOKEN",
+      "environment": "CAREERS_CF_API_TOKEN",
+      "optional": true
+    },
+    {
+      "binding": "CAREERS_CF_ACCOUNT_ID",
+      "environment": "CAREERS_CF_ACCOUNT_ID",
+      "optional": true
+    },
+    {
+      "binding": "CAREERS_CF_ZONE_ID",
+      "environment": "CAREERS_CF_ZONE_ID",
+      "optional": true
+    },
+    {
+      "binding": "CAREERS_CF_WORKER",
+      "environment": "CAREERS_CF_WORKER",
+      "optional": true
     }
   ],
   "platforms": [

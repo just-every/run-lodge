@@ -78,7 +78,7 @@ export async function careersPage(browser, { root, origin, run, evidence, ownerE
       await card.getByRole('button', { name: 'Save careers branding', exact: true }).click()
       await card.getByRole('alert').filter({ hasText: /contrast/ }).waitFor()
       await card.getByLabel('Primary color (#RRGGBB)', { exact: false }).fill(brandInput.primaryColor)
-      await card.getByLabel('Employer logo', { exact: false }).setInputFiles({ name: logo.name, mimeType: logo.mediaType, buffer: Buffer.from(logo.base64, 'base64') })
+      await card.getByLabel(/^Employer logo \(/).setInputFiles({ name: logo.name, mimeType: logo.mediaType, buffer: Buffer.from(logo.base64, 'base64') })
       await card.getByRole('button', { name: 'Save careers branding', exact: true }).click()
       await card.getByText('Saved logo: ' + logo.name, { exact: true }).waitFor()
       await shot(page, evidence, 'settings', width)

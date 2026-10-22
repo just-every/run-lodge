@@ -556,3 +556,42 @@ recorded change tests access or starts synchronization. Health remains `unknown`
 Durable provider operations and reconciliation remain INT-002 work, together with
 the actual mail/calendar/DocuSign/HRIS connection journeys; the registry does not
 stand in for them.
+
+### Employer careers site (ATTR-001)
+
+Human owner/admin `careers-brand` saves an employer introduction, a validated PNG,
+JPEG or WebP original (at most 256 KiB), and explicit primary/background/text
+colors. Both text/background and primary/background must meet AA contrast.
+Public `/jobs`, its applications/receipts and `/embed/jobs` use that brand.
+`/jobs` also accepts `q`, `location` and `remote=true`, alongside department/office.
+
+An applicant explicitly saves a text draft on their own browser for seven days;
+files, consent and restricted answers are excluded. A changed form or notice
+refuses an older draft. After submitting, the applicant can retain a private
+256-bit code and POST it to `/jobs/receipt` or `/embed/receipt` for 90 days. This
+reveals only that receipt, not application contents or progress. Only its hash
+is stored; workspace/candidate exports and installation archives omit recovery
+material. Erasure invalidates it with the receipt. These device retention and
+receipt-possession defaults await ct approval; CAND-001 inherits this boundary.
+
+Optional installation secrets `CAREERS_CF_API_TOKEN`, `CAREERS_CF_ACCOUNT_ID`,
+`CAREERS_CF_ZONE_ID` and `CAREERS_CF_WORKER` enable custom domains in the employer's
+configured active Cloudflare zone. Use a token restricted to that account/zone
+with domain attachment, DNS read and zone read permissions; Lodge shows the TXT
+challenge and never edits the employer's existing DNS records. The Worker needs
+`global_fetch_strictly_public` so its HTTPS readiness probe reaches the public
+custom-domain route. Cloudflare manages certificate issuance and renewal.
+
+`careers-domain-challenge {hostname}` saves a stable TXT challenge.
+`careers-domain-verify {generation}`, `careers-domain-connect {generation}` and
+`careers-domain-disconnect {generation}` own their fenced provider transactions.
+An existing DNS route or another Worker's association refuses connection. Only
+an exact TXT result, matching provider readback and a trusted HTTPS response from
+this installation produce ready status. An uncertain attachment is reconciled
+against its saved intent; it never replaces an unrelated association. The custom
+hostname serves careers pages and public privacy requests only; every sign-in or
+private API path refuses. Installation `/jobs` remains available.
+
+`tests/careers-live.mjs` is the explicit held-key sandbox journey (outside Verify).
+It creates and removes only its own Worker, database, TXT record and association,
+then exercises the live careers hostname at 1440 and 390 pixels.

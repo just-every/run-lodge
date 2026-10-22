@@ -4,9 +4,14 @@
   "main": "src/server.ts",
   "compatibility_date": "2026-09-08",
   "compatibility_flags": [
-    "nodejs_compat"
+    "nodejs_compat",
+    "global_fetch_strictly_public"
   ],
-  "triggers": { "crons": ["0 * * * *"] },
+  "triggers": {
+    "crons": [
+      "0 * * * *"
+    ]
+  },
   "d1_databases": [
     {
       "binding": "DB",

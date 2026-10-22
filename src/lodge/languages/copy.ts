@@ -89,7 +89,7 @@ export const SOURCE_UI: Record<string, string> = {
   talentPool: 'You may contact me about other suitable roles while you retain my data.', submit: 'Submit application',
   received: 'Application received', thanks: 'Thank you. Keep this receipt.', receipt: 'Receipt', job: 'Role',
   receivedAt: 'Received at', privacyNotice: 'Privacy notice', version: 'Version {version}',
-  californiaPrivacyNotice: 'California notice', receiptTime: '{time}',
+  californiaPrivacyNotice: 'California privacy notice', receiptTime: '{time}',
   receiptHelp: 'For accommodations, contact {contact} and quote your receipt. To view, correct or delete your data, use {privacyPath} with this receipt and your email address.',
   signInvitationSubject: "{businessName} sent you an offer to sign electronically",
   signInvitationText: "{businessName} has sent you an offer for electronic signature.\n\nOpen this link: {link}\n\nYou will be asked for a one-time code, which is emailed separately. The link expires {expiresAt}.\n\nThis email carries no offer terms. Questions? Contact {contactName} at {contactEmail}.\n",

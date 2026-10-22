@@ -28,7 +28,7 @@ export async function harness({ claim = true, bindings = {}, outboundService } =
   const bundle = await build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(process.cwd(), 'tests/mail-edge.mjs') })) } }], external: ['node:*'], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' })
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
-      host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'],
+      host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat', 'global_fetch_strictly_public'],
       d1Databases: { DB: 'lodge' },
       ...(outboundService ? { outboundService } : {}),
       bindings: { AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: 'local-test-secret-not-production-0123456789', SETUP_TOKEN, MAIL_PROVIDER: 'development', MAIL_FROM: 'Lodge <lodge@example.test>', ...bindings },

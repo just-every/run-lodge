@@ -19,6 +19,8 @@ const worker = 'lodge-sx-c22-proof', hostname = 'careers-sx-lodge-c22.loadseed.c
 const origin = `https://${worker}.runeditrun.workers.dev`
 const evidence = resolve(process.env.LODGE_EVIDENCE ?? '.cache/careers-live')
 const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+assert.equal(execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(), '', 'commit the exact sandbox candidate before running')
+const deployment = JSON.parse(await readFile('deploy.json', 'utf8'))
 let database, uploaded = false, txtId, browser, domainId
 async function api(path, { method = 'GET', body, assetToken } = {}) {
   const full = path.startsWith('/zones/') ? path : '/accounts/' + account + path
@@ -42,7 +44,7 @@ try {
   const setupToken = crypto.randomUUID() + crypto.randomUUID(), sessionSecret = crypto.randomUUID() + crypto.randomUUID()
   const bindings = [{ type: 'd1', name: 'DB', id: database.uuid }, { type: 'assets', name: 'ASSETS' }, ...Object.entries({ AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', CAREERS_CF_ACCOUNT_ID: account, CAREERS_CF_ZONE_ID: zone, CAREERS_CF_WORKER: worker, RER_DEPLOY_SOURCE: head }).map(([name,text]) => ({ type: 'plain_text', name, text }))]
   const secrets = { bindings: [{ type:'secret_text', name:'SETUP_TOKEN', text:setupToken }, { type:'secret_text', name:'SESSION_SECRET', text:sessionSecret }, { type:'secret_text', name:'CAREERS_CF_API_TOKEN', text:token }] }
-  await uploadWorker({ request: api }, { plan: { worker, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'] }, artifact: { main:'lodge.mjs', modules:[{path:'lodge.mjs',base64:Buffer.from(bundle.outputFiles[0].text).toString('base64')}], assets:assets.filter(f=>allowed.has(f.path)) }, bindings, secrets, fingerprint:head })
+  await uploadWorker({ request: api }, { plan: { worker, compatibilityDate: deployment.compatibilityDate, compatibilityFlags: deployment.compatibilityFlags }, artifact: { main:'lodge.mjs', modules:[{path:'lodge.mjs',base64:Buffer.from(bundle.outputFiles[0].text).toString('base64')}], assets:assets.filter(f=>allowed.has(f.path)) }, bindings, secrets, fingerprint:head })
   uploaded = true
   await api('/workers/scripts/' + worker + '/subdomain', { method:'POST', body:{ enabled:true, previews_enabled:false } })
   let ready = false
