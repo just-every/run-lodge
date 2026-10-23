@@ -3,13 +3,11 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  # Build, site, types, emitted runtime, hosted output and hydration run once.
+  # The Lodge matrix below supplies every HTTP/D1 test in the same workflow.
   verify:
-    strategy:
-      fail-fast: false
-      matrix:
-        area: [candidates, offers, security, reports]
     env:
-      LODGE_TEST_AREA: ${{ matrix.area }}
+      LODGE_VERIFY_CORE: '1'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -32,6 +30,23 @@ jobs:
       # rer verify's hydration check launches the Chromium the seed's Playwright pins.
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec rer verify
+  lodge:
+    strategy:
+      fail-fast: false
+      matrix:
+        area: [candidates, offers, security, reports]
+    env:
+      LODGE_TEST_AREA: ${{ matrix.area }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:lodge
   browser:
     strategy:
       fail-fast: false

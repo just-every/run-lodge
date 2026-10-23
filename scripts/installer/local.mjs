@@ -21,7 +21,7 @@ export const adapter = lifecycle;
 export const { install } = lifecycle;
 export const portabilityOptions = { database: 'lodge', policyModule: 'scripts/installer/portability-policy.mjs', transient: ['local runtime caches and logs'] };
 export const commandAdapter = createCommandAdapter(lifecycle, {
- dev: developmentTarget, preview: previewTarget, verify: ['pnpm', ['run', 'verify:app']], deploy: ownerDeploy('deploy.json', lifecycle),
+ dev: developmentTarget, preview: previewTarget, verify: ['pnpm', ['run', process.env.LODGE_VERIFY_CORE === '1' ? 'verify:app:core' : 'verify:app']], deploy: ownerDeploy('deploy.json', lifecycle),
  portability: localPortability(portabilityOptions),
  setup: { manifestFile: 'rer-setup.json' }, browserModule: 'scripts/installer/ui/seed.mjs',
  // Local dev identity: the local-only Worker entry, the build output rer build

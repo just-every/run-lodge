@@ -16,8 +16,11 @@ CI uses `LODGE_BROWSER_WIDTH` to select one width per job, with separate proof
 artifacts. Omitting it preserves both widths for local and narrow journeys
 (`node tests/clause-browser.mjs CAND-001`, for example).
 
-Every Verify matrix job runs the ordinary `rer verify`, including its build,
-site navigation, typecheck, runtime, hosted-output and hydration checks.
+The core Verify job runs `rer verify` with `LODGE_VERIFY_CORE=1` to check the
+build, site navigation, types, emitted runtime, hosted output and hydration
+once. Four lightweight matrix jobs run every HTTP/D1 area in parallel. The
+workflow succeeds only when the core, all four areas and both browser widths
+succeed. An ordinary local `rer verify` retains the complete suite.
 Evidence paths in CONTRACT.md and ACCEPTANCE.md name the entrypoint and driver
 that own each public-door assertion. Keep tests within the default 200
 registrations; selectors and setup helpers do not register extra tests.

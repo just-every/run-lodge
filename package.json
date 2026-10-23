@@ -18,6 +18,7 @@
     "onboard": "node scripts/install.mjs",
     "build:app": "rer queue build:app -- sh -c \"vite build\"",
     "verify:app": "rer queue verify:app -- sh -c \"pnpm run build && pnpm run test:site && pnpm run typecheck && pnpm run test:lodge && pnpm run test:runtime\"",
+    "verify:app:core": "rer queue verify:app -- sh -c \"pnpm run build && pnpm run test:site && pnpm run typecheck && pnpm run test:runtime\"",
     "test:site": "node --test tests/site/site.test.mjs",
     "reset": "rer reset",
     "export": "rer export",
