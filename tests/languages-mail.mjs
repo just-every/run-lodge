@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 /** Every candidate-mail door currently shipped: invitation, code, void, completion and copy code. */
 export async function checkLanguageMail(h, app, job, { language = 'es', address = 'lucia@example.test', name = 'Lucía Torres' } = {}) {
   const cmd = h.command
-  await (await import('./candidate-flow.mjs')).checkCandidateLanguage(h, app, address, language)
+  address = await (await import('./candidate-flow.mjs')).checkCandidateLanguage(h, app, address, language)
   const expected = language === 'es' ? { invitation: /le envió una oferta/, void: /ya no está activa/, code: /Su código de un solo uso/, copy: /su copia de la oferta firmada/, purpose: /su copia firmada/ } : { invitation: /vous a envoyé une offre/, void: /n’est plus active/, code: /Votre code à usage unique/, copy: /votre exemplaire de l’offre signée/, purpose: /votre exemplaire signé/ }
   const template = await cmd('offer-template', { name: 'Warehouse offer ' + language, body: '{{candidateName}}: {{title}}. {{pay}}. {{startDate}}.', normalApprover: 'owner@example.test', exceptionApprover: 'owner@example.test', reviewed: true, native: true })
   await cmd('job-offer-template', { id: job.id, offerTemplate: { id: template.id, version: 1 } })

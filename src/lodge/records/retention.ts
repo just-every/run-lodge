@@ -130,7 +130,11 @@ export function deleteCandidate(s: State, a: Actor, b: Data) {
   for (const [kind, rows] of Object.entries(records)) {
     counts[kind] = rows.length
     for (const r of rows) {
-      if (kind === 'document') removeDocument(s, r.id)
+      if (kind === 'audit' && ['candidate-progress-published', 'candidate-request-answered', 'candidate-preferences-changed', 'candidate-email-change-requested', 'candidate-email-changed', 'candidate-email-notice-claimed', 'candidate-email-notice-handed-to-mail-provider', 'candidate-email-notice-failed', 'candidate-withdrew'].includes(r.action)) {
+        // Keep the account event's fact and opaque actor, without either email or free text.
+        s.put('audit', r.id, { at: r.at, actor: r.actor, action: r.action, record: r.record })
+      }
+      else if (kind === 'document') removeDocument(s, r.id)
       else if ((kind === 'agency-submission' || kind === 'referral')) { for (const file of r.files) s.drop('blob', file.id); s.remove(kind, r.id) }
       else { if (kind === 'resume-intake' && r.status !== 'committed') s.drop('blob', r.id); s.remove(kind, r.id) }
     }

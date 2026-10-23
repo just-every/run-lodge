@@ -159,7 +159,10 @@ export async function checkCandidateAccount() {
     const path = alice.path + '/account'
     const rows = async () => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
     const initial = await rows()
-    assert.equal((await h.send('/auth/email', { email: bob.person.email }, cookie)).status, 403, 'generic account email changes cannot bypass new-inbox verification')
+    const generic = await h.send('/auth/email', { email: bob.person.email }, cookie)
+    const unknownGeneric = await h.send('/auth/email', { email: 'synthetic-lodge-unknown@example.test' }, cookie)
+    assert.equal(generic.status, 403); assert.equal(generic.text, unknownGeneric.text, 'generic email door never reveals account existence')
+    for (const address of [bob.person.email, 'synthetic-lodge-unknown@example.test']) assert.equal((await h.send('/auth/email', { email: address })).status, 401)
     assert.match((await h.send(path, undefined, cookie)).text, /No progress update shared yet/)
     for (const suffix of ['/account', '/email/confirm']) {
       const other = await h.send(bob.path + suffix, undefined, cookie), absent = await h.send('/candidate/receipts/LDG-00000000' + suffix, undefined, cookie)
@@ -174,8 +177,20 @@ export async function checkCandidateAccount() {
     const interviewer = await h.member('synthetic-lodge-1@example.test', ['interviewer'])
     await h.command('candidate-progress', { application: alice.app.id, progress: 'In review' }, interviewer, 403)
     assert.equal((await h.send('/candidate/employer/' + alice.app.id, undefined, cookie)).status, 403)
-    await h.command('candidate-progress', { application: alice.app.id, progress: 'In review', message: 'Your application is being reviewed.', request: 'When could you start?' })
+    const manager = await h.member('synthetic-lodge-manager@example.test', ['manager'])
+    const admin = await h.member('synthetic-lodge-admin@example.test', ['admin'])
+    const agent = await h.member('synthetic-lodge-agent@example.test', ['admin'], 'Agent', { agent: true, actsFor: 'owner@example.test' })
+    for (const denied of [manager, interviewer, agent, cookie]) {
+      assert.equal((await h.send('/candidate/employer/' + alice.app.id, undefined, denied)).status, 403)
+      assert.equal((await h.send('/candidate/employer/' + alice.app.id, form({ progress: 'Offer', request: 'Forged request' }), denied)).status, 403)
+      await h.command('candidate-progress', { application: alice.app.id, progress: 'Offer', request: 'Forged request' }, denied, 403)
+    }
+    assert.equal((await h.send('/candidate/employer/' + alice.app.id, form({ progress: 'In review', message: 'Your application is being reviewed.', request: 'When could you start?' }), admin)).status, 303)
+    const publishedAudit = (await h.send('/api/lodge/audit?action=candidate-progress-published', undefined, h.owner)).value.events.at(-1)
+    assert.ok(publishedAudit.actor && publishedAudit.at && publishedAudit.requested)
+    assert.equal(publishedAudit.email, 'synthetic-lodge-admin@example.test')
     const app = (await h.state()).applications.find(a => a.id === alice.app.id), request = app.candidateAccount.requests[0]
+    assert.ok(app.candidateAccount.publishedBy && app.candidateAccount.publishedAt && request.by && request.at)
     const shown = await h.send(path, undefined, cookie)
     assert.match(shown.text, /In review/); assert.match(shown.text, /When could you start/)
     assert.ok(!shown.text.includes(alice.app.stage)); assert.ok(!shown.text.includes('Original evidence synthetic-lodge-1'))
@@ -183,13 +198,43 @@ export async function checkCandidateAccount() {
     assert.equal((await h.send(path + '/answer', form({ request: request.id, answer: 'Overwrite' }), cookie)).status, 409)
     assert.equal((await h.send(bob.path + '/account/answer', form({ request: request.id, answer: 'Forged' }), bobCookie)).status, 404)
     assert.match((await h.send('/candidate/employer/' + alice.app.id, undefined, h.owner)).text, /Two weeks after notice/)
+    // Explicitly grant, then withdraw; a prepared approved email must not retain stale permission.
+    assert.equal((await h.send(path + '/preferences', form({ preference: 'email', talentPool: 'yes' }), cookie)).status, 303)
+    assert.ok((await h.send('/api/lodge/talent?q=Avery', undefined, h.owner)).value.matches.some(m => m.candidate === alice.person.id))
+    const prepared = await h.command('message', { application: alice.app.id, purpose: 'reminder', subject: 'Follow up', body: 'synthetic-lodge-1' })
+    const approval = await h.command('request-message-approval', { id: prepared.id, approver: 'owner@example.test' })
+    await h.command('decide-approval', { id: approval.id, decision: 'approved', reason: 'Reviewed', version: approval.version })
+    assert.equal((await h.send('/api/lodge/download/message/' + prepared.id, undefined, h.owner)).status, 200)
     assert.equal((await h.send(path + '/preferences', form({ preference: 'none', talentPool: '' }), cookie)).status, 303)
+    assert.equal((await h.send('/api/lodge/download/message/' + prepared.id, undefined, h.owner)).status, 409, 'later email preparation rechecks withdrawn permission')
+    await h.command('message', { application: alice.app.id, purpose: 'reminder', subject: 'Refused', body: 'synthetic-lodge-2' }, h.owner, 409)
+    assert.ok(!(await h.send('/api/lodge/talent?q=Avery', undefined, h.owner)).value.matches.some(m => m.candidate === alice.person.id), 'talent-pool withdrawal applies immediately')
+    const preferencesPage = await h.send(path, undefined, cookie)
+    assert.match(preferencesPage.text, /value="none" selected/)
+    assert.ok(!preferencesPage.text.includes('value="yes" checked'), 'reloaded page shows withdrawn consent')
+    const preferenceEvents = (await h.send('/api/lodge/audit?action=candidate-preferences-changed', undefined, h.owner)).value.events
+    assert.equal(preferenceEvents.length, 2); assert.ok(preferenceEvents.every(e => e.actor && e.at))
     let state = await h.state()
     assert.equal(state.candidates.find(c => c.id === alice.person.id).contactPreference.preference, 'none')
     assert.equal(state.candidates.find(c => c.id === alice.person.id).consent.talentPool, false)
     await h.command('hold', { candidate: alice.person.id, reason: 'Retain original evidence synthetic-lodge-1' })
     const hold = (await rows()).filter(r => r.kind === 'hold')
     const oldCookie = await h.signIn(alice.person.email)
+    assert.equal((await h.send('/auth/magic-link', { email: alice.person.email })).status, 202)
+    const oldLogin = new URL((await latestMail(h, alice.person.email)).text.match(/http:\/\/\S+\/auth\/confirm\?token=\S+/)[0]).searchParams.get('token')
+    await h.db.prepare('UPDATE oa_sessions SET created_at=? WHERE operator_id=(SELECT id FROM oa_operators WHERE email=?)').bind(Date.now() - 16 * 60000, alice.person.email).run()
+    assert.equal((await h.send(path + '/email', form({ email: 'synthetic-lodge-recent@example.test' }), cookie)).status, 409, 'recent sign-in required before requesting a change')
+    await h.db.prepare('UPDATE oa_sessions SET created_at=? WHERE operator_id=(SELECT id FROM oa_operators WHERE email=?)').bind(Date.now(), alice.person.email).run()
+    // A native identity arriving after the request must not split canonical and native email.
+    const conflictEmail = 'synthetic-lodge-conflict@example.test'
+    assert.equal((await h.send(path + '/email', form({ email: conflictEmail }), cookie)).status, 200)
+    const conflictLink = new URL((await latestMail(h, conflictEmail)).text.match(/http:\/\/\S+/)[0])
+    assert.equal((await h.send('/auth/invite', { email: conflictEmail, displayName: 'Separate identity', role: 'member' }, h.owner)).status, 202)
+    const conflictRows = await rows()
+    assert.equal((await h.send(conflictLink.pathname, form({ token: conflictLink.searchParams.get('token') }), cookie)).status, 409)
+    assert.deepEqual(await rows(), conflictRows, 'conflicting native identity rolls back the entire candidate change')
+    assert.equal((await h.db.prepare('SELECT email FROM oa_operators WHERE email=?').bind(alice.person.email).first()).email, alice.person.email)
+    await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.at',?) WHERE kind='candidate-email-change' AND id=?").bind(new Date(Date.now() - 61000).toISOString(), alice.person.id).run()
     const originalReceipt = (await rows()).find(r => r.kind === 'receipt' && r.id === alice.receipt)
     const newEmail = 'account-new@example.test'
     const start = await h.send(path + '/email', form({ email: newEmail }), cookie)
@@ -207,11 +252,24 @@ export async function checkCandidateAccount() {
     assert.equal((await h.send(link.pathname, form({ token }), bobCookie)).status, 404)
     assert.equal((await h.send(link.pathname, form({ token: '0'.repeat(64) }), cookie)).status, 404)
     assert.equal((await h.send(path + '/email', form({ email: newEmail }), cookie)).status, 429)
-    assert.equal((await h.send(link.pathname, form({ token }), cookie)).status, 303)
+    await h.db.prepare('UPDATE oa_sessions SET created_at=? WHERE operator_id=(SELECT id FROM oa_operators WHERE email=?)').bind(Date.now() - 16 * 60000, alice.person.email).run()
+    assert.equal((await h.send(link.pathname, form({ token }), cookie)).status, 409, 'confirmation also needs a recent native sign-in')
+    await h.db.prepare('UPDATE oa_sessions SET created_at=? WHERE operator_id=(SELECT id FROM oa_operators WHERE email=?)').bind(Date.now(), alice.person.email).run()
+    const confirms = await Promise.all([h.send(link.pathname, form({ token }), cookie), h.send(link.pathname, form({ token }), cookie)])
+    assert.equal(confirms.filter(r => r.status === 303).length, 1, 'one winner for concurrent use')
+    assert.ok(confirms.every(r => [303, 404, 409].includes(r.status)))
+    assert.equal((await h.db.prepare('SELECT email FROM oa_operators WHERE email=?').bind(newEmail).first()).email, newEmail)
+    assert.ok(!(await rows()).some(r => r.kind === 'candidate-email-change' && r.id === alice.person.id))
+    const notice = await latestMail(h, alice.person.email)
+    assert.match(notice.subject, /Your Lodge email was changed/)
+    assert.ok(!notice.text.includes(newEmail), 'old-inbox notice discloses no replacement address')
+    assert.equal((await h.send('/auth/confirm', { token: oldLogin })).status, 400, 'old unconsumed login links end')
     assert.equal((await h.send(path, undefined, oldCookie)).status, 401, 'other old-address sessions ended')
     assert.equal((await h.send(path, undefined, cookie)).status, 200, 'confirming account now owns the verified new email')
     assert.equal((await h.send(link.pathname, form({ token }), cookie)).status, 404, 'single-use confirmation')
     assert.equal((await h.state()).candidates.find(c => c.id === alice.person.id).email, newEmail)
+    const notices = (await h.db.prepare('SELECT message FROM rer_mail_development_outbox').all()).results.map(r => JSON.parse(r.message)).filter(m => m.subject === 'Your Lodge email was changed' && m.to.includes(alice.person.email))
+    assert.equal(notices.length, 1, 'successful change notifies the former inbox once, including concurrent confirmation and replay')
     assert.deepEqual((await rows()).find(r => r.kind === 'receipt' && r.id === alice.receipt), originalReceipt)
     assert.equal((await h.send(path + '/email', form({ email: bob.person.email }), cookie)).status, 409)
     // Expired challenge and expired sign-in each refuse without applying the email change.
@@ -220,6 +278,7 @@ export async function checkCandidateAccount() {
     await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.expiresAt',0) WHERE kind='candidate-email-change'").run()
     assert.equal((await h.send(expiredLink.pathname, form({ token: expiredLink.searchParams.get('token') }), cookie)).status, 404)
     assert.equal((await h.send(path + '/withdraw', form({}), cookie)).status, 400)
+    assert.equal((await h.send(path + '/preferences', form({ preference: 'email', talentPool: '' }), cookie)).status, 303)
     const message = await h.command('message', { application: alice.app.id, purpose: 'reminder', subject: 'Follow up', body: 'A pending reminder synthetic-lodge-1' })
     assert.equal((await h.send(path + '/withdraw', form({ confirm: 'yes' }), cookie)).status, 303)
     state = await h.state()
@@ -238,6 +297,17 @@ export async function checkCandidateAccount() {
     await h.db.prepare('UPDATE oa_sessions SET expires_at=0 WHERE operator_id=(SELECT id FROM oa_operators WHERE email=?)').bind(newEmail).run()
     assert.equal((await h.send(path, undefined, cookie)).status, 401)
     assert.equal((await h.send(path + '/preferences', form({ preference: 'email' }), cookie)).status, 401)
+    const beforeHeldErasure = await rows()
+    assert.equal((await h.send('/api/lodge/delete-candidate', { candidate: alice.person.id, confirm: alice.person.name, reason: 'Applicant request' }, h.owner)).status, 409)
+    assert.deepEqual(await rows(), beforeHeldErasure, 'hold refuses erasure without losing the pending challenge or evidence')
+    await h.command('release-hold', { id: JSON.parse(hold[0].value).id, reason: 'Claim resolved' })
+    const erased = await h.send('/api/lodge/delete-candidate', { candidate: alice.person.id, confirm: alice.person.name, reason: 'Applicant request' }, h.owner)
+    assert.equal(erased.status, 200, erased.text)
+    assert.ok(!(await rows()).some(r => r.kind === 'candidate-email-change' && r.id === alice.person.id))
+    const erasedAudit = await h.send('/api/lodge/audit', undefined, h.owner)
+    for (const address of [alice.person.email, newEmail, 'expired-account@example.test']) assert.ok(!erasedAudit.text.includes(address), 'erasure removes both addresses and the unconfirmed address from retained audit text')
+    const fact = erasedAudit.value.events.find(e => e.action === 'candidate-email-changed' && e.record === 'candidate:' + alice.person.id)
+    assert.ok(fact?.at && fact.actor, 'opaque actor and time remain for the email-change fact')
   } finally { await h.close() }
 }
 
@@ -255,11 +325,17 @@ export async function checkCandidateLanguage(h, app, address, language) {
     assert.equal((await h.send(path, form({ email: target }), cookie)).status, 409, 'no unreviewed language fallback')
     assert.equal((await h.db.prepare('SELECT count(*) AS n FROM rer_mail_development_outbox').first()).n, count)
     await h.command('candidate-email-copy', { application: app.id, subject: 'Confirmez votre adresse', text: 'Confirmez votre adresse : {link}', reviewed: false }, h.owner, 400)
-    await h.command('candidate-email-copy', { application: app.id, subject: 'Confirmez votre adresse', text: 'Confirmez votre adresse : {link}', reviewed: true })
+    await h.command('candidate-email-copy', { application: app.id, subject: 'Confirmez votre adresse', text: 'Confirmez votre adresse : {link}', changedSubject: 'Votre adresse Lodge a changé', changedText: 'Votre adresse a changé. Contactez votre employeur si vous ne l’avez pas demandé.', reviewed: true })
   }
   assert.equal((await h.send(path, form({ email: target }), cookie)).status, 200)
-  assert.match((await latestMail(h, target)).subject, language === 'es' ? /Confirma tu nuevo correo/ : /Confirmez votre adresse/)
+  const verification = await latestMail(h, target)
+  assert.match(verification.subject, language === 'es' ? /Confirma tu nuevo correo/ : /Confirmez votre adresse/)
+  const link = new URL(verification.text.match(/http:\/\/\S+/)[0])
+  assert.equal((await h.send(link.pathname, form({ token: link.searchParams.get('token') }), cookie)).status, 303)
+  assert.match((await latestMail(h, address)).subject, language === 'es' ? /Tu correo de Lodge ha cambiado/ : /Votre adresse Lodge a changé/)
+  return target
 }
+
 
 export async function bookingFixture() {
   const f = await candidateFixture(), { h, alice, bob, job } = f
@@ -284,6 +360,7 @@ export async function checkCandidateBooking() {
     const rows = async () => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
     const before = await rows()
     assert.equal((await h.send(path)).status, 401)
+    assert.ok(app.candidateAccount.publishedBy && app.candidateAccount.publishedAt && request.by && request.at)
     const shown = await h.send(path, undefined, cookie)
     assert.equal(shown.status, 200); assert.match(shown.text, /Book interview/)
     assert.ok(shown.text.includes(slots[0])); assert.ok(!shown.text.includes(slots[2]), 'a panel-unavailable time is not offered')

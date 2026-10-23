@@ -9,9 +9,16 @@ import { approvedNow, requestApproval } from './approvals'
 
 export const PURPOSES = ['acknowledgement', 'interview-invitation', 'availability-request', 'reminder', 'rejection', 'offer', 'other'] as const
 
+/** Recheck the live choice even for an approved draft made before consent was withdrawn. */
+function emailAllowed(s: State, app: Data) {
+  const candidate = s.get('candidate', app.candidate)
+  requireThat(!candidate.contactPreference || candidate.contactPreference.preference === 'email', 'The candidate has withdrawn email contact permission', 409)
+}
+
 export function message(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  emailAllowed(s, app)
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   const candidate = s.get('candidate', app.candidate)
   // MIG-008: people moved in from another system are not contactable until the employer records a basis.
@@ -36,6 +43,7 @@ export async function requestMessageApproval(s: State, a: Actor, b: Data) {
   const m = s.get('message', b.id)
   const app = requireApplication(s, a, m.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  emailAllowed(s, app)
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   return requestApproval(s, a, 'message', m, b.approver)
 }
@@ -47,6 +55,7 @@ const encodeWord = (v: string) => /^[\x20-\x7e]*$/.test(v) ? header(v) : `=?UTF-
 export async function emlFile(s: State, a: Actor, m: Data, from: string) {
   const app = requireApplication(s, a, m.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  emailAllowed(s, app)
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   requireThat(!m.cancelled, 'This message was canceled: ' + m.cancelledReason, 409)
   requireThat(await approvedNow(s, 'message', m), 'Only the exact approved text can be downloaded; request approval again after edits', 409)

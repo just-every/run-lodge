@@ -29,7 +29,7 @@ export function reviewVerificationCopy(s: State, a: Actor, b: Data) {
   const body = text(b.text, 'Verification email text', 5000)
   requireThat(body.includes('{link}'), 'Keep {link} in the verification email')
   const account = app.candidateAccount ?? { requests: [] }
-  const copy = { language: app.language ?? 'en', subject: text(b.subject, 'Subject', 200), text: body, reviewedBy: a.id, reviewedAt: now(), version: (account.verificationCopy?.version ?? 0) + 1 }
+  const copy = { language: app.language ?? 'en', subject: text(b.subject, 'Subject', 200), text: body, changedSubject: text(b.changedSubject, 'Email-change notice subject', 200), changedText: text(b.changedText, 'Email-change notice text', 5000), reviewedBy: a.id, reviewedAt: now(), version: (account.verificationCopy?.version ?? 0) + 1 }
   s.audit(a, 'candidate-email-copy-reviewed', 'application:' + app.id, { language: copy.language, version: copy.version })
   return s.put('application', app.id, { ...app, candidateAccount: { ...account, verificationCopy: copy } })
 }

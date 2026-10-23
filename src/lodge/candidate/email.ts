@@ -1,7 +1,7 @@
 import type { Bindings } from '../../auth.server'
 import { runtimeBindings } from '../../auth.server'
 import type { State } from '../core/state'
-import { save } from '../core/store'
+import { load, save } from '../core/store'
 import { email, now, requireThat, sha256, type Actor, type Data } from '../core/types'
 import { deliver, mailReady } from '../esign/mail'
 
@@ -17,6 +17,16 @@ export function verificationMail(app: Data, link: string) {
   if (language === 'es') return { subject: 'Confirma tu nuevo correo para Lodge', text: `Confirma tu nuevo correo: ${link}\n\nPrimero inicia sesión en tu cuenta de candidatura actual. Este enlace funciona una sola vez durante 15 minutos. Ignóralo si no solicitaste este cambio.` }
   requireThat(false, 'A reviewed verification email in the application language is required', 409)
   throw new Error('unreachable')
+}
+
+/** A security notice to the former inbox never discloses the replacement address. */
+export function changedMail(app: Data) {
+  const language = app.language ?? 'en'
+  if (language === 'en') return { subject: 'Your Lodge email was changed', text: 'Your candidate account email was changed. Other sessions and old sign-in links have ended. If you did not request this, contact the employer.' }
+  if (language === 'es') return { subject: 'Tu correo de Lodge ha cambiado', text: 'El correo de tu cuenta de candidatura ha cambiado. Las otras sesiones y los enlaces anteriores han finalizado. Si no solicitaste este cambio, contacta con la empresa.' }
+  const copy = app.candidateAccount?.verificationCopy
+  requireThat(copy?.language === language && copy.reviewedBy && copy.changedSubject && copy.changedText, 'A reviewed email-change notice in the application language is required', 409)
+  return { subject: copy.changedSubject, text: copy.changedText }
 }
 
 async function candidateIdentity(env: Bindings, s: State, a: Actor) {
@@ -38,6 +48,7 @@ export async function beginEmail(env: Bindings, s: State, a: Actor, candidate: D
   const raw = [...crypto.getRandomValues(new Uint8Array(32))].map(x => x.toString(16).padStart(2, '0')).join('')
   const link = `${runtimeBindings(env).AUTH_ORIGIN}/candidate/receipts/${encodeURIComponent(app.receiptForChange)}/email/confirm?token=${raw}`
   const mail = verificationMail(app, link)
+  changedMail(app) // Refuse before sending unless both language versions are available.
   s.put('candidate-email-change', candidate.id, { candidate: candidate.id, application: app.id, operator: a.id, from: candidate.email, to: address, hash: await sha256(raw), at: now(), expiresAt: Date.now() + 15 * 60000 })
   s.audit(a, 'candidate-email-change-requested', 'candidate:' + candidate.id)
   await save(env.DB, s, a)
@@ -50,18 +61,31 @@ export async function confirmEmail(env: Bindings, s: State, a: Actor, candidate:
   await candidateIdentity(env, s, a)
   const pending = s.find('candidate-email-change', candidate.id)
   requireThat(typeof token === 'string' && /^[a-f0-9]{64}$/.test(token) && pending && pending.operator === a.id && pending.from === candidate.email && pending.expiresAt > Date.now() && pending.hash === await sha256(token), 'This email confirmation is not available', 404)
-  requireThat(s.get('application', pending.application).status === 'active', 'This application is closed', 409)
+  const app = s.get('application', pending.application)
+  requireThat(app.status === 'active', 'This application is closed', 409)
+  const notice = changedMail(app)
   requireThat(!s.scan('candidate').some(c => c.id !== candidate.id && !c.deleted && c.email === pending.to), 'This email change is not available', 409)
   // Preserve original receipts, answers, submitted files, holds and retention.
   s.put('candidate', candidate.id, { ...candidate, email: pending.to, emailVerifiedAt: now() })
   s.remove('candidate-email-change', candidate.id)
   s.audit(a, 'candidate-email-changed', 'candidate:' + candidate.id)
+  s.audit(a, 'candidate-email-notice-claimed', 'candidate:' + candidate.id)
   // The existing native account and canonical email change in the same fenced transaction.
   // Keep only the confirming session. Old emailed login links and every other session stop.
   await save(env.DB, s, a, [
     env.DB.prepare("INSERT INTO l_guard SELECT CASE WHEN EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND email=? AND version=? AND role='member') THEN 1 ELSE 0 END").bind(a.id, a.email, a.version),
+    env.DB.prepare("INSERT INTO l_guard SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM oa_operators WHERE email=? AND id<>?) THEN 1 ELSE 0 END").bind(pending.to, a.id),
+    env.DB.prepare("INSERT INTO l_guard SELECT CASE WHEN EXISTS(SELECT 1 FROM oa_sessions WHERE id=? AND created_at>=? AND kind IN ('native','dev')) THEN 1 ELSE 0 END").bind(a.session, Date.now() - 15 * 60000),
     env.DB.prepare('UPDATE oa_operators SET email=? WHERE id=? AND email=? AND version=?').bind(pending.to, a.id, a.email, a.version),
     env.DB.prepare('UPDATE oa_tokens SET revoked_at=? WHERE operator_id=? AND consumed_at IS NULL AND revoked_at IS NULL').bind(Date.now(), a.id),
     env.DB.prepare('UPDATE oa_sessions SET revoked_at=? WHERE operator_id=? AND id<>? AND revoked_at IS NULL').bind(Date.now(), a.id, a.session),
   ])
+  // Only the winning, committed confirmation attempts this notice. Replays and uncertain sends never resend it.
+  const delivery = await deliver(env, pending.from, notice.subject, notice.text, 'candidate-email-changed')
+  const after = await load(env.DB)
+  const current = after.find('candidate', candidate.id)
+  if (current && !current.deleted) {
+    after.audit(a, delivery.outcome === 'handed' ? 'candidate-email-notice-handed-to-mail-provider' : 'candidate-email-notice-failed', 'candidate:' + candidate.id)
+    await save(env.DB, after, a)
+  }
 }
