@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { isAdmin, managesVacancy, requireAdmin, requireCan, requireManages, requireMember } from '../core/access'
+import { canSeeApplication, isAdmin, managesVacancy, requireAdmin, requireApplication, requireCan, requireManages, requireMember } from '../core/access'
 import { date, now, oneOf, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { closeApplication, closeChoice } from './rejections'
 import { jobForm } from './questions'
@@ -137,7 +137,7 @@ export function previewRule(s: State, a: Actor, b: Data) {
   requireManages(a, s.get('vacancy', rule.vacancy))
   const version = rule.versions.at(-1)
   const done = new Set(s.all('rule-match').filter(m => m.rule === rule.id && m.version === version.version).map(m => m.application))
-  const hits = s.all('application').filter(app => app.vacancy === rule.vacancy && app.status === 'active' && !done.has(app.id) && matches(version.when, (app.answers ?? []).find((x: Data) => x.question === version.question)))
+  const hits = s.all('application').filter(app => app.vacancy === rule.vacancy && app.status === 'active' && !done.has(app.id) && canSeeApplication(s, a, app) && matches(version.when, (app.answers ?? []).find((x: Data) => x.question === version.question)))
   return { rule: rule.id, version: version.version, applications: hits.map(app => ({ application: app.id, answer: app.answers.find((x: Data) => x.question === version.question).value })) }
 }
 
@@ -158,15 +158,16 @@ export function decideRuleMatches(s: State, a: Actor, b: Data) {
   const decision = oneOf(b.decision, ['confirm', 'dismiss'] as const, 'Decision')
   // Check the job is the caller's before saying anything about its queue.
   if (b.all === true) requireManages(a, s.get('vacancy', b.vacancy))
-  const queue = b.all === true ? s.scan('rule-match').filter(m => m.vacancy === b.vacancy && m.status === 'queued') : [s.get('rule-match', b.id)]
+  // The whole queue is the part the reader sees; a match on an application they cannot see answers as not found.
+  const queue = b.all === true ? s.scan('rule-match').filter(m => m.vacancy === b.vacancy && m.status === 'queued' && (app => !!app && canSeeApplication(s, a, app))(s.find('application', m.application))) : [s.get('rule-match', b.id)]
   requireThat(queue.length, 'Nothing is waiting in this queue', 409)
   const note = decision === 'dismiss' ? text(b.reason, 'Why the rule does not apply', 500) : ''
   for (const m of queue) {
     const v = s.get('vacancy', m.vacancy)
     requireManages(a, v)
+    const app = requireApplication(s, a, m.application)
     if (decision === 'confirm') requireCan(s, a, v, 'reject')
     requireThat(m.status === 'queued', 'This match was already decided', 409)
-    const app = s.get('application', m.application)
     if (decision === 'confirm' && app.status === 'active') reject(s, app, s.get('screening-rule', m.rule).versions.find((x: Data) => x.version === m.version).then, `${m.reason} (rule “${m.ruleName}” v${m.version}, confirmed)`, a.email)
     s.put('rule-match', m.id, { ...m, status: decision === 'confirm' ? (app.status === 'active' ? 'confirmed' : 'closed-already') : 'dismissed', decidedBy: a.email, decidedAt: now(), ...(note ? { note } : {}) })
   }

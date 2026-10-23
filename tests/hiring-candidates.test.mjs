@@ -1088,6 +1088,27 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
     assert.deepEqual([hit.id, auto.id, wren.id].map(id => s.rejectionEmails.filter(m => m.application === id).map(m => [m.templateName, m.businessDays, m.state])), [hit.id, auto.id, wren.id].map(() => [['Standard decline', 2, 'scheduled']]))
   })
 
+  await t.test('rule previews and the rule-match queue leave out applications the reader cannot see', async () => {
+    const library = (await state()).questions, q = text => library.find(x => x.versions[0].text === text).id
+    const [authorized, relocate, cdl, story] = [q('Are you legally authorized to work in the US?'), q('Willing to relocate?'), q('Years holding a Class A CDL'), q('Tell us about a job you finished early')]
+    const cdlRoute = (await state()).screeningRules.find(r => r.vacancy === carpenter.id && r.name === 'Short CDL')
+    const relocation = { name: 'Relocation', question: relocate, when: { equals: ['No'] }, then: { kind: 'propose-reject', reason: 'Must relocate', closeReason: 'work-authorization' } }
+    const rule = await cmd('screening-rule', { vacancy: carpenter.id, ...relocation })
+    const { slug: jobSlug } = (await state(manager)).vacancies.find(v => v.id === carpenter.id)
+    const f = new FormData()
+    for (const [k, v] of Object.entries({ name: 'Ines Vale', email: 'ines.vale@example.test', noticeVersion: (await send('/jobs/' + jobSlug)).text.match(/name="noticeVersion" value="(\d+)"/)[1], consent: 'yes', ['q-' + story]: 'Finished a roof early.', ['q-' + authorized]: 'yes', ['q-' + relocate]: 'No', ['q-' + cdl]: '0' })) f.append(k, v)
+    assert.equal((await send('/jobs/' + jobSlug, f)).status, 200)
+    const ines = (await state()).applications.find(x => x.candidateName === 'Ines Vale')
+    await cmd('candidate-privacy', { id: ines.candidate, private: true })
+    const match = (await state()).ruleMatches.find(m => m.application === ines.id && m.rule === rule.id)
+    assert.ok(!(await send('/api/lodge/command/preview-rule', { id: cdlRoute.id }, manager)).text.includes(ines.id), 'a preview lists only applications the reader sees')
+    assert.equal((await send('/api/lodge/command/decide-rule-matches', { id: match.id, decision: 'confirm' }, manager)).status, 404)
+    assert.equal((await send('/api/lodge/command/decide-rule-matches', { vacancy: carpenter.id, all: true, decision: 'confirm' }, manager)).status, 409, 'the whole queue holds nothing the reader sees')
+    assert.deepEqual([(await state()).applications.find(x => x.id === ines.id).status, (await state()).ruleMatches.find(m => m.id === match.id).status], ['active', 'queued'])
+    assert.ok((await send('/api/lodge/command/preview-rule', { id: cdlRoute.id }, owner)).text.includes(ines.id), 'the owner still sees it')
+    await cmd('screening-rule', { id: rule.id, ...relocation, active: false })
+  })
+
   await t.test('REQ-003 a job names its hiring team; each sees and hears only that job, and a swap moves reminders and access at once', async () => {
     const today = new Date().toLocaleDateString('en-CA', { timeZone: BUSINESS.timeZone })
     const job = async (title, manager) => {
@@ -1218,6 +1239,7 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
   await t.test('DATA-002 original resumes, grounded extraction, corrections and confirmed duplicates before individual or bulk commit', async () => {
     await checkResumeIntake(h, { manager, interviewer: ivy })
   })
+
 })
 
 test('DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration', async t => {
