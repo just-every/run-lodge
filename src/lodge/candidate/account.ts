@@ -48,7 +48,7 @@ export function answerRequest(s: State, a: Actor, app: Data, b: Data) {
 export function preferences(s: State, a: Actor, candidate: Data, b: Data) {
   const preference = oneOf(b.preference, ['email', 'phone', 'none'] as const, 'Contact preference')
   s.put('candidate', candidate.id, { ...candidate, contactPreference: { preference, at: now(), by: a.id }, consent: { ...candidate.consent, talentPool: b.talentPool === 'yes' } })
-  s.audit(a, 'candidate-preferences-changed', 'candidate:' + candidate.id)
+  s.audit(a, 'candidate-preferences-changed', 'candidate:' + candidate.id, { preference, talentPool: b.talentPool === 'yes' })
 }
 
 /** Withdrawal closes just this application; retained originals and holds are untouched. */

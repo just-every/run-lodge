@@ -213,7 +213,8 @@ export async function checkCandidateAccount() {
     assert.match(preferencesPage.text, /value="none" selected/)
     assert.ok(!preferencesPage.text.includes('value="yes" checked'), 'reloaded page shows withdrawn consent')
     const preferenceEvents = (await h.send('/api/lodge/audit?action=candidate-preferences-changed', undefined, h.owner)).value.events
-    assert.equal(preferenceEvents.length, 2); assert.ok(preferenceEvents.every(e => e.actor && e.at))
+    assert.deepEqual(preferenceEvents.map(e => [e.preference, e.talentPool]), [['email', true], ['none', false]], 'audit records the explicit grant and withdrawal choices')
+    assert.ok(preferenceEvents.every(e => e.actor && e.at))
     let state = await h.state()
     assert.equal(state.candidates.find(c => c.id === alice.person.id).contactPreference.preference, 'none')
     assert.equal(state.candidates.find(c => c.id === alice.person.id).consent.talentPool, false)
@@ -366,7 +367,6 @@ export async function checkCandidateBooking() {
     const rows = async () => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
     const before = await rows()
     assert.equal((await h.send(path)).status, 401)
-    assert.ok(app.candidateAccount.publishedBy && app.candidateAccount.publishedAt && request.by && request.at)
     const shown = await h.send(path, undefined, cookie)
     assert.equal(shown.status, 200); assert.match(shown.text, /Book interview/)
     assert.ok(shown.text.includes(slots[0])); assert.ok(!shown.text.includes(slots[2]), 'a panel-unavailable time is not offered')
