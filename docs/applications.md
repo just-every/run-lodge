@@ -51,10 +51,14 @@ for ordinary information. Nothing publishes the internal stage or employer notes
 The candidate answers each request once; the original submission stays intact.
 
 Candidates save their preferred contact method and optional consent for other
-roles. Changing an email needs a sign-in within the last 15 minutes and a
+roles. Withdrawing a contact preference applies to later recruiter email
+preparation, including already-approved drafts, and withdrawing consent for other
+roles removes the candidate from the talent pool immediately. Reloading the
+account shows the saved choices. Changing an email needs a sign-in within the last 15 minutes and a
 confirmation sent to the new address. Confirm while still signed in to that
 candidate account. Other sessions and old sign-in links end; existing accounts
-are never merged. The verification email follows the application language;
+are never merged. The old inbox receives one security notice without the new
+address. Verification and the security notice follow the application language;
 English and Spanish system copy is included. Other languages require a reviewed
 `candidate-email-copy` version through the documented command API.
 

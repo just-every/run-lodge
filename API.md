@@ -629,9 +629,13 @@ at `/jobs/receipt` under ATTR-001.
 Owner/admin people use `candidate-progress` with `application`, a `progress` of
 `Received`, `In review`, `Interviewing`, `Offer` or `Closed`, an optional `message`,
 and an optional ordinary-information `request`. It publishes only these fields.
-`candidate-email-copy` takes `application`, `subject`, `text` (containing `{link}`)
-and `reviewed: true`; each save records a reviewed language/version. Custom
-verification copy uses that application's recorded language.
+`candidate-email-copy` takes `application`, `subject`, `text` (containing `{link}`),
+`changedSubject`, `changedText`, and `reviewed: true`; each save records a reviewed
+language/version for verification and the notice sent once to the former inbox.
+Custom copy uses that application's recorded language. The notice should explain
+that the email changed and old sessions ended without naming the replacement
+address. A missing reviewed notice refuses the change before verification mail
+is sent.
 
 A person who manages the job uses `interview-self-scheduling` with `interview`
 and `enabled` to share its title, location and future panel-approved proposed
