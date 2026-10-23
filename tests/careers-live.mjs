@@ -8,8 +8,8 @@ const deployKit = new URL('./', import.meta.resolve('@runeditrun/rer/modules/dep
 const { uploadWorker } = await import(new URL('worker.mjs', deployKit))
 const { packageBuild } = await import(new URL('prepare.mjs', deployKit))
 import { BUSINESS } from './harness.mjs'
-import { brandInput, employerLogo, careersJob } from './careers-flow.mjs'
-import { careersPublicPage } from './careers-page.mjs'
+import { brandInput, employerLogo, careersJob } from './careers-driver.mjs'
+import { careersPublicPage } from './careers-driver.mjs'
 
 const account = process.env.CLOUDFLARE_ACCOUNT_ID, token = process.env.CLOUDFLARE_API_TOKEN
 assert.equal(account, 'b20c0ca9cab0c2b70e13d7cf724b89bd', 'sandbox must use RunEditRun')

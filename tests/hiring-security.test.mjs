@@ -259,7 +259,7 @@ test('Lodge security through native sessions and real D1', async t => {
 })
 
 test('REVIEW-002 name-blind review across reads, reveals and return', async t => {
-  const { checkBlindReview } = await import('./blind-flow.mjs')
+  const { checkBlindReview } = await import('./blind-driver.mjs')
   await checkBlindReview(t)
 })
 

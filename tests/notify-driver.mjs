@@ -1,14 +1,21 @@
+// Shared HTTP and browser driver; each public-door journey retains its own assertions.
+import assert from "node:assert/strict"
+import { businessHarness } from "./harness.mjs"
+import { browserWidths } from "./browser-widths.mjs"
+import { join } from "node:path"
+import { current, session } from "./browser-journey.mjs"
+
 // TEAM-002 and TEAM-003 through the public doors: the note, preference and scheduled-run commands and routes, the saved
 // records, the home route and the mail network edge. Nothing in Lodge is faked; only the mail provider's edge is.
-import assert from 'node:assert/strict'
-import { BUSINESS, harness } from './harness.mjs'
+
+
 
 const mails = async (h, to) => (await h.db.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY sequence').all()).results.map(r => JSON.parse(r.message)).filter(m => m.to.includes(to))
 const alertStates = async h => (await h.db.prepare("SELECT value FROM l_records WHERE kind='alert'").all()).results.map(r => JSON.parse(r.value))
 
 /** A business with a published job, its team and the people the two journeys need. */
 async function scenario(h) {
- await h.command('business', BUSINESS)
+
  const people = {
   morgan: await h.member('morgan@example.test', ['manager'], 'Morgan Lee'),
   parker: await h.member('parker@example.test', ['approver'], 'Parker Jones'),
@@ -31,7 +38,7 @@ async function scenario(h) {
 }
 
 export async function checkMentions() {
- const h = await harness()
+ const h = await businessHarness()
  try {
   const { people, job, person } = await scenario(h)
   const { morgan, hana, erin } = people, cmd = h.command
@@ -90,7 +97,7 @@ export async function checkMentions() {
 }
 
 export async function checkNotifications() {
- const h = await harness()
+ const h = await businessHarness()
  try {
   const { people, job, person } = await scenario(h)
   const { morgan, hana, ivy } = people, cmd = h.command
@@ -159,4 +166,84 @@ export async function checkNotifications() {
   assert.equal((await inbox('sam@example.test', /New application: Una Hart/)).length, 0, 'a member’s own choice wins')
   assert.equal((await h.send('/api/lodge/command/notify-pref', { vacancy: a.id, event: 'offer', email: 'immediate' }, people.parker)).status, 404, 'only for jobs they are on')
  } finally { await h.close() }
+}
+
+// TEAM-002 and TEAM-003 on the real screens at 1440 and 390: the manager mentions a colleague with access and one without
+// from the note box (with suggestions), the first opens the candidate from their home and the mention leaves it, the second
+// sees the text with no link, and a member changes a notification setting. (Local `rer dev` captures no mail; the mail
+// itself is asserted through the API in tests/notify-driver.mjs.)
+
+
+
+
+async function fits(page, label) {
+ const { scroll, width } = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: window.innerWidth }))
+ assert.ok(scroll <= width + 1, `${label}: no sideways scrolling (${scroll} > ${width})`)
+}
+
+// A manager lands on the board; the home list and settings sit on the Overview tab.
+const overview = async page => { await page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Overview', exact: true }).click(); await page.getByRole('heading', { name: 'Your work' }).waitFor() }
+
+export async function notifyPage(browser, { root, origin, run, job, evidence, ownerEmail }) {
+ for (const width of browserWidths) {
+  const name = `Mention Person ${width}`
+  await run('candidate', { name, email: `mention.${width}@example.test`, source: 'Referral', consentBasis: 'referral', consentNote: 'Agreed', vacancy: job.id })
+  const manager = await session(browser, root, origin, 'manager', width), owner = await session(browser, root, origin, 'owner', width), interviewer = await session(browser, root, origin, 'interviewer', width)
+  try {
+   const errors = []
+   for (const s of [manager, owner, interviewer]) s.page.on('pageerror', e => errors.push(e.message))
+   const w = await current(manager.context, origin), app = w.applications.find(a => a.candidateName === name)
+   const page = manager.page
+   await page.goto(origin + '/app?application=' + app.id)
+   await page.getByRole('tab', { name: 'Notes', exact: true }).click()
+   const box = page.getByLabel('Note for the hiring team')
+   await box.fill('Please look at this one, @ivy')
+   const options = page.getByRole('listbox', { name: 'People you can mention' })
+   await options.getByRole('button', { name: /Ivy Chen/ }).click()
+   await box.evaluate(el => { el.focus(); el.setSelectionRange(el.value.length, el.value.length) })
+   await box.pressSequentially('and also @' + ownerEmail.slice(0, 5))
+   await options.getByRole('button').first().click()
+   assert.match(await box.inputValue(), /@interviewer@dev\.localhost and also @owner/)
+   const close = page.getByRole('button', { name: 'Close the application', exact: true })
+   await close.hover()
+   await page.getByRole('tooltip', { name: 'Close the application' }).waitFor()
+   await close.focus()
+   assert.equal(await page.getByRole('tooltip').isVisible(), true, 'keyboard focus shows the control name')
+   await fits(page, 'note box')
+   await page.screenshot({ path: join(evidence, `TEAM-002-note-${width}.png`), fullPage: true })
+   await page.getByRole('button', { name: 'Add note' }).click()
+   await page.getByText('Saved.', { exact: true }).waitFor()
+
+   // The colleague with access: the mention is on their home, links to the candidate and leaves once opened.
+   await owner.page.goto(origin + '/app'); await overview(owner.page)
+   const work = owner.page.getByRole('heading', { name: 'Your work' }).locator('..')
+   const mention = work.getByRole('link', { name: /mentioned you on/ })
+   await mention.waitFor()
+   await fits(owner.page, 'owner home')
+   await owner.page.screenshot({ path: join(evidence, `TEAM-002-home-${width}.png`), fullPage: true })
+   await mention.click()
+   await owner.page.getByRole('heading', { name }).first().waitFor()
+   assert.equal((await current(owner.context, origin)).alerts.find(x => x.event === 'mention')?.read, true, 'opening it marked it read')
+
+   // The colleague without access: the text, no link, and the candidate stays closed to them.
+   await interviewer.page.goto(origin + '/app'); await overview(interviewer.page)
+   const text = interviewer.page.getByRole('heading', { name: 'Your work' }).locator('..').getByRole('listitem').filter({ hasText: 'mentioned you in a note' }).first() // the 390 pass also sees the 1440 pass's unread mention
+   await text.waitFor()
+   assert.equal(await text.getByRole('link').getAttribute('href'), '#', 'no link to the candidate')
+   assert.ok(!(await current(interviewer.context, origin)).applications.some(a => a.id === app.id))
+   await fits(interviewer.page, 'interviewer home')
+   await interviewer.page.screenshot({ path: join(evidence, `TEAM-002-nolink-${width}.png`), fullPage: true })
+
+   // TEAM-003: the manager's own setting for the job, saved from the settings card.
+   await manager.page.goto(origin + '/app'); await overview(manager.page)
+   const settings = manager.page.getByRole('heading', { name: 'Notification settings' }).locator('..')
+   await settings.locator('summary', { hasText: job.title }).click()
+   await settings.getByLabel(`New application: email for ${job.title}`).selectOption('digest')
+   await manager.page.getByText('Saved.', { exact: true }).waitFor()
+   assert.equal((await current(manager.context, origin)).notify.jobs.find(j => j.vacancy === job.id).settings.application.email, 'digest')
+   await fits(manager.page, 'settings')
+   await manager.page.screenshot({ path: join(evidence, `TEAM-003-settings-${width}.png`), fullPage: true })
+   assert.deepEqual(errors, [])
+  } finally { for (const s of [manager, owner, interviewer]) await s.context.close() }
+ }
 }

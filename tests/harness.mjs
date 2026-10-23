@@ -13,6 +13,15 @@ import { unstable_splitSqlQuery } from 'wrangler'
 
 const SETUP_TOKEN = 'synthetic-local-test-setup-token-0123456789abcdef'
 
+// Only the compiled source is shared. Bindings, sessions, migrations and D1
+// remain private to each fixture. A new test process recompiles the candidate.
+const bundles = new Map()
+function workerBundle() {
+  const root = process.cwd()
+  if (!bundles.has(root)) bundles.set(root, build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }], external: ['node:*'], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
+  return bundles.get(root)
+}
+
 async function freePort() {
   const socket = createServer()
   await new Promise(resolve => socket.listen(0, '127.0.0.1', resolve))
@@ -25,7 +34,7 @@ async function freePort() {
 export async function harness({ claim = true, bindings = {}, outboundService } = {}) {
   const port = await freePort(), origin = `http://127.0.0.1:${port}`
   const dir = await mkdtemp(join(tmpdir(), 'lodge-test-'))
-  const bundle = await build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(process.cwd(), 'tests/mail-edge.mjs') })) } }], external: ['node:*'], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' })
+  const bundle = await workerBundle()
   const mf = new Miniflare({
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat', 'global_fetch_strictly_public'],
@@ -98,3 +107,15 @@ export async function harness({ claim = true, bindings = {}, outboundService } =
 
 /** The owner's business settings, used by every suite. */
 export const BUSINESS = { name: 'Example Builders', accommodationContact: 'adjustments@example.test', retentionDays: 365, jurisdiction: 'United States (New York office); legal review pending', timeZone: 'America/New_York', privacyNotice: 'We use your application only to assess you for this role and keep it for one year.' }
+
+/** Fresh Worker/D1 and the common business settings, with cleanup on setup failure. */
+export async function businessHarness(options) {
+  const h = await harness(options)
+  try {
+    await h.command('business', BUSINESS)
+    return h
+  } catch (error) {
+    await h.close()
+    throw error
+  }
+}

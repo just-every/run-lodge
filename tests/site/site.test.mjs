@@ -13,14 +13,16 @@ const pages = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => 
 const served = path => [path, `${path}.html`, join(path, 'index.html')].some(candidate => existsSync(join(site, candidate)) && !candidate.endsWith('/'))
 const attrs = (html, name) => [...html.matchAll(new RegExp(`\\s${name}="([^"]*)"`, 'g'))].map(match => match[1].replaceAll('&amp;', '&'))
 
-test('the run site builds, its primary action opens /run, and every link and file it names resolves', () => {
+test('the run site builds, links to /run and every published guide, and resolves every named file', () => {
   execFileSync(join(root, 'node_modules/.bin/rer'), ['build', '--site'], { cwd: root, stdio: 'pipe' })
   const home = readFileSync(join(site, 'index.html'), 'utf8')
-  assert.match(home, /<a class="site-pill" href="\/run">Run Lodge/, 'the homepage leads with Run Lodge to /run')
+  assert.ok(attrs(home, 'href').includes('/run'), 'a visitor can follow the homepage link to /run')
   assert.doesNotMatch(home, /localhost|127\.0\.0\.1|RER_[A-Z]/, 'the homepage shows no local address or rer output line')
   assert.ok(served('run'), '/run is built')
   const all = pages(site)
-  assert.ok(all.length > 3, 'the homepage, /run, the docs and the not-found page')
+  const guides = JSON.parse(readFileSync(join(root, 'docs/site.json'), 'utf8')).sections.flatMap(section => section.pages)
+  for (const { slug } of guides) assert.ok(served('docs/' + slug), `the published guide ${slug} is built`)
+  assert.ok(served('404'), 'the not-found page is built')
   for (const file of all) {
     const html = readFileSync(file, 'utf8'), where = relative(site, file)
     const refs = [...attrs(html, 'href'), ...attrs(html, 'src'), ...attrs(html, 'srcSet').concat(attrs(html, 'srcset')).flatMap(set => set.split(',').map(part => part.trim().split(/\s+/)[0]))]

@@ -6,7 +6,7 @@ import { RANGE, RUBRIC, hiringScenario } from './hiring-fixture.mjs'
 const b64 = text => Buffer.from(text).toString('base64')
 
 import { checkMerge } from './merge-flow.mjs'
-import { checkResumeIntake } from './resume-flow.mjs'
+import { checkResumeIntake } from './resume-driver.mjs'
 import { checkErasure } from './retention-flow.mjs'
 
 test('Lodge hiring flows through native sessions and real D1', async t => {
@@ -1207,23 +1207,23 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
 })
 
 test('DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration', async t => {
-  const { checkFields } = await import('./fields-flow.mjs')
+  const { checkFields } = await import('./fields-driver.mjs')
   await checkFields(t)
 })
 
 test('CRM-005 invited agencies own frozen submissions, reviewed credit and coarse progress through live scoped doors', async t => {
-  const { checkAgency } = await import('./agency-flow.mjs')
+  const { checkAgency } = await import('./agency-driver.mjs')
   await checkAgency(t)
 })
 
 test('ATTR-007 Spanish posts and applications preserve reviewed source versions', async () => {
-  const { checkLanguages } = await import('./languages-flow.mjs')
+  const { checkLanguages } = await import('./languages-driver.mjs')
   await checkLanguages()
 })
 
 
 test('CRM-003 consented employee referrals reconcile identities and expose only shared progress', async t => {
-  const { checkReferrals } = await import('./referrals-flow.mjs')
+  const { checkReferrals } = await import('./referrals-driver.mjs')
   await checkReferrals(t)
 })
 
@@ -1234,7 +1234,7 @@ test('CRM-010 referral alerts and shared progress by installation email, claimed
 })
 
 test('ATTR-001 employer careers branding, private receipt recovery and verified custom domains', async () => {
-  const { checkCareers } = await import('./careers-flow.mjs')
+  const { checkCareers } = await import('./careers-driver.mjs')
   const { careersDomainBindings, createCareersDomainEdge, checkCareersDomain, checkCareersDomainUnavailable } = await import('./careers-domain-flow.mjs')
   const ordinary = await harness()
   try { await checkCareers(ordinary); await checkCareersDomainUnavailable(ordinary) } finally { await ordinary.close() }
@@ -1244,16 +1244,16 @@ test('ATTR-001 employer careers branding, private receipt recovery and verified 
 })
 
 test('CAND-001 native candidate sessions recover only their receipts and submit scoped PRIV-001 requests', async () => {
-  const { checkCandidate } = await import('./candidate-flow.mjs')
+  const { checkCandidate } = await import('./candidate-driver.mjs')
   await checkCandidate()
 })
 
 test('CAND-002 candidate account publishes only explicit updates, verifies email and stops contact on withdrawal', async () => {
-  const { checkCandidateAccount } = await import('./candidate-flow.mjs')
+  const { checkCandidateAccount } = await import('./candidate-driver.mjs')
   await checkCandidateAccount()
 })
 
 test('CAND-003 native candidates book and reschedule only their own panel-approved interview without conflicts', async () => {
-  const { checkCandidateBooking } = await import('./candidate-flow.mjs')
+  const { checkCandidateBooking } = await import('./candidate-driver.mjs')
   await checkCandidateBooking()
 })

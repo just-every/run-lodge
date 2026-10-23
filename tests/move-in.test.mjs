@@ -72,7 +72,10 @@ test('LDG-014 Workable package: preview writes nothing, commit is exact and repe
     assert.equal(await count(), records)
 
     const status = (await send('/api/lodge/import/status', { id: job.id }, owner)).value
-    assert.ok(status.originals.length >= 10 && status.originals.every(o => o.status === 'retained'), 'every original file is kept unchanged')
+    const byName = rows => [...rows].sort((a, b) => a.name.localeCompare(b.name))
+    const artifacts = status.originals.filter(o => o.kind === 'artifact').map(({ name, sha256, size }) => ({ name, sha256, size }))
+    assert.deepEqual(byName(artifacts), byName(plan.artifacts), 'every reviewed original artifact is retained with its exact metadata')
+    assert.ok(status.originals.every(o => o.status === 'retained'), 'every original file is kept unchanged')
 
     // A person corrects one imported candidate and links another to a native vacancy.
     await cmd('correct-candidate', { id: dana.id, name: 'Dana Whitfield', email: 'dana.w@example.test', reason: 'Updated email' })
@@ -122,11 +125,11 @@ test('LDG-014 Workable package: preview writes nothing, commit is exact and repe
 
 // Legacy links are independent of account-backed source migration acceptance.
 test('MIG-009 old source links resolve only to currently public mapped jobs and posts', async t => {
-  const { checkLegacyLinks } = await import('./legacy-links.mjs')
+  const { checkLegacyLinks } = await import('./legacy-driver.mjs')
   await checkLegacyLinks(t)
 })
 
 test('MIG-008 mapped, previewed and approved cutover of open imported applications into live jobs, with contact gate and undo', async () => {
-  const { checkCutover } = await import('./cutover-flow.mjs')
+  const { checkCutover } = await import('./cutover-driver.mjs')
   await checkCutover()
 })

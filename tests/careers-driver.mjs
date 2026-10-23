@@ -1,9 +1,73 @@
-import { browserWidths } from './browser-widths.mjs'
-import { careersSite } from './board-page.mjs'
-import assert from 'node:assert/strict'
-import { join } from 'node:path'
-import { brandInput, careersJob, employerLogo } from './careers-flow.mjs'
-import { current, session } from './browser-journey.mjs'
+// Shared HTTP and browser driver; each public-door journey retains its own assertions.
+import assert from "node:assert/strict"
+import { readFile } from "node:fs/promises"
+import { BUSINESS } from "./harness.mjs"
+import { browserWidths } from "./browser-widths.mjs"
+import { careersSite } from "./board-page.mjs"
+import { join } from "node:path"
+import { current, session } from "./browser-journey.mjs"
+
+export const brandInput = { intro: 'Build thoughtful homes with a team that takes safety seriously.', primaryColor: '#194b3b', backgroundColor: '#ffffff', textColor: '#172033' }
+export async function employerLogo() { return { name: 'hudson-builders.png', mediaType: 'image/png', base64: (await readFile(new URL('./fixtures/careers-employer.png', import.meta.url))).toString('base64') } }
+export async function careersJob(run, title, workMode = 'onsite', location = 'Brooklyn, NY') {
+  const v = await run('vacancy', { title, workMode, location, employmentType: 'full-time', manager: 'owner@example.test', description: 'Coordinate safe residential construction with clear communication.', headcount: 2, compensation: { currency: 'USD', min: 8000000, max: 10000000, period: 'year' } })
+  await run('rubric', { id: v.id, criteria: [{ name: 'Site safety', description: 'A concrete example of safe residential work' }] })
+  await run('interview-plan', { id: v.id, plan: [{ name: 'Site walk', stageName: 'Interview' }] })
+  const request = await run('request-vacancy-approval', { id: v.id, approver: 'owner@example.test' })
+  await run('decide-approval', { id: request.id, decision: 'approved', version: request.version, reason: 'Reviewed job, pay and interview plan' })
+  return run('publish', { id: v.id })
+}
+export async function checkCareers(h) {
+  await h.command('business', BUSINESS)
+  const manager = await h.member('careers-manager@example.test', ['manager'])
+  await h.command('careers-brand', { ...brandInput, logo: await employerLogo() }, manager, 403)
+  await h.command('careers-brand', { ...brandInput, primaryColor: '#eeeeee' }, h.owner, 400)
+  await h.command('careers-brand', { ...brandInput, textColor: '#dddddd' }, h.owner, 400)
+  await h.command('careers-brand', { ...brandInput, logo: { name: 'unsafe.svg', mediaType: 'image/svg+xml', base64: Buffer.from('<svg onload="alert(1)"/>').toString('base64') } }, h.owner, 400)
+  const logo = await employerLogo()
+  await h.command('careers-brand', { ...brandInput, logo })
+  const onsite = await careersJob(h.command, 'Residential site supervisor')
+  const remote = await careersJob(h.command, 'Remote project coordinator', 'remote', 'Austin, TX')
+  const jobs = await h.send('/jobs')
+  assert.match(jobs.text, /\/careers\/logo/); assert.ok(jobs.text.includes(brandInput.intro))
+  const filtered = await h.send('/jobs?remote=true&location=' + encodeURIComponent('Austin, TX') + '&q=coordinator')
+  assert.ok(filtered.text.includes(remote.slug)); assert.ok(!filtered.text.includes('/jobs/' + onsite.slug))
+  assert.equal(Buffer.from((await h.send('/careers/logo')).text).length > 0, true)
+  assert.ok((await h.send('/careers/brand.css')).text.includes(brandInput.primaryColor))
+  await h.command('job-board', { token: 'synthetic-lodge-1', allowedOrigins: ['https://employer.example.com'] })
+  const form = await h.send('/jobs/' + onsite.slug)
+  assert.match(form.text, /data-careers-draft/)
+  const data = new FormData()
+  for (const [k,v] of Object.entries({ name: 'Avery Careers', email: 'avery-careers@example.test', noticeVersion: '1', consent: 'yes' })) data.set(k,v)
+  data.set('resume', new File(['Avery: supervised occupied renovation sites.'], 'avery-resume.txt', { type: 'text/plain' }))
+  const receipt = await h.send('/jobs/' + onsite.slug, data)
+  assert.equal(receipt.status, 200)
+  const code = /data-recovery-code>([a-f0-9]{64})</.exec(receipt.text)?.[1]
+  assert.ok(code)
+  const id = /LDG-[A-F0-9]{8}/.exec(receipt.text)[0]
+  const saved = (await h.state()).receipts.find(r => r.id === id)
+  assert.equal(saved.recoveryHash, undefined, 'recovery material stays out of workspace and candidate exports')
+  const wrong = new FormData(); wrong.set('code', '0'.repeat(64))
+  assert.equal((await h.send('/jobs/receipt', wrong)).status, 404)
+  const recovery = new FormData(); recovery.set('code', code)
+  const recovered = await h.send('/jobs/receipt', recovery)
+  assert.equal(recovered.status, 200); assert.ok(recovered.text.includes(id))
+  assert.ok(!recovered.text.includes('avery-careers@example.test'))
+  assert.equal((await h.send('/jobs/receipt', recovery, '', { origin: 'https://foreign.example.com' })).status, 403)
+  const embedded = await h.send('/embed/receipt', recovery)
+  assert.equal(embedded.status, 200); assert.ok(embedded.text.includes(id)); assert.match(embedded.text, /\/careers\/logo/)
+  const receiptRecord = JSON.parse((await h.db.prepare("SELECT value FROM l_records WHERE kind='receipt' AND id=?").bind(id).first()).value)
+  await h.db.prepare("UPDATE l_records SET value=json_set(value,'$.recoveryExpires',?) WHERE kind='receipt' AND id=?").bind('2000-01-01T00:00:00Z',id).run()
+  assert.equal((await h.send('/jobs/receipt', recovery)).status,404,'an expired possession code cannot recover the receipt')
+  await h.db.prepare("UPDATE l_records SET value=? WHERE kind='receipt' AND id=?").bind(JSON.stringify(receiptRecord),id).run()
+  const app = (await h.state()).applications.find(a => a.id === saved.application)
+  const exported = await h.send('/api/lodge/download/candidate/' + app.candidate, undefined, h.owner)
+  assert.ok(!JSON.stringify(exported.value).includes('recoveryHash'))
+  await h.command('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Applicant withdrew' })
+  const candidate = (await h.state()).candidates.find(c => c.id === app.candidate)
+  assert.equal((await h.send('/api/lodge/delete-candidate', { candidate: candidate.id, confirm: candidate.name, reason: 'Applicant asked' }, h.owner)).status, 200)
+  assert.equal((await h.send('/jobs/receipt', recovery)).status, 404)
+}
 
 async function brandedButton(button) {
   const expected = 'rgb(' + [1,3,5].map(i => parseInt(brandInput.primaryColor.slice(i,i+2),16)).join(', ') + ')'

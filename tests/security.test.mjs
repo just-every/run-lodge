@@ -8,7 +8,7 @@ import { checkImportedHistory } from './security-history.mjs'
 import { checkRaces } from './security-races.mjs'
 import { commandBodies } from './security-commands.mjs'
 import { checkLevels } from './security-levels.mjs'
-import { checkOperations } from './security-operations.mjs'
+import { checkOperations } from './operations-driver.mjs'
 
 const snapshot = async h => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
 
@@ -174,5 +174,5 @@ test('DATA-006 inline originals and restricted-view audit obey live reviewer aut
 
 test('INT-002 admin connector registry refuses credentials and never fabricates provider access', async () => {
  const h = await fixture()
- try { const { checkConnectors } = await import('./connectors-flow.mjs'); await checkConnectors(h) } finally { await h.close() }
+ try { const { checkConnectors } = await import('./connectors-driver.mjs'); await checkConnectors(h) } finally { await h.close() }
 })

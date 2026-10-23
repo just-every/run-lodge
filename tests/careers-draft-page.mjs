@@ -1,7 +1,7 @@
 import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
-import { careersJob } from './careers-flow.mjs'
+import { careersJob } from './careers-driver.mjs'
 import { current, session } from './browser-journey.mjs'
 
 // ATTR-014: a job with yes/no, single-choice and multiple-choice questions and a required attachment; the device-local draft keeps the choices and the files,

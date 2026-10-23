@@ -32,7 +32,7 @@ try {
         const asked = await run('request-vacancy-approval', { id: job.id, approver: options.ownerEmail })
         await run('decide-approval', { id: asked.id, decision: 'approved', reason: 'Budget reviewed', version: asked.version })
         await run('publish', { id: job.id })
-        await (await import('./notify-page.mjs')).notifyPage(browser, { ...options, job })
+        await (await import('./notify-driver.mjs')).notifyPage(browser, { ...options, job })
         console.log(clause + ': own screens and end states passed at 1440 and 390')
         continue
       }
@@ -41,7 +41,7 @@ try {
         console.log(clause + ': hiring journey passed at 1440 and 390')
         continue
       }
-      const [file, fn] = ({ 'ATTR-001': ['careers-page', 'careersPage'], 'ATTR-007': ['languages-page', 'languagesPage'], 'ATTR-014': ['careers-draft-page', 'careersDraftPage'], 'CRM-003': ['referrals-page', 'referralsPage'], 'INT-002': ['connectors-page', 'connectorsPage'], 'CRM-001': ['talent-page', 'talentPage'], 'CAND-001': ['candidate-page', 'candidatePage'], 'CAND-002': ['candidate-page', 'candidateAccountPage'], 'CAND-003': ['candidate-page', 'candidateBookingPage'] })[clause] ?? []
+      const [file, fn] = ({ 'ATTR-001': ['careers-driver', 'careersPage'], 'ATTR-007': ['languages-driver', 'languagesPage'], 'ATTR-014': ['careers-draft-page', 'careersDraftPage'], 'CRM-003': ['referrals-driver', 'referralsPage'], 'INT-002': ['connectors-driver', 'connectorsPage'], 'CRM-001': ['talent-page', 'talentPage'], 'CAND-001': ['candidate-driver', 'candidatePage'], 'CAND-002': ['candidate-driver', 'candidateAccountPage'], 'CAND-003': ['candidate-driver', 'candidateBookingPage'] })[clause] ?? []
       if (!file) throw new Error('Name a supported clause')
       await (await import('./' + file + '.mjs'))[fn](browser, options)
       console.log(clause + ': own screens and end states passed at 1440 and 390')

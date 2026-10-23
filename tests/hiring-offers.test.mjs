@@ -452,12 +452,12 @@ test('Lodge offers through native sessions and real D1', async t => {
 })
 
 test('OFFER-001 reviewed hourly and annual documents bind compensation routing, release and job setup', async () => {
-  const { checkOfferDocuments } = await import('./offer-documents.mjs')
+  const { checkOfferDocuments } = await import('./offer-driver.mjs')
   await checkOfferDocuments()
 })
 
 test('OFFER-005 native e-signature: send, verify, consent, sign, countersign, seal, void, erase', async () => {
-  const { checkEsign } = await import('./esign.mjs')
+  const { checkEsign } = await import('./esign-driver.mjs')
   await checkEsign()
 })
 

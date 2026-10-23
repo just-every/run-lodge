@@ -280,12 +280,12 @@ test('Lodge reports through native sessions and real D1', async t => {
 })
 
 test('TEAM-002 @mentions raise access-checked notifications and never widen access', async () => {
-  const { checkMentions } = await import('./notify-flow.mjs')
+  const { checkMentions } = await import('./notify-driver.mjs')
   await checkMentions()
 })
 
 test('TEAM-003 personal notification subscriptions, role defaults, the daily digest and live access at send time', async () => {
-  const { checkNotifications } = await import('./notify-flow.mjs')
+  const { checkNotifications } = await import('./notify-driver.mjs')
   await checkNotifications()
 })
 

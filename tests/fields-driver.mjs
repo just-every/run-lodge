@@ -1,12 +1,16 @@
-import assert from 'node:assert/strict'
-import { BUSINESS, harness } from './harness.mjs'
-import { zip } from './zip.mjs'
+// Shared HTTP and browser driver; each public-door journey retains its own assertions.
+import assert from "node:assert/strict"
+import { businessHarness } from "./harness.mjs"
+import { zip } from "./zip.mjs"
+import { browserWidths } from "./browser-widths.mjs"
+import { join } from "node:path"
+import { current, session } from "./browser-journey.mjs"
 
 /** DATA-001, through real HTTP and D1; the only synthetic data is the import ZIP. */
 export async function checkFields(t) {
- const h = await harness(); t.after(() => h.close())
+ const h = await businessHarness(); t.after(() => h.close())
  const { command: cmd, send, state } = h
- await cmd('business', BUSINESS)
+
  const manager = await h.member('fields.manager@example.test', ['manager'])
  const reviewer = await h.member('fields.reviewer@example.test', ['interviewer'])
  const other = await h.member('fields.other@example.test', ['manager'])
@@ -177,3 +181,176 @@ export async function checkFields(t) {
 }
 
 const hiringRows = async h => (await h.db.prepare("SELECT kind,id,value FROM l_records WHERE kind NOT IN ('audit','workflow-sandbox') ORDER BY kind,id").all()).results
+
+const navigate = (page, name) => page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name, exact: true }).click()
+async function expand(details) { if (!await details.evaluate(node => node.open)) await details.locator('summary').first().click() }
+async function screenshot(page, evidence, label, width) {
+  const bounds = await page.evaluate(() => ({ fits: document.documentElement.scrollWidth <= innerWidth + 1, overflow: [...document.querySelectorAll('main *')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(-12).map(e => ({ tag: e.tagName, cls: e.className, width: Math.round(e.getBoundingClientRect().width) })) }))
+  assert.ok(bounds.fits, 'DATA-001 fits at ' + width + ': ' + JSON.stringify(bounds.overflow))
+  await page.screenshot({ path: join(evidence, `DATA-001-${label}-${width}.png`), fullPage: true })
+}
+async function addField(region, page, spec) {
+  const add = region.locator('details').filter({ has: page.getByText('Add a typed field', { exact: true }) })
+  await expand(add)
+  await add.getByLabel('Field name', { exact: true }).fill(spec.name)
+  await add.getByRole('combobox', { name: /^Record kind/ }).selectOption(spec.record)
+  await add.getByRole('combobox', { name: /^Field type/ }).selectOption(spec.type)
+  if (spec.choices) await add.getByLabel('Choices (one per line)').fill(spec.choices.join('\n'))
+  await add.getByLabel('Restricted to owner and hiring admins').setChecked(!!spec.restricted)
+  await add.getByRole('combobox', { name: /^Identity to redact during blind review/ }).selectOption(spec.identity ?? '')
+  await add.getByLabel('Workable CSV column (optional)').fill(spec.importColumn ?? '')
+  if (spec.requiredStage) await add.getByRole('group', { name: 'Required before entering stages' }).getByLabel(spec.requiredStage, { exact: true }).check()
+  await add.getByRole('button', { name: 'Add field', exact: true }).click()
+  await region.locator('summary').filter({ hasText: 'Change field “' + spec.name + '”' }).waitFor()
+}
+
+/** DATA-001: real draft settings, hosted intake, scoped profiles/search/views and reviewed sandbox deployment. */
+export async function fieldsPage(browser, { root, origin, run, evidence, ownerEmail }) {
+ for (const width of browserWidths) {
+  const suffix = width + '-' + crypto.randomUUID().slice(0, 6)
+  const job = await run('vacancy', { title: 'Typed hiring ' + suffix, location: 'Brooklyn, NY', headcount: 2, manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 5000000, max: 6500000, period: 'year' } })
+  await run('rubric', { id: job.id, criteria: [{ name: 'Safe handling', description: 'Explains safe handling steps' }] })
+  await run('interview-plan', { id: job.id, plan: [{ name: 'Handling discussion', stageName: 'Interview' }] })
+  const owner = await session(browser, root, origin, 'owner', width)
+  const contexts = [owner.context]
+  try {
+   const { page, context } = owner
+   const errors = []
+   page.on('pageerror', e => errors.push(e.message))
+   await navigate(page, 'Vacancies')
+   await page.getByRole('button', { name: 'Open ' + job.title, exact: true }).click()
+   const fields = page.getByRole('region', { name: 'Custom hiring fields', exact: true })
+   await addField(fields, page, { name: 'Employment preference', record: 'candidate', type: 'choice', choices: ['Permanent', 'Contract'], importColumn: 'employment_preference' })
+   await addField(fields, page, { name: 'Private screening detail', record: 'application', type: 'text', restricted: true })
+   await addField(fields, page, { name: 'Handling years', record: 'application', type: 'number', requiredStage: job.stages[2].name })
+   await addField(fields, page, { name: 'Shift available', record: 'candidate', type: 'boolean' })
+   await addField(fields, page, { name: 'Requisition target date', record: 'vacancy', type: 'date' })
+   const requisition = fields.getByRole('region', { name: 'Requisition fields', exact: true })
+   await requisition.getByText('Edit requisition fields', { exact: true }).click()
+   await requisition.getByLabel('Requisition target date', { exact: true }).fill('2026-12-01')
+   await requisition.getByRole('button', { name: 'Save requisition fields', exact: true }).click()
+   await requisition.getByText('2026-12-01', { exact: true }).waitFor()
+   const viewSettings = page.getByRole('region', { name: 'Team view settings', exact: true })
+   await viewSettings.getByText('Add a team view', { exact: true }).click()
+   await viewSettings.getByLabel('Team view name').fill('Permanent handlers ' + suffix)
+   await viewSettings.getByLabel('Resume or profile query').fill('palletplanning' + suffix)
+   let state = await current(context, origin)
+   let configured = state.vacancies.find(v => v.id === job.id)
+   const employment = configured.customSchema.find(f => f.name === 'Employment preference')
+   const secret = configured.customSchema.find(f => f.name === 'Private screening detail')
+   const years = configured.customSchema.find(f => f.name === 'Handling years')
+   const shift = configured.customSchema.find(f => f.name === 'Shift available')
+   await viewSettings.getByRole('combobox', { name: /^Filter field/ }).selectOption(employment.id)
+   await viewSettings.getByRole('group', { name: 'Field must equal' }).getByRole('combobox', { name: /^Employment preference/ }).selectOption('Permanent')
+   await viewSettings.getByRole('button', { name: 'Add team view', exact: true }).click()
+   await viewSettings.getByText('Change team view “Permanent handlers ' + suffix + '”', { exact: true }).waitFor()
+   await screenshot(page, evidence, 'settings', width)
+   const approval = await run('request-vacancy-approval', { id: job.id, approver: ownerEmail })
+   await run('decide-approval', { id: approval.id, version: approval.version, decision: 'approved', reason: 'Budgeted typed-field trial' })
+   const published = await run('publish', { id: job.id })
+   const visitor = await browser.newContext({ viewport: { width, height: 1000 } })
+   contexts.push(visitor)
+   const intake = await visitor.newPage()
+   await intake.goto(origin + '/jobs/' + published.slug)
+   const name = 'Morgan Typed ' + suffix, email = 'typed-' + suffix + '@example.test'
+   await intake.getByLabel('Full name').fill(name)
+   await intake.getByLabel('Email', { exact: true }).fill(email)
+   await intake.getByLabel('Employment preference', { exact: false }).selectOption('Permanent')
+   await intake.getByLabel('Handling years', { exact: false }).fill('2.5')
+   // A typed boolean uses an explicit yes/no select so false is distinct from missing.
+   await intake.getByLabel('Shift available', { exact: false }).selectOption('true')
+   await intake.getByLabel('Private screening detail', { exact: false }).fill('intake-private-' + suffix)
+   await intake.getByLabel(/^Resume \(/).setInputFiles({ name: 'handling.txt', mimeType: 'text/plain', buffer: Buffer.from(name + '\nExperience: palletplanning' + suffix + '\n') })
+   await intake.getByLabel('I have read privacy notice', { exact: false }).check()
+   await screenshot(intake, evidence, 'intake', width)
+   await intake.getByRole('button', { name: 'Submit application', exact: true }).click()
+   await intake.getByRole('heading', { name: 'Application received', exact: true }).waitFor()
+   state = await current(context, origin)
+   const candidate = state.candidates.find(c => c.email === email)
+   const app = state.applications.find(a => a.candidate === candidate.id && a.vacancy === job.id)
+   assert.equal(candidate.customValues[employment.id], 'Permanent')
+   assert.equal(candidate.customValues[shift.id], true)
+   assert.equal(app.customValues[years.id], 2.5)
+   assert.equal(app.customValues[secret.id], 'intake-private-' + suffix)
+   const nearMiss = await run('candidate', { name: 'Contract handler ' + suffix, email: 'contract-' + suffix + '@example.test', source: 'Careers', consentBasis: 'application', vacancy: job.id, customValues: { [employment.id]: 'Contract' }, resume: { name: 'contract.txt', mediaType: 'text/plain', base64: Buffer.from('Experience: palletplanning' + suffix).toString('base64') } })
+   await run('assign-reviewers', { application: app.id, reviewers: ['interviewer@dev.localhost'] })
+   await page.goto(origin + '/app?application=' + app.id)
+   const profile = page.getByRole('region', { name: 'Profile fields', exact: true })
+   await profile.getByText('Edit profile fields', { exact: true }).click()
+   await profile.getByLabel('Private screening detail', { exact: true }).fill('confidential-' + suffix)
+   await profile.getByLabel('Handling years', { exact: true }).fill('3.5')
+   await profile.getByRole('button', { name: 'Save profile fields', exact: true }).click()
+   await profile.getByText('confidential-' + suffix, { exact: true }).waitFor()
+   const results = page.getByRole('region', { name: 'Saved team view results', exact: true })
+   state = await current(context, origin)
+   configured = state.vacancies.find(v => v.id === job.id)
+   const view = configured.hiringViews[0]
+   await results.getByRole('combobox', { name: /^Saved team view/ }).selectOption(view.id)
+   await results.getByRole('button', { name: 'Open matching application ' + name, exact: true }).waitFor()
+   assert.equal(await results.getByRole('button', { name: 'Open matching application ' + nearMiss.candidate.name, exact: true }).count(), 0, 'typed equality excludes the matching-resume near miss')
+   await results.getByRole('button', { name: 'Open matching application ' + name, exact: true }).click()
+   await profile.waitFor()
+   await page.getByRole('searchbox').fill('palletplanning' + suffix)
+   await page.getByRole('search').getByRole('button').filter({ hasText: name }).waitFor()
+   await page.getByRole('searchbox').fill('')
+   await screenshot(page, evidence, 'profile-view', width)
+   const reviewer = await session(browser, root, origin, 'interviewer', width)
+   contexts.push(reviewer.context)
+   await reviewer.page.goto(origin + '/app?application=' + app.id)
+   await reviewer.page.getByRole('region', { name: 'Profile fields', exact: true }).waitFor()
+   assert.ok(!(await reviewer.page.locator('main').innerText()).includes('confidential-' + suffix))
+   assert.equal(await reviewer.page.getByRole('button', { name: 'Save profile fields', exact: true }).count(), 0)
+   await reviewer.page.getByRole('searchbox').fill('confidential-' + suffix)
+   await reviewer.page.getByText('Nothing matches “confidential-' + suffix + '”.', { exact: true }).waitFor()
+   const exported = await reviewer.context.request.get(origin + '/api/lodge/download/vacancy/' + job.id)
+   assert.ok([403, 404].includes(exported.status()), 'interviewer cannot export the vacancy history')
+   assert.ok(!(await exported.text()).includes('confidential-' + suffix))
+   assert.ok(!JSON.stringify((await current(reviewer.context, origin)).vacancies.find(v => v.id === job.id).customSchema).includes(secret.id))
+   await screenshot(reviewer.page, evidence, 'scoped', width)
+   // A draft source makes deployment review exact without changing publication after preview.
+   await run('unpublish', { id: job.id, reason: 'Trial required field and view changes' })
+   await page.reload()
+   await navigate(page, 'Workflow sandbox')
+   const sandboxName = 'Typed field trial ' + suffix
+   await page.getByLabel('Sandbox name', { exact: true }).fill(sandboxName)
+   await page.getByRole('combobox', { name: /^Source vacancy/ }).selectOption(job.id)
+   await page.getByLabel('Historical application IDs (comma-separated)').fill(app.id)
+   await page.getByRole('button', { name: 'Clone into sandbox', exact: true }).click()
+   const box = page.getByRole('article', { name: 'Sandbox ' + sandboxName, exact: true })
+   const sandboxFields = box.getByRole('region', { name: 'Sandbox fields and team views', exact: true })
+   const change = sandboxFields.locator('details').filter({ has: page.locator('summary').filter({ hasText: 'Change field “Handling years”' }) })
+   await expand(change)
+   await change.getByRole('group', { name: 'Required before entering stages' }).getByLabel(job.stages[1].name, { exact: true }).check()
+   await change.getByLabel('Restricted to owner and hiring admins').check()
+   await change.getByRole('button', { name: 'Save field', exact: true }).click()
+   const viewChange = sandboxFields.locator('details').filter({ has: page.getByText('Change team view “' + view.name + '”', { exact: true }) })
+   await expand(viewChange)
+   await viewChange.getByLabel('Team view name').fill('Reviewed team view ' + suffix)
+   await viewChange.getByRole('button', { name: 'Save team view', exact: true }).click()
+   const before = await current(context, origin)
+   await box.getByRole('button', { name: 'Preview expected outcomes', exact: true }).click()
+   await box.getByRole('heading', { name: 'Reviewed impact', exact: true }).waitFor()
+   const preview = await current(context, origin)
+   for (const key of ['candidates', 'applications', 'messages', 'offers', 'interviews']) assert.deepEqual(preview[key], before[key], 'DATA-001 preview leaves ' + key + ' unchanged')
+   assert.deepEqual(preview.vacancies.find(v => v.id === job.id), before.vacancies.find(v => v.id === job.id), 'trial configuration remains isolated')
+   await screenshot(page, evidence, 'sandbox-preview', width)
+   const reviewed = preview.sandboxes.find(b => b.name === sandboxName).config
+   await box.getByLabel('I approve this exact reviewed configuration for production').check()
+   await box.getByRole('button', { name: 'Deploy this reviewed version', exact: true }).click()
+   await box.getByRole('button', { name: 'Rollback prior configuration', exact: true }).waitFor()
+   const deployed = (await current(context, origin)).vacancies.find(v => v.id === job.id)
+   assert.deepEqual(deployed.customSchema, reviewed.customSchema)
+   assert.deepEqual(deployed.hiringViews, reviewed.hiringViews)
+   await box.getByRole('button', { name: 'Rollback prior configuration', exact: true }).click()
+   await box.getByText('rolled-back', { exact: true }).waitFor()
+   const restored = (await current(context, origin)).vacancies.find(v => v.id === job.id)
+   assert.deepEqual(restored.customSchema, before.vacancies.find(v => v.id === job.id).customSchema)
+   assert.deepEqual(restored.hiringViews, before.vacancies.find(v => v.id === job.id).hiringViews)
+   await screenshot(page, evidence, 'sandbox-rollback', width)
+   assert.deepEqual(errors, [])
+  } catch (error) {
+   await owner.page.screenshot({ path: join(evidence, `DATA-001-failure-${width}.png`), fullPage: true })
+   throw error
+  } finally { for (const context of contexts.reverse()) await context.close() }
+ }
+}

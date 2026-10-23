@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { BUSINESS, harness } from './harness.mjs'
-import { careersJob } from './careers-flow.mjs'
+import { careersJob } from './careers-driver.mjs'
 
 // CRM-010: only the mail provider's network edge is faked (the harness outbox); everything else is the real Worker and D1.
 const mails = async (h, to) => (await h.db.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY sequence').all()).results.map(r => JSON.parse(r.message)).filter(m => m.to.includes(to))
