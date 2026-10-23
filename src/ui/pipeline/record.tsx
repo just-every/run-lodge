@@ -59,6 +59,7 @@ export function RecordOverview({ app, v, c, w, mutate }: { app: D; v?: D; c: D; 
     {c.headline && <p>{c.headline}</p>}
     <SourceCredit app={app} w={w} mutate={mutate} />
     <Answers app={app} />
+    {app.manages && (w.actor.owner || w.actor.roles.includes('admin')) && <p><a href={`/candidate/employer/${app.id}`}>Publish candidate progress and request information</a></p>}
     <ApplicationFields app={app} v={v} c={c} mutate={mutate} />
     {app.coverNote && <details><summary>Cover note</summary><p className="pre">{app.coverNote}</p></details>}
     {app.imported && <p className="hint">Imported from Workable: source stage “{app.sourceStage}”, {OUTCOMES[app.outcome] ?? app.outcome}{app.disqualificationReason ? ` (${app.disqualificationReason})` : ''}.</p>}

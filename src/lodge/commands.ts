@@ -1,3 +1,4 @@
+import { publishCandidateAccount, reviewVerificationCopy } from './candidate/account'
 import { careersBrand } from './careers/brand'
 import { connectorRegister, connectorBindingChange } from './connectors/records'
 import { referralAlerts, referralSubmit, referralReview, referralProgress, referralBonus } from './referrals/records'
@@ -64,6 +65,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'candidate-progress': publishCandidateAccount, 'candidate-email-copy': reviewVerificationCopy,
   'careers-brand': careersBrand,
   'connector-register': connectorRegister, 'connector-binding-change': connectorBindingChange,
   'referral-alerts': referralAlerts, 'referral-submit': referralSubmit, 'referral-review': referralReview, 'referral-progress': referralProgress, 'referral-bonus': referralBonus,

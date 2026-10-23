@@ -2219,3 +2219,8 @@ test('CAND-001 native candidate sessions recover only their receipts and submit 
   const { checkCandidate } = await import('./candidate-flow.mjs')
   await checkCandidate()
 })
+
+test('CAND-002 candidate account publishes only explicit updates, verifies email and stops contact on withdrawal', async () => {
+  const { checkCandidateAccount } = await import('./candidate-flow.mjs')
+  await checkCandidateAccount()
+})

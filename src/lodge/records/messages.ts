@@ -12,6 +12,7 @@ export const PURPOSES = ['acknowledgement', 'interview-invitation', 'availabilit
 export function message(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   const candidate = s.get('candidate', app.candidate)
   // MIG-008: people moved in from another system are not contactable until the employer records a basis.
   requireThat(!app.activated || app.contactBasis?.basis === 'application', 'Record a basis for contacting people moved in from another system before drafting a message to them', 409)
@@ -35,6 +36,7 @@ export async function requestMessageApproval(s: State, a: Actor, b: Data) {
   const m = s.get('message', b.id)
   const app = requireApplication(s, a, m.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   return requestApproval(s, a, 'message', m, b.approver)
 }
 
@@ -45,6 +47,7 @@ const encodeWord = (v: string) => /^[\x20-\x7e]*$/.test(v) ? header(v) : `=?UTF-
 export async function emlFile(s: State, a: Actor, m: Data, from: string) {
   const app = requireApplication(s, a, m.application)
   requireManages(a, s.get('vacancy', app.vacancy))
+  requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   requireThat(!m.cancelled, 'This message was canceled: ' + m.cancelledReason, 409)
   requireThat(await approvedNow(s, 'message', m), 'Only the exact approved text can be downloaded; request approval again after edits', 409)
   s.put('message', m.id, { ...m, downloads: [...(m.downloads ?? []), { by: a.email, at: now() }] })

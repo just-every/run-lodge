@@ -40,7 +40,7 @@ try {
         console.log(clause + ': hiring journey passed at 1440 and 390')
         continue
       }
-      const [file, fn] = ({ 'ATTR-001': ['careers-page', 'careersPage'], 'ATTR-007': ['languages-page', 'languagesPage'], 'ATTR-014': ['careers-draft-page', 'careersDraftPage'], 'CRM-003': ['referrals-page', 'referralsPage'], 'INT-002': ['connectors-page', 'connectorsPage'], 'CRM-001': ['talent-page', 'talentPage'], 'CAND-001': ['candidate-page', 'candidatePage'] })[clause] ?? []
+      const [file, fn] = ({ 'ATTR-001': ['careers-page', 'careersPage'], 'ATTR-007': ['languages-page', 'languagesPage'], 'ATTR-014': ['careers-draft-page', 'careersDraftPage'], 'CRM-003': ['referrals-page', 'referralsPage'], 'INT-002': ['connectors-page', 'connectorsPage'], 'CRM-001': ['talent-page', 'talentPage'], 'CAND-001': ['candidate-page', 'candidatePage'], 'CAND-002': ['candidate-page', 'candidateAccountPage'] })[clause] ?? []
       if (!file) throw new Error('Name a supported clause')
       await (await import('./' + file + '.mjs'))[fn](browser, options)
       console.log(clause + ': own screens and end states passed at 1440 and 390')

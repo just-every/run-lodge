@@ -70,6 +70,10 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'candidate-email-change') {
+   const value = JSON.parse(row.value);
+   return { ...row, value: JSON.stringify({ id: row.id, candidate: value.candidate, application: value.application, expiresAt: 0 }) };
+  }
   if (table === 'l_records' && row.kind === 'receipt') {
    const value = JSON.parse(row.value);
    delete value.recoveryHash; delete value.recoveryExpires; delete value.recoveryCopy;

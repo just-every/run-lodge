@@ -47,6 +47,22 @@ export async function candidatePage(browser, { root, origin, run, evidence, owne
       assert.equal(await page.getByRole('link', { name: 'Your privacy requests', exact: true }).count(), 0)
       await shot(page, evidence, 'recovered', width)
       const bob = await apply('Blair Okafor', `other-candidate-${width}@example.test`)
+      const state = await (await employer.context.request.get(origin + '/api/lodge/state')).json()
+      const app = state.applications.find(a => state.receipts.some(r => r.id === alice.receipt && r.application === a.id))
+      await employer.page.goto(origin + '/app?application=' + app.id)
+      const publish = employer.page.getByRole('link', { name: 'Publish candidate progress and request information', exact: true })
+      await publish.waitFor()
+      const close = employer.page.getByRole('button', { name: 'Close the application', exact: true })
+      await close.focus()
+      await employer.page.getByRole('tooltip', { name: 'Close the application', exact: true }).waitFor()
+      await employer.page.screenshot({ path: join(evidence, `candidate-employer-link-${width}.png`), fullPage: true })
+      await publish.click()
+      await employer.page.getByLabel('Published progress', { exact: true }).selectOption('In review')
+      await employer.page.getByLabel('Request additional information (optional)', { exact: true }).fill('When could you start?')
+      await shot(employer.page, evidence, 'employer-update', width)
+      await employer.page.getByRole('button', { name: 'Publish candidate update', exact: true }).click()
+      await employer.page.getByRole('heading', { name: 'When could you start?', exact: true }).waitFor()
+      await shot(employer.page, evidence, 'employer-published', width)
       const signedOut = await page.goto(origin + '/candidate')
       assert.equal(signedOut.status(), 401)
       await page.getByRole('link', { name: /sign in/i }).waitFor()
@@ -91,5 +107,52 @@ export async function candidatePage(browser, { root, origin, run, evidence, owne
         await shot(account, evidence, name, width)
       }
     } finally { await candidate?.close(); await visitor.close(); await employer.context.close() }
+  }
+}
+
+// Real server-rendered account pages and real D1; only the outbound mail edge is replaced.
+export async function candidateAccountPage(browser, { evidence }) {
+  const { candidateFixture, latestMail } = await import('./candidate-flow.mjs')
+  for (const width of [1440, 390]) {
+    const { h, alice, bob, cookie } = await candidateFixture()
+    const context = await browser.newContext({ viewport: { width, height: 1000 } })
+    try {
+      await context.addCookies(cookie.split('; ').map(part => ({ name: part.split('=')[0], value: part.slice(part.indexOf('=') + 1), url: h.origin })))
+      const page = await context.newPage(), path = alice.path + '/account'
+      await h.command('candidate-progress', { application: alice.app.id, progress: 'Interviewing', message: 'We would like to meet you.', request: 'When could you start?' })
+      await page.goto(h.origin + path)
+      await page.getByRole('status').getByText('Interviewing', { exact: true }).waitFor()
+      await page.getByLabel('Your answer', { exact: true }).fill('Two weeks after notice.')
+      await shot(page, evidence, 'account-answer', width)
+      await page.getByRole('button', { name: 'Send answer', exact: true }).focus()
+      await page.keyboard.press('Enter')
+      await page.getByText('Your answer: Two weeks after notice.', { exact: true }).waitFor()
+      await page.getByLabel('Preferred contact', { exact: true }).selectOption('none')
+      await page.getByLabel('You may contact me about other suitable roles.', { exact: true }).uncheck()
+      await page.getByRole('button', { name: 'Save contact preferences', exact: true }).click()
+      await shot(page, evidence, 'account-preferences', width)
+      assert.equal(await page.getByLabel('Preferred contact', { exact: true }).inputValue(), 'none')
+      const newEmail = 'account-browser-new@example.test'
+      await page.getByLabel('New email', { exact: true }).fill(newEmail)
+      await page.getByRole('button', { name: 'Verify new email', exact: true }).click()
+      await page.getByRole('heading', { name: 'Check your new email', exact: true }).waitFor()
+      await shot(page, evidence, 'email-sent', width)
+      const mail = await latestMail(h, newEmail)
+      await page.goto(mail.text.match(/http:\/\/\S+/)[0])
+      await page.getByRole('heading', { name: 'Confirm your new email', exact: true }).waitFor()
+      await shot(page, evidence, 'email-confirm', width)
+      await page.getByRole('button', { name: 'Confirm email change', exact: true }).click()
+      await page.getByText(newEmail, { exact: true }).waitFor()
+      await shot(page, evidence, 'email-verified', width)
+      assert.equal((await page.goto(h.origin + bob.path + '/account')).status(), 404)
+      await shot(page, evidence, 'account-other-refused', width)
+      await page.goto(h.origin + path)
+      await page.getByLabel('I want to withdraw this application.', { exact: true }).check()
+      await shot(page, evidence, 'withdraw-confirm', width)
+      await page.getByRole('button', { name: 'Withdraw application', exact: true }).click()
+      await page.getByRole('status').getByText('Withdrawn', { exact: true }).waitFor()
+      assert.equal(await page.getByRole('button', { name: 'Send answer', exact: true }).count(), 0)
+      await shot(page, evidence, 'withdrawn', width)
+    } finally { await context.close(); await h.close() }
   }
 }
