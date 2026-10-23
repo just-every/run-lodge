@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { requireApplication, requireManages } from '../core/access'
+import { requireApplication, requireCan, requireManages } from '../core/access'
 import { email, now, oneOf, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval } from './approvals'
 
@@ -9,6 +9,13 @@ import { approvedNow, requestApproval } from './approvals'
 
 export const PURPOSES = ['acknowledgement', 'interview-invitation', 'availability-request', 'reminder', 'rejection', 'offer', 'other'] as const
 
+/** A message goes to the candidate's email, so drafting, approving and downloading it need "see contact details" on the job (OPS-004). */
+function requireContact(s: State, a: Actor, app: Data) {
+  const vacancy = s.get('vacancy', app.vacancy)
+  requireManages(a, vacancy)
+  requireCan(s, a, vacancy, 'contact')
+}
+
 /** Recheck the live choice even for an approved draft made before consent was withdrawn. */
 function emailAllowed(s: State, app: Data) {
   const candidate = s.get('candidate', app.candidate)
@@ -17,7 +24,7 @@ function emailAllowed(s: State, app: Data) {
 
 export function message(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
-  requireManages(a, s.get('vacancy', app.vacancy))
+  requireContact(s, a, app)
   emailAllowed(s, app)
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   const candidate = s.get('candidate', app.candidate)
@@ -42,7 +49,7 @@ export function message(s: State, a: Actor, b: Data) {
 export async function requestMessageApproval(s: State, a: Actor, b: Data) {
   const m = s.get('message', b.id)
   const app = requireApplication(s, a, m.application)
-  requireManages(a, s.get('vacancy', app.vacancy))
+  requireContact(s, a, app)
   emailAllowed(s, app)
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   return requestApproval(s, a, 'message', m, b.approver)
@@ -54,7 +61,7 @@ const encodeWord = (v: string) => /^[\x20-\x7e]*$/.test(v) ? header(v) : `=?UTF-
 /** The approved message as RFC 5322 text for the business's mail client. */
 export async function emlFile(s: State, a: Actor, m: Data, from: string) {
   const app = requireApplication(s, a, m.application)
-  requireManages(a, s.get('vacancy', app.vacancy))
+  requireContact(s, a, app)
   emailAllowed(s, app)
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   requireThat(!m.cancelled, 'This message was canceled: ' + m.cancelledReason, 409)

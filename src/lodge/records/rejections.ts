@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { managesVacancy, requireAdmin } from '../core/access'
+import { can, managesVacancy, requireAdmin } from '../core/access'
 import { businessZone, fromWall, toWall } from '../core/time'
 import { integer, list, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { cancelTasks } from './tasks'
@@ -153,13 +153,14 @@ export function emailState(m: Data, at = now()) {
   return m.sendAt > at ? 'scheduled' : 'due-not-sent'
 }
 
-/** Reasons for everyone; templates and the jobs' rejection emails for the people who run those jobs. */
+/** Reasons for everyone; templates and the jobs' rejection emails for the people who run those jobs, each recipient only with "see contact details" there (OPS-004). */
 export function rejectionsView(s: State, a: Actor, visibleApps: Set<string>) {
   const runs = (id: string) => { const v = s.find('vacancy', id); return !!v && managesVacancy(a, v) }
+  const contact = (id: string) => { const v = s.find('vacancy', id); return !!v && can(s, a, v, 'contact') }
   const runsAny = s.all('vacancy').some(v => runs(v.id))
   return {
     rejectionReasons: reasons(s),
     rejectionTemplates: runsAny || a.owner || a.roles.includes('admin') ? s.all('rejection-template').sort((x, y) => x.name.localeCompare(y.name)) : [],
-    rejectionEmails: s.all('rejection-email').filter(m => visibleApps.has(m.application) && runs(m.vacancy)).sort((x, y) => x.scheduledAt.localeCompare(y.scheduledAt)).map((m): Data => ({ ...m, state: emailState(m) })),
+    rejectionEmails: s.all('rejection-email').filter(m => visibleApps.has(m.application) && runs(m.vacancy)).sort((x, y) => x.scheduledAt.localeCompare(y.scheduledAt)).map((m): Data => ({ ...m, ...(contact(m.vacancy) ? {} : { to: undefined }), state: emailState(m) })),
   }
 }

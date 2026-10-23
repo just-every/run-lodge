@@ -124,19 +124,22 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     offers.push({ ...o, version, approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, rangeWarning: rangeCheck(vacancy, o), esign: envelopes.at(-1) ?? null, esignHistory: envelopes })
   }
 
+  // OPS-004: a message's recipient is the candidate's email, shown only with "see contact details" on the job.
+  const contactOn = (application: string) => { const app = s.all('application').find(x => x.id === application), v = app && s.all('vacancy').find(x => x.id === app.vacancy); return !!v && can(s, a, v, 'contact') }
+  const addressed = (x: Data) => x.subjectKind !== 'message' || contactOn(x.terms?.application) ? x : { ...x, terms: { ...x.terms, to: undefined } }
   const messages: Data[] = []
   for (const m of s.all('message').filter(m => appIds.has(m.application))) {
     const app = applications.find(x => x.id === m.application)!
     const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
     if (!vacancy || !managesVacancy(a, vacancy)) continue
     const approval = latestApproval(s, 'message', m.id), version = await versionOf(s, 'message', m)
-    messages.push({ ...m, version, approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version })
+    messages.push({ ...m, ...(contactOn(m.application) ? {} : { to: undefined }), version, approval: approval ? addressed(approval) : null, approvedNow: approval?.status === 'approved' && approval.version === version })
   }
 
   const approvals: Data[] = []
   for (const x of myApprovals) {
     const subject = s.all(x.subjectKind).find(r => r.id === x.subjectId)
-    approvals.push({ ...x, currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
+    approvals.push({ ...addressed(x), currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
   }
 
   const visibleCards = versioned(s.all('scorecard').filter(c => canSeeScorecard(s, a, c)))

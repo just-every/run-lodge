@@ -146,6 +146,27 @@ test('OPS-004 named permission levels on a job, a team role and a department gra
  try { await checkLevels(h) } finally { await h.close() }
 })
 
+test('a manager whose permission level hides contact details reaches no candidate email through messages', async () => {
+ const h = await fixture()
+ try {
+  const template = await h.command('rejection-template', { name: 'Decline', subject: 'Your application', body: 'Dear {candidate_name}, thank you for applying.' })
+  const { application: second } = await h.command('candidate', { name: 'Second Candidate', email: 'second-candidate@example.test', source: 'Referral', consentBasis: 'referral', vacancy: h.vacancy.id }, h.manager)
+  await h.command('move', { application: second.id, to: 'rejected', closeReason: 'certification', send: 'delay', businessDays: 2, template: template.id }, h.manager)
+  const noContact = await h.command('permission-level', { name: 'Hiring manager without contact', permissions: ['scorecards', 'move', 'reject', 'offers', 'export', 'settings'] })
+  await h.command('job-levels', { id: h.vacancy.id, members: { 'm1@example.test': noContact.id } })
+  const tries = [
+   await h.send('/api/lodge/download/message/' + h.message.id, undefined, h.manager),
+   await h.send('/api/lodge/command/request-message-approval', { id: h.message.id, approver: 'owner@example.test' }, h.manager),
+   await h.send('/api/lodge/command/message', { id: h.message.id, application: h.app.id, purpose: 'other', subject: 'Edited', body: 'Hello' }, h.manager),
+   await h.send('/api/lodge/command/message', { application: h.app.id, purpose: 'other', subject: 'Checking in', body: 'Hello' }, h.manager),
+  ]
+  assert.deepEqual(tries.map(r => [r.status, r.text.includes('private-candidate@example.test')]), [[403, false], [403, false], [403, false], [403, false]])
+  const w = await h.state(h.manager), view = JSON.stringify(w)
+  assert.ok(w.messages.some(m => m.id === h.message.id) && w.rejectionEmails.some(m => m.application === second.id), 'the drafts and scheduled emails stay in view')
+  assert.ok(!view.includes('private-candidate@example.test') && !view.includes('second-candidate@example.test'), 'their recipients do not')
+ } finally { await h.close() }
+})
+
 test('DATA-006 inline originals and restricted-view audit obey live reviewer authorization', async () => {
  const h = await fixture()
  try {
