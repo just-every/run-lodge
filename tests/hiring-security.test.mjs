@@ -290,6 +290,19 @@ test('Lodge security through native sessions and real D1', async t => {
     const view = JSON.stringify(await state(kai))
     assert.ok(!view.includes('noor@example.test') && !view.includes('Met at the union hall'))
   })
+
+  await t.test('talent search reads only the resumes and applications the admin may see', async () => {
+    const uri = await h.member('uri@example.test', ['admin'], 'Uri Bloom')
+    const open = await openJob('Pipe fitter', 'Queens, NY'), secret = await openJob('Plant director', 'Queens, NY')
+    await cmd('vacancy-privacy', { id: secret.id, confidential: true })
+    const { candidate: wes } = await cmd('candidate', { name: 'Wes Hart', email: 'wes@example.test', source: 'Referral', consentBasis: 'talent-pool', talentPool: true, skills: 'Pipe welding', vacancy: open.id }, manager)
+    const app = await cmd('apply', { candidate: wes.id, vacancy: secret.id, source: 'Referral' }, manager)
+    await cmd('document', { application: app.id, name: 'director-resume.txt', kind: 'resume', base64: b64('Ran the Riverside desalination plant') }, manager)
+    const talent = async (q, cookie = uri) => (await send('/api/lodge/talent?q=' + q, undefined, cookie)).value.matches.filter(m => m.candidate === wes.id)
+    assert.deepEqual(await talent('desalination'), [])
+    assert.deepEqual((await talent('welding')).map(m => [m.applications, JSON.stringify(m).includes('desalination')]), [[[{ vacancy: open.id, status: 'active' }], false]])
+    assert.equal((await talent('desalination', owner)).length, 1, 'the owner still finds it')
+  })
 })
 
 test('REVIEW-002 name-blind review across reads, reveals and return', async t => {
