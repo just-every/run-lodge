@@ -1,7 +1,7 @@
+import { withDemo } from './modules/demo/index.mjs'
 import { candidatePages } from './lodge/http/candidate-pages'
 import { careersHostResponse } from './lodge/careers/host'
 import { afterWrite, scheduledRun } from './lodge/notify/run'
-import { withDemo } from './modules/demo/index.mjs'
 import { seedDemo } from './demo'
 import start from '@tanstack/react-start/server-entry'
 import { dispatch } from './base/dispatch'
