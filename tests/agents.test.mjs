@@ -67,10 +67,36 @@ test('LDG-013 agents propose typed changes from versioned sources; a person appr
     // Talent-pool rediscovery: factual matches with permission shown, no score; the person chooses.
     const matches = (await send('/api/lodge/talent?q=bluebeam', undefined, owner)).value.matches
     assert.deepEqual(matches.map(m => [m.name, m.matchedFields]), [['Riley Park', ['skills']]])
+    const riley = (await state()).candidates.find(c => c.id === application.candidate)
+    assert.deepEqual(matches[0].evidence, { skills: riley.skills })
+    assert.deepEqual(matches[0].applications, [{ vacancy: vacancy.id, status: 'active' }])
+    assert.deepEqual(matches[0].permission, { basis: 'referral', talentPool: true, retainUntil: riley.retainUntil })
     assert.equal(matches[0].score, undefined)
     assert.equal((await send('/api/lodge/talent?q=bluebeam', undefined, morgan)).status, 403)
+    assert.equal((await send('/api/lodge/talent?q=bluebeam', undefined, ivy)).status, 403, 'an interviewer cannot search the talent pool')
     const quiet = await cmd('candidate', { name: 'Jo Quiet', source: 'Job fair', consentBasis: 'application', skills: 'Bluebeam' })
+    const pool = async () => {
+      const response = await send('/api/lodge/talent?q=bluebeam', undefined, owner)
+      assert.equal(response.status, 200, JSON.stringify(response.value))
+      return response.value.matches
+    }
+    assert.deepEqual((await pool()).map(m => m.candidate), [riley.id], 'a matching candidate without talent-pool consent is absent')
     assert.equal((await send('/api/lodge/command/propose', { workflow: 'rediscovery', approver: 'morgan@example.test', summary: 'x', sources: [{ kind: 'candidate', id: quiet.candidate.id }], changes: [{ op: 'apply', input: { candidate: quiet.candidate.id, vacancy: vacancy.id, source: 'Talent pool' } }] }, owner)).status, 409, 'no permission to contact, no proposal')
+
+    // A formerly discoverable person disappears as retention, current consent and erasure change.
+    const { candidate: former } = await cmd('candidate', { name: 'Ari Former', source: 'Job fair', consentBasis: 'talent-pool', talentPool: true, skills: 'Bluebeam' })
+    assert.deepEqual((await pool()).map(m => m.candidate).sort(), [riley.id, former.id].sort())
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+    await cmd('extend-retention', { candidate: former.id, until: yesterday, reason: 'Correct the recorded retention deadline' })
+    assert.deepEqual((await pool()).map(m => m.candidate), [riley.id], 'a consenting candidate whose retainUntil expired is absent')
+    await cmd('extend-retention', { candidate: former.id, until: former.retainUntil, reason: 'Renewed permission to retain' })
+    await cmd('correct-candidate', { ...former, talentPool: false, reason: 'Withdrew talent-pool permission' })
+    assert.deepEqual((await pool()).map(m => m.candidate), [riley.id], 'rediscovery uses current consent after withdrawal')
+    await cmd('correct-candidate', { ...former, talentPool: true, reason: 'Renewed talent-pool permission' })
+    assert.deepEqual((await pool()).map(m => m.candidate).sort(), [riley.id, former.id].sort())
+    const erased = await send('/api/lodge/delete-candidate', { candidate: former.id, confirm: former.name, reason: 'Asked to be forgotten' }, owner)
+    assert.equal(erased.status, 200, JSON.stringify(erased.value))
+    assert.deepEqual((await pool()).map(m => m.candidate), [riley.id], 'an erased candidate is absent from rediscovery')
 
     // Coordination rebooks a panel: cancel the booked interview, book the new time. Two options read the same
     // interview; once one applies, the other is stale.
