@@ -271,6 +271,25 @@ test('Lodge security through native sessions and real D1', async t => {
     assert.deepEqual(await h.db.prepare("SELECT revision FROM l_records WHERE kind='interview' AND id=?").bind(iv.id).first(), unchanged)
   })
 
+  await t.test('an admin who cannot see a private candidate can neither correct nor merge them', async () => {
+    const kai = await h.member('kai@example.test', ['admin'], 'Kai Moss')
+    const { candidate: hidden } = await cmd('candidate', { name: 'Noor Hale', email: 'noor@example.test', phone: '+1 555 0177', source: 'Referral', consentBasis: 'referral', consentNote: 'Met at the union hall', vacancy: vacancy.id }, manager)
+    await cmd('candidate-privacy', { id: hidden.id, private: true })
+    const { candidate: seen } = await cmd('candidate', { name: 'Noor Hale', email: 'noor.hale@example.test', source: 'Referral', consentBasis: 'referral' })
+    const row = () => h.db.prepare("SELECT revision, value FROM l_records WHERE kind='candidate' AND id=?").bind(hidden.id).first()
+    const before = await row()
+    const tries = [
+      await send('/api/lodge/command/correct-candidate', { id: hidden.id, name: 'Noor Hale', email: 'noor@example.test', reason: 'Typo' }, kai),
+      await send('/api/lodge/command/review-duplicate', { keep: seen.id, other: hidden.id, decision: 'merge', reason: 'Same person' }, kai),
+      await send('/api/lodge/command/review-duplicate', { keep: hidden.id, other: seen.id, decision: 'distinct', reason: 'Different people' }, kai),
+    ]
+    assert.deepEqual(tries.map(r => [r.status, r.text.includes('Met at the union hall')]), [[404, false], [404, false], [404, false]])
+    assert.deepEqual(await row(), before)
+    // The owner, who sees both, still merges them; the merged-away private record stays out of the admin's view.
+    await cmd('review-duplicate', { keep: seen.id, other: hidden.id, decision: 'merge', reason: 'Same person' })
+    const view = JSON.stringify(await state(kai))
+    assert.ok(!view.includes('noor@example.test') && !view.includes('Met at the union hall'))
+  })
 })
 
 test('REVIEW-002 name-blind review across reads, reveals and return', async t => {

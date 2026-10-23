@@ -1,7 +1,7 @@
 import { captureApplicationFields } from '../fields/capture'
 import { requireStageFields } from '../fields/values'
 import type { State } from '../core/state'
-import { canSeeCandidate, canSeeContact, requireAdmin, requireApplication, requireManages, requireMember, requireRole, teamOf } from '../core/access'
+import { canSeeCandidate, canSeeContact, requireAdmin, requireApplication, requireCandidate, requireManages, requireMember, requireRole, teamOf } from '../core/access'
 import { date, email, list, now, oneOf, optionalEmail, optionalText, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { storeDocument } from './documents'
 import { cancelTasks } from './tasks'
@@ -79,7 +79,7 @@ export function candidatePrivacy(s: State, a: Actor, b: Data) {
 
 export function correctCandidate(s: State, a: Actor, b: Data) {
   requireAdmin(a)
-  const current = s.get('candidate', b.id)
+  const current = requireCandidate(s, a, b.id)
   requireThat(!current.mergedInto && !current.deleted, 'This candidate record is closed', 409)
   const record = s.put('candidate', current.id, { ...current, ...candidateFields(b), consent: { ...current.consent, talentPool: b.talentPool === undefined ? current.consent.talentPool : b.talentPool === true } })
   s.audit(a, 'candidate-corrected', 'candidate:' + record.id, { reason: text(b.reason, 'Reason for the correction', 500) })
@@ -151,7 +151,7 @@ export function duplicateSuggestions(s: State) {
 /** A person decides: keep both as distinct people, or merge the second into the first. */
 export function reviewDuplicate(s: State, a: Actor, b: Data) {
   requireAdmin(a)
-  const keep = s.get('candidate', b.keep), other = s.get('candidate', b.other)
+  const keep = requireCandidate(s, a, b.keep), other = requireCandidate(s, a, b.other)
   requireThat(keep.id !== other.id && !keep.mergedInto && !other.mergedInto, 'Choose two open candidate records', 409)
   const decision = oneOf(b.decision, ['distinct', 'merge'] as const, 'Decision')
   const reason = text(b.reason, 'Reason', 1000)

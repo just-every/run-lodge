@@ -168,6 +168,13 @@ export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
   return apps.some(app => canSeeApplication(s, a, app))
 }
 
+/** A candidate the reader may act on: a private one, or one known only through confidential jobs, answers as unknown. */
+export function requireCandidate(s: State, a: Actor, id: unknown): Data {
+  const candidate = s.find('candidate', id)
+  if (!candidate || !canSeeCandidate(s, a, candidate)) throw new Fault(404, 'Candidate not found')
+  return candidate
+}
+
 /** Contact details stay with the people who run the vacancy; interviewers see names. */
 export function canSeeContact(s: State, a: Actor, candidate: Data) {
   if (isAgency(a)) return false

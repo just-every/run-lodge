@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { canSeeCandidate, requireAdmin } from '../core/access'
+import { requireAdmin, requireCandidate } from '../core/access'
 import { date, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { removeDocument } from './documents'
 import { mergedCandidates } from './candidate-lineage'
@@ -30,16 +30,9 @@ export function retentionReview(s: State) {
   return { due, held }
 }
 
-/** A candidate an admin may act on: a private one, or one known only through confidential jobs, answers as unknown. */
-function visibleCandidate(s: State, a: Actor, id: unknown) {
-  const c = s.find('candidate', id)
-  requireThat(c && canSeeCandidate(s, a, c), 'Candidate not found', 404)
-  return c
-}
-
 export function hold(s: State, a: Actor, b: Data) {
   requireAdmin(a)
-  const target = b.candidate ? { candidate: visibleCandidate(s, a, b.candidate).id } : { vacancy: s.get('vacancy', b.vacancy).id }
+  const target = b.candidate ? { candidate: requireCandidate(s, a, b.candidate).id } : { vacancy: s.get('vacancy', b.vacancy).id }
   const record = s.put('hold', uid(), { ...target, reason: text(b.reason, 'Reason for the hold', 1000), status: 'active', placedBy: a.email, placedAt: now() })
   s.audit(a, 'hold-placed', 'hold:' + record.id, target)
   return record
@@ -56,7 +49,7 @@ export function releaseHold(s: State, a: Actor, b: Data) {
 
 export function extendRetention(s: State, a: Actor, b: Data) {
   requireAdmin(a)
-  const c = visibleCandidate(s, a, b.candidate)
+  const c = requireCandidate(s, a, b.candidate)
   const record = s.put('candidate', c.id, { ...c, retainUntil: date(b.until, 'Keep until'), retentionNote: text(b.reason, 'Reason', 1000) })
   s.audit(a, 'retention-changed', 'candidate:' + c.id, { until: record.retainUntil })
   return record
@@ -113,7 +106,7 @@ export function candidateRecords(s: State, candidateId: string) {
  */
 export function deleteCandidate(s: State, a: Actor, b: Data) {
   requireAdmin(a)
-  const c = visibleCandidate(s, a, b.candidate)
+  const c = requireCandidate(s, a, b.candidate)
   requireThat(!c.deleted && !c.mergedInto, 'This candidate record is already closed', 409)
   requireThat(b.confirm === c.name, 'Type the candidate’s name exactly to confirm deletion')
   // Validate the explanation, but never retain free text in the erasure receipt.
@@ -153,7 +146,7 @@ export const REQUEST_TYPES = ['access', 'export', 'correction', 'deletion'] as c
 
 export function dataRequest(s: State, a: Actor, b: Data) {
   requireAdmin(a)
-  const c = visibleCandidate(s, a, b.candidate)
+  const c = requireCandidate(s, a, b.candidate)
   requireThat(!c.deleted, 'This candidate was deleted', 409)
   const record = s.put('data-request', uid(), { candidate: c.id, candidateName: c.name, type: oneOf(b.type, REQUEST_TYPES, 'Request type'), receivedAt: date(b.receivedAt ?? today(), 'Received on'), channel: text(b.channel ?? 'email', 'How it arrived', 200), note: optionalText(b.note, 'Note', 2000), status: 'open', recordedBy: a.email })
   s.audit(a, 'data-request', 'data-request:' + record.id, { type: record.type })

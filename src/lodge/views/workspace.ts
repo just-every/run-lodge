@@ -182,7 +182,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     resumeIntakes: intakeView(s, a),
     ...intakeLifecycleView(s, a),
     resumeExtractions: s.all('resume-extraction').filter(r => { const c = s.find('candidate', r.candidate); return c && canSeeContact(s, a, c) }),
-    mergedCandidates: admin ? s.all('candidate').filter(c => c.mergedInto && !hiddenCandidate(c.mergedInto)) : [],
+    mergedCandidates: admin ? s.all('candidate').filter(c => c.mergedInto && !hiddenCandidate(c.mergedInto) && !hiddenCandidate(c.id)) : [],
     receipts: admin ? s.all('receipt').filter(r => !hiddenApp(r.application)).map(publicReceipt) : [],
     duplicateReviews: admin ? s.all('duplicate-review').filter(r => !hiddenCandidate(r.first) && !hiddenCandidate(r.second)) : [],
     documents: s.all('document').filter(d => canSeeDocument(s, a, s.get('document', d.id))),
