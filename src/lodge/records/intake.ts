@@ -14,6 +14,8 @@ import { ensureSource } from './sources'
 // restricted records that reviewers, search and agent context never see.
 
 export const MONITORING_OPTIONS = ['Prefer not to say', 'Woman', 'Man', 'Non-binary', 'Another description']
+/** Hosted and embedded application forms: attempts per client IP per clock hour (an office or campus shares one IP; the board API keeps 10). */
+export const APPLICATIONS_PER_HOUR = 60
 
 /**
  * The door an application came through: the source it records, the intake path

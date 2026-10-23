@@ -1257,6 +1257,18 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
     assert.deepEqual((await state()).events.find(e => e.id === expo.id).jobs, [shown.id, secret.id])
   })
 
+  await t.test('the hosted and embedded application forms take at most sixty attempts an hour from one connection', async () => {
+    const job = await openJob('Glazier', 'Brooklyn, NY')
+    const notice = (await state()).business.notices.at(-1).version
+    const post = (path, fields) => { const f = new FormData(); for (const [k, v] of Object.entries({ name: 'Flo Reed', email: 'flo@example.test', noticeVersion: String(notice), ...fields })) f.append(k, v); return send(path, f, '', { 'cf-connecting-ip': '198.51.100.41' }) }
+    const refused = []
+    for (let i = 0; i < 60; i++) refused.push((await post((i % 2 ? '/embed/jobs/' : '/jobs/') + job.slug, {})).status)
+    assert.ok(refused.every(s => s === 400), 'each refused attempt counts')
+    const limited = await post('/jobs/' + job.slug, { consent: 'yes' })
+    assert.equal(limited.status, 429)
+    assert.equal((await state()).candidates.some(c => c.email === 'flo@example.test'), false, 'nothing is kept')
+    assert.equal((await send('/jobs/' + job.slug, (() => { const f = new FormData(); for (const [k, v] of Object.entries({ name: 'Flo Reed', email: 'flo@example.test', noticeVersion: String(notice), consent: 'yes' })) f.append(k, v); return f })(), '', { 'cf-connecting-ip': '198.51.100.42' })).status, 200, 'another connection still applies')
+  })
 })
 
 test('DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration', async t => {

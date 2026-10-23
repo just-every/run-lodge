@@ -17,9 +17,9 @@ import { load, save } from '../core/store'
 import type { State } from '../core/state'
 import { Fault, bytesToBase64, requireThat, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
-import { APPLICATION_PAGE, MONITORING_OPTIONS, interviewByToken, submit, type Door } from '../records/intake'
+import { APPLICATIONS_PER_HOUR, APPLICATION_PAGE, MONITORING_OPTIONS, interviewByToken, submit, type Door } from '../records/intake'
 import { listingBySlug, listings, shownJob } from '../records/posts'
-import { RESUME_TYPES } from '../records/job-board'
+import { RESUME_TYPES, countAttempt } from '../records/job-board'
 import { candidateAvailability } from '../records/interviews'
 import { jobForm } from '../records/questions'
 import { departmentPath, subtree } from '../records/org'
@@ -211,6 +211,11 @@ publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
 export async function apply(c: C, door: Door, embed?: { ancestors: string[]; action: string; hidden: Record<string, string> }) {
   await sameOrigin(c)
   if (Number(c.req.header('content-length') ?? 0) > MAX_DOCUMENT_BYTES * 1.5) return page('Too large', '<h1>That upload is too large</h1><p>Files may be at most 1 MB. Go back and choose a smaller file.</p>', 413, embed)
+  // The attempt counts before the form is read, and is kept even when the application is refused.
+  const counted = await load(c.env.DB)
+  const within = await countAttempt(counted, runtimeBindings(c.env).SESSION_SECRET, c.req.header('cf-connecting-ip') ?? '', new Date(), 'application-attempts', APPLICATIONS_PER_HOUR)
+  await save(c.env.DB, counted, null)
+  if (!within) return page('Too many applications', '<h1>Too many applications from this connection</h1><p>Please try again in an hour.</p>', 429, embed)
   const s = await load(c.env.DB)
   // ATTR-012: the slug names the job's own page or one of its live posts on this destination.
   const l = listingBySlug(s, embed ? 'embed' : 'careers', c.req.param('slug') ?? '')
