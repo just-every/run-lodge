@@ -256,6 +256,21 @@ test('Lodge security through native sessions and real D1', async t => {
     assert.equal((await send('/api/lodge/command/vacancy', { title: 'Sneaky', manager: 'ian@example.test' }, ian)).status, 403)
     assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM l_records').first()).n, before.n, 'refusals change nothing')
   })
+
+  await t.test('panel answers on an interview never carry the candidate’s private availability link', async () => {
+    const job = await openJob('Crane operator', 'Queens, NY')
+    const { application: app } = await cmd('candidate', { name: 'Lena Ortiz', email: 'lena@example.test', source: 'Referral', consentBasis: 'referral', vacancy: job.id }, manager)
+    const iv = await cmd('interview', { application: app.id, planItem: job.plan[0].id, participants: ['ivy@example.test'], slots: ['2026-12-02T15:00:00.000Z', '2026-12-03T15:00:00.000Z'] }, manager)
+    assert.match(iv.candidateToken, /^[a-f0-9]{48}$/, 'the people who run the job hold the link')
+    const answers = [await send('/api/lodge/command/availability', { interview: iv.id, slots: [0] }, ivy), await send('/api/lodge/command/interview-reply', { interview: iv.id, answer: 'cannot-attend', note: 'On leave' }, ivy)]
+    assert.deepEqual(answers.map(r => [r.status, r.text.includes(iv.candidateToken)]), [[200, false], [200, false]])
+    // A panellist who no longer sees the application changes nothing on its interview.
+    await cmd('candidate-privacy', { id: app.candidate, private: true })
+    const unchanged = await h.db.prepare("SELECT revision FROM l_records WHERE kind='interview' AND id=?").bind(iv.id).first()
+    assert.equal((await send('/api/lodge/command/availability', { interview: iv.id, slots: [1] }, ivy)).status, 404)
+    assert.deepEqual(await h.db.prepare("SELECT revision FROM l_records WHERE kind='interview' AND id=?").bind(iv.id).first(), unchanged)
+  })
+
 })
 
 test('REVIEW-002 name-blind review across reads, reveals and return', async t => {

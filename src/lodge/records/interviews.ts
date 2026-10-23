@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { canReview, onPanel, requireApplication, requireManages, requireMember } from '../core/access'
+import { canReview, managesVacancy, onPanel, requireApplication, requireManages, requireMember } from '../core/access'
 import { email, instant, integer, list, now, oneOf, optionalText, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { businessZone, isZone } from '../core/time'
 import { notifyInterview } from '../notify/emit'
@@ -36,6 +36,9 @@ export function interview(s: State, a: Actor, b: Data) {
   return record
 }
 
+/** The candidate's availability link is a credential for the people who run the job only. */
+export const panelView = (a: Actor, vacancy: Data | undefined, iv: Data) => vacancy && managesVacancy(a, vacancy) ? iv : { ...iv, candidateToken: undefined }
+
 function chosen(slots: string[], value: unknown) {
   return list(value, 'Available times', slots.length, i => { const n = integer(i, 'Time', 0, slots.length - 1); return n })
 }
@@ -44,10 +47,11 @@ function chosen(slots: string[], value: unknown) {
 export function availability(s: State, a: Actor, b: Data) {
   const iv = s.get('interview', b.interview)
   requireThat(onPanel(a, iv), 'Only invited interviewers record their own availability', 403)
+  const app = requireApplication(s, a, iv.application)
   requireThat(iv.status === 'proposed', 'Availability is closed for this interview', 409)
   const record = s.put('interview', iv.id, { ...iv, availability: { ...iv.availability, [a.email]: chosen(iv.slots, b.slots) } })
   s.audit(a, 'availability-recorded', 'interview:' + iv.id)
-  return record
+  return panelView(a, s.get('vacancy', app.vacancy), record)
 }
 
 /** The candidate's answer through their private availability link. */
@@ -84,7 +88,7 @@ export function schedule(s: State, a: Actor, b: Data) {
  */
 export function reply(s: State, a: Actor, b: Data) {
   const iv = s.get('interview', b.interview)
-  requireApplication(s, a, iv.application)
+  const app = requireApplication(s, a, iv.application)
   requireThat(iv.status !== 'cancelled', 'This interview was canceled', 409)
   const answer = oneOf(b.answer, ['cannot-attend', 'can-cover'] as const, 'Answer')
   const on = onPanel(a, iv)
@@ -92,7 +96,7 @@ export function reply(s: State, a: Actor, b: Data) {
   const entry = { by: scope(a), answer, note: optionalText(b.note, 'Note', 500), freeAt: b.freeAt ? instant(b.freeAt, 'Free at') : null, at: now() }
   const record = s.put('interview', iv.id, { ...iv, replies: [...(iv.replies ?? []), entry] })
   s.audit(a, 'interview-reply', 'interview:' + iv.id, { answer, note: entry.note, freeAt: entry.freeAt })
-  return record
+  return panelView(a, s.get('vacancy', app.vacancy), record)
 }
 
 export function cancel(s: State, a: Actor, b: Data) {

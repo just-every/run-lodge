@@ -16,6 +16,7 @@ import { duplicateSuggestions, transferredFrom } from '../records/candidates'
 import { panel, summary, versioned } from '../records/scorecards'
 import { funnel, history } from '../records/pipeline'
 import { rangeCheck } from '../records/offers'
+import { panelView } from '../records/interviews'
 import { envelopeView, envelopesOf } from '../esign/envelope'
 import { disclosureHistory, signerList, SIGNING_NOTICE } from '../esign/disclosure'
 import { retentionReview } from '../records/retention'
@@ -155,9 +156,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
   })
   const interviews = s.all('interview').filter(i => appIds.has(i.application)).map((i): Data => {
     const app = applications.find(x => x.id === i.application)!
-    const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
-    // The candidate's availability link is a credential for the hiring team only.
-    return vacancy && managesVacancy(a, vacancy) ? i : { ...i, candidateToken: undefined }
+    return panelView(a, s.all('vacancy').find(v => v.id === app.vacancy), i)
   })
   const visibleCandidates = new Set(candidates.map(c => c.id))
   const { hiddenCandidate, hiddenVacancy, hiddenApp, concealed } = concealer(s, a, appIds)
