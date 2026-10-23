@@ -9,8 +9,10 @@ Every face is self-hosted under the SIL Open Font License 1.1; the licence text 
 | JetBrains Mono (variable) | Commands and code | `jetbrains-mono/` Latin WOFF2 | `jetbrains-mono/LICENSE.txt` | https://github.com/JetBrains/JetBrainsMono |
 | Outfit | Kept as Base's copy (`base-copies.json`); Lodge no longer sets it | `outfit/` | `outfit/LICENSE.txt` | https://github.com/Outfitio/Outfit-Fonts |
 
-The WOFF2 subsets come from Fontsource's distributions. `fonts.css` declares the faces once; pages link it
-(the theme imports it for Base's frames) and preload only the Latin Figtree and Inter files.
+The WOFF2 subsets come from Fontsource's distributions. `/rer-theme.css` declares the faces once, so the
+installer serves them too. `fonts.css` sets the page font and carries Lodge's own tokens and the rules that dress
+Base's pages, which the theme grammar keeps out of `/rer-theme.css`. Pages link both, `fonts.css` first (Base's
+sign-in pages add it after their own style), and preload only the Latin Figtree and Inter files.
 
 `Inter Fallback` and `Figtree Fallback` are local Arial faces sized to the measured advance widths of A-Z, a-z
 and 0-9 (Inter 400 104.57%, Inter 600 102.90%, Figtree 900 101.20% of Arial) with each face's own ascent and

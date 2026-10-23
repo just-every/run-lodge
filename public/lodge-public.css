@@ -1,4 +1,4 @@
-/* Applicant pages: Base's themed frame (the sign-in card treatment, rer-theme.css) at reading width. */
+/* Applicant pages: Base's themed frame (the sign-in card treatment, fonts/fonts.css) at reading width. */
 html.rer-themed main.lodge-public{max-width:720px}
 html.rer-themed main.lodge-public > h1,html.rer-themed main.lodge-public > h1 + p{text-align:left}
 .lodge-public .meta{color:var(--rer-muted)}

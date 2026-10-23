@@ -37,8 +37,10 @@ must keep working and [ACCEPTANCE.md](ACCEPTANCE.md) for what is proven.
   `docs/*.md` in the order `docs/site.json` gives. A broken link between guides
   fails the build. `rer dev` serves it as `RER_SITE`. The installed `/` stays the
   Lobby.
-- `public/rer-theme.css`: every colour, face, radius and shadow, defined once;
-  `public/lodge.css` (the app) and the site read those tokens.
+- `public/rer-theme.css`: the `--rer-*` theme tokens and the faces, the only things
+  Base's theme grammar allows there (the installer reads it); `public/fonts/fonts.css`:
+  every other colour, radius and shadow, and the rules that dress Base's pages. Each is
+  defined once; `public/lodge.css` (the app) and the site read those tokens.
 - `migrations/core`: Base auth, outbox and portability (0001–0005), Base import-kit
   (0006, 0016), Lodge records (0007), current Base auth, dependency, owner-claim
   and erasure schemas (0008–0015). Never edit an applied migration; add the next one.

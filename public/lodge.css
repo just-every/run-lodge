@@ -1,6 +1,6 @@
 /* Lodge workspace, base: navy ink on the pale blue page, white cards with hairlines, Figtree headings over Inter,
    red for the one action, green for done, amber for waiting. Every colour, face and shadow is a token from
-   rer-theme.css; the shell is in lodge-shell.css and the job board in lodge-pipeline.css. */
+   rer-theme.css or fonts/fonts.css; the shell is in lodge-shell.css and the job board in lodge-pipeline.css. */
 *{box-sizing:border-box}
 /* html body and html a outrank Base's page style, which follows these sheets and pads the body. */
 html body{margin:0;padding:0;background:var(--rer-page);color:var(--rer-text);font-family:var(--rer-font-body);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
