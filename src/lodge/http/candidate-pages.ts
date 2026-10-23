@@ -32,7 +32,9 @@ async function context(c: C) {
 }
 
 async function signedPage(title: string, body: string, language = 'en') {
-  return page(title, body + '<form method="post" action="/candidate/signout"><button type="submit">Sign out</button></form>', 200, undefined, language)
+  const response = await page(title, body + '<form class="candidate-signout" method="post" action="/candidate/signout"><button type="submit">Sign out</button></form>', 200, undefined, language)
+  const html = (await response.text()).replace('</head>', '<link rel="stylesheet" href="/lodge-candidate.css"></head>').replace('class="lodge-public"', 'class="lodge-public candidate-area"')
+  return new Response(html, { status: response.status, headers: response.headers })
 }
 
 candidatePages.post('/candidate/signout', async c => {

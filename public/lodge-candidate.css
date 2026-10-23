@@ -1,0 +1,10 @@
+/* The authenticated receipt/request pages keep the applicant frame and its tokens. */
+html.rer-themed main.candidate-area label:has(input[type=radio]){display:flex;align-items:center;gap:12px;font-weight:400}
+html.rer-themed main.candidate-area input[type=radio]{flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;accent-color:var(--rer-focus)}
+html.rer-themed main.candidate-area .candidate-signout{margin-top:24px}
+html.rer-themed main.candidate-area .candidate-signout button{justify-self:start;width:auto;min-height:40px;padding:8px 18px;border:1px solid var(--line);background:var(--rer-surface);color:var(--rer-text);font-size:16px;font-weight:500}
+@media(max-width:600px){
+ html.rer-themed main.candidate-area > dl{display:block}
+ html.rer-themed main.candidate-area > dl dt{padding:14px 0 4px;border-bottom:0}
+ html.rer-themed main.candidate-area > dl dd{margin:0;padding:0 0 14px}
+}
