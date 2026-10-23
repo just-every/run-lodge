@@ -269,3 +269,9 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
 .document-text { white-space: pre-wrap; }
 .word-reading table { width: 100%; table-layout: fixed; }
 @media (max-width: 700px) { .document-and-scorecard { grid-template-columns: minmax(0, 1fr); } }
+
+/* Icon controls: hover waits 300 ms; keyboard focus reveals the name immediately. */
+.icon-control{position:relative;display:inline-flex}
+.icon-control [role=tooltip]{position:absolute;right:0;top:100%;z-index:20;max-width:220px;width:max-content;padding:5px 9px;border:1px solid var(--line);border-radius:6px;background:var(--rer-surface);color:var(--rer-text);font-size:13px;pointer-events:none;visibility:hidden;opacity:0;transition:visibility 0s .3s,opacity 0s .3s}
+.icon-control:hover [role=tooltip]{visibility:visible;opacity:1}
+.icon-control:focus-within [role=tooltip]{visibility:visible;opacity:1;transition-delay:0s}

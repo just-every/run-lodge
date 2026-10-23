@@ -24,6 +24,17 @@ try {
     for (const [as, roles, name] of [['manager', ['manager'], 'Morgan Lee'], ['approver', ['approver'], 'Parker Jones'], ['interviewer', ['interviewer'], 'Ivy Chen']]) await run('member', { email: as + '@dev.localhost', roles, name })
     const options = { root: clone.root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email }
     for (const clause of process.argv.slice(2)) {
+      if (clause === 'TEAM-002') {
+        const job = await run('vacancy', { title: 'Site supervisor', location: 'Brooklyn, NY', headcount: 1, manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 9000000, max: 11000000, period: 'year' } })
+        await run('rubric', { id: job.id, criteria: [{ name: 'Safety', description: 'Explains safe site operations' }] })
+        await run('interview-plan', { id: job.id, plan: [{ name: 'Work review', stageName: 'Interview' }] })
+        const asked = await run('request-vacancy-approval', { id: job.id, approver: options.ownerEmail })
+        await run('decide-approval', { id: asked.id, decision: 'approved', reason: 'Budget reviewed', version: asked.version })
+        await run('publish', { id: job.id })
+        await (await import('./notify-page.mjs')).notifyPage(browser, { ...options, job })
+        console.log(clause + ': own screens and end states passed at 1440 and 390')
+        continue
+      }
       if (clause === 'LDG-003') {
         for (const width of [1440, 390]) await journey(browser, clone.root, server.origin, width, evidence)
         console.log(clause + ': hiring journey passed at 1440 and 390')

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { PageProps } from '../app'
 import { Icon } from '../icons'
+import { IconButton } from '../tooltip'
 import { Avatar, type D } from '../shared'
 import { Interviews } from '../interviews'
 import { ScorecardForm, Scorecards } from '../scorecards'
@@ -23,7 +24,7 @@ export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () 
     <header className="app-head">
       <Avatar name={c.name} size="lg" />
       <div><h2>{c.name}</h2><p>{v?.title}</p><p className="muted">{[c.location, app.source].filter(Boolean).join(' · ')}</p></div>
-      <button className="icon-button" aria-label="Close the application" onClick={close}><Icon name="close" /></button>
+      <IconButton label="Close the application" onClick={close}><Icon name="close" /></IconButton>
     </header>
     <div role="tablist" aria-label="Application record" className="tabs">
       {tabs.map(t => <button key={t} role="tab" id={id(t) + '-tab'} aria-selected={tab === t} aria-controls={id(t)} onClick={() => setTab(t)}>{t}</button>)}
