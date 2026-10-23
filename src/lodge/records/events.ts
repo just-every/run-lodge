@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { isAdmin, managesVacancy, requireManages, requireMember, requireRole, seesEvent } from '../core/access'
+import { canSeeApplication, cleared, isAdmin, managesVacancy, requireManages, requireMember, requireRole, seesEvent } from '../core/access'
 import { date, email, integer, list, money, now, oneOf, optionalEmail, optionalText, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { candidateFields, retentionUntil, startApplication } from './candidates'
 import { storeDocument } from './documents'
@@ -51,9 +51,11 @@ export function event(s: State, a: Actor, b: Data) {
   const current = b.id ? seenEvent(s, a, b.id) : null
   if (current) requireThat(runsEvent(a, current), 'Only the event’s owner or a hiring admin changes it', 403)
   const owner = requireMember(s, email(b.owner ?? a.email, 'Event owner')).email
+  // A linked job the editor is not cleared for stays linked: they neither see nor change it.
+  const unseen = (current?.jobs ?? []).filter((id: string) => !cleared(a, s.find('vacancy', id), 'confidential'))
   const fields = {
     name: text(b.name, 'Event name', 120), kind: oneOf(b.kind, EVENT_KINDS, 'Event type'), date: date(b.date, 'Event date'),
-    location: text(b.location, 'Where it is', 200), owner, jobs: linkedJobs(s, a, b.jobs), budget: money(b.budget ?? 0, 'Budget (USD cents)'),
+    location: text(b.location, 'Where it is', 200), owner, jobs: [...new Set([...linkedJobs(s, a, b.jobs), ...unseen])], budget: money(b.budget ?? 0, 'Budget (USD cents)'),
   }
   requireThat(!s.all('event').some(e => e.id !== current?.id && e.name.toLowerCase() === fields.name.toLowerCase()), 'Another event already has that name; event sources must stay distinct', 409)
   const record = s.put('event', current?.id ?? uid(), current ? { ...current, ...fields, updatedBy: a.email, updatedAt: now() } : { ...fields, status: 'open', token: uid().replace(/-/g, '') + uid().replace(/-/g, '').slice(0, 16), costs: [], createdBy: a.email, createdAt: now() })
@@ -165,6 +167,7 @@ export function eventApply(s: State, a: Actor, b: Data) {
  * those applications closed as hired. Cost per hire is the sum of the recorded
  * costs divided by hires, in USD cents rounded half up to the cent, and null
  * while there is no hire; the budget is shown beside it and never counted as a cost.
+ * A reader sees only the linked jobs they are cleared for and the applications they may see.
  */
 export function eventsView(s: State, a: Actor, canSee: (candidate: Data) => boolean) {
   const notice = s.find('business', 'main')?.notices?.at(-1)?.version ?? null
@@ -179,16 +182,17 @@ export function eventsView(s: State, a: Actor, canSee: (candidate: Data) => bool
     const hires = apps.filter(x => x.status === 'hired').length
     const spent = (e.costs ?? []).reduce((sum: number, c: Data) => sum + c.amount, 0)
     const runs = runsEvent(a, e)
+    const jobs = (e.jobs as string[]).filter(id => cleared(a, s.find('vacancy', id), 'confidential'))
     return {
-      ...e, token: runs ? e.token : undefined, runs, noticeVersion: notice, californiaNotice: inCalifornia(s, e) ? cpraNotice(s) : null,
-      pool: [...people.values()].filter(p => p.visible).map(({ visible, ...p }) => ({ ...p, applications: s.all('application').filter(x => x.candidate === p.candidate).map(x => ({ id: x.id, vacancy: x.vacancy, status: x.status })) })),
+      ...e, jobs, token: runs ? e.token : undefined, runs, noticeVersion: notice, californiaNotice: inCalifornia(s, e) ? cpraNotice(s) : null,
+      pool: [...people.values()].filter(p => p.visible).map(({ visible, ...p }) => ({ ...p, applications: s.all('application').filter(x => x.candidate === p.candidate && canSeeApplication(s, a, x)).map(x => ({ id: x.id, vacancy: x.vacancy, status: x.status })) })),
       report: {
         attendees: people.size, applications: apps.length,
         interviews: s.all('interview').filter(i => ids.has(i.application) && i.status !== 'cancelled').length,
         hires, costs: spent, budget: e.budget, costPerHire: hires ? Math.floor(spent / hires + 0.5) : null,
-        byJob: (e.jobs as string[]).map(id => ({ vacancy: id, title: s.find('vacancy', id)?.title ?? '', applications: apps.filter(x => x.vacancy === id).length, hires: apps.filter(x => x.vacancy === id && x.status === 'hired').length })),
+        byJob: jobs.map(id => ({ vacancy: id, title: s.find('vacancy', id)?.title ?? '', applications: apps.filter(x => x.vacancy === id).length, hires: apps.filter(x => x.vacancy === id && x.status === 'hired').length })),
       },
-      managesJobs: (e.jobs as string[]).filter(id => { const v = s.find('vacancy', id); return !!v && managesVacancy(a, v) }),
+      managesJobs: jobs.filter(id => { const v = s.find('vacancy', id); return !!v && managesVacancy(a, v) }),
     }
   })
 }

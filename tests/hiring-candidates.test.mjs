@@ -1240,6 +1240,23 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
     await checkResumeIntake(h, { manager, interviewer: ivy })
   })
 
+  await t.test('an event shows each reader only the linked jobs and applications they may see', async () => {
+    const shown = await openJob('Rigger', 'Brooklyn, NY'), secret = await openJob('Chief engineer', 'Brooklyn, NY')
+    await cmd('vacancy-privacy', { id: secret.id, confidential: true })
+    await cmd('hiring-team', { id: shown.id, interviewers: ['ivy@example.test'] })
+    const expo = await cmd('event', { name: 'Trades expo', kind: 'career-fair', date: '2026-11-12', location: 'Brooklyn Expo Center', jobs: [shown.id, secret.id] })
+    const { candidate } = await cmd('event-capture', { event: expo.id, captureId: 'cap-expo-0001', name: 'Theo Brandt', email: 'theo@example.test', noticeVersion: (await state()).business.notices.at(-1).version, noticeShown: true })
+    for (const job of [shown, secret]) await cmd('event-apply', { event: expo.id, vacancy: job.id, candidate })
+    for (const events of [(await state(ivy)).events, (await send('/api/lodge/reports/events', undefined, ivy)).value.events]) {
+      const seen = JSON.stringify(events.find(e => e.id === expo.id))
+      assert.ok(seen.includes(shown.id) && !seen.includes(secret.id) && !seen.includes('Chief engineer'), seen)
+    }
+    // Whoever edits the event keeps the links they cannot see.
+    const admin = await h.member('ada@example.test', ['admin'], 'Ada Stone')
+    await cmd('event', { id: expo.id, name: 'Trades expo', kind: 'career-fair', date: '2026-11-13', location: 'Brooklyn Expo Center', jobs: (await state(admin)).events.find(e => e.id === expo.id).jobs }, admin)
+    assert.deepEqual((await state()).events.find(e => e.id === expo.id).jobs, [shown.id, secret.id])
+  })
+
 })
 
 test('DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration', async t => {
