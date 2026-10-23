@@ -28,7 +28,7 @@ export async function languagesPage(browser, { root, origin, run, evidence, owne
       await posts.getByLabel('The employer has reviewed these translations', { exact: false }).check()
       await posts.getByRole('button', { name: 'Save reviewed translation', exact: true }).click()
       await page.getByText('Saved.', { exact: true }).waitFor()
-      if (width === 1440) await posts.getByRole('button', { name: 'Go live', exact: true }).click()
+      if (width === browserWidths[0]) await posts.getByRole('button', { name: 'Go live', exact: true }).click()
       await page.screenshot({ path: join(evidence, `ATTR-007-translations-${width}.png`), fullPage: true })
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
     } finally { await owner.context.close() }

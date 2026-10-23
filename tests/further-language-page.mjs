@@ -25,7 +25,7 @@ export async function furtherLanguagePage(browser, { root, origin, run, evidence
       await editor.locator('textarea[name="ui-name"]').fill(FRENCH.name)
       await editor.getByLabel('The employer has reviewed these translations', { exact: false }).check()
       await editor.getByRole('button', { name: 'Save reviewed translation', exact: true }).click()
-      if (width === 1440) await posts.getByRole('button', { name: 'Go live', exact: true }).click()
+      if (width === browserWidths[0]) await posts.getByRole('button', { name: 'Go live', exact: true }).click()
       await posts.getByRole('button', { name: 'Pause post', exact: true }).waitFor()
       await posts.getByText('Application, receipt and candidate email text', { exact: true }).scrollIntoViewIfNeeded()
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
