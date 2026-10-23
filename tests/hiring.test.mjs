@@ -2214,3 +2214,8 @@ test('ATTR-001 employer careers branding, private receipt recovery and verified 
   const configured = await harness({ bindings: careersDomainBindings, outboundService: edge.fetch })
   try { await checkCareersDomain(configured, edge) } finally { await configured.close() }
 })
+
+test('CAND-001 native candidate sessions recover only their receipts and submit scoped PRIV-001 requests', async () => {
+  const { checkCandidate } = await import('./candidate-flow.mjs')
+  await checkCandidate()
+})

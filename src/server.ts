@@ -1,3 +1,4 @@
+import { candidatePages } from './lodge/http/candidate-pages'
 import { careersHostResponse } from './lodge/careers/host'
 import { afterWrite, scheduledRun } from './lodge/notify/run'
 import { withDemo } from './modules/demo/index.mjs'
@@ -42,6 +43,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
     if (state) return state
     const lobby = await lobbyResponse(request, runtimeBindings(env), identity)
     if (lobby) return lobby
+    if (/^\/candidate(\/|$)/.test(new URL(request.url).pathname)) return candidatePages.fetch(request, env, execution)
     if (isPublicPage(new URL(request.url).pathname)) return publicPages.fetch(request, env, execution)
     if (isSignPage(new URL(request.url).pathname)) return signPages.fetch(request, env, execution)
     if (isEmbedPage(new URL(request.url).pathname)) return embedPages.fetch(request, env, execution)

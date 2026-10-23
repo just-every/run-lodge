@@ -595,3 +595,30 @@ private API path refuses. Installation `/jobs` remains available.
 `tests/careers-live.mjs` is the explicit held-key sandbox journey (outside Verify).
 It creates and removes only its own Worker, database, TXT record and association,
 then exercises the live careers hostname at 1440 and 390 pixels.
+
+## Candidate receipts and privacy requests
+
+`/candidate` is a native-session page for application receipts and PRIV-001 requests.
+An owner or authorized administrator uses Base's existing `POST /auth/invite`
+with `email`, `displayName`, `role: "member"` and `returnTo: "/candidate"` to
+invite the applicant to verify their email. This creates a native identity only;
+do not create a Lodge hiring-team member for a candidate. The applicant follows
+the emailed invitation and subsequently signs in at `/signin?returnTo=%2Fcandidate`.
+An installation without configured mail cannot deliver an invitation.
+
+Every `/candidate/receipts/<receipt>` link checks the live session email against
+the current canonical applicant email. Unknown and other applicants' links answer
+404 alike; expired or revoked sessions answer 401. This area shows only original
+receipts and that receipt's own privacy requests. It grants no staff API access,
+hiring progress, evidence editing, contact preferences, withdrawal or scheduling
+(CAND-002 and CAND-003 retain those requirements).
+
+`GET /candidate/receipts/<receipt>/requests` shows the request form. `POST` on
+that same path accepts `type` (`access`, `deletion` or `correction`) and `details`
+(required for correction). Identity and receipt come from the live session and
+scoped path, never from submitted identity fields. It returns 303 to the
+request's authenticated status page. Requests follow PRIV-001's acknowledgement,
+deadline, administrator fulfillment and hold rules; submitting one never rewrites
+the application or deletes records. The existing `/privacy-requests` public
+request-link route remains available, as does receipt-only possession recovery
+at `/jobs/receipt` under ATTR-001.

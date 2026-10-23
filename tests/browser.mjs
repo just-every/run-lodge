@@ -4,6 +4,7 @@ import { connectorsPage } from './connectors-page.mjs'
 import { referralsPage } from './referrals-page.mjs'
 import { languagesPage } from './languages-page.mjs'
 import { legacyPage } from './legacy-page.mjs'
+import { candidatePage } from './candidate-page.mjs'
 // LDG-015 and LDG-017, plus the human journeys at 1440 and 390: a fresh clone of
 // the committed HEAD run only through the pinned `rer` verbs, the whole hiring
 // loop clicked by each role, every workspace screen at both widths, the Workable
@@ -97,6 +98,7 @@ try {
     // ATTR-012: a job approved for two offices gets a post per width, put live in the app and opened from the careers page.
     const hand = await postsPage(browser, { root, origin: server.origin, run, offices: [yard, await run('office', { name: 'Queens yard' })], evidence })
     await languagesPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+    await candidatePage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await employerCareersPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await careersDraftPage(browser, { root, origin: server.origin, run, evidence })
     await referralsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })

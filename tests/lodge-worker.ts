@@ -1,3 +1,4 @@
+import { candidatePages } from '../src/lodge/http/candidate-pages'
 import { staticAssetResponse } from '../src/base/static-assets'
 import { careersHostResponse } from '../src/lodge/careers/host'
 import { afterWrite, scheduledRun } from '../src/lodge/notify/run'
@@ -30,6 +31,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   const auth = await authResponse(request, env)
   if (auth) return auth
   const path = new URL(request.url).pathname
+  if (/^\/candidate(\/|$)/.test(path)) return candidatePages.fetch(request, env, execution)
   if (path.startsWith('/careers/') || path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
   if (isSignPage(path)) return signPages.fetch(request, env, execution)
   if (isEmbedPage(path)) return embedPages.fetch(request, env, execution)
