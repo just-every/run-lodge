@@ -24,3 +24,7 @@ succeed. An ordinary local `rer verify` retains the complete suite.
 Evidence paths in CONTRACT.md and ACCEPTANCE.md name the entrypoint and driver
 that own each public-door assertion. Keep tests within the default 200
 registrations; selectors and setup helpers do not register extra tests.
+
+Hosted browser jobs first check disk headroom and launch the pinned Chromium.
+They reclaim SDK space or install missing system libraries only when needed;
+no hydration or browser assertions are skipped.
