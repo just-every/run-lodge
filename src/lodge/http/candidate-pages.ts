@@ -77,7 +77,7 @@ candidatePages.post('/candidate/receipts/:receipt/requests', async c => {
   const data = await formBody(c)
   requireThat(!String(data.get('website') ?? '').trim(), 'This field must stay empty')
   // The form cannot nominate another person, receipt or identity. Only a request is recorded; fulfillment stays PRIV-001.
-  const { record } = await submitPrivacyRequest(state, { type: data.get('type'), details: data.get('details'), name: candidate.name, email: actor.email, receipt: receipt.id })
+  const { record } = await submitPrivacyRequest(state, { type: data.get('type'), details: data.get('details'), name: candidate.name, email: actor.email, receipt: receipt.id }, true)
   await save(c.env.DB, state, actor)
   return c.redirect(base(receipt.id) + '/requests/' + encodeURIComponent(record.id), 303)
 })

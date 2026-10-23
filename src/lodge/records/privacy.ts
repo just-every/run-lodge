@@ -83,10 +83,14 @@ export function inCalifornia(s: State, v: Data, post: Data | null = null) {
 
 const addDays = (day: string, days: number) => new Date(Date.parse(day + 'T00:00:00Z') + days * 86_400_000).toISOString().slice(0, 10)
 
-/** The primary record of a receipt's applicant, when the email given is the one on it. */
-function verify(s: State, code: string, address: string) {
+/**
+ * The primary record of a receipt's applicant, when the email given is the one on it.
+ * A repeat board submission's receipt was handed to whoever sent that email again, so
+ * it verifies the earlier application only for a requester signed in as that email.
+ */
+function verify(s: State, code: string, address: string, signedIn: boolean) {
   const receipt = code ? s.find('receipt', code.toUpperCase()) : undefined
-  const app = receipt ? s.find('application', receipt.application) : undefined
+  const app = receipt && (!receipt.repeat || signedIn) ? s.find('application', receipt.application) : undefined
   let person = app ? s.find('candidate', app.candidate) : undefined
   for (let hops = 0; person?.mergedInto && hops < 20; hops++) person = s.find('candidate', person.mergedInto)
   return person && !person.deleted && !person.mergedInto && person.email?.toLowerCase() === address ? person : null
@@ -94,13 +98,13 @@ function verify(s: State, code: string, address: string) {
 
 const hash = (token: string) => sha256('privacy-request\u0000' + token)
 
-/** A request from the public page. Returns the record and the one-time token of its status page. */
-export async function submitPrivacyRequest(s: State, b: Data) {
+/** A request from the public page, or from a candidate signed in as the email given. Returns the record and the one-time token of its status page. */
+export async function submitPrivacyRequest(s: State, b: Data, signedIn = false) {
   const type = oneOf(b.type, PUBLIC_TYPES, 'Request')
   const name = text(b.name, 'Full name', 160), address = email(b.email, 'Email')
   const details = type === 'correction' ? text(b.details, 'What should be corrected', 4000) : optionalText(b.details, 'Details', 4000)
   const code = optionalText(b.receipt, 'Application receipt', 40)
-  const person = verify(s, code, address)
+  const person = verify(s, code, address, signedIn)
   const token = [...crypto.getRandomValues(new Uint8Array(24))].map(x => x.toString(16).padStart(2, '0')).join('')
   const receivedAt = businessToday(s), at = now()
   const record = s.put('data-request', uid(), {

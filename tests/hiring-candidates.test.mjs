@@ -645,6 +645,20 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
     assert.deepEqual([flood.slice(0, 10).every(s => s === 400), flood[10]], [true, 429])
   })
 
+  await t.test('a receipt for a repeat job-board submission verifies no privacy request about the earlier application', async () => {
+    const view = await state()
+    const loader = view.vacancies.find(v => v.title === 'Night loader'), lift = view.questions.find(q => q.versions[0].text === 'Can you lift 50 pounds?')
+    const fromSite = () => send(`/api/board/v1/example-builders/jobs/${loader.id}/applications`, { name: 'Nell Price', email: 'nell@example.test', noticeVersion: view.business.notices.at(-1).version, consent: true, answers: { [lift.id]: 'yes' } }, '', { origin: 'https://careers.example.test', 'cf-connecting-ip': '203.0.113.31' })
+    const own = await fromSite(), repeat = await fromSite()
+    assert.deepEqual([own.status, repeat.status], [201, 201])
+    const ask = receipt => { const f = new FormData(); for (const [k, x] of Object.entries({ type: 'deletion', name: 'Nell Price', email: 'nell@example.test', receipt })) f.append(k, x); return send('/privacy-requests', f) }
+    assert.match((await ask(repeat.value.receipt)).text, /Not verified/)
+    assert.match((await ask(own.value.receipt)).text, /Verified by receipt code and email on record/)
+    const after = await state(), nell = after.candidates.find(c => c.email === 'nell@example.test')
+    const request = receipt => after.dataRequests.find(r => r.identity?.receipt === receipt)
+    assert.deepEqual([repeat.value.receipt, own.value.receipt].map(code => [request(code).candidate, request(code).status]), [[null, 'unverified'], [nell.id, 'open']])
+  })
+
   await t.test('ATTR-008 the embedded job board and form: framed only by listed sites, filtered, applied to inside the frame with the host page’s campaign', async () => {
     const support = await cmd('department', { name: 'Customer support' })
     const v = await cmd('vacancy', { title: 'Support specialist', departmentId: support.id, workMode: 'remote', location: 'Remote (US)', headcount: 1, manager: 'morgan@example.test', compensation: RANGE }, manager)
