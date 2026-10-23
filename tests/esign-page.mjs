@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // OFFER-005 through the real screens at 1440 and 390: the candidate's pages in a browser (tests/esign.mjs, with the test
 // mail edge, because local `rer dev` captures no mail) and, on the running app, the hiring manager's send and the
 // designated signer's countersign and completed panels.
@@ -16,7 +17,7 @@ export async function esignPage(browser, { root, origin, run, evidence, ownerEma
  await run('esign-disclosure', { reviewed: true, contactName: 'Example hiring desk', contactEmail: 'hiring@example.test' })
  const body = 'Dear {{candidateName}},\nWe offer {{title}} at {{location}}, {{employmentType}}, from {{startDate}}.\nPay {{pay}}. Bonus {{bonus}}. Equity {{equity}}.\n{{contingencies}}\n{{terms}}'
  const template = await run('offer-template', { name: 'Native signed offer', body, contingencies: 'Subject to the employer-reviewed work authorization requirements.', normalApprover: 'approver@dev.localhost', exceptionApprover: ownerEmail, native: true, countersign: true, signer: ownerEmail, reviewed: true })
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
   const name = width === 1440 ? 'Rowan Eastman' : 'Mina Okafor', email = `native.${width}@example.test`
   const job = await run('vacancy', { title: `Estimator — native signing ${width}`, location: 'Brooklyn, NY', manager: 'manager@dev.localhost', headcount: 1, compensation: { currency: 'USD', min: 6500000, max: 8500000, period: 'year' } })
   await run('rubric', { id: job.id, criteria: [{ name: 'Safety', description: 'Explains safe site operations' }] })

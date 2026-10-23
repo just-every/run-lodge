@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
@@ -5,7 +6,7 @@ import { zip } from './zip.mjs'
 
 /** DATA-001: choose a typed mapping, inspect an inert import, and commit the reviewed package. */
 export async function fieldsImportPage(browser, { root, origin, evidence }) {
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
   const { context, page } = await session(browser, root, origin, 'owner', width)
   try {
    const w = await current(context, origin)

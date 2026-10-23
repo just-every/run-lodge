@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import { furtherLanguagePage } from './further-language-page.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
@@ -7,7 +8,7 @@ import { languageJob, spanishText } from './languages-flow.mjs'
 export async function languagesPage(browser, { root, origin, run, evidence, ownerEmail }) {
   const approve = async r => { const owner = await session(browser, root, origin, 'owner', 1440); try { const version = (await current(owner.context, origin)).approvals.find(a => a.id === r.id).currentVersion; await run('decide-approval', { id: r.id, decision: 'approved', reason: 'Budgeted', version }) } finally { await owner.context.close() } }
   const { job, q, es } = await languageJob(run, approve, ownerEmail)
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const owner = await session(browser, root, origin, 'owner', width)
     try {
       const page = owner.page

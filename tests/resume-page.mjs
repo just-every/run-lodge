@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // DATA-002: genuine PDF.js, Mammoth and UTF-8 decoding through individual and bulk intake pages.
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
@@ -7,7 +8,7 @@ import { resumeFiles, unreadableResume } from './resume-fixtures.mjs'
 import { resumeLifecyclePage } from './resume-lifecycle-page.mjs'
 
 export async function resumeIntakePage(browser, { root, origin, job, evidence }) {
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
   const owner = await session(browser, root, origin, 'owner', width)
   try {
    const { page, context } = owner, tag = width === 1440 ? 'Wide' : 'Narrow'

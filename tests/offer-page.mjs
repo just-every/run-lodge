@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // OFFER-001 through the employer template, job setup, draft, approval and release doors.
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
@@ -6,7 +7,7 @@ import { api, current, session } from './browser-journey.mjs'
 export async function offersPage(browser, { root, origin, run, evidence, ownerEmail }) {
  await run('member', { email: 'approver@dev.localhost', name: 'Parker Approver', roles: ['approver'] })
  const round = crypto.randomUUID().slice(0, 4).toUpperCase()
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
   const place = width === 1440 ? 'Brooklyn' : 'Queens', personName = width === 1440 ? 'Jordan Ellery' : 'Samira Cole'
   const templateName = `US salaried offer — ${place} ${round}`
   const owner = await session(browser, root, origin, 'owner', width)

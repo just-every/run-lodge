@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // MIG-009: existing embedded careers links select the mapped source/job and accept an application.
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
@@ -13,7 +14,7 @@ export async function legacyPage(browser, { lodge, site, run, state, ownerEmail,
   for (const route of routes) {
     const { source, job } = route
     await run('legacy-link', { source, sourceId: oldId, sourceUrl: `https://source.example.test/${source}/${oldId}`, vacancy: job.id })
-    for (const width of [1440, 390]) {
+    for (const width of browserWidths) {
       const context = await browser.newContext({ viewport: { width, height: 1000 } })
       try {
         const page = await context.newPage(), errors = []
@@ -54,7 +55,7 @@ export async function legacyPage(browser, { lodge, site, run, state, ownerEmail,
   // Neutral confidential listings cannot be disclosed through any old source's link.
   for (const { source, job, query } of routes) {
     await run('vacancy-privacy', { id: job.id, confidential: true, publicTitle: 'Neutral listing', namedPeople: [] })
-    for (const width of [1440, 390]) {
+    for (const width of browserWidths) {
       const context = await browser.newContext({ viewport: { width, height: 1000 } })
       try {
         const page = await context.newPage()

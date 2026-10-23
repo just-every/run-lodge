@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // CRM-005: real employer invitations, agency submissions and ownership review
 // in the installed app. Every state is exercised at desktop and phone widths.
 import assert from 'node:assert/strict'
@@ -17,7 +18,7 @@ export async function agencyPage(browser, { root, origin, run, evidence, ownerEm
   const request = await run('request-vacancy-approval', { id: job.id, approver: ownerEmail })
   await run('decide-approval', { id: request.id, decision: 'approved', version: request.version, reason: 'Budget and interview plan reviewed' })
   await run('publish', { id: job.id })
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const employer = await session(browser, root, origin, 'owner', width)
     let agencyContext
     try {

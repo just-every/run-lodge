@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // MIG-008 on the real screen at 1440 and 390: after the Workable kit's import (made through its own screen), the owner prepares a live job, previews the
 // mapped cutover on the Move in screen, approves that exact preview and sees the moved people on the live job.
 import assert from 'node:assert/strict'
@@ -10,7 +11,7 @@ async function fits(page, label) {
 }
 
 export async function cutoverPage(browser, { root, origin, run, evidence }) {
- for (const [width, imported, people] of [[1440, 'Site supervisor', ['Dana Whitfield', 'Lee Moreno']], [390, 'Estimator', ['Kai Ito', 'Lee Moreno']]]) {
+ for (const [width, imported, people] of [[1440, 'Site supervisor', ['Dana Whitfield', 'Lee Moreno']], [390, 'Estimator', ['Kai Ito', 'Lee Moreno']]].filter(([width]) => browserWidths.includes(width))) {
   const title = `${imported} (live ${width})`
   const job = await run('vacancy', { title, location: 'Brooklyn, NY', headcount: 2, manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 6500000, max: 8500000, period: 'year' } })
   await run('rubric', { id: job.id, criteria: [{ name: 'Safety', description: 'Explains safe site operations' }] })

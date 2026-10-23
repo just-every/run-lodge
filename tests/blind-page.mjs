@@ -1,10 +1,11 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
 
 /** REVIEW-002: manager configures, reviews, reveals, then returns to blind at both widths. */
 export async function blindPage(browser, { root, origin, run, evidence, ownerEmail }) {
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
   const v = await run('vacancy', { title: 'Blind inventory lead ' + width, headcount: 2, location: 'Brooklyn, NY', manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 5000000, max: 7000000, period: 'year' } })
   await run('rubric', { id: v.id, criteria: [{ name: 'Stock control', description: 'A stock control example' }] })
   await run('interview-plan', { id: v.id, plan: [{ name: 'Inventory discussion', stageName: 'Interview' }] })

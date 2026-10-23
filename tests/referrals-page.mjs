@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { session, current } from './browser-journey.mjs'
@@ -14,7 +15,7 @@ export async function referralsPage(browser, { root, origin, run, evidence, owne
   const approval = await run('request-vacancy-approval', { id: v.id, approver: ownerEmail })
   await run('decide-approval', { id: approval.id, decision: 'approved', version: approval.version, reason: 'Plan reviewed' })
   await run('publish', { id: v.id })
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const email = `referral-employee-${width}@example.test`
     await run('member', { email, name: 'Referral Employee ' + width, roles: ['employee'] })
     const staff = await session(browser, root, origin, 'owner', width)

@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // ATTR-012 in a browser: the people who run a job add a post with its own title
 // and one of the job's approved offices, put it live, and the careers page lists
 // the post in place of the job, at each width.
@@ -16,7 +17,7 @@ export async function postsPage(browser, { root, origin, run, offices, evidence 
   await run('decide-approval', { id: asked.id, decision: 'approved', reason: 'Budgeted', version }, approver.context)
   await approver.context.close()
   await run('publish', { id: job.id })
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const title = `Yard hand — ${offices[1].name} ${width}`
     const owner = await session(browser, root, origin, 'owner', width)
     try {

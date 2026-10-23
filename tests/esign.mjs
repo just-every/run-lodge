@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // OFFER-005 through the public doors: staff routes, the candidate's signing page and signed-copy page, the saved
 // records and the mail network edge. Nothing in Lodge is faked; only the mail provider's network edge is.
 import assert from 'node:assert/strict'
@@ -300,7 +301,7 @@ export async function candidateScreens(browser, evidence) {
  try {
   const t = await scenario(h)
   await t.cmd('esign-disclosure', { reviewed: true, contactName: 'Hiring desk', contactEmail: 'hiring@example.test' })
-  for (const [width, name] of [[1440, 'Rowan Eastman'], [390, 'Mina Okafor']]) {
+  for (const [width, name] of [[1440, 'Rowan Eastman'], [390, 'Mina Okafor']].filter(([width]) => browserWidths.includes(width))) {
    const email = name.toLowerCase().replace(' ', '.') + '@example.test'
    const applied = await t.person(name), offer = await t.offerFor(applied, width === 1440 ? 0 : 1)
    await t.approve(offer)

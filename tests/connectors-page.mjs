@@ -1,9 +1,10 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
 
 export async function connectorsPage(browser, { root, origin, run, evidence, ownerEmail }) {
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const s = await session(browser, root, origin, 'owner', width)
     try {
       const { page } = s

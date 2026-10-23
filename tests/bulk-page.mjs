@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // DATA-003 in a browser: the owner selects one applicant on each of two jobs from
 // their board views, previews a bulk tag, and applies it; each item's outcome is
 // shown and the selection carried across jobs.
@@ -6,7 +7,7 @@ import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
 
 export async function bulkPage(browser, { root, origin, run, jobs, evidence, stamp = '' }) {
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const people = jobs.map((_, i) => `Bulk Person ${width}-${i + 1}${stamp}`)
     for (const [i, job] of jobs.entries()) await run('candidate', { name: people[i], email: `bulk${width}-${i + 1}${stamp}@example.test`, source: 'Job board', consentBasis: 'application', vacancy: job.id })
     const owner = await session(browser, root, origin, 'owner', width)

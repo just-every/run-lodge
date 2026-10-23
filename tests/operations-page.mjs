@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
@@ -9,7 +10,7 @@ export async function operationsPage(browser, { root, origin, run, evidence, own
   const ready = await run('interview-plan', { id: job.id, plan: [{ name: 'Work review', stageName: 'Interview' }] })
   const question = await run('question', { text: 'Can you work the published shift?', type: 'yes-no', required: false })
   await run('job-questions', { id: job.id, questions: [{ question: question.id, required: false }] })
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const s = await session(browser, root, origin, 'owner', width)
     try {
       const { page } = s

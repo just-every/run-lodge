@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // DATA-006: real files read beside an editable scorecard and from the review queue.
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
@@ -15,7 +16,7 @@ export async function documentsPage(browser, { root, origin, run, evidence, owne
  const documents = []
  for (const f of readerFiles()) documents.push(await run('document', { application: added.application.id, name: f.name, mediaType: f.mediaType, kind: f.kind, base64: f.bytes.toString('base64') }))
  const restricted = await run('document', { application: added.application.id, name: 'work-authorization.txt', mediaType: 'text/plain', kind: 'right-to-work', base64: Buffer.from('Restricted work authorization original').toString('base64') })
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
   await run('assign-reviewers', { application: added.application.id, reviewers: ['interviewer@dev.localhost'] })
   const s = await session(browser, root, origin, 'interviewer', width)
   try {
@@ -81,7 +82,7 @@ export async function documentsPage(browser, { root, origin, run, evidence, owne
   } finally { await s.context.close() }
  }
  await run('member', { email: 'admin@dev.localhost', name: 'Avery Hiring Admin', roles: ['admin'] })
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
  const owner = await session(browser, root, origin, 'admin', width)
  try {
   await owner.page.goto(origin + '/app?application=' + added.application.id)

@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { readDevKey, signInAs } from '../src/modules/operator-auth/dev/sign-in-as.mjs'
@@ -18,7 +19,7 @@ export async function candidatePage(browser, { root, origin, run, evidence, owne
   await run('decide-approval', { id: approval.id, decision: 'approved', version: approval.version, reason: 'Budget and plan reviewed' })
   const live = await run('publish', { id: job.id })
   const key = await readDevKey(root)
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const employer = await session(browser, root, origin, 'owner', width)
     const visitor = await browser.newContext({ viewport: { width, height: 1000 } })
     let candidate
@@ -131,7 +132,7 @@ export async function candidatePage(browser, { root, origin, run, evidence, owne
 // Real server-rendered account pages and real D1; only the outbound mail edge is replaced.
 export async function candidateAccountPage(browser, { evidence }) {
   const { candidateFixture, latestMail } = await import('./candidate-flow.mjs')
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const { h, alice, bob, cookie } = await candidateFixture()
     const context = await browser.newContext({ viewport: { width, height: 1000 } })
     try {
@@ -186,7 +187,7 @@ export async function candidateAccountPage(browser, { evidence }) {
 
 export async function candidateBookingPage(browser, { evidence }) {
   const { bookingFixture } = await import('./candidate-flow.mjs')
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const { h, cookie, bob, interview, path, slots } = await bookingFixture()
     const context = await browser.newContext({ viewport: { width, height: 1000 } })
     try {

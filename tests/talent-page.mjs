@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { session } from './browser-journey.mjs'
@@ -14,7 +15,7 @@ export async function talentPage(browser, { root, origin, run, evidence }) {
     const deleted = await owner.context.request.post(origin + '/api/lodge/delete-candidate', { headers: { origin }, data: { candidate: erased.candidate.id, confirm: 'Taylor Erased', reason: 'Asked to be forgotten' } })
     assert.equal(deleted.status(), 200)
   } finally { await owner.context.close() }
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     for (const as of ['owner', 'interviewer']) {
       const s = await session(browser, root, origin, as, width)
       try {

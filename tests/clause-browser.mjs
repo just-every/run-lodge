@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // Narrow committed journeys for builder landings; the full fresh-install journey remains in browser.mjs.
 import { pathToFileURL } from 'node:url'
 import { mkdir, rm } from 'node:fs/promises'
@@ -36,7 +37,7 @@ try {
         continue
       }
       if (clause === 'LDG-003') {
-        for (const width of [1440, 390]) await journey(browser, clone.root, server.origin, width, evidence)
+        for (const width of browserWidths) await journey(browser, clone.root, server.origin, width, evidence)
         console.log(clause + ': hiring journey passed at 1440 and 390')
         continue
       }

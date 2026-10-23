@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import { careersSite } from './board-page.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
@@ -13,7 +14,7 @@ async function shot(page, evidence, name, width) {
   await page.screenshot({ path: join(evidence, `careers-${name}-${width}.png`), fullPage: true })
 }
 export async function careersPublicPage(browser, { origin, jobs, evidence, prefix = '' }) {
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const context = await browser.newContext({ viewport: { width, height: 1000 } })
     try {
       const page = await context.newPage()
@@ -96,7 +97,7 @@ export async function careersPage(browser, { root, origin, run, evidence, ownerE
   const jobs = { onsite: await careersJob(jobRun, 'Residential site supervisor'), remote: await careersJob(jobRun, 'Remote project coordinator', 'remote', 'Austin, TX') }
   const logo = await employerLogo()
   await run('job-board', { token: 'synthetic-lodge-1', allowedOrigins: ['https://employer.example.com'] })
-  for (const width of [1440,390]) {
+  for (const width of browserWidths) {
     const owner = await session(browser, root, origin, 'owner', width)
     try {
       const page = owner.page
@@ -122,7 +123,7 @@ export async function careersPage(browser, { root, origin, run, evidence, ownerE
   const site = await careersSite(root)
   try {
     await run('job-board', { token: 'synthetic-lodge-1', allowedOrigins: [site.origin] })
-    for (const width of [1440,390]) {
+    for (const width of browserWidths) {
       const context = await browser.newContext({ viewport: { width, height: 1000 } })
       try {
         const page = await context.newPage()

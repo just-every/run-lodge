@@ -29,7 +29,7 @@
     "check": "rer check",
     "deps": "rer install",
     "rer": "rer",
-    "test:lodge": "node --test --test-concurrency=1 tests/hiring.test.mjs tests/agents.test.mjs tests/move-in.test.mjs tests/security.test.mjs tests/portability.test.mjs",
+    "test:lodge": "node tests/run-lodge.mjs",
     "test:browser": "node tests/browser.mjs"
   },
   "dependencies": {

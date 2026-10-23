@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import { careersPage as employerCareersPage } from './careers-page.mjs'
 import { careersDraftPage } from './careers-draft-page.mjs'
 import { connectorsPage } from './connectors-page.mjs'
@@ -64,7 +65,7 @@ try {
   await owner.page.screenshot({ path: join(evidence, 'owner-overview-1440.png'), fullPage: true })
   for (const [as, roles, name] of PERSONAS) await api(owner.context, server.origin, 'member', { email: `${as}@dev.localhost`, name, roles })
 
-  for (const width of [1440, 390]) result.journeys.push(await journey(browser, root, server.origin, width, evidence))
+  for (const width of browserWidths) result.journeys.push(await journey(browser, root, server.origin, width, evidence))
 
   // ATTR-009: the example careers page, on its own origin, lists a published job from the public board and applies through it.
   // ATTR-008: the embed snippet on that origin frames the board and form; an unlisted site cannot; without JavaScript it links to the hosted roles.
@@ -82,7 +83,7 @@ try {
     await approver.context.close()
     await run('publish', { id: lead.id })
     await run('job-board', { token: 'example-builders', allowedOrigins: [site.origin] })
-    for (const width of [1440, 390]) {
+    for (const width of browserWidths) {
       const receipt = await careersPage(browser, { lodge: server.origin, site: site.origin, board: 'example-builders', job: { title: 'Yard lead', department: 'Field operations', office: 'Brooklyn yard', pay: '$65,000–$78,000 a year' }, width, evidence, email: `jules${width}@example.test` })
       const w = await current(owner.context, server.origin)
       const landed = w.applications.find(a => w.receipts.some(r => r.id === receipt && r.application === a.id))
@@ -139,7 +140,7 @@ try {
   await cutoverPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence })
 
   // Every main screen the owner uses, the Lobby, sign-in and the public job list, at both widths.
-  for (const width of [1440, 390]) await screens(browser, root, server.origin, width, evidence)
+  for (const width of browserWidths) await screens(browser, root, server.origin, width, evidence)
 
   const before = await current(owner.context, server.origin)
   await owner.context.close(); await browser.close(); browser = undefined

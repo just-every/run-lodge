@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { current, session } from './browser-journey.mjs'
@@ -26,7 +27,7 @@ async function addField(region, page, spec) {
 
 /** DATA-001: real draft settings, hosted intake, scoped profiles/search/views and reviewed sandbox deployment. */
 export async function fieldsPage(browser, { root, origin, run, evidence, ownerEmail }) {
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
   const suffix = width + '-' + crypto.randomUUID().slice(0, 6)
   const job = await run('vacancy', { title: 'Typed hiring ' + suffix, location: 'Brooklyn, NY', headcount: 2, manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 5000000, max: 6500000, period: 'year' } })
   await run('rubric', { id: job.id, criteria: [{ name: 'Safe handling', description: 'Explains safe handling steps' }] })

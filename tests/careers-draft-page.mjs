@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { careersJob } from './careers-flow.mjs'
@@ -25,7 +26,7 @@ export async function careersDraftPage(browser, { root, origin, run, evidence })
   for (const input of questionInputs) library.push(await run('question', input))
   const job = await careersJob(run, 'Draft trial supervisor')
   const attach = questions => run('job-questions', { id: job.id, questions: questions.map(q => ({ question: q.id, required: q.id !== library[2].id })) })
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     await attach(library)
     const owner = await session(browser, root, origin, 'owner', width)
     const context = await browser.newContext({ viewport: { width, height: 1000 } })

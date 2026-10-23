@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 // TEAM-002 and TEAM-003 on the real screens at 1440 and 390: the manager mentions a colleague with access and one without
 // from the note box (with suggestions), the first opens the candidate from their home and the mention leaves it, the second
 // sees the text with no link, and a member changes a notification setting. (Local `rer dev` captures no mail; the mail
@@ -15,7 +16,7 @@ async function fits(page, label) {
 const overview = async page => { await page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Overview', exact: true }).click(); await page.getByRole('heading', { name: 'Your work' }).waitFor() }
 
 export async function notifyPage(browser, { root, origin, run, job, evidence, ownerEmail }) {
- for (const width of [1440, 390]) {
+ for (const width of browserWidths) {
   const name = `Mention Person ${width}`
   await run('candidate', { name, email: `mention.${width}@example.test`, source: 'Referral', consentBasis: 'referral', consentNote: 'Agreed', vacancy: job.id })
   const manager = await session(browser, root, origin, 'manager', width), owner = await session(browser, root, origin, 'owner', width), interviewer = await session(browser, root, origin, 'interviewer', width)

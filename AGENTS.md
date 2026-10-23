@@ -68,7 +68,7 @@ must keep working and [ACCEPTANCE.md](ACCEPTANCE.md) for what is proven.
 
 ## Tests
 
-`tests/hiring.test.mjs`, `tests/agents.test.mjs` and `tests/move-in.test.mjs`
+`tests/hiring-{candidates,offers,security,reports}.test.mjs`, `tests/agents.test.mjs` and `tests/move-in.test.mjs`
 drive the real Worker and D1 (Miniflare) through HTTP, one subtest per contract
 clause. `tests/browser.mjs` runs the fresh-clone journeys at 1440 and 390 wide
 through `rer`. Keep one test per clause; no pin tests.

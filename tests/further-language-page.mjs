@@ -1,3 +1,4 @@
+import { browserWidths } from './browser-widths.mjs'
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { session } from './browser-journey.mjs'
@@ -9,7 +10,7 @@ export async function furtherLanguagePage(browser, { root, origin, run, evidence
   let v = await run('job-post', { vacancy: job.id, title: 'Agent d’entrepôt', description: 'Chargez les marchandises en toute sécurité.', language: 'fr', locations: [job.officeId], destinations: ['careers', 'embed', 'api'] })
   const post = v.posts.at(-1)
   await run('post-translation', { vacancy: job.id, post: post.id, translation: { ...frenchText(q), reviewed: false } })
-  for (const width of [1440, 390]) {
+  for (const width of browserWidths) {
     const owner = await session(browser, root, origin, 'owner', width)
     try {
       const page = owner.page
