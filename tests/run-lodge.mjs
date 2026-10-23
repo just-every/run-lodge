@@ -1,5 +1,5 @@
 // Local verification runs every area. CI's four matrix jobs use the same list,
-// each with its own Worker/D1 and the complete rer verify build/runtime checks.
+// each with its own Worker/D1. The separate core job runs build/runtime checks.
 import { spawnSync } from 'node:child_process'
 
 const areas = {
