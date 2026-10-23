@@ -2224,3 +2224,8 @@ test('CAND-002 candidate account publishes only explicit updates, verifies email
   const { checkCandidateAccount } = await import('./candidate-flow.mjs')
   await checkCandidateAccount()
 })
+
+test('CAND-003 native candidates book and reschedule only their own panel-approved interview without conflicts', async () => {
+  const { checkCandidateBooking } = await import('./candidate-flow.mjs')
+  await checkCandidateBooking()
+})

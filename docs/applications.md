@@ -40,3 +40,24 @@ Interviewers see only the applications they are assigned to, without contact
 details or restricted documents.
 
 Next: [Interviews and scorecards](interviews-and-scorecards.md).
+
+
+## Candidate account updates
+
+An invited candidate signs in at `/candidate`, opens their receipt and chooses
+**Your application**. An owner or hiring admin uses **Publish candidate progress
+and request information** on the application to share a coarse update and ask
+for ordinary information. Nothing publishes the internal stage or employer notes.
+The candidate answers each request once; the original submission stays intact.
+
+Candidates save their preferred contact method and optional consent for other
+roles. Changing an email needs a sign-in within the last 15 minutes and a
+confirmation sent to the new address. Confirm while still signed in to that
+candidate account. Other sessions and old sign-in links end; existing accounts
+are never merged. The verification email follows the application language;
+English and Spanish system copy is included. Other languages require a reviewed
+`candidate-email-copy` version through the documented command API.
+
+**Withdraw application** needs an explicit confirmation. It closes this application,
+cancels pending contact, tasks and interviews, and preserves submitted evidence,
+legal holds and retention.

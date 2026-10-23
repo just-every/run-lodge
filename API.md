@@ -622,3 +622,21 @@ deadline, administrator fulfillment and hold rules; submitting one never rewrite
 the application or deletes records. The existing `/privacy-requests` public
 request-link route remains available, as does receipt-only possession recovery
 at `/jobs/receipt` under ATTR-001.
+
+
+## Candidate account and interview publication
+
+Owner/admin people use `candidate-progress` with `application`, a `progress` of
+`Received`, `In review`, `Interviewing`, `Offer` or `Closed`, an optional `message`,
+and an optional ordinary-information `request`. It publishes only these fields.
+`candidate-email-copy` takes `application`, `subject`, `text` (containing `{link}`)
+and `reviewed: true`; each save records a reviewed language/version. Custom
+verification copy uses that application's recorded language.
+
+A person who manages the job uses `interview-self-scheduling` with `interview`
+and `enabled` to share its title, location and future panel-approved proposed
+times. Candidates use native sign-in at `/candidate`, then their receipt's
+**Your application** page. Candidate posts require the current signed-in email,
+exact Origin and current record revisions; possession-only receipt/availability
+links never authorize account updates or bookings. Generic `/auth/email` changes
+are refused to non-owner identities; the candidate flow verifies the new inbox.

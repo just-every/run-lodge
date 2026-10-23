@@ -59,6 +59,7 @@ export async function confirmEmail(env: Bindings, s: State, a: Actor, candidate:
   // The existing native account and canonical email change in the same fenced transaction.
   // Keep only the confirming session. Old emailed login links and every other session stop.
   await save(env.DB, s, a, [
+    env.DB.prepare("INSERT INTO l_guard SELECT CASE WHEN EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND email=? AND version=? AND role='member') THEN 1 ELSE 0 END").bind(a.id, a.email, a.version),
     env.DB.prepare('UPDATE oa_operators SET email=? WHERE id=? AND email=? AND version=?').bind(pending.to, a.id, a.email, a.version),
     env.DB.prepare('UPDATE oa_tokens SET revoked_at=? WHERE operator_id=? AND consumed_at IS NULL AND revoked_at IS NULL').bind(Date.now(), a.id),
     env.DB.prepare('UPDATE oa_sessions SET revoked_at=? WHERE operator_id=? AND id<>? AND revoked_at IS NULL').bind(Date.now(), a.id, a.session),

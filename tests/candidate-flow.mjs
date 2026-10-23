@@ -159,6 +159,7 @@ export async function checkCandidateAccount() {
     const path = alice.path + '/account'
     const rows = async () => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
     const initial = await rows()
+    assert.equal((await h.send('/auth/email', { email: bob.person.email }, cookie)).status, 403, 'generic account email changes cannot bypass new-inbox verification')
     assert.match((await h.send(path, undefined, cookie)).text, /No progress update shared yet/)
     for (const suffix of ['/account', '/email/confirm']) {
       const other = await h.send(bob.path + suffix, undefined, cookie), absent = await h.send('/candidate/receipts/LDG-00000000' + suffix, undefined, cookie)
@@ -197,6 +198,10 @@ export async function checkCandidateAccount() {
     assert.equal((await h.state()).candidates.find(c => c.id === alice.person.id).email, alice.person.email)
     const mail = await latestMail(h, newEmail), link = new URL(mail.text.match(/http:\/\/\S+/)[0]), token = link.searchParams.get('token')
     const pendingRows = await rows()
+    const exported = await h.send('/api/lodge/download/candidate/' + alice.person.id, undefined, h.owner)
+    assert.equal(exported.status, 200)
+    const pending = pendingRows.find(r => r.kind === 'candidate-email-change' && r.id === alice.person.id)
+    assert.ok(!exported.text.includes(token) && !exported.text.includes(JSON.parse(pending.value).hash), 'verification capabilities stay out of candidate exports')
     assert.ok(!pendingRows.some(r => r.value.includes(token)), 'only the token digest is kept')
     assert.equal((await h.send(link.pathname + link.search, undefined, cookie)).status, 200, 'GET is a read-only preview')
     assert.equal((await h.send(link.pathname, form({ token }), bobCookie)).status, 404)
@@ -254,4 +259,69 @@ export async function checkCandidateLanguage(h, app, address, language) {
   }
   assert.equal((await h.send(path, form({ email: target }), cookie)).status, 200)
   assert.match((await latestMail(h, target)).subject, language === 'es' ? /Confirma tu nuevo correo/ : /Confirmez votre adresse/)
+}
+
+export async function bookingFixture() {
+  const f = await candidateFixture(), { h, alice, bob, job } = f
+  try {
+    const current = (await h.state()).vacancies.find(v => v.id === job.id)
+    const start = new Date(Date.now() + 7 * 86400000); start.setUTCHours(15, 0, 0, 0)
+    const slots = [0, 1, 2].map(day => new Date(start.getTime() + day * 86400000).toISOString())
+    const create = async application => {
+      const iv = await h.command('interview', { application, planItem: current.plan[0].id, participants: ['owner@example.test'], slots, durationMinutes: 30, location: 'Site office, front entrance', timezone: 'America/New_York' })
+      await h.command('availability', { interview: iv.id, slots: [0, 1] })
+      await h.command('interview-self-scheduling', { interview: iv.id, enabled: true })
+      return iv
+    }
+    const interview = await create(alice.app.id), otherInterview = await create(bob.app.id)
+    return { ...f, slots, interview, otherInterview, path: alice.path + '/interviews/' + interview.id, otherPath: bob.path + '/interviews/' + otherInterview.id }
+  } catch (error) { await h.close(); throw error }
+}
+
+export async function checkCandidateBooking() {
+  const { h, alice, bob, cookie, bobCookie, slots, interview, otherInterview, path, otherPath } = await bookingFixture()
+  try {
+    const rows = async () => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
+    const before = await rows()
+    assert.equal((await h.send(path)).status, 401)
+    const shown = await h.send(path, undefined, cookie)
+    assert.equal(shown.status, 200); assert.match(shown.text, /Book interview/)
+    assert.ok(shown.text.includes(slots[0])); assert.ok(!shown.text.includes(slots[2]), 'a panel-unavailable time is not offered')
+    assert.ok(!shown.text.includes('owner@example.test')); assert.ok(!shown.text.includes('Original evidence'))
+    for (const other of [otherPath, alice.path + '/interviews/' + otherInterview.id, bob.path + '/interviews/' + interview.id]) {
+      const wrong = await h.send(other, undefined, cookie), unknown = await h.send(alice.path + '/interviews/synthetic-lodge-1', undefined, cookie)
+      assert.equal(wrong.status, 404); assert.equal(wrong.text, unknown.text)
+      assert.equal((await h.send(other, form({ start: slots[0], previousStart: '' }), cookie)).status, 404)
+    }
+    assert.equal((await h.send(path, form({ start: slots[0], previousStart: '' }), cookie, { origin: 'https://foreign.example.test' })).status, 403)
+    assert.deepEqual(await rows(), before, 'refused links and hosts cause no writes')
+    assert.equal((await h.send(path, form({ start: slots[2], previousStart: '' }), cookie)).status, 409)
+    assert.equal((await h.send(path, form({ start: '2000-01-01T15:00:00.000Z', previousStart: '' }), cookie)).status, 409)
+    // Two real candidates compete for one panel time: exactly one transaction can claim it.
+    const contenders = await Promise.all([h.send(path, form({ start: slots[0], previousStart: '' }), cookie), h.send(otherPath, form({ start: slots[0], previousStart: '' }), bobCookie)])
+    assert.deepEqual(contenders.map(r => r.status).sort(), [303, 409])
+    const winner = contenders[0].status === 303 ? { path, cookie, iv: interview } : { path: otherPath, cookie: bobCookie, iv: otherInterview }
+    const loser = contenders[0].status === 303 ? { path: otherPath, cookie: bobCookie, iv: otherInterview } : { path, cookie, iv: interview }
+    assert.match((await h.send(winner.path, undefined, winner.cookie)).text, /Booked:[\s\S]*Reschedule interview/)
+    assert.equal((await h.send(winner.path, form({ start: slots[1], previousStart: '' }), winner.cookie)).status, 409, 'a stale booking form cannot overwrite the appointment')
+    assert.equal((await h.send(winner.path, form({ start: slots[1], previousStart: slots[0] }), winner.cookie)).status, 303)
+    assert.equal((await h.send(loser.path, form({ start: slots[0], previousStart: '' }), loser.cookie)).status, 303, 'rescheduling releases the old panel slot')
+    let state = await h.state()
+    assert.equal(state.interviews.filter(iv => [interview.id, otherInterview.id].includes(iv.id) && iv.status === 'scheduled').length, 2)
+    assert.deepEqual(state.interviews.find(iv => iv.id === winner.iv.id).candidateBookings.map(b => b.start), [slots[0], slots[1]])
+    assert.ok(state.audit.some(event => event.action === 'candidate-interview-rescheduled'))
+    await h.command('interview-self-scheduling', { interview: winner.iv.id, enabled: false })
+    assert.equal((await h.send(winner.path, form({ start: slots[0], previousStart: slots[1] }), winner.cookie)).status, 409)
+    await h.command('cancel-interview', { interview: loser.iv.id, reason: 'Panel change' })
+    assert.equal((await h.send(loser.path, form({ start: slots[1], previousStart: slots[0] }), loser.cookie)).status, 409)
+    await h.command('interview-self-scheduling', { interview: winner.iv.id, enabled: true })
+    await h.send((winner.path === path ? alice : bob).path + '/account/withdraw', form({ confirm: 'yes' }), winner.cookie)
+    assert.equal((await h.send(winner.path, form({ start: slots[0], previousStart: slots[1] }), winner.cookie)).status, 409)
+    assert.equal((await h.send('/availability/' + interview.candidateToken, form({ slot: '0', start: slots[0], previousStart: '' }))).status, 404, 'withdrawal also closes the possession-only availability link')
+    await h.db.prepare('UPDATE oa_sessions SET expires_at=0 WHERE operator_id=(SELECT id FROM oa_operators WHERE email=?)').bind(alice.person.email).run()
+    const expiredBefore = await rows()
+    assert.equal((await h.send(path, undefined, cookie)).status, 401)
+    assert.equal((await h.send(path, form({ start: slots[0], previousStart: slots[1] }), cookie)).status, 401)
+    assert.deepEqual(await rows(), expiredBefore)
+  } finally { await h.close() }
 }

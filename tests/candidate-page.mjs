@@ -63,6 +63,18 @@ export async function candidatePage(browser, { root, origin, run, evidence, owne
       await employer.page.getByRole('button', { name: 'Publish candidate update', exact: true }).click()
       await employer.page.getByRole('heading', { name: 'When could you start?', exact: true }).waitFor()
       await shot(employer.page, evidence, 'employer-published', width)
+      const currentJob = state.vacancies.find(v => v.id === app.vacancy)
+      const future = new Date(Date.now() + 10 * 86400000); future.setUTCHours(15, 0, 0, 0)
+      const proposed = await run('interview', { application: app.id, planItem: currentJob.plan[0].id, participants: [ownerEmail], slots: [future.toISOString()], durationMinutes: 30, timezone: 'America/New_York' })
+      await run('availability', { interview: proposed.id, slots: [0] })
+      await employer.page.goto(origin + '/app?application=' + app.id)
+      await employer.page.getByRole('tab', { name: 'Interviews', exact: true }).click()
+      await employer.page.getByLabel('Share this interview’s title, location and panel-approved times for candidate booking and rescheduling', { exact: true }).check()
+      await employer.page.getByRole('button', { name: 'Save candidate booking', exact: true }).click()
+      await employer.page.getByRole('button', { name: 'Close the application', exact: true }).focus()
+      await employer.page.getByRole('tooltip', { name: 'Close the application', exact: true }).waitFor()
+      await employer.page.screenshot({ path: join(evidence, `candidate-employer-booking-${width}.png`), fullPage: true })
+
       const signedOut = await page.goto(origin + '/candidate')
       assert.equal(signedOut.status(), 401)
       await page.getByRole('link', { name: /sign in/i }).waitFor()
@@ -153,6 +165,38 @@ export async function candidateAccountPage(browser, { evidence }) {
       await page.getByRole('status').getByText('Withdrawn', { exact: true }).waitFor()
       assert.equal(await page.getByRole('button', { name: 'Send answer', exact: true }).count(), 0)
       await shot(page, evidence, 'withdrawn', width)
+    } finally { await context.close(); await h.close() }
+  }
+}
+
+export async function candidateBookingPage(browser, { evidence }) {
+  const { bookingFixture } = await import('./candidate-flow.mjs')
+  for (const width of [1440, 390]) {
+    const { h, cookie, bob, interview, path, slots } = await bookingFixture()
+    const context = await browser.newContext({ viewport: { width, height: 1000 } })
+    try {
+      await context.addCookies(cookie.split('; ').map(part => ({ name: part.split('=')[0], value: part.slice(part.indexOf('=') + 1), url: h.origin })))
+      const page = await context.newPage()
+      await page.goto(h.origin + path)
+      await page.getByRole('heading', { name: 'Your interview', exact: true }).waitFor()
+      await page.getByLabel('Interview time', { exact: true }).selectOption(slots[0])
+      await shot(page, evidence, 'booking-choose', width)
+      await page.getByRole('button', { name: 'Book interview', exact: true }).focus()
+      await page.keyboard.press('Enter')
+      await page.getByRole('status').getByText(/Booked:/).waitFor()
+      await shot(page, evidence, 'booking-confirmed', width)
+      await page.getByLabel('Interview time', { exact: true }).selectOption(slots[1])
+      await shot(page, evidence, 'reschedule-choose', width)
+      await page.getByRole('button', { name: 'Reschedule interview', exact: true }).click()
+      assert.equal((await h.state()).interviews.find(iv => iv.id === interview.id).start, slots[1])
+      await shot(page, evidence, 'rescheduled', width)
+      assert.equal((await page.goto(h.origin + bob.path + '/interviews/' + interview.id)).status(), 404)
+      await shot(page, evidence, 'booking-other-refused', width)
+      await h.command('cancel-interview', { interview: interview.id, reason: 'Employer canceled' })
+      await page.goto(h.origin + path)
+      await page.getByRole('status').getByText('Canceled', { exact: true }).waitFor()
+      assert.equal(await page.getByRole('button', { name: 'Reschedule interview', exact: true }).count(), 0)
+      await shot(page, evidence, 'booking-canceled', width)
     } finally { await context.close(); await h.close() }
   }
 }

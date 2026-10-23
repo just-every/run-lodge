@@ -74,6 +74,12 @@ export async function authResponse(request: Request, original: Bindings): Promis
   })(request)
   if (page) return fontDocumentResponse(page)
  }
+ // Candidate access follows canonical verified email. Base's generic self-email update
+ // proves only the old inbox; non-owner accounts must use Lodge's new-inbox verification.
+ if (url.pathname === '/auth/email' && request.method === 'POST') {
+  const session = await operatorAuth(env).getSession(request)
+  if (!session || session.operator.role !== 'owner') return Response.json({ error: session ? 'email_verification_required' : 'unauthenticated' }, { status: session ? 403 : 401, headers: privateHeaders })
+ }
  if (url.pathname.startsWith('/auth/')) return fontDocumentResponse(await createAuthHandler(operatorAuth(env))(request))
  if (url.pathname === '/setup' || url.pathname === '/app' || url.pathname.startsWith('/app/')) {
   const setup = await firstRunResponse(request, env, operatorAuth(env), { theme })

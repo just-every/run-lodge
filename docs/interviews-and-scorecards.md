@@ -18,6 +18,20 @@ the **Confirmed time** and press **Schedule**.
 **Download calendar invitation (.ics)** gives a standard calendar file to add to
 any calendar. Lodge sends no invitations itself.
 
+## Let the candidate book
+
+In the application’s **Interviews** tab, tick the option to share the interview’s
+title, location and panel-approved times, then press **Save candidate booking**.
+Every panel member must record availability first. The candidate signs in at
+`/candidate`, opens **Your application**, and chooses the interview. They can
+**Book interview** or **Reschedule interview** using the offered future times.
+Lodge refuses stale pages, closed applications and overlapping local panel or
+candidate appointments. Changing the time updates the same interview and keeps
+its history. Turning booking off stops further candidate bookings.
+
+These are times recorded in Lodge. Connected-calendar availability and delivered
+calendar invitations are separate capabilities.
+
 ## Write a scorecard
 
 Each interviewer rates every criterion of the application's rubric from 1 to 4

@@ -41,6 +41,7 @@ export function Interviews({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate:
           <Field label="Confirmed time" name="slot" options={iv.slots.map((s: string, i: number) => ({ value: String(i), label: when(s) }))} />
         </Form>}
       </>}
+      {app.manages && app.status === 'active' && iv.status !== 'cancelled' && <Form label="Save candidate booking" compact onSubmit={x => mutate('interview-self-scheduling', { interview: iv.id, enabled: !!x.enabled })}><label className="check"><input type="checkbox" name="enabled" defaultChecked={iv.selfScheduling?.enabled} /> Share this interview’s title, location and panel-approved times for candidate booking and rescheduling</label><p>The candidate signs in at /candidate. Proposed times need every panel member’s availability. Lodge refuses conflicting local bookings; connected calendars remain separate.</p></Form>}
       {iv.status !== 'cancelled' && <Reply iv={iv} w={w} mutate={mutate} />}
     </article>)}
     {app.manages && app.status === 'active' && v?.plan?.length > 0 && <details><summary>Plan an interview</summary>

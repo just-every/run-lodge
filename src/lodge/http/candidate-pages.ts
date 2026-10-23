@@ -1,3 +1,5 @@
+import { bookableSlots, candidateBook, ownInterview } from '../candidate/booking'
+import { times } from '../core/time'
 import { answerRequest, preferences, PROGRESS, publishCandidateAccount, withdraw } from '../candidate/account'
 import { beginEmail, confirmEmail } from '../candidate/email'
 import { actorFor } from '../core/store'
@@ -99,9 +101,10 @@ candidatePages.get('/candidate/receipts/:receipt/account', async c => {
   const { state, actor } = await context(c)
   const { receipt, candidate, app } = ownApplication(state, actor, (c.req.param('receipt') ?? ''))
   const path = accountPath(receipt.id), account = app.candidateAccount
+  const interviews = state.all('interview').filter(iv => iv.application === app.id && iv.selfScheduling).map(iv => `<li><a href="${base(receipt.id)}/interviews/${encodeURIComponent(iv.id)}">${esc(iv.title)}</a></li>`).join('')
   const progress = app.candidateWithdrawnAt ? 'Withdrawn' : account?.progress ?? 'No progress update shared yet'
   const questions = (account?.requests ?? []).map((r: Record<string, any>) => `<section><h3>${esc(r.question)}</h3>${r.answeredAt ? `<p>Your answer: ${esc(r.answer)}</p><p>Received ${esc(r.answeredAt)}</p>` : app.status === 'active' ? `<form method="post" action="${path}/answer"><input type="hidden" name="request" value="${esc(r.id)}"><label>Your answer<textarea name="answer" required maxlength="5000"></textarea></label><button type="submit">Send answer</button></form>` : '<p>This request is closed.</p>'}</section>`).join('')
-  return signedPage('Your application', `<h1>Your application</h1><p>${esc(receipt.vacancyTitle)}</p><h2>Progress</h2><p role="status">${esc(progress)}</p>${account?.message ? `<p>${esc(account.message)}</p>` : ''}<h2>Requested information</h2><p>Answers are additional information. Your submitted application stays unchanged. Do not include medical, monitoring or other sensitive information here.</p>${questions || '<p>Nothing requested right now.</p>'}<h2>Contact preferences</h2><form method="post" action="${path}/preferences"><label>Preferred contact<select name="preference">${[['email','Email'],['phone','Phone'],['none','No optional contact']].map(([value,label]) => `<option value="${value}"${(candidate.contactPreference?.preference ?? 'email') === value ? ' selected' : ''}>${label}</option>`).join('')}</select></label><label><input type="checkbox" name="talentPool" value="yes"${candidate.consent?.talentPool ? ' checked' : ''}> You may contact me about other suitable roles.</label><button type="submit">Save contact preferences</button></form><h2>Email address</h2><p>${esc(candidate.email)}</p>${app.status === 'active' ? `<p>Changing your email needs a recent sign-in and confirmation sent to the new address. Other sessions and old sign-in links will end.</p><form method="post" action="${path}/email"><label>New email<input name="email" type="email" required maxlength="254" autocomplete="email"></label><button type="submit">Verify new email</button></form><h2>Withdraw application</h2><p>This closes this application and stops its pending contact. It does not delete your records or release legal holds.</p><form method="post" action="${path}/withdraw"><label><input type="checkbox" name="confirm" value="yes" required> I want to withdraw this application.</label><button type="submit">Withdraw application</button></form>` : '<p>This application is closed.</p>'}<p><a href="${base(receipt.id)}">Your original receipt</a></p>`)
+  return signedPage('Your application', `<h1>Your application</h1><p>${esc(receipt.vacancyTitle)}</p><h2>Progress</h2><p role="status">${esc(progress)}</p>${account?.message ? `<p>${esc(account.message)}</p>` : ''}<h2>Interviews</h2>${interviews ? `<ul>${interviews}</ul>` : '<p>No interview booking offered right now.</p>'}<h2>Requested information</h2><p>Answers are additional information. Your submitted application stays unchanged. Do not include medical, monitoring or other sensitive information here.</p>${questions || '<p>Nothing requested right now.</p>'}<h2>Contact preferences</h2><form method="post" action="${path}/preferences"><label>Preferred contact<select name="preference">${[['email','Email'],['phone','Phone'],['none','No optional contact']].map(([value,label]) => `<option value="${value}"${(candidate.contactPreference?.preference ?? 'email') === value ? ' selected' : ''}>${label}</option>`).join('')}</select></label><label><input type="checkbox" name="talentPool" value="yes"${candidate.consent?.talentPool ? ' checked' : ''}> You may contact me about other suitable roles.</label><button type="submit">Save contact preferences</button></form><h2>Email address</h2><p>${esc(candidate.email)}</p>${app.status === 'active' ? `<p>Changing your email needs a recent sign-in and confirmation sent to the new address. Other sessions and old sign-in links will end.</p><form method="post" action="${path}/email"><label>New email<input name="email" type="email" required maxlength="254" autocomplete="email"></label><button type="submit">Verify new email</button></form><h2>Withdraw application</h2><p>This closes this application and stops its pending contact. It does not delete your records or release legal holds.</p><form method="post" action="${path}/withdraw"><label><input type="checkbox" name="confirm" value="yes" required> I want to withdraw this application.</label><button type="submit">Withdraw application</button></form>` : '<p>This application is closed.</p>'}<p><a href="${base(receipt.id)}">Your original receipt</a></p>`)
 })
 
 for (const action of ['answer', 'preferences', 'withdraw', 'email'] as const) candidatePages.post('/candidate/receipts/:receipt/account/' + action, async c => {
@@ -149,4 +152,23 @@ candidatePages.post('/candidate/employer/:application', async c => {
   publishCandidateAccount(state, actor, { application: app.id, progress: data.get('progress'), message: data.get('message'), request: data.get('request') })
   await save(c.env.DB, state, actor)
   return c.redirect('/candidate/employer/' + encodeURIComponent(app.id), 303)
+})
+
+
+candidatePages.get('/candidate/receipts/:receipt/interviews/:interview', async c => {
+  const { state, actor } = await context(c)
+  const { receipt, app } = ownApplication(state, actor, c.req.param('receipt'))
+  const iv = ownInterview(state, app, c.req.param('interview'))
+  const choices = bookableSlots(state, app, iv), clock = times(iv.timezone)
+  const current = iv.status === 'scheduled' ? `<p role="status">Booked: ${esc(clock.stamped(iv.start))}</p>` : `<p role="status">${iv.status === 'cancelled' ? 'Canceled' : 'Choose an interview time'}</p>`
+  const form = choices.length ? `<form method="post"><input type="hidden" name="previousStart" value="${esc(iv.start)}"><label>Interview time<select name="start" required>${choices.map((x: Record<string, any>) => `<option value="${esc(x.start)}">${esc(clock.stamped(x.start))}</option>`).join('')}</select></label><button type="submit">${iv.status === 'scheduled' ? 'Reschedule interview' : 'Book interview'}</button></form>` : '<p>No available times right now. Please contact the employer.</p>'
+  return signedPage('Your interview', `<h1>Your interview</h1><p>${esc(iv.title)}</p><p>${iv.durationMinutes} minutes · ${esc(iv.timezone)}</p><p>${esc(iv.location || 'Location to be confirmed')}</p>${current}${form}<p>Times are the employer’s proposed times with panel availability recorded in Lodge. This does not check connected calendars or send a calendar invitation.</p><p><a href="${accountPath(receipt.id)}">Your application</a></p>`)
+})
+candidatePages.post('/candidate/receipts/:receipt/interviews/:interview', async c => {
+  const { state, actor } = await context(c)
+  const { receipt, app } = ownApplication(state, actor, c.req.param('receipt'))
+  const iv = ownInterview(state, app, c.req.param('interview')), data = await formBody(c)
+  candidateBook(state, actor, app, iv, { start: data.get('start'), previousStart: data.get('previousStart') })
+  await save(c.env.DB, state, actor)
+  return c.redirect(base(receipt.id) + '/interviews/' + encodeURIComponent(iv.id), 303)
 })

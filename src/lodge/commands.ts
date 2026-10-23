@@ -1,3 +1,4 @@
+import { selfScheduling } from './candidate/booking'
 import { publishCandidateAccount, reviewVerificationCopy } from './candidate/account'
 import { careersBrand } from './careers/brand'
 import { connectorRegister, connectorBindingChange } from './connectors/records'
@@ -90,6 +91,7 @@ export const commands: Record<string, Command> = {
   candidate, 'candidate-privacy': candidatePrivacy, 'correct-candidate': correctCandidate, apply, 'review-duplicate': reviewDuplicate, document: addDocument,
   'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate, 'review-decision': reviewDecision, 'review-recommendation': reviewRecommendation,
   'assign-reviewers': assignReviewers, 'board-view': boardView, source, 'source-settings': sourceSettings, 'job-board': jobBoard, 'board-key': boardKey, 'revoke-board-key': revokeBoardKey, 'rotate-board-key': rotateBoardKey, 'vacancy-internal': vacancyInternal, 'internal-policy': internalPolicy, 'reports-to': reportsTo, 'apply-internal': applyInternal, 'source-credit': sourceCredit, 'fair-chance-places': fairChancePlaces, 'fair-chance-step': fairChanceStep, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
+  'interview-self-scheduling': selfScheduling,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
   message, 'request-message-approval': requestMessageApproval,
