@@ -1,7 +1,21 @@
 import { Copy, Section } from '../parts'
 
-// 12: moving in from Workable the Monday before the opening. The terminal shows Lodge's one-line start and a plain
-// comment, nothing else; the table reconciles every area against the source.
+// 12: moving in from Workable the Monday before the opening. The terminal shows Lodge's one-line start and plain
+// comments, nothing else; the table reconciles every area against the source.
+
+// The one start line every Run Edit Run page shows, and the alternative for people who already have Node.
+const START = 'curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-lodge'
+const ALTERNATIVE = 'Already have Node 22 or later? npx -y @runeditrun/rer dev just-every/run-lodge'
+
+/** A command that wraps only between words, keeping the installer's `install.sh | sh` together. */
+function words(line: string) {
+  return line.split(/(\S*install\.sh \| sh|\S+)/).map((part, index) => {
+    const pipe = /^(.*\/)(install\.sh \| sh)$/.exec(part)
+    if (pipe) return <span key={index}><span className="nowrap">{pipe[1]}</span><wbr /><span className="nowrap">{pipe[2]}</span></span>
+    return part.trim() ? <span key={index} className="nowrap">{part}</span> : part
+  })
+}
+
 const rows: [string, string, string, string?, ('amber' | undefined)?][] = [
   ['Jobs', '14', '14'],
   ['Candidates', '2,318', '2,318'],
@@ -17,7 +31,7 @@ export function MoveIn() {
       <Copy id="move-in-title" eyebrow="Moving in · Mon Sep 21" title="Leave Workable on a Monday." sub="Move from Workable, Greenhouse or Lever. Jobs, candidates, resumes and scorecards come across, checked against the source." />
       <div className="terminal">
         <span className="lights" aria-hidden="true"><i /><i /><i /></span>
-        <pre><code><span className="cmd">npx -y @runeditrun/rer dev just-every/run-lodge</span>{'\n'}<span className="comment"># clones, installs and starts Lodge on your computer</span></code></pre>
+        <pre><code><span className="cmd">{words(START)}</span>{'\n'}<span className="comment"># {words('installs rer, then gets and starts Lodge on your computer')}</span>{'\n'}<span className="comment"># {words(ALTERNATIVE)}</span></code></pre>
       </div>
     </div>
     <div className="card import">

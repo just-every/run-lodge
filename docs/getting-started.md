@@ -8,25 +8,22 @@ needs no account with anyone.
 
 ## 1. Get Lodge and start it
 
-Install `rer`, the Run Edit Run command:
+Copy this line into a terminal and press Enter:
 
 ```sh
-curl -fsSL https://runeditrun.com/install.sh | sh
+curl -fsSL https://runeditrun.com/install.sh | sh -s -- dev just-every/run-lodge
 ```
 
-It installs `rer` for you alone, with its own Node if you have no Node 22 or
-later, and changes no shell settings: if its last line puts `rer` on your PATH,
-run that line first. Then start Lodge:
+Git is required; rer brings Node and pnpm. Already have Node 22 or later?
+`npx -y @runeditrun/rer dev just-every/run-lodge` does the same. Lodge runs on
+macOS, Linux or Windows with WSL2.
 
-```sh
-rer dev just-every/run-lodge
-```
-
-`rer` clones Lodge, installs everything, makes you the owner and prints a link
-that opens Lodge signed in as you. The first start can take a few minutes. To
-start it again later, run `cd run-lodge && rer dev`. Already have Node 22 or
-later? `npx -y @runeditrun/rer dev just-every/run-lodge` does both steps in one
-line. Lodge runs on macOS, Linux or Windows with WSL2, with git.
+The line installs `rer`, the Run Edit Run command, for you alone, then clones
+Lodge into `run-lodge`, installs everything, makes you the owner and prints a
+link that opens Lodge signed in as you. The first start can take a few minutes.
+If the installer prints a line that puts `rer` on your PATH, run that line too.
+To start Lodge again later, run the same line from the same folder, or
+`cd run-lodge && rer dev`.
 
 > Treat the link `rer dev` prints as a password: anyone who opens it is signed
 > in as you.
