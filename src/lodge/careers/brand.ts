@@ -148,7 +148,7 @@ html.rer-themed.employer-careers a{color:${primary};text-decoration:underline}
 html.rer-themed.employer-careers :is(input,textarea,select,fieldset){background-color:${background};color:${ink};border-color:${ink}}
 html.rer-themed.employer-careers button,html.rer-themed.employer-careers button:hover{background:${primary};color:${background};border-color:${primary}}
 html.rer-themed.employer-careers :is(a,button,input,select,textarea):focus-visible{outline:2px solid ${primary};outline-offset:3px}
-.employer-careers .employer-brand{display:grid;gap:12px;margin-bottom:24px;overflow-wrap:anywhere}
+.employer-careers .employer-brand{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-bottom:24px;overflow-wrap:anywhere}
 .employer-careers .employer-brand img{display:block;max-width:min(240px,100%);max-height:120px;width:auto;height:auto;object-fit:contain}
 .employer-careers .employer-brand p{margin:0}`
 }
