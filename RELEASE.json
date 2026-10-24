@@ -1,4 +1,11 @@
 {
-  "version": "0.1.0",
-  "publicReleaseNotes": "First public release of Lodge: hiring and applicant tracking for one business, with approved vacancies, an accessible application page, scoped review, independent scorecards, approved messages and offers, retention and a Workable move-in kit, with no provider account."
+  "version": "0.1.1",
+  "publicReleaseNotes": "Lodge prepares hosted installation with an explicit delivery descriptor, digest-bound setup, Managed mail relay support and a deployment specification. Existing hiring records, archive identity and brand marks are preserved.",
+  "previousVersion": "0.1.0",
+  "migrations": [
+    "migrations/core/0017_owner_signin.sql",
+    "migrations/core/0018_dependency_keys_sealed.sql"
+  ],
+  "breaking": false,
+  "agentUpdateInstructions": "Use the declared setup, build, verification and artifact commands. Existing archives keep their existing project identity; preserve applied migration bytes."
 }

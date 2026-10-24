@@ -3,5 +3,25 @@
   "projectId": "hiring/lodge",
   "name": "Lodge",
   "sourceRepository": "https://github.com/just-every/run-lodge",
-  "license": "MIT"
+  "license": "MIT",
+  "deployment": {
+    "target": "cloudflare-workers",
+    "artifactFile": "rer-worker-artifact.json"
+  },
+  "operations": {
+    "setup": "pnpm install --frozen-lockfile && pnpm exec rer install",
+    "build": "pnpm run build",
+    "verify": "pnpm check:deployment-spec && pnpm exec rer check --profile first-party && pnpm run verify",
+    "artifact": "node scripts/delivery/base/cli.mjs artifact --config packaging.json",
+    "recovery": "Follow OPERATIONS.md: stop writes and scheduled work, retain exact source and private configuration, export the installation, restore into empty resources, run setup again and verify records, original document bytes and owner access before routing traffic. Preserve applied migration names and bytes."
+  },
+  "verification": {
+    "migrationDirectories": [
+      "migrations/core"
+    ]
+  },
+  "setup": {
+    "path": "rer-setup.json",
+    "sha256": "5e091bc59ac406a9c1b4ba6a46ac528ae4c90d5f6239301c9a315b705a22bad6"
+  }
 }

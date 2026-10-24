@@ -1,6 +1,6 @@
 {
   "name": "@hiring/lodge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -31,7 +31,9 @@
     "deps": "rer install",
     "rer": "rer",
     "test:lodge": "node tests/run-lodge.mjs",
-    "test:browser": "node tests/browser.mjs"
+    "test:browser": "node tests/browser.mjs",
+    "delivery:spec": "node scripts/build-deployment-spec.mjs",
+    "check:deployment-spec": "node scripts/build-deployment-spec.mjs --check"
   },
   "dependencies": {
     "@tanstack/react-router": "1.170.41",

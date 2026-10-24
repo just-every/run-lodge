@@ -49,6 +49,58 @@
           }
         ]
       }
+    },
+    {
+      "id": "hiring/lodge-delivery-adaptations",
+      "role": "module",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "scripts/delivery/base/setup-manifest.mjs"
+        ],
+        "origin": {
+          "repository": "https://github.com/runeditrun/base.git",
+          "revision": "4280971d7c0295b8a88c3e1179048efcbbe14f30",
+          "paths": [
+            "modules/delivery-producer/setup-manifest.mjs"
+          ]
+        },
+        "mappings": [
+          {
+            "path": "scripts/delivery/base/setup-manifest.mjs",
+            "originPath": "modules/delivery-producer/setup-manifest.mjs"
+          }
+        ]
+      }
+    },
+    {
+      "id": "hiring/lodge-hosted-auth",
+      "role": "module",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "src/mail.server.mjs",
+          "src/auth.server.ts"
+        ],
+        "origin": {
+          "repository": "https://github.com/runeditrun/base.git",
+          "revision": "4280971d7c0295b8a88c3e1179048efcbbe14f30",
+          "paths": [
+            "foundation/template/src/mail.server.mjs",
+            "foundation/template/src/auth.server.ts"
+          ]
+        },
+        "mappings": [
+          {
+            "path": "src/mail.server.mjs",
+            "originPath": "foundation/template/src/mail.server.mjs"
+          },
+          {
+            "path": "src/auth.server.ts",
+            "originPath": "foundation/template/src/auth.server.ts"
+          }
+        ]
+      }
     }
   ],
   "identityKind": "project"

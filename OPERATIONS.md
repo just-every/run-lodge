@@ -63,3 +63,19 @@ instructions under `node_modules/@runeditrun/rer/modules/deploy-kit`; account sc
 resource ownership, migrations, receipt and health checks are defined there.
 Local validation does not prove hosted acceptance, provider delivery or remote
 health.
+
+## Hosted delivery
+
+Build with `pnpm run build`, then generate the committed import specification with
+`pnpm delivery:spec`. `pnpm check:deployment-spec` checks that it still matches
+the emitted Worker configuration and the policy in `packaging.json`. Package
+the built Worker with `node scripts/delivery/base/cli.mjs package --config packaging.json --output rer-package`;
+the artifact-only operation uses the same CLI with `artifact --config packaging.json`.
+Generated delivery output is disposable and contains no private configuration.
+
+Installation mail supports the Managed RER relay and Assisted Resend, SendGrid
+and Cloudflare Email Sending. Assisted setup requires the selected provider's
+verified sender and private API credential; Cloudflare also needs its account ID.
+Managed configuration supplies the relay URL and installation credential. Local
+development continues to suppress external mail. These declarations do not prove
+provider delivery or authorize deployment.
