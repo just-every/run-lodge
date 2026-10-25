@@ -26,6 +26,7 @@ export function surveyConsent(s: State, a: Actor, b: Data) {
   const enabled = b.enabled === true
   requireThat(!enabled || c.contactPreference?.preference !== 'none', 'The candidate declined contact', 409)
   const row = s.put('survey-consent', c.id, { candidate: c.id, enabled, expiresAt: surveyDeadline(c), basis: text(b.basis, 'Explicit candidate consent or refusal', 1000), by: a.email, at: now() })
+  if (!enabled) removeIdentifiedSurveyRecords(s, c.id)
   s.audit(a, 'survey-consent-recorded', 'candidate:' + c.id, { enabled })
   return { enabled: row.enabled }
 }
@@ -45,9 +46,12 @@ function currentExpiry(s: State, row: Data) {
 }
 const readable = (s: State, row: Data) => currentExpiry(s, row) > Date.now()
 
+function removeIdentifiedSurveyRecords(s: State, candidate: string) {
+  for (const kind of ['survey-invitation', 'survey-response']) for (const row of s.scan(kind).filter(x => x.candidate === candidate)) s.remove(kind, row.id)
+}
 export function declineSurveyContact(s: State, candidate: string) {
   s.put('survey-consent', candidate, { candidate, enabled: false, expiresAt: surveyDeadline(s.get('candidate', candidate)), at: now(), by: 'candidate' })
-  for (const kind of ['survey-invitation', 'survey-response']) for (const row of s.scan(kind).filter(x => x.candidate === candidate)) s.remove(kind, row.id)
+  removeIdentifiedSurveyRecords(s, candidate)
 }
 export function contactable(s: State, c: Data) {
   return !c.deleted && !c.mergedInto && !!c.email && (!c.retainUntil || c.retainUntil >= now().slice(0, 10)) && c.contactPreference?.preference !== 'none' && s.find('survey-consent', c.id)?.enabled === true && retained(s.get('survey-consent', c.id))

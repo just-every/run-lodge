@@ -180,6 +180,14 @@ export async function checkSurveys(browser, evidence) {
     assert.deepEqual((await h.send('/api/lodge/download/candidate/' + apps[2].candidate, undefined, h.owner)).value.surveyResponses, [])
     assert.ok((await h.send('/surveys/settings', undefined, h.owner)).text.includes('Small sample: results suppressed'))
     assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='survey-response' AND json_extract(value,'$.candidate') IS NULL").first()).n, 2, 'anonymous answers survive contact refusal')
+    // An employer recording the candidate's external refusal removes the same
+    // identified material without discarding the recorded refusal evidence.
+    await h.command('survey-consent', { application: apps[6].id, enabled: false, basis: 'Candidate explicitly refused further surveys outside Lodge' })
+    const refusedClosure = (await report()).surveys.find(r => r.id === closure.id)
+    assert.deepEqual([refusedClosure.responses, refusedClosure.suppressed, refusedClosure.identified], [4, true, []])
+    assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='survey-response' AND json_extract(value,'$.candidate')=?").bind(apps[6].candidate).first()).n, 0)
+    assert.deepEqual((await h.send('/api/lodge/download/candidate/' + apps[7].candidate, undefined, h.owner)).value.surveyResponses, [])
+    await send(apps[6], closure, 409)
     // Decline contact using a separate preference capability, including after an anonymous response.
     const before = (await h.db.prepare('SELECT COUNT(*) AS n FROM rer_mail_development_outbox').first()).n
     assert.equal((await h.send(links[0].stop, form({}))).status, 200)

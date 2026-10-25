@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "1c3bf51202664591de83fdfe6949447b05ad0c9169581b30085d7f46fd035c9b",
+      "sha256": "02df6f3b47c23aa8d3e29541fb4f1655a083541a8483c739dfd2f41e25facb5c",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a85f467b0c5d9c7c6ce2bf3b19d262a1b8f75073cc815209d01ae5d599425918",
+      "sha256": "59b52ccd8df4d2ba5ab4b13d466a346e643779eeaaf474dac800865742f92e8c",
       "executable": false
     },
     "DEMO.md": {
@@ -1511,7 +1511,7 @@
       "executable": false
     },
     "src/lodge/surveys/records.ts": {
-      "sha256": "e5c797ff9579e7d9abe110c35575ed507ca154538cc1dc024457825bc1ab2482",
+      "sha256": "aaf858731e92e69306e4efbf8f620ba65cb37a23d18a42f2a751bb003a9c5579",
       "executable": false
     },
     "src/lodge/views/activity.ts": {
@@ -4019,7 +4019,7 @@
       "executable": false
     },
     "tests/surveys-driver.mjs": {
-      "sha256": "f733f1aafe6d1850c089ee04de4451c5bf10f1ae40d0ae0feb96a848b8e4b943",
+      "sha256": "6bd99a994611f93d018906f351fcfef4b2fd44844ec6634aa2f5d2c55bbf979a",
       "executable": false
     },
     "tests/talent-page.mjs": {
