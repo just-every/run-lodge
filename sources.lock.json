@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "547e7d0fabe2626a5e913b9e63c11dc8aafca4381bd9654db1793924bdc40285",
+      "sha256": "8367440ca89fef29733e5d5c3e43308537b9daf26c452abe4be1c0f170888f86",
       "executable": false
     },
     "DEMO.md": {
@@ -1507,7 +1507,7 @@
       "executable": false
     },
     "src/lodge/surveys/http.ts": {
-      "sha256": "48203b515caf36c02e00546e4c4e524b079bd35276b4d6aa1ddb5d70d42f13f7",
+      "sha256": "ec17cbdb6340e7947955cd6861d4683d8dcae2932e57d756866a0600ed815401",
       "executable": false
     },
     "src/lodge/surveys/records.ts": {
