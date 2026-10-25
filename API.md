@@ -653,3 +653,46 @@ The owner and hiring admins open `/surveys/settings` from People and settings.
 `survey-configure` takes `vacancy`, `trigger` (a stage id or closure), `title`, `questions` (one to five experience rating questions), `language` (`en` or `es`), reviewed `subject` and `invitation`, and `enabled`.
 `survey-consent` takes `application`, `enabled` and `basis` documenting the candidate's explicit consent or refusal. It cannot override declined contact.
 The settings forms send one confirmed invitation through the installation mail adapter; failed or uncertain claims never retry automatically. The private invitation and separate stop-contact capabilities are emailed only to that candidate. Anonymous responses have no candidate link. These are process ratings, never suitability scores.
+
+## Inbound capture (partial COM-004)
+
+The Worker exports a Cloudflare `email` handler using the pinned Base MIME normalizer.
+An owner must separately route the installation's receiving domain to this Worker
+and configure `CAPTURE_DOMAIN`. No HTTP endpoint accepts inbound provider JSON.
+A live domain receipt remains unproved. The private candidate, queue and settings
+screens are exercised at desktop and phone widths.
+
+Open `/capture` for the private review queue, `/capture/settings` for address
+custody and rotation, or `/capture/candidate/:id` for filed messages. Candidate
+message panels link to these pages. Every form uses the same native session,
+origin and current contact checks as the JSON API.
+
+A person with current contact access can `POST /api/lodge/capture/address` to create
+or rotate their private capability address. Keep it in that person's mail client;
+rotation immediately refuses the old address. The SMTP envelope sender must equal
+that member's saved address. This check is not a claim of authenticated sender
+identity: possession of the private address controls capture custody.
+
+BCC outside mail addressed to a single known candidate. Multiple matches and
+unknown addresses stay unmatched; forwarded body text never chooses a candidate.
+Any known address in recipients or body text still requires current contact access,
+including aliases after a reviewed merge and previously unknown addresses that later
+become candidate records.
+`GET /api/lodge/capture` lists only the signed-in forwarding member's unmatched
+messages, with no owner override. `GET /api/lodge/capture?candidate=<id>` lists
+filed messages under current contact access. `GET /api/lodge/capture/:id` and
+`GET /api/lodge/capture/:id/file/:file` repeat those checks. Original files are
+forced downloads; HTML is untrusted content and must never be rendered as markup.
+`POST /api/lodge/capture/:id/resolve` with `{candidate}` explicitly files an
+unmatched message on a candidate the forwarding member can currently contact.
+
+Capture performs no sends, replies or forwards. Unmatched messages remain until
+explicit resolution; receipt is refused when that member has 100 pending messages or a message mentions more than 100 addresses.
+MIME errors, empty files and exceeded byte limits refuse the whole email; transient
+storage errors remain retryable. Exact normalized replay stores no second copy.
+Candidate access exports include filed originals; erasure removes filed bytes and
+queued messages mentioning the erased address in parsed recipient or body text.
+A private keyed digest suppresses later captures mentioning those addresses.
+Previously erased addresses and identities inside attached forwarded messages
+cannot be recovered by this implementation. These custody, retention and
+suppression defaults await ct approval; COM-004 remains partial.

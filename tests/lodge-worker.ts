@@ -1,3 +1,5 @@
+import { capturePages } from '../src/lodge/http/capture-pages'
+import { captureEmail } from '../src/lodge/records/capture'
 import { surveyPages } from '../src/lodge/surveys/http'
 import { candidatePages } from '../src/lodge/http/candidate-pages'
 import { staticAssetResponse } from '../src/base/static-assets'
@@ -28,6 +30,7 @@ function setClock(at: string) {
   } as DateConstructor
 }
 export default {
+  email: captureEmail,
   scheduled: scheduledRun,
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
     const fixture = (env as any).TEST_CLOCK
@@ -49,6 +52,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   const path = new URL(request.url).pathname
   if (/^\/candidate(\/|$)/.test(path)) return candidatePages.fetch(request, env, execution)
   if (path.startsWith('/careers/') || path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
+  if (/^\/capture(\/|$)/.test(new URL(request.url).pathname)) return capturePages.fetch(request, env, execution)
   if (new URL(request.url).pathname.startsWith('/surveys/')) return surveyPages.fetch(request, env, execution)
   if (isSignPage(path)) return signPages.fetch(request, env, execution)
   if (isEmbedPage(path)) return embedPages.fetch(request, env, execution)

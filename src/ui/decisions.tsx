@@ -18,6 +18,7 @@ export function Messages({ app, w, mutate }: { app: D; w: D; mutate: PageProps['
   const list = w.messages.filter((m: D) => m.application === app.id)
   return <section className="card">
     <h3>Messages to the candidate</h3>
+    <p><a href={`/capture/candidate/${app.candidate}`}>Captured outside email</a> · <a href="/capture">Your capture queue</a></p>
     <p className="hint">Lodge sends nothing. An approved message downloads as an email file to send from your own mailbox.</p>
     {list.map((m: D) => <article key={m.id} className="card"><h4>{m.subject} {approvalState(m, w)}</h4><p>To {m.to} · {purpose(m.purpose)}</p><p className="pre">{m.body}</p>
       {m.approvedNow ? <a href={`/api/lodge/download/message/${m.id}`}>Download approved message (.eml)</a>

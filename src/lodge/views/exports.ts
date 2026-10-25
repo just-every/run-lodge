@@ -1,3 +1,4 @@
+import { captureList } from '../records/capture'
 import { surveyReport } from '../surveys/records'
 import { staffSeesReferral } from '../referrals/access'
 import { staffSeesSubmission } from '../agency/access'
@@ -76,8 +77,18 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
     for (const file of row.files) { const blob = await readBlob(db, file.id); requireThat(blob, 'The referral original bytes are missing', 409); files.push({ ...file, base64: blob.base64 }) }
     referrals.push({ ...row, files })
   }
+  const captures = []
+  for (const mail of captureList(s, a, id)) {
+    const attachments = []
+    for (const file of mail.attachments) {
+      const blob = await readBlob(db, file.id)
+      requireThat(blob, 'The captured original bytes are missing', 409)
+      attachments.push({ ...file, base64: blob.base64 })
+    }
+    captures.push({ ...mail, attachments })
+  }
   const body = {
-    agencySubmissions, referrals,
+    captures, agencySubmissions, referrals,
     surveyResponses: surveyReport(s, a).surveys.flatMap(survey => survey.identified.filter(answer => appIds.has(answer.application)).map(answer => ({ ...answer, survey: survey.id, version: survey.version }))),
     format: 'lodge-candidate-export-1', exportedAt: now(), exportedBy: a.email,
     candidate, mergedCandidates: mergedCandidates(view.mergedCandidates, id),

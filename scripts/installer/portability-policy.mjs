@@ -31,6 +31,21 @@ export async function validateStaged({ read }) {
  validateCandidateLineage(rows.filter(row => row.kind === 'candidate').map(row => get(row.kind, row.id)), refuse);
  const referralFiles = validateReferralRecords({ rows, get, reference, refuse, original });
  const agencyFiles = validateAgencyRecords({ rows, get, reference, refuse, original });
+ const captureFiles = new Set();
+ for (const row of rows.filter(row => row.kind === 'capture-mail')) {
+  const mail = get(row.kind, row.id);
+  reference('member', mail.member);
+  refuse(typeof mail.operator === 'string' && Array.isArray(mail.contactAddresses) && mail.contactAddresses.every(address => typeof address === 'string'));
+  refuse(Array.isArray(mail.contactDigests) && mail.contactDigests.every(digest => typeof digest === 'string' && /^[a-f0-9]{64}$/.test(digest)));
+  if (mail.candidate) refuse(!reference('candidate', mail.candidate).deleted);
+  refuse(Array.isArray(mail.attachments) && mail.attachments.length <= 10);
+  for (const file of mail.attachments) {
+   refuse(!captureFiles.has(file.id));
+   original(file);
+   captureFiles.add(file.id);
+  }
+ }
+
  for (const row of rows) {
   const value = get(row.kind, row.id);
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
@@ -53,7 +68,7 @@ export async function validateStaged({ read }) {
   }
   if (row.kind === 'blob') {
    const staged = get('resume-intake', row.id);
-   refuse(!!get('document', row.id) || !!staged && staged.status !== 'committed' || agencyFiles.has(row.id) || referralFiles.has(row.id));
+   refuse(!!get('document', row.id) || !!staged && staged.status !== 'committed' || agencyFiles.has(row.id) || referralFiles.has(row.id) || captureFiles.has(row.id));
   }
   const stagedOriginal = row.kind === 'resume-intake' && value.status !== 'committed';
   if (row.kind !== 'document' && !stagedOriginal) continue;

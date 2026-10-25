@@ -30,7 +30,7 @@ export async function transactions(h) {
    async prepare(op, input, email = 'owner@example.test') {
     const native = await h.db.prepare('SELECT o.id,o.email,o.display_name AS displayName,o.role,o.version,se.id AS session FROM oa_operators o JOIN oa_sessions se ON se.operator_id=o.id WHERE o.email=? AND se.revoked_at IS NULL').bind(email).first()
     const state = await core.load(h.db), actor = core.actorFor({ id: native.session, operator: native }, state)
-    const result = op === 'delete-candidate' ? core.deleteCandidate(state, actor, input) : await core.run(state, actor, op, input)
+    const result = op === 'delete-candidate' ? await core.deleteCandidate(state, actor, input) : await core.run(state, actor, op, input)
     const extra = op === 'delete-candidate' ? await core.erasureTransfers(h.db) : []
     return { state, actor, result, extra }
    },

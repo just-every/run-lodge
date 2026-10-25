@@ -1,3 +1,4 @@
+import { captureAddress, captureList, captureRead, resolveCapture } from '../records/capture'
 import { surveyReport } from '../surveys/records'
 import { careersDomainChallenge, careersDomainOperation } from '../careers/domain'
 import { isEmployeeOnly } from '../core/access'
@@ -91,6 +92,39 @@ async function body(c: C, limit = 1_600_000): Promise<Data> {
 
 const attachment = (content: BodyInit, type: string, name: string) => new Response(content, { headers: { 'content-type': type, 'content-disposition': `attachment; filename="${name.replace(/[^\w.-]+/g, '_')}"`, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'content-security-policy': "default-src 'none'; sandbox" } })
 const json = (value: unknown, name: string) => attachment(JSON.stringify(value, null, 2), 'application/json; charset=utf-8', name)
+
+api.post('/api/lodge/capture/address', async c => {
+  const { state, actor } = await context(c)
+  const result = captureAddress(state, actor, c.env.CAPTURE_DOMAIN)
+  await save(c.env.DB, state, actor)
+  return c.json(result)
+})
+api.get('/api/lodge/capture', async c => {
+  const { state, actor } = await context(c)
+  return c.json(captureList(state, actor, c.req.query('candidate')))
+})
+api.get('/api/lodge/capture/:id', async c => {
+  const { state, actor } = await context(c)
+  return c.json(captureRead(state, actor, c.req.param('id')))
+})
+api.get('/api/lodge/capture/:id/file/:file', async c => {
+  const { state, actor } = await context(c)
+  const m = captureRead(state, actor, c.req.param('id'))
+  const f = m.attachments.find((f: Data) => f.id === c.req.param('file'))
+  requireThat(f, 'Capture not found', 404)
+  const blob = await readBlob(c.env.DB, f.id)
+  requireThat(blob, 'Capture not found', 404)
+  const bytes = Uint8Array.from(atob(blob.base64), v => v.charCodeAt(0))
+  state.audit(actor, 'capture-file-downloaded', m.candidate ? 'candidate:' + m.candidate : 'member:' + actor.email)
+  await save(c.env.DB, state, actor)
+  return attachment(bytes, blob.mediaType, f.name)
+})
+api.post('/api/lodge/capture/:id/resolve', async c => {
+  const { state, actor } = await context(c)
+  const result = resolveCapture(state, actor, { ...await body(c), id: c.req.param('id') })
+  await save(c.env.DB, state, actor)
+  return c.json(result)
+})
 
 api.get('/api/lodge/state', async c => {
   const { state, actor } = await context(c, true, true)
@@ -253,7 +287,7 @@ api.post('/api/lodge/import/:op', async c => {
 api.post('/api/lodge/delete-candidate', async c => {
   const { state, actor } = await context(c)
   person(actor)
-  const receipt = deleteCandidate(state, actor, await body(c))
+  const receipt = await deleteCandidate(state, actor, await body(c))
   await save(c.env.DB, state, actor, await erasureTransfers(c.env.DB))
   return c.json(receipt)
 })

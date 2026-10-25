@@ -1322,3 +1322,9 @@ test('CAND-003 native candidates book and reschedule only their own panel-approv
   const { checkCandidateBooking } = await import('./candidate-driver.mjs')
   await checkCandidateBooking()
 })
+
+// Native capture remains separate from connected mailbox sending.
+test('COM-004 private inbound capture preserves bytes and rechecks contact custody', async t => {
+  const { checkCapture } = await import('./capture-flow.mjs')
+  await checkCapture(t)
+})

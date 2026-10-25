@@ -31,7 +31,7 @@ async function freePort() {
 }
 
 /** A Worker with every migration; `claim: false` leaves it empty, as a restore destination. */
-export async function harness({ claim = true, bindings = {}, outboundService, clock } = {}) {
+export async function harness({ claim = true, bindings = {}, outboundService, clock, inbound = false } = {}) {
   const port = await freePort(), origin = `http://127.0.0.1:${port}`
   const dir = await mkdtemp(join(tmpdir(), 'lodge-test-'))
   const bundle = await workerBundle()
@@ -42,6 +42,7 @@ export async function harness({ claim = true, bindings = {}, outboundService, cl
       ...(outboundService ? { outboundService } : {}),
       bindings: { AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: 'local-test-secret-not-production-0123456789', SETUP_TOKEN, TEST_CLOCK: clock ?? '', MAIL_PROVIDER: 'development', MAIL_FROM: 'Lodge <lodge@example.test>', ...bindings },
     }),
+    unsafeTriggerHandlers: inbound,
     resourcePersistencePath: dir,
   })
   try {

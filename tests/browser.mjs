@@ -1,3 +1,4 @@
+import { capturePage } from './capture-browser.mjs'
 import { browserWidths } from './browser-widths.mjs'
 import { careersPage as employerCareersPage } from './careers-driver.mjs'
 import { careersDraftPage } from './careers-draft-page.mjs'
@@ -53,6 +54,8 @@ try {
   await command(root, ['describe'])
   server = await start(root, port)
   browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
+
+  await capturePage(browser, resolve(evidence, 'capture'))
 
   // The owner starts from the empty-state onboarding page.
   const owner = await session(browser, root, server.origin, 'owner', 1440)

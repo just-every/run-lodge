@@ -335,8 +335,8 @@ Judged from the code and tests at commit `c35544c6` (22 October 2026).
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 49 | 26 | 39 | 114 |
-| All | 66 | 26 | 39 | 131 |
+| Target and push further | 49 | 27 | 38 | 114 |
+| All | 66 | 27 | 38 | 131 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -406,7 +406,7 @@ Judged from the code and tests at commit `c35544c6` (22 October 2026).
 | `COM-001` | Two-way Gmail and Microsoft 365 candidate email | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | `COM-002` | Templates, personalized bulk mail and sequences | target | partial | `src/lodge/records/messages.ts`; `tests/hiring-candidates.test.mjs` | Exact single-message drafts and approval exist; templates, bulk personalization and delivered timed sequences are absent. |
 | `COM-003` | Consented SMS and WhatsApp conversations | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
-| `COM-004` | BCC and forwarded email capture | target | missing |  | Email sent outside Lodge cannot be recorded on a candidate. |
+| `COM-004` | BCC and forwarded email capture | target | partial | `tests/hiring-candidates.test.mjs` (COM-004 private inbound capture preserves bytes and rechecks contact custody), via `tests/capture-flow.mjs` (checkCapture): Miniflare native email events invoke the shipped email handler and Base MIME parser; known-address filing, exact attachment bytes, replay, forwarding-member queue and explicit resolution, role and grant refusals on capture, message and file reads, address rotation, erasure suppression and zero capture sends. `tests/capture-browser.mjs` (capturePage, registered in `tests/browser.mjs`): candidate, unmatched queue and settings at 1440 and 390, followed by filing from the real form. `src/lodge/records/capture.ts`; `src/server.ts` | Native handler and scoped API are implemented; A live outside-email receipt remains blocked on email-routing authorization for the held RunEditRun stage credential; the sandbox zone is readable but the routing endpoint refuses access. Adopted defaults pending ct: private per-member capability addresses, no automatic unmatched deletion, original files only through contact-scoped capture reads, and keyed erasure suppression retained without the address. Erasures before this feature have no recoverable suppression address; attached-message forwarding identity is not decoded. No live receipt or connected mailbox claim. |
 | `COM-005` | Automatic application acknowledgments and status emails | target | missing |  | Applicants get the on-page receipt only; no acknowledgment or status email is sent. |
 | `CAL-001` | Connected self-scheduling and rescheduling | target | partial | `src/lodge/records/interviews.ts`; `src/lodge/http/public.ts`; `tests/hiring-candidates.test.mjs` | Time-zone-aware choices, panel availability and local scheduling exist; provider free/busy, self-booking, RSVP sync and executed rescheduling are absent. |
 | `CAL-002` | Interviewer pools and complex interview days | target | partial | `src/lodge/records/interviews.ts`; `src/lodge/agents/coordination.ts` | Explicit panels and overlap facts exist; pools, constraints, room resources and coordinated multi-session scheduling are absent. |

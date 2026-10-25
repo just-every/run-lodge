@@ -1,3 +1,4 @@
+import { suppressErasedCapture } from './capture'
 import type { State } from '../core/state'
 import { requireAdmin, requireCandidate } from '../core/access'
 import { date, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
@@ -66,6 +67,7 @@ export function candidateRecords(s: State, candidateId: string) {
   const subjects = new Set([...offers, ...messages].map(r => r.id))
   const records: Record<string, Data[]> = {
     'survey-response': byApp('survey-response'), 'survey-invitation': byApp('survey-invitation'), 'survey-consent': byApp('survey-consent'), 'survey-stop': byApp('survey-stop'), 'survey-receipt': byApp('survey-receipt'),
+    'capture-mail': byApp('capture-mail'),
     'candidate-email-change': byApp('candidate-email-change'),
     application: apps, 'stage-event': byApp('stage-event'), interview: byApp('interview'), scorecard: byApp('scorecard'),
     'interview-note': byApp('interview-note'), notification: byApp('notification'), alert: byApp('alert'), 'team-note': byApp('team-note'), task: byApp('task'), debrief: byApp('debrief'), 'rule-match': byApp('rule-match'), 'rejection-email': byApp('rejection-email'), review: byApp('review'), 'fair-chance-record': byApp('fair-chance-record'), 'event-capture': byApp('event-capture'), message: messages, offer: offers, receipt: byApp('receipt'), monitoring: byApp('monitoring'),
@@ -105,7 +107,7 @@ export function candidateRecords(s: State, candidateId: string) {
  * Delete a candidate's personal data. Holds and active applications refuse it.
  * What remains is a receipt with counts and the person's record id, no name or contact.
  */
-export function deleteCandidate(s: State, a: Actor, b: Data) {
+export async function deleteCandidate(s: State, a: Actor, b: Data) {
   requireAdmin(a)
   const c = requireCandidate(s, a, b.candidate)
   requireThat(!c.deleted && !c.mergedInto, 'This candidate record is already closed', 409)
@@ -120,6 +122,8 @@ export function deleteCandidate(s: State, a: Actor, b: Data) {
   requireThat(!records.application.some(x => x.status === 'active'), 'Close this candidate’s active applications before deleting', 409)
   // Imported people also live in their import batch's retained original files, which Base import-kit cannot yet erase.
   requireThat(!c.imported && !Object.values(records).flat().some(r => r.imported), 'This person came from an import whose original files still hold their data. Undo that import if nothing changed, or keep the record until imported erasure is available (IMPORTING.md).', 409)
+  await suppressErasedCapture(s, [c, ...records.candidate])
+  for (const m of records['capture-mail']) for (const f of m.attachments) s.drop('blob', f.id)
   const counts: Record<string, number> = {}
   for (const [kind, rows] of Object.entries(records)) {
     counts[kind] = rows.length
