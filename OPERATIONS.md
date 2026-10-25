@@ -58,7 +58,18 @@ a forward migration and verified transition/recovery.
 deployment declaration and builds locally without provider requests. Real
 deployment requires privately supplied `CLOUDFLARE_ACCOUNT_ID` and
 `CLOUDFLARE_API_TOKEN`, the declared owner/session/setup secrets, and a real
-verified mail sender in `deploy.json`. Follow the owner-account deploy-kit
+verified mail sender in `deploy.json`. Edit `vars.MAIL_FROM` in that file to the
+sender on your provider’s verified domain, then commit the declaration before
+deploying; exporting an environment variable alone does not change that fixed
+value. `packaging.json` also declares `MAIL_FROM`, `MAIL_PROVIDER` and
+`MAIL_RELAY_URL` as public deployment inputs for hosted installation.
+
+Required private deployment inputs are `OWNER_EMAIL`, `SESSION_SECRET`,
+`INSTALLATION_KEY`, `SETUP_TOKEN` and the selected provider’s `MAIL_API_KEY`.
+Supply them privately through the deployment prompt. `INSTALLATION_KEY_PREVIOUS`
+and the careers-host bindings are optional. The default provider in `deploy.json`
+is Resend; select another supported provider there when configuring its sender.
+Follow the owner-account deploy-kit
 instructions under `node_modules/@runeditrun/rer/modules/deploy-kit`; account scope,
 resource ownership, migrations, receipt and health checks are defined there.
 Local validation does not prove hosted acceptance, provider delivery or remote
