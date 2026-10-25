@@ -17,7 +17,7 @@ try {
   const port = await freePort()
   await command(clone.root, ['setup', '--owner-email', 'owner@example.test', '--port', String(port), '--non-interactive'])
   server = await start(clone.root, port)
-  browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
+  browser = await chromium.launch({ headless: true, executablePath: process.env.LODGE_CHROMIUM_EXECUTABLE, args: ['--use-mock-keychain', '--password-store=basic'] })
   const owner = await session(browser, clone.root, server.origin, 'owner', 1440)
   try {
     const run = (op, body, context = owner.context) => api(context, server.origin, op, body)
@@ -41,7 +41,7 @@ try {
         console.log(clause + ': hiring journey passed at 1440 and 390')
         continue
       }
-      const [file, fn] = ({ 'ATTR-001': ['careers-driver', 'careersPage'], 'ATTR-007': ['languages-driver', 'languagesPage'], 'ATTR-014': ['careers-draft-page', 'careersDraftPage'], 'CRM-003': ['referrals-driver', 'referralsPage'], 'INT-002': ['connectors-driver', 'connectorsPage'], 'CRM-001': ['talent-page', 'talentPage'], 'CAND-001': ['candidate-driver', 'candidatePage'], 'CAND-002': ['candidate-driver', 'candidateAccountPage'], 'CAND-003': ['candidate-driver', 'candidateBookingPage'] })[clause] ?? []
+      const [file, fn] = ({ 'REPORT-004': ['surveys-driver', 'surveysWorkspacePage'], 'ATTR-001': ['careers-driver', 'careersPage'], 'ATTR-007': ['languages-driver', 'languagesPage'], 'ATTR-014': ['careers-draft-page', 'careersDraftPage'], 'CRM-003': ['referrals-driver', 'referralsPage'], 'INT-002': ['connectors-driver', 'connectorsPage'], 'CRM-001': ['talent-page', 'talentPage'], 'CAND-001': ['candidate-driver', 'candidatePage'], 'CAND-002': ['candidate-driver', 'candidateAccountPage'], 'CAND-003': ['candidate-driver', 'candidateBookingPage'] })[clause] ?? []
       if (!file) throw new Error('Name a supported clause')
       await (await import('./' + file + '.mjs'))[fn](browser, options)
       console.log(clause + ': own screens and end states passed at 1440 and 390')

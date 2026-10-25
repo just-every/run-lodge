@@ -288,3 +288,8 @@ test('TEAM-003 personal notification subscriptions, role defaults, the daily dig
   const { checkNotifications } = await import('./notify-driver.mjs')
   await checkNotifications()
 })
+
+test('REPORT-004 opt-in surveys preserve anonymity, contact refusal, aggregate limits and retention', async () => {
+  const { checkSurveys } = await import('./surveys-driver.mjs')
+  await checkSurveys()
+})

@@ -1,3 +1,4 @@
+import { surveyMaintenance } from '../surveys/http'
 import type { Bindings } from '../../auth.server'
 import { resumeIntakeMaintenance } from '../resumes/maintenance'
 import { flushReferralEmails } from '../referrals/email'
@@ -5,6 +6,7 @@ import { flushAlerts, sendDigests } from './deliver'
 
 /** The hourly scheduled run: resume intake upkeep, then every daily digest whose 8:00 has come round. */
 export async function scheduledRun(controller: ScheduledController, env: Bindings) {
+  await surveyMaintenance(env)
   await resumeIntakeMaintenance(controller, env)
   await sendDigests(env, controller.scheduledTime)
 }

@@ -644,3 +644,12 @@ times. Candidates use native sign-in at `/candidate`, then their receipt's
 exact Origin and current record revisions; possession-only receipt/availability
 links never authorize account updates or bookings. Generic `/auth/email` changes
 are refused to non-owner identities; the candidate flow verifies the new inbox.
+
+
+### Candidate experience surveys
+
+The owner and hiring admins open `/surveys/settings` from People and settings.
+`GET /api/lodge/reports/surveys` returns the same permitted aggregates, provider-handoff denominator, sample suppression and explicitly identified timing context. Agent members are refused.
+`survey-configure` takes `vacancy`, `trigger` (a stage id or closure), `title`, `questions` (one to five experience rating questions), `language` (`en` or `es`), reviewed `subject` and `invitation`, and `enabled`.
+`survey-consent` takes `application`, `enabled` and `basis` documenting the candidate's explicit consent or refusal. It cannot override declined contact.
+The settings forms send one confirmed invitation through the installation mail adapter; failed or uncertain claims never retry automatically. The private invitation and separate stop-contact capabilities are emailed only to that candidate. Anonymous responses have no candidate link. These are process ratings, never suitability scores.

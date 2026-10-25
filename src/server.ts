@@ -1,3 +1,4 @@
+import { surveyPages } from './lodge/surveys/http'
 import { withDemo } from './modules/demo/index.mjs'
 import { candidatePages } from './lodge/http/candidate-pages'
 import { careersHostResponse } from './lodge/careers/host'
@@ -45,6 +46,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
     if (lobby) return lobby
     if (/^\/candidate(\/|$)/.test(new URL(request.url).pathname)) return candidatePages.fetch(request, env, execution)
     if (isPublicPage(new URL(request.url).pathname)) return publicPages.fetch(request, env, execution)
+    if (new URL(request.url).pathname.startsWith('/surveys/')) return surveyPages.fetch(request, env, execution)
     if (isSignPage(new URL(request.url).pathname)) return signPages.fetch(request, env, execution)
     if (isEmbedPage(new URL(request.url).pathname)) return embedPages.fetch(request, env, execution)
     if (new URL(request.url).pathname.startsWith('/events/')) return eventPages.fetch(request, env, execution)

@@ -1,3 +1,4 @@
+import { surveyReport } from '../surveys/records'
 import { careersDomainChallenge, careersDomainOperation } from '../careers/domain'
 import { isEmployeeOnly } from '../core/access'
 import { referralsView } from '../referrals/views'
@@ -152,6 +153,8 @@ api.get('/api/lodge/kit/:id', async c => {
   const { state, actor } = await context(c)
   return c.json(kitView(await workspace(state, actor), c.req.param('id')))
 })
+
+api.get('/api/lodge/reports/surveys', async c => { const { state, actor } = await context(c); person(actor); return c.json(surveyReport(state, actor)) })
 
 api.get('/api/lodge/home', async c => {
   const { state, actor } = await context(c)

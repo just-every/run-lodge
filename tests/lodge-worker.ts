@@ -1,3 +1,4 @@
+import { surveyPages } from '../src/lodge/surveys/http'
 import { candidatePages } from '../src/lodge/http/candidate-pages'
 import { staticAssetResponse } from '../src/base/static-assets'
 import { careersHostResponse } from '../src/lodge/careers/host'
@@ -34,6 +35,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   const path = new URL(request.url).pathname
   if (/^\/candidate(\/|$)/.test(path)) return candidatePages.fetch(request, env, execution)
   if (path.startsWith('/careers/') || path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
+  if (new URL(request.url).pathname.startsWith('/surveys/')) return surveyPages.fetch(request, env, execution)
   if (isSignPage(path)) return signPages.fetch(request, env, execution)
   if (isEmbedPage(path)) return embedPages.fetch(request, env, execution)
   if (path.startsWith('/events/')) return eventPages.fetch(request, env, execution)
