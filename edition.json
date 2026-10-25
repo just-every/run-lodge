@@ -101,6 +101,77 @@
           }
         ]
       }
+    },
+    {
+      "id": "hiring/lodge-publication-wording",
+      "role": "module",
+      "source": {
+        "kind": "local",
+        "paths": [
+          "scripts/edition-authoring/adopt.mjs",
+          "scripts/edition-authoring/lock.mjs",
+          "src/base/contract-style.ts",
+          "src/modules/import-kit/README.md",
+          "src/modules/import-kit/src/d1/compressed-plan.ts",
+          "src/modules/mail/README.md",
+          "src/modules/operator-auth/conformance/README.md",
+          "src/modules/operator-auth/docs/vite-spa.md",
+          "src/modules/operator-auth/representation.mjs"
+        ],
+        "origin": {
+          "repository": "https://github.com/runeditrun/base.git",
+          "revision": "11f94fec479228d71ba6d7dd6ea7796c0d42c544",
+          "paths": [
+            "edition-authoring/adopt.mjs",
+            "edition-authoring/lock.mjs",
+            "foundation/runtime/contract-style.ts",
+            "modules/import-kit/README.md",
+            "modules/import-kit/src/d1/compressed-plan.ts",
+            "modules/mail/README.md",
+            "modules/operator-auth/conformance/README.md",
+            "modules/operator-auth/docs/vite-spa.md",
+            "modules/operator-auth/representation.mjs"
+          ]
+        },
+        "mappings": [
+          {
+            "path": "scripts/edition-authoring/adopt.mjs",
+            "originPath": "edition-authoring/adopt.mjs"
+          },
+          {
+            "path": "scripts/edition-authoring/lock.mjs",
+            "originPath": "edition-authoring/lock.mjs"
+          },
+          {
+            "path": "src/base/contract-style.ts",
+            "originPath": "foundation/runtime/contract-style.ts"
+          },
+          {
+            "path": "src/modules/import-kit/README.md",
+            "originPath": "modules/import-kit/README.md"
+          },
+          {
+            "path": "src/modules/import-kit/src/d1/compressed-plan.ts",
+            "originPath": "modules/import-kit/src/d1/compressed-plan.ts"
+          },
+          {
+            "path": "src/modules/mail/README.md",
+            "originPath": "modules/mail/README.md"
+          },
+          {
+            "path": "src/modules/operator-auth/conformance/README.md",
+            "originPath": "modules/operator-auth/conformance/README.md"
+          },
+          {
+            "path": "src/modules/operator-auth/docs/vite-spa.md",
+            "originPath": "modules/operator-auth/docs/vite-spa.md"
+          },
+          {
+            "path": "src/modules/operator-auth/representation.mjs",
+            "originPath": "modules/operator-auth/representation.mjs"
+          }
+        ]
+      }
     }
   ],
   "identityKind": "project"

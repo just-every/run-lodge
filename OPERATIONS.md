@@ -61,6 +61,16 @@ deployment requires privately supplied `CLOUDFLARE_ACCOUNT_ID` and
 verified mail sender in `deploy.json`. Follow the owner-account deploy-kit
 instructions under `node_modules/@runeditrun/rer/modules/deploy-kit`; account scope,
 resource ownership, migrations, receipt and health checks are defined there.
+Before deploying, edit and commit `deploy.json`: choose the production mail
+provider in `vars.MAIL_PROVIDER` and replace `vars.MAIL_FROM` with a sender on
+that provider's verified domain. The delivery policy also declares both names
+as public deployment inputs in `packaging.json`; they are not private credentials.
+Supply the required `OWNER_EMAIL`, `SESSION_SECRET`, `INSTALLATION_KEY`,
+`SETUP_TOKEN` and `MAIL_API_KEY` values privately through the environment names
+listed in `deploy.json`. Never commit their values. The previous installation
+key and careers-domain credentials are optional. Managed mail additionally uses
+the declared `MAIL_RELAY_URL` input and its private installation mail credential.
+
 Local validation does not prove hosted acceptance, provider delivery or remote
 health.
 
