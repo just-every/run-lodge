@@ -25,14 +25,32 @@ export function surveyConsent(s: State, a: Actor, b: Data) {
   requireThat(!c.deleted && !c.mergedInto, 'Candidate is unavailable', 409)
   const enabled = b.enabled === true
   requireThat(!enabled || c.contactPreference?.preference !== 'none', 'The candidate declined contact', 409)
-  const row = s.put('survey-consent', c.id, { candidate: c.id, enabled, basis: text(b.basis, 'Explicit candidate consent or refusal', 1000), by: a.email, at: now() })
+  const row = s.put('survey-consent', c.id, { candidate: c.id, enabled, expiresAt: surveyDeadline(c), basis: text(b.basis, 'Explicit candidate consent or refusal', 1000), by: a.email, at: now() })
   s.audit(a, 'survey-consent-recorded', 'candidate:' + c.id, { enabled })
   return { enabled: row.enabled }
 }
 
-export const retained = (r: Data) => Date.parse(r.expiresAt) > Date.now()
+// Existing opt-in records use their recorded instant when no deadline was stored.
+const storedExpiry = (r: Data) => r.expiresAt ? Date.parse(r.expiresAt) : r.at ? Date.parse(r.at) + 30 * 86400000 : 0
+export const retained = (r: Data) => storedExpiry(r) > Date.now()
+const candidateDeadline = (c: Data) => c.retainUntil ? Date.parse(c.retainUntil + 'T23:59:59.999Z') : Infinity
+const surveyDeadline = (c: Data) => new Date(Math.min(Date.now() + 30 * 86400000, candidateDeadline(c))).toISOString()
+
+// A shortened retention period also bounds existing answers. Anonymous cohorts
+// inherit the shortest member deadline without storing an identity on an answer.
+function currentExpiry(s: State, row: Data) {
+  const candidates = row.candidate ? [s.find('candidate', row.candidate)] : row.survey
+    ? s.scan('survey-receipt').filter(r => r.survey === row.survey && (!r.version || r.version === row.version)).map(r => s.find('candidate', r.candidate)) : []
+  return Math.min(storedExpiry(row), ...candidates.filter(Boolean).map(c => candidateDeadline(c!)))
+}
+const readable = (s: State, row: Data) => currentExpiry(s, row) > Date.now()
+
+export function declineSurveyContact(s: State, candidate: string) {
+  s.put('survey-consent', candidate, { candidate, enabled: false, expiresAt: surveyDeadline(s.get('candidate', candidate)), at: now(), by: 'candidate' })
+  for (const kind of ['survey-invitation', 'survey-response']) for (const row of s.scan(kind).filter(x => x.candidate === candidate)) s.remove(kind, row.id)
+}
 export function contactable(s: State, c: Data) {
-  return !c.deleted && !c.mergedInto && !!c.email && (!c.retainUntil || c.retainUntil >= now().slice(0, 10)) && c.contactPreference?.preference !== 'none' && s.find('survey-consent', c.id)?.enabled === true
+  return !c.deleted && !c.mergedInto && !!c.email && (!c.retainUntil || c.retainUntil >= now().slice(0, 10)) && c.contactPreference?.preference !== 'none' && s.find('survey-consent', c.id)?.enabled === true && retained(s.get('survey-consent', c.id))
 }
 export async function prepareInvitation(s: State, a: Actor, b: Data) {
   requireAdmin(a)
@@ -45,7 +63,7 @@ export async function prepareInvitation(s: State, a: Actor, b: Data) {
   const id = survey.id + ':' + app.id
   requireThat(!s.find('survey-invitation', id) && !s.find('survey-receipt', id), 'This application already had this survey invitation', 409)
   const token = uid() + uid(), stop = uid() + uid(), hash = await sha256(token)
-  const expiresAt = new Date(Math.min(Date.now() + 30 * 86400000, c.retainUntil ? Date.parse(c.retainUntil + 'T23:59:59.999Z') : Infinity)).toISOString()
+  const expiresAt = surveyDeadline(c)
   s.put('survey-stop', await sha256(stop), { candidate: c.id, expiresAt })
   const row = s.put('survey-invitation', id, { survey: survey.id, candidate: c.id, application: app.id, vacancy: app.vacancy, hash, expiresAt, status: 'sending', version: survey.version, questions: survey.questions, language: survey.language, title: survey.title })
   s.audit(a, 'survey-invitation-claimed', 'application:' + app.id, { survey: survey.id })
@@ -56,7 +74,7 @@ export async function invitationFor(s: State, token: string) {
   const hash = await sha256(token)
   const row = s.scan('survey-invitation').find(r => r.hash === hash)
   const c = row && s.find('candidate', row.candidate)
-  requireThat(row && retained(row) && row.status === 'handed' && c && contactable(s, c), 'This survey link is unavailable', 404)
+  requireThat(row && readable(s, row) && row.status === 'handed' && c && contactable(s, c), 'This survey link is unavailable', 404)
   return s.get('survey-invitation', row.id)
 }
 
@@ -69,19 +87,17 @@ export async function respond(s: State, token: string, b: Data) {
   // Anonymous rows retain only a survey version and daily expiry bucket, never the invitation id or its hash.
   const expiresAt = row.expiresAt.slice(0, 10) + 'T00:00:00.000Z'
   s.put('survey-response', uid(), { survey: row.survey, version: row.version, scores, expiresAt, ...(mode === 'identified' ? { candidate: row.candidate, application: row.application, consent: true } : {}) })
-  s.put('survey-receipt', row.id, { candidate: row.candidate, application: row.application, survey: row.survey, expiresAt: row.expiresAt })
+  s.put('survey-receipt', row.id, { candidate: row.candidate, application: row.application, survey: row.survey, version: row.version, expiresAt: row.expiresAt })
   s.remove('survey-invitation', row.id)
   // No response event, timestamp or id is put in a candidate's activity or audit.
 }
 
 export async function stopSurveys(s: State, token: string) {
   const row = s.find('survey-stop', await sha256(token))
-  requireThat(row && retained(row), 'This preference link is unavailable', 404)
+  requireThat(row && readable(s, row), 'This preference link is unavailable', 404)
   const c = s.get('candidate', row.candidate)
-  s.put('survey-consent', c.id, { candidate: c.id, enabled: false, at: now(), by: 'candidate' })
+  declineSurveyContact(s, c.id)
   s.put('candidate', c.id, { ...c, contactPreference: { preference: 'none', at: now(), by: 'candidate' } })
-  for (const invite of s.scan('survey-invitation').filter(x => x.candidate === c.id)) s.remove('survey-invitation', invite.id)
-  for (const answer of s.scan('survey-response').filter(x => x.candidate === c.id)) s.remove('survey-response', answer.id)
   s.audit(null, 'survey-contact-declined', 'candidate:' + c.id)
 }
 
@@ -89,8 +105,8 @@ export function surveyReport(s: State, a: Actor) {
   requireAdmin(a)
   const surveys = s.all('survey').filter(r => { const v = s.find('vacancy', r.vacancy); return v && cleared(a, v, 'confidential') && s.all('application').filter(app => app.vacancy === v.id).every(app => canSeeApplication(s, a, app)) })
   return { minimumSample: 5, definition: 'Responses divided by invitations handed to the mail provider. Provider acceptance is not delivery. Results below five responses are suppressed. Experience ratings never score suitability.', surveys: surveys.map(r => {
-    const responses = s.all('survey-response').filter(x => x.survey === r.id && x.version === r.version && retained(x))
-    const count = s.all('survey-denominator').filter(x => x.survey === r.id && x.version === r.version && retained(x)).reduce((n, x) => n + x.count, 0)
+    const responses = s.all('survey-response').filter(x => x.survey === r.id && x.version === r.version && readable(s, x))
+    const count = s.all('survey-denominator').filter(x => x.survey === r.id && x.version === r.version && readable(s, x)).reduce((n, x) => n + x.count, 0)
     const suppressed = responses.length < 5
     const identified = suppressed ? [] : responses.filter(x => x.consent && x.application).flatMap(x => {
       const app = s.find('application', x.application), c = s.find('candidate', x.candidate)
@@ -105,9 +121,13 @@ export function surveyReport(s: State, a: Actor) {
 
 export function surveyView(s: State, a: Actor) { return isAdmin(a) && !a.agent ? surveyReport(s, a) : null }
 export function expireSurveys(s: State) {
-  for (const kind of ['survey-invitation', 'survey-response', 'survey-stop', 'survey-receipt', 'survey-denominator']) for (const row of s.scan(kind)) {
+  // Resolve cohort deadlines before deleting receipts; a held cohort must never
+  // regain readability when another member's shorter-retention receipt expires.
+  const rows = ['survey-invitation', 'survey-response', 'survey-stop', 'survey-denominator', 'survey-consent', 'survey-receipt'].flatMap(kind => s.scan(kind).map(row => ({ kind, row, expiry: currentExpiry(s, row) })))
+  for (const { kind, row, expiry } of rows) {
     const survey = row.survey && s.find('survey', row.survey)
-    const held = row.candidate ? holdsFor(s, row.candidate).length > 0 : survey && s.scan('hold').some(h => h.status === 'active' && h.vacancy === survey.vacancy)
-    if (!retained(row) && !held) s.remove(kind, row.id)
+    const held = row.candidate ? holdsFor(s, row.candidate).length > 0 : survey && s.scan('hold').some(h => h.status === 'active' && (h.vacancy === survey.vacancy || s.scan('application').some(app => app.vacancy === survey.vacancy && app.candidate === h.candidate)))
+    if (expiry <= Date.now() && !held) s.remove(kind, row.id)
+    else if (expiry < Date.parse(row.expiresAt)) s.put(kind, row.id, { ...row, expiresAt: new Date(expiry).toISOString() })
   }
 }

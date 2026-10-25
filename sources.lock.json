@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "fab1dba6b52c77fa4b758e5fd34bc1d2fd2920136d6381c4c5ae8f910102d921",
+      "sha256": "1c3bf51202664591de83fdfe6949447b05ad0c9169581b30085d7f46fd035c9b",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8367440ca89fef29733e5d5c3e43308537b9daf26c452abe4be1c0f170888f86",
+      "sha256": "a85f467b0c5d9c7c6ce2bf3b19d262a1b8f75073cc815209d01ae5d599425918",
       "executable": false
     },
     "DEMO.md": {
@@ -1039,7 +1039,7 @@
       "executable": false
     },
     "src/lodge/candidate/account.ts": {
-      "sha256": "c4dc55ee8c5c8d1dea0a68414ef31f696f8c9124a6095cef8f6740928fe7e3a0",
+      "sha256": "4a13a1ab8d5c709d92abe4ead9dac3472b7743c2ae6e4d2fe9a661c0d7ebea8c",
       "executable": false
     },
     "src/lodge/candidate/booking.ts": {
@@ -1511,7 +1511,7 @@
       "executable": false
     },
     "src/lodge/surveys/records.ts": {
-      "sha256": "a16a51237c464e8f7c59993b300749a6002c0f29ab8892eeed42d4255e124b89",
+      "sha256": "e5c797ff9579e7d9abe110c35575ed507ca154538cc1dc024457825bc1ab2482",
       "executable": false
     },
     "src/lodge/views/activity.ts": {
@@ -1531,7 +1531,7 @@
       "executable": false
     },
     "src/lodge/views/exports.ts": {
-      "sha256": "1e3ae646aa990195177bf0c11d1cf3cce1496b032c044bf5d7a4f1b4d459eac2",
+      "sha256": "e6718615d7644cad1e787e524d9b20640fbbdadea0dd7c2bdb664e9d292d4978",
       "executable": false
     },
     "src/lodge/views/field-views.ts": {
@@ -3859,7 +3859,7 @@
       "executable": false
     },
     "tests/harness.mjs": {
-      "sha256": "1ac3cc51e7f4dc8f1cd520e44ed9358259353a6049f144bfeb07a663ccc0b4c1",
+      "sha256": "151d7c153eafaa685319aedbe432a6a1ce2d28edc1998345e88a0dc72493e9ef",
       "executable": false
     },
     "tests/hiring-candidates.test.mjs": {
@@ -3899,7 +3899,7 @@
       "executable": false
     },
     "tests/lodge-worker.ts": {
-      "sha256": "3fb53a2108dba980abc9ee8e37f8c4b013a7654961ec54a22d4d76d825fdb419",
+      "sha256": "3e1cbe1070dfcdf28da9cce718b52957549f6d27c8a2af8c6a4b4030fe31d018",
       "executable": false
     },
     "tests/mail-edge.mjs": {
@@ -4019,7 +4019,7 @@
       "executable": false
     },
     "tests/surveys-driver.mjs": {
-      "sha256": "806581ad6c8e55fddea92f95e4cfae13f6f23caf25c517b9aa27a0e784dabd1b",
+      "sha256": "f733f1aafe6d1850c089ee04de4451c5bf10f1ae40d0ae0feb96a848b8e4b943",
       "executable": false
     },
     "tests/talent-page.mjs": {

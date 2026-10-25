@@ -17,9 +17,23 @@ import candidateCss from '../public/lodge-candidate.css'
 import themeCss from '../public/rer-theme.css'
 import fontsCss from '../public/fonts/fonts.css'
 
+// Fixture clock exists only in this test Worker, never in the shipped server.
+const RealDate = Date
+let testNow: number | undefined
+function setClock(at: string) {
+  testNow = RealDate.parse(at)
+  globalThis.Date = class extends RealDate {
+    constructor(value?: any) { super(value === undefined ? testNow! : value) }
+    static now() { return testNow! }
+  } as DateConstructor
+}
 export default {
   scheduled: scheduledRun,
-  async fetch(request: Request, env: Bindings, execution: ExecutionContext) { return afterWrite(request, await route(request, env, execution), env) },
+  async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
+    const fixture = (env as any).TEST_CLOCK
+    if (fixture && testNow === undefined) setClock(fixture)
+    if (fixture && new URL(request.url).pathname === '/__test/clock') { setClock((await request.json() as any).at); return Response.json({ ok: true }) }
+    return afterWrite(request, await route(request, env, execution), env) },
 }
 
 async function route(request: Request, env: Bindings, execution: ExecutionContext) {

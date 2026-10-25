@@ -1,9 +1,10 @@
+import { surveyReport } from '../surveys/records'
 import { staffSeesReferral } from '../referrals/access'
 import { staffSeesSubmission } from '../agency/access'
 import { candidateRecords } from '../records/retention'
 import type { State } from '../core/state'
 import { readBlob } from '../core/store'
-import { isAdmin, requireAdmin } from '../core/access'
+import { requireAdmin } from '../core/access'
 import { Fault, canonical, now, requireThat, sha256, type Actor, type Data } from '../core/types'
 import { mergedCandidates } from '../records/candidate-lineage'
 import { workspace, type Workspace } from './workspace'
@@ -77,7 +78,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
   }
   const body = {
     agencySubmissions, referrals,
-    surveyResponses: isAdmin(a) ? candidateRecords(s, id)['survey-response'] : [],
+    surveyResponses: surveyReport(s, a).surveys.flatMap(survey => survey.identified.filter(answer => appIds.has(answer.application)).map(answer => ({ ...answer, survey: survey.id, version: survey.version }))),
     format: 'lodge-candidate-export-1', exportedAt: now(), exportedBy: a.email,
     candidate, mergedCandidates: mergedCandidates(view.mergedCandidates, id),
     application: applications, 'stage-event': applications.flatMap(app => app.history),

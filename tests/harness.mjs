@@ -31,7 +31,7 @@ async function freePort() {
 }
 
 /** A Worker with every migration; `claim: false` leaves it empty, as a restore destination. */
-export async function harness({ claim = true, bindings = {}, outboundService } = {}) {
+export async function harness({ claim = true, bindings = {}, outboundService, clock } = {}) {
   const port = await freePort(), origin = `http://127.0.0.1:${port}`
   const dir = await mkdtemp(join(tmpdir(), 'lodge-test-'))
   const bundle = await workerBundle()
@@ -40,7 +40,7 @@ export async function harness({ claim = true, bindings = {}, outboundService } =
       host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat', 'global_fetch_strictly_public'],
       d1Databases: { DB: 'lodge' },
       ...(outboundService ? { outboundService } : {}),
-      bindings: { AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: 'local-test-secret-not-production-0123456789', SETUP_TOKEN, MAIL_PROVIDER: 'development', MAIL_FROM: 'Lodge <lodge@example.test>', ...bindings },
+      bindings: { AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: 'local-test-secret-not-production-0123456789', SETUP_TOKEN, TEST_CLOCK: clock ?? '', MAIL_PROVIDER: 'development', MAIL_FROM: 'Lodge <lodge@example.test>', ...bindings },
     }),
     resourcePersistencePath: dir,
   })
@@ -98,7 +98,7 @@ export async function harness({ claim = true, bindings = {}, outboundService } =
       assert.equal(confirmed.status, 303, JSON.stringify(confirmed.value))
       return confirmed.cookie
     }
-    return { db, mf, origin, owner, send, command, state, member, signIn, async close() { await mf.dispose(); await rm(dir, { recursive: true, force: true }) } }
+    return { db, mf, origin, owner, async setTime(at) { assert.ok(clock, 'enable the test clock explicitly'); assert.equal((await send('/__test/clock', { at })).status, 200) }, send, command, state, member, signIn, async close() { await mf.dispose(); await rm(dir, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose(); await rm(dir, { recursive: true, force: true })
     throw error
