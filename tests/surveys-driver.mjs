@@ -51,17 +51,31 @@ export async function checkSurveys(browser, evidence) {
           assert.equal((await h.send(link.response, form({ mode: 'identified', consent: 'yes', 'score-0': '4', 'score-1': '3' }))).status, 400, 'identity needs separate consent')
           assert.equal((await h.send(link.response, form({ mode: 'anonymous', consent: 'yes', 'score-0': '4', 'score-1': '3' }), '', { origin: 'https://example.test' })).status, 403)
         }
+        let response
         if (browser && i === 0) {
           for (const width of [1440, 390]) {
             const ctx = await browser.newContext({ viewport: { width, height: 1000 } }), p = await ctx.newPage()
             await p.goto(h.origin + link.response)
             await p.getByRole('heading', { name: survey.title }).waitFor()
             assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'survey fits viewport')
+            await p.getByLabel('How clear was the process?', { exact: true }).selectOption('4')
+            await p.getByLabel('How timely was scheduling?', { exact: true }).selectOption('3')
+            await p.getByRole('checkbox', { name: 'I choose to share my experience.' }).check()
+            if (width === 1440) {
+              await p.getByLabel('Response identity', { exact: true }).selectOption('identified')
+              await p.getByRole('checkbox', { name: /^If I choose Identified/ }).check()
+            }
             await p.screenshot({ path: `${evidence}/${group}-response-${width}.png`, fullPage: true })
+            if (width === 390) {
+              const [submitted] = await Promise.all([p.waitForNavigation(), p.getByRole('button', { name: 'Share experience', exact: true }).click()])
+              response = { status: submitted.status(), text: await p.content() }
+              await p.getByRole('heading', { name: 'Thank you · Gracias' }).waitFor()
+              await p.screenshot({ path: `${evidence}/${group}-recorded-${width}.png`, fullPage: true })
+            }
             await ctx.close()
           }
         }
-        const response = await h.send(link.response, form({ mode: i === 0 ? 'anonymous' : 'identified', identify: i === 0 ? '' : 'yes', consent: 'yes', 'score-0': '4', 'score-1': '3' }))
+        response ??= await h.send(link.response, form({ mode: i === 0 ? 'anonymous' : 'identified', identify: i === 0 ? '' : 'yes', consent: 'yes', 'score-0': '4', 'score-1': '3' }))
         assert.equal(response.status, 200, response.text)
         const unchanged = (await h.state()).applications.find(x => x.id === app.id)
         assert.deepEqual([unchanged.stage, unchanged.status], [group === 'stage' ? trigger : application.stage, group === 'stage' ? 'active' : 'withdrawn'], 'experience answers never move a stage or change suitability')
@@ -99,6 +113,22 @@ export async function checkSurveys(browser, evidence) {
     await h.command('survey-consent', { application: extra.application.id, enabled: true, basis: 'Explicit synthetic consent' })
     await send({ ...extra.application, email: extra.candidate.email }, stage, 409)
     await config(trigger)
+    // The reviewed Spanish invitation follows a real Spanish public application, with no English mail fallback.
+    const { languageJob, spanishText } = await import('./languages-driver.mjs')
+    const localized = await languageJob(h.command, async request => h.command('decide-approval', { id: request.id, decision: 'approved', version: request.version, reason: 'Synthetic reviewed job' }), 'owner@example.test')
+    await h.command('post-translation', { vacancy: localized.job.id, post: localized.es.id, translation: spanishText(localized.q) })
+    await h.command('post-status', { vacancy: localized.job.id, post: localized.es.id, status: 'live' })
+    const intake = await h.send('/jobs/' + localized.es.slug, form({ name: 'Synthetic Spanish survey', email: 'synthetic-lodge-es@example.test', noticeVersion: '1', consent: 'yes', ['q-' + localized.q.id]: 'Weekdays' }))
+    assert.equal(intake.status, 200, intake.text)
+    const spanishApp = (await h.state()).applications.find(a => a.candidateName === 'Synthetic Spanish survey')
+    assert.equal(spanishApp.language, 'es')
+    const spanishSurvey = await h.command('survey-configure', { vacancy: localized.job.id, trigger: spanishApp.stage, title: 'Su experiencia', questions: ['¿Fue claro el proceso?'], language: 'es', subject: 'Comparta su experiencia', invitation: 'La participación es voluntaria.', enabled: true })
+    await h.command('survey-consent', { application: spanishApp.id, enabled: true, basis: 'Explicit synthetic Spanish consent' })
+    const spanishLink = await send({ ...spanishApp, email: 'synthetic-lodge-es@example.test' }, spanishSurvey)
+    const spanishMail = await mail(h, 'synthetic-lodge-es@example.test')
+    assert.equal(spanishMail.subject, 'Comparta su experiencia')
+    assert.ok(spanishMail.text.includes('La participación es voluntaria.') && spanishMail.text.includes('Dejar de recibir contacto') && !spanishMail.text.includes('Stop further contact'))
+    assert.match((await h.send(spanishLink.response)).text, /<html lang="es"/)
     // Provider failure is never recorded as delivered and does not increase the denominator.
     await h.db.prepare("CREATE TRIGGER fail_survey_mail BEFORE INSERT ON rer_mail_development_outbox WHEN NEW.message LIKE '%Experience failure%' BEGIN SELECT RAISE(ABORT,'synthetic provider refusal'); END").run()
     const failed = await config(trigger, 'en', 'Experience failure')

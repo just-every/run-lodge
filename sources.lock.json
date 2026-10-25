@@ -1507,7 +1507,7 @@
       "executable": false
     },
     "src/lodge/surveys/http.ts": {
-      "sha256": "e742c0dbe8e84e134eb655225cc0b3439cd1f5fb45f0880f725fb277d61de8f3",
+      "sha256": "48203b515caf36c02e00546e4c4e524b079bd35276b4d6aa1ddb5d70d42f13f7",
       "executable": false
     },
     "src/lodge/surveys/records.ts": {
@@ -4019,7 +4019,7 @@
       "executable": false
     },
     "tests/surveys-driver.mjs": {
-      "sha256": "0fe4a88265f7119b06f332dc570f330eeec254f914f3ec0a3510dea4d9f325e7",
+      "sha256": "806581ad6c8e55fddea92f95e4cfae13f6f23caf25c517b9aa27a0e784dabd1b",
       "executable": false
     },
     "tests/talent-page.mjs": {

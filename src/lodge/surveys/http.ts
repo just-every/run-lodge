@@ -1,4 +1,4 @@
-import { Hono } from 'hono'
+import { Hono, type Context } from 'hono'
 import { runtimeBindings, type Bindings } from '../../auth.server'
 import { actorFor, load, save, signedIn } from '../core/store'
 import { cleared, requireAdmin } from '../core/access'
@@ -9,7 +9,7 @@ import { configureSurvey, contactable, expireSurveys, invitationFor, prepareInvi
 
 export const surveyPages = new Hono<{ Bindings: Bindings }>()
 surveyPages.onError(e => page('Survey unavailable', `<h1>Survey unavailable</h1><p role="alert">${esc(e instanceof Fault ? e.message : 'Please try again later.')}</p>`, e instanceof Fault ? e.status : 500))
-const staff = async (c: any) => { const session = await signedIn(c.req.raw, c.env), s = await load(c.env.DB), a = actorFor(session, s); requireAdmin(a); requireThat(!a.agent, 'A person must review surveys', 403); return { s, a } }
+const staff = async (c: Context<{ Bindings: Bindings }>) => { const session = await signedIn(c.req.raw, c.env), s = await load(c.env.DB), a = actorFor(session, s); requireAdmin(a); requireThat(!a.agent, 'A person must review surveys', 403); return { s, a } }
 const form = (action: string, fields: string, button: string) => `<form method="post" action="${esc(action)}">${fields}<button type="submit">${esc(button)}</button></form>`
 const field = (label: string, name: string, type = 'text') => `<label>${esc(label)}<input name="${esc(name)}" type="${type}" required></label>`
 
