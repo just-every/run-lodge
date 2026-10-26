@@ -258,11 +258,11 @@ export async function checkSurveys(browser, evidence) {
     // Clock-controlled runtime boundary proof: no stored dates are rewritten.
     const boundaryJob = await careersJob(h.command, 'Synthetic retention crew')
     const boundarySurvey = await h.command('survey-configure', { vacancy: boundaryJob.id, trigger: boundaryJob.stages[0].id, title: 'Retention experience', questions: ['Was the process clear?'], language: 'en', subject: 'Retention experience', invitation: 'Please share voluntary process feedback.', enabled: true })
-    const addBoundary = async (suffix, until) => {
-      const person = await h.command('candidate', { name: 'Synthetic retention ' + suffix, email: 'synthetic-lodge-retention-' + suffix + '@example.test', vacancy: boundaryJob.id, consentBasis: 'manual', source: 'Synthetic survey' })
+    const addBoundary = async (suffix, until, survey = boundarySurvey) => {
+      const person = await h.command('candidate', { name: 'Synthetic retention ' + suffix, email: 'synthetic-lodge-retention-' + suffix + '@example.test', vacancy: survey.vacancy, consentBasis: 'manual', source: 'Synthetic survey' })
       if (until) await h.command('extend-retention', { candidate: person.candidate.id, until, reason: 'Synthetic shorter retention' })
       await h.command('survey-consent', { application: person.application.id, enabled: true, basis: 'Explicit synthetic consent receipt' })
-      const link = await send({ ...person.application, email: person.candidate.email }, boundarySurvey)
+      const link = await send({ ...person.application, email: person.candidate.email }, survey)
       return { ...person, link }
     }
     const short = await addBoundary('short', '2030-01-02')
@@ -271,6 +271,16 @@ export async function checkSurveys(browser, evidence) {
     await h.command('extend-retention', { candidate: shortAnswer.candidate.id, until: '2030-01-01', reason: 'Synthetic shorter answer retention' })
     const hasAnswer = async id => (await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='survey-response' AND json_extract(value,'$.candidate')=?").bind(id).first()).n
     const long = await addBoundary('long')
+    // A separate unheld cohort proves answer storage on both sides of expiry;
+    // the held cohort below cannot mask a missing answer purge.
+    const unheldJob = await careersJob(h.command, 'Synthetic unheld retention crew')
+    const unheldSurvey = await h.command('survey-configure', { vacancy: unheldJob.id, trigger: unheldJob.stages[0].id, title: 'Unheld retention experience', questions: ['Was the process clear?'], language: 'en', subject: 'Retention experience', invitation: 'Please share voluntary process feedback.', enabled: true })
+    const unheldIdentified = await addBoundary('unheld-identified', undefined, unheldSurvey)
+    const unheldAnonymous = await addBoundary('unheld-anonymous', undefined, unheldSurvey)
+    assert.equal((await h.send(unheldIdentified.link.response, form({ mode: 'identified', identify: 'yes', consent: 'yes', 'score-0': '5' }))).status, 200)
+    assert.equal((await h.send(unheldAnonymous.link.response, form({ mode: 'anonymous', consent: 'yes', 'score-0': '4' }))).status, 200)
+    const unheldAnswers = async () => (await h.db.prepare("SELECT value FROM l_records WHERE kind='survey-response' AND json_extract(value,'$.survey')=?").bind(unheldSurvey.id).all()).results.map(x => JSON.parse(x.value)).map(r => ({ candidate: r.candidate ?? null, scores: r.scores })).sort((a, b) => a.scores[0] - b.scores[0])
+    const retainedAnswers = [{ candidate: null, scores: [4] }, { candidate: unheldIdentified.candidate.id, scores: [5] }]
     const held = await addBoundary('held')
     const heldAnswer = await addBoundary('held-answer')
     assert.equal((await h.send(heldAnswer.link.response, form({ mode: 'identified', identify: 'yes', consent: 'yes', 'score-0': '5' }))).status, 200)
@@ -296,10 +306,14 @@ export async function checkSurveys(browser, evidence) {
     assert.equal(await hasAnswer(shortAnswer.candidate.id), 0, 'identified answer purges exactly at shorter retention')
     assert.equal(await hasInvitation(short.application.id), 0, 'short retention purges exactly at the boundary')
     assert.equal((await h.send(short.link.response)).status, 404)
+    await runAt('2030-01-29T00:00:00.000Z')
+    assert.deepEqual(await unheldAnswers(), retainedAnswers, 'unheld identified and anonymous answers remain stored on day 29')
     await runAt('2030-01-30T23:59:59.999Z')
+    assert.deepEqual(await unheldAnswers(), retainedAnswers, 'unheld identified and anonymous answers remain stored on day 30 before expiry')
     assert.equal(await hasInvitation(long.application.id), 1, '30-day retention survives one millisecond before the boundary')
     const beforeWindow = await outbounds()
     await runAt('2030-01-31T00:00:00.000Z')
+    assert.deepEqual(await unheldAnswers(), [], 'unheld identified and anonymous answers are deleted on day 31 at expiry')
     assert.equal(await hasInvitation(long.application.id), 0, '30-day retention purges exactly at the boundary')
     assert.equal(await hasInvitation(held.application.id), 1, 'hold keeps expired invitation bytes')
     assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='survey-response' AND json_extract(value,'$.survey')=?").bind(boundarySurvey.id).first()).n, 2, 'holds preserve identified and anonymous expired answer bytes')
@@ -325,7 +339,7 @@ if (process.argv.includes('--browser')) {
   const evidence = process.env.LODGE_EVIDENCE
   assert.ok(evidence, 'Set an evidence directory outside the product repository')
   await mkdir(evidence, { recursive: true })
-  const browser = await chromium.launch({ headless: true, executablePath: process.env.LODGE_CHROMIUM_EXECUTABLE, args: ['--use-mock-keychain', '--password-store=basic'] })
+  const browser = await chromium.launch({ headless: true, executablePath: process.env.LODGE_CHROMIUM_EXECUTABLE, args: ['--no-sandbox', '--use-mock-keychain', '--password-store=basic'] })
   try { console.log(await checkSurveys(browser, evidence)) } finally { await browser.close() }
 }
 

@@ -131,7 +131,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "f2b32434e382ef330700bb34f1207a715f88c32cff9ce14ced4a3fdb17523515",
+      "sha256": "dca9de3c119e09c2bed26cd6e9e23ffc60074e1922a5076c4ddb374dcef7da13",
       "executable": false
     },
     ".gitignore": {
@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "ae324d3a3030e59c8749f8fbf8ffef7bcd41e4fd65975c12c2a4ab8776b0695d",
+      "sha256": "baa709421f90a9bd7e1d77c69bea1590ef7917e765d29acf478b408b00864272",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1129c7b744bb3cb94a38503e2cd930ee7c7d56111992ed5d4c2ec732c7f2632f",
+      "sha256": "30dc16bcf8c8dd7d82b5043836b8ec7900230a3d2019e75d83d7bd98de85dac4",
       "executable": false
     },
     "DEMO.md": {
@@ -4107,7 +4107,7 @@
       "executable": false
     },
     "tests/clause-browser.mjs": {
-      "sha256": "5509c79305f0ec41eeb07f1459de575f282d725b14c62eac387daf36a7d20a6d",
+      "sha256": "2e8ad0e9782eb8ef2c1e5fdee3fd01d2803a9f1c3f2c93d02f6aa1e43842c48d",
       "executable": false
     },
     "tests/compliance-flow.mjs": {
@@ -4395,7 +4395,7 @@
       "executable": false
     },
     "tests/surveys-driver.mjs": {
-      "sha256": "6bd99a994611f93d018906f351fcfef4b2fd44844ec6634aa2f5d2c55bbf979a",
+      "sha256": "34bb7dbf41445dedcc15cdf4a3b8f99aa4768dc02f98f49164a007201a47c2b2",
       "executable": false
     },
     "tests/talent-page.mjs": {

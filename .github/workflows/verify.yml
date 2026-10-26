@@ -69,3 +69,25 @@ jobs:
         with:
           name: lodge-browser-proof-${{ matrix.width }}
           path: ${{ runner.temp }}/lodge-proof
+  surveys:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      LODGE_EVIDENCE: ${{ runner.temp }}/lodge-survey-proof
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.20.0
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile && pnpm exec rer install
+      - run: node scripts/ci-chromium.mjs
+      - name: Survey response and privacy journeys at both widths
+        run: timeout 1200 node tests/surveys-driver.mjs --browser
+      - name: Survey workspace journey at both widths
+        run: timeout 1200 node tests/clause-browser.mjs REPORT-004
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lodge-survey-proof
+          path: ${{ runner.temp }}/lodge-survey-proof

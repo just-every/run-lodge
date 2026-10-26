@@ -17,7 +17,7 @@ try {
   const port = await freePort()
   await command(clone.root, ['setup', '--owner-email', 'owner@example.test', '--port', String(port), '--non-interactive'])
   server = await start(clone.root, port)
-  browser = await chromium.launch({ headless: true, executablePath: process.env.LODGE_CHROMIUM_EXECUTABLE, args: ['--use-mock-keychain', '--password-store=basic'] })
+  browser = await chromium.launch({ headless: true, executablePath: process.env.LODGE_CHROMIUM_EXECUTABLE, args: ['--no-sandbox', '--use-mock-keychain', '--password-store=basic'] })
   const owner = await session(browser, clone.root, server.origin, 'owner', 1440)
   try {
     const run = (op, body, context = owner.context) => api(context, server.origin, op, body)
