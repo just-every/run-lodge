@@ -4070,6 +4070,10 @@
       "sha256": "4209c810538cb560c14de7db0b2f156896ab67285a5d4d1d8a65c4878d00c810",
       "executable": false
     },
+    "tests/reminders-live.mjs": {
+      "sha256": "3a045aa235a600c1fd5cba5cf09dc43f79a475f47a8a001957d36bc360a73a4f",
+      "executable": false
+    },
     "tests/resume-driver.mjs": {
       "sha256": "711605d206772a8b4fd6be3b1ab97b1fa2613594c2aa4561f5da1f172e28f8f6",
       "executable": false
