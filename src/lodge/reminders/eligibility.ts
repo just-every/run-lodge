@@ -37,6 +37,6 @@ export async function reminderEligibility(s: State, r: Data): Promise<Data> {
     if ((iv.replies ?? []).some((reply: Data) => reply.by === 'candidate' && reply.at >= r.at)) return stop('Candidate response received', 'acknowledged')
   }
   const transport = activeApplicationTransport(s)
-  if (!transport || transport.epoch !== r.transportEpoch) return stop('Installation sending is off or requires fresh review', 'withheld')
+  if (!transport || transport.epoch !== r.transportEpoch || !reminderAuthority(s, transport.by, job, app, true)) return stop('Installation sending is off or requires fresh review', 'withheld')
   return { transport, iv, app, person, job }
 }

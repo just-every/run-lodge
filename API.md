@@ -762,3 +762,11 @@ The controlled live journey is `node tests/application-email-live.mjs`; inject
 only `MAIL_API_KEY`, `MAIL_FROM`, `TEST_MAIL_TO` and `QA_INBOX_RECEIPT_TOKEN`.
 It sends only to the controlled test address, reads the QA inbox receipt,
 replays and verifies disable without removing the on-page receipt.
+
+## Persistent hiring reminders
+
+Human owners and hiring admins open /reminders/settings to review an exact message in the application's recorded language and explicitly enable its schedule. Installation sender approval remains under /application-emails/settings. Creating a reminder does not send a message; the scheduled Worker claims due attempts and records provider acceptance separately from signed delivery events.
+
+The hiring-reminder command takes interview, kind (availability, upcoming or scorecard), recipient (candidate or a current panellist's email), owner, escalation, dueAt (an ISO instant), cadenceHours, maxAttempts, startHour, endHour, weekdays (Sunday is 0), language, subject, body, footer, reviewed and enabled. The subject, body and footer are complete reviewed text with no placeholders. The owner and escalation manager need current job access. Upcoming reminders send once; scorecard requests wait until the interview finishes. Business windows use the business time zone, including daylight-saving changes.
+
+The cancel-hiring-reminder command takes id and reason. A response, completion, cancellation, changed assignment, withdrawal or lost contact authority stops obsolete work. Failed and uncertain attempts hold future automatic contact for human resolution. Replacing a schedule requires canceling it and reviewing a fresh configuration. Restored schedules and archived pending messages remain inert.

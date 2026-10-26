@@ -155,7 +155,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "0b4769c008747339a861b039bc335b2fff234bbef3dcb04143d7b0f3e7e4fedd",
+      "sha256": "62f13cf529a832658f46466f7e6ece20e9b0275d4936443415ae2fa7f9c0957d",
       "executable": false
     },
     "base-copies.json": {
@@ -1539,7 +1539,7 @@
       "executable": false
     },
     "src/lodge/reminders/eligibility.ts": {
-      "sha256": "9406e6930915f2cbf974b6695165991a3f833f50cdee2f49e45707c67e8863cd",
+      "sha256": "402b8ed5492849339dc358f5cc3822174fd82fe8c37a487fb12db456af50811a",
       "executable": false
     },
     "src/lodge/reminders/pages.ts": {
