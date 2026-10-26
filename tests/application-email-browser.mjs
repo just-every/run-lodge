@@ -8,13 +8,12 @@ import { browserWidths } from './browser-widths.mjs'
 export async function applicationEmailPage(browser, evidence, { live = false } = {}) {
  const bindings = live ? { MAIL_PROVIDER: 'sendgrid', MAIL_API_KEY: process.env.MAIL_API_KEY, MAIL_FROM: process.env.MAIL_FROM } : { MAIL_PROVIDER: 'sendgrid' }
  if (live) for (const key of ['MAIL_API_KEY', 'MAIL_FROM', 'TEST_MAIL_TO', 'QA_INBOX_RECEIPT_TOKEN']) assert.ok(process.env[key], key + ' is required')
- const h = await applicationEmailFixture({ bindings, liveMail: live, activate: false })
  const results = []
- try {
-  await mkdir(evidence, { recursive: true })
-  const marker = 'Lodge acknowledgment ' + crypto.randomUUID(), started = Date.now()
-  let received
-  for (const width of browserWidths) {
+ await mkdir(evidence, { recursive: true })
+ for (const width of browserWidths) {
+   const h = await applicationEmailFixture({ bindings, liveMail: live, activate: false })
+   const marker = 'Lodge acknowledgment ' + crypto.randomUUID(), started = Date.now()
+   let received
    const context = await browser.newContext({ viewport: { width, height: 1000 } })
    await context.addCookies(h.owner.split('; ').map(value => { const i = value.indexOf('='); return { name: value.slice(0, i), value: value.slice(i + 1), url: h.origin } }))
    const page = await context.newPage()
@@ -31,10 +30,8 @@ export async function applicationEmailPage(browser, evidence, { live = false } =
     await page.getByLabel('The employer monitors this mailbox', { exact: false }).check()
     await page.getByLabel('The employer reviewed this exact footer', { exact: false }).check()
     await screenshot('application-email-sender-review')
-    if (width === browserWidths[0]) {
-     await page.getByRole('button', { name: 'Verify sender and enable installation mail', exact: true }).click()
-     await page.getByRole('status').waitFor()
-    }
+    await page.getByRole('button', { name: 'Verify sender and enable installation mail', exact: true }).click()
+    await page.getByRole('status').waitFor()
     await page.getByText('Review an email template', { exact: true }).click()
     await page.getByLabel('Application language code').fill('en')
     await page.getByLabel('Subject', { exact: true }).fill(marker + ': {{jobTitle}}')
@@ -46,14 +43,11 @@ export async function applicationEmailPage(browser, evidence, { live = false } =
     await page.getByLabel('I, Olive Owner, have reviewed', { exact: false }).check()
     await page.getByRole('button', { name: 'Review and save template', exact: true }).click()
     await page.getByRole('status').waitFor()
-    if (width === browserWidths[0]) {
-     await page.getByText('Configure sending', { exact: true }).click()
-     await page.getByLabel('Acknowledge new applications', { exact: true }).check()
-     await page.getByRole('button', { name: 'Apply sending settings' }).click()
-     await page.getByText('Acknowledgments: On.', { exact: false }).waitFor()
-    }
+    await page.getByText('Configure sending', { exact: true }).click()
+    await page.getByLabel('Acknowledge new applications', { exact: true }).check()
+    await page.getByRole('button', { name: 'Apply sending settings' }).click()
+    await page.getByText('Acknowledgments: On.', { exact: false }).waitFor()
     await screenshot('application-email-settings')
-    if (!received) {
      await page.goto(h.origin + '/jobs/' + h.en.slug)
      await page.getByLabel('Full name', { exact: true }).fill('Jordan Rivera')
      await page.getByLabel('Email', { exact: true }).fill(live ? process.env.TEST_MAIL_TO : 'jordan@example.test')
@@ -90,11 +84,6 @@ export async function applicationEmailPage(browser, evidence, { live = false } =
       assert.equal((await receipts()).length, 1, 'replay delivered no second email')
       results.push({ providerMessageId: outcome.providerMessageId, receiptId: inbox[0].id, deliveredAt: inbox[0].receivedAt, receiptCode: code, dmarc: inbox[0].auth.dmarc, duplicateCount: 0 })
      }
-    } else {
-     // The recorded receipt is recovered through its public possession-code door only in the first viewport.
-     await page.goto(h.origin + '/jobs/' + h.en.slug)
-     await screenshot('application-form')
-    }
     await page.goto(h.origin + '/application-emails/settings?vacancy=' + h.job.id)
     await page.getByText('Application acknowledgment · en · version', { exact: false }).first().click()
     await page.getByRole('link', { name: 'Edit this template', exact: true }).first().click()
@@ -124,10 +113,9 @@ export async function applicationEmailPage(browser, evidence, { live = false } =
     const current = await h.state(), disabledApplication = current.receipts.find(r => r.id === disabledCode).application
     assert.equal(current.applicationEmails.filter(m => m.application === disabledApplication).length, 0)
     await screenshot('disabled-email-receipt')
-   } finally { await context.close() }
+   } finally { await context.close(); await h.close() }
   }
-  return results
- } finally { await h.close() }
+ return results
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

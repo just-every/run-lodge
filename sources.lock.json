@@ -1227,7 +1227,7 @@
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
-      "sha256": "37c756e24f907617ea30cbd9a8eb2c2a4a1f898f62b4f70650c45b521a4df1df",
+      "sha256": "b85c3992e292e7e4a09861e12a79f845f2fc587b2047d0667f247bb11654a21e",
       "executable": false
     },
     "src/lodge/http/application-email-preview.ts": {
@@ -1235,7 +1235,7 @@
       "executable": false
     },
     "src/lodge/http/application-email-sender-form.ts": {
-      "sha256": "8edbce057be174d622c5bdc6545c3c9e5aa3f2e1d9bb39563f4d583627e07ee1",
+      "sha256": "deed455a6c65f141281f471b5f051bb6488e3033365acc9cb7c947602c50e7af",
       "executable": false
     },
     "src/lodge/http/board.ts": {
@@ -3815,7 +3815,7 @@
       "executable": false
     },
     "tests/application-email-browser.mjs": {
-      "sha256": "de6d8fe4bd72c06c3296d8a96564ee6e94f791cb3b9c30ae14032af3d1573497",
+      "sha256": "b539cbc15b5a46709d3bf80a8b8e93a18438adf50f4ca0f510c874bfd449b3b2",
       "executable": false
     },
     "tests/application-email-flow.mjs": {
