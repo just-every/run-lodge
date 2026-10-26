@@ -72,8 +72,6 @@ jobs:
   surveys:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    env:
-      LODGE_EVIDENCE: ${{ runner.temp }}/lodge-survey-proof
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -84,8 +82,12 @@ jobs:
       - run: node scripts/ci-chromium.mjs
       - name: Survey response and privacy journeys at both widths
         run: timeout 1200 node tests/surveys-driver.mjs --browser
+        env:
+          LODGE_EVIDENCE: ${{ runner.temp }}/lodge-survey-proof
       - name: Survey workspace journey at both widths
         run: timeout 1200 node tests/clause-browser.mjs REPORT-004
+        env:
+          LODGE_EVIDENCE: ${{ runner.temp }}/lodge-survey-proof
       - uses: actions/upload-artifact@v4
         if: always()
         with:
