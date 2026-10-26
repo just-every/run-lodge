@@ -12,7 +12,7 @@ export function nurtureConsent(s: State, person: Data, at = Date.now()): string 
   if (person.consent?.talentPool !== true) return 'Current talent pool consent is required'
   if (!person.retainUntil || person.retainUntil < new Date(at).toISOString().slice(0, 10)) return 'Talent pool consent has expired'
   if (!person.email || (person.contactPreference && person.contactPreference.preference !== 'email')) return 'Current contact preference does not permit email'
-  const nativeChoice = s.scan('audit').some(r => r.record === 'candidate:' + person.id && ((r.action === 'candidate-preferences-changed' && r.talentPool === true) || r.action === 'candidate-corrected'))
+  const nativeChoice = s.scan('audit').some(r => r.record === 'candidate:' + person.id && ((r.action === 'candidate-preferences-changed' && r.talentPool === true) || (r.action === 'candidate-corrected' && r.talentPool === true)))
   if ((person.imported || person.consent.basis === 'imported' || person.consent.recordedBy === 'import') && !nativeChoice) return 'Imported history needs a recorded native talent pool consent choice'
   if (!nativeChoice && (!person.consent.at || !person.consent.recordedBy)) return 'Recorded native talent pool consent is required'
   return null
