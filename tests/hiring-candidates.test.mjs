@@ -1263,6 +1263,7 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
     t.after(() => h.close())
     const { command: cmd, send, state } = h
     await cmd('business', BUSINESS)
+    await cmd('job-board', { token: 'synthetic-lodge-rate-limit', allowedOrigins: ['https://careers.example.test'] })
     const draft = await cmd('vacancy', { title: 'Glazier', location: 'Brooklyn, NY', headcount: 1, compensation: RANGE, manager: 'owner@example.test' })
     await cmd('rubric', { id: draft.id, criteria: RUBRIC })
     await cmd('interview-plan', { id: draft.id, plan: [{ name: 'Floor walk', stage: draft.stages[2].id }] })
