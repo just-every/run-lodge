@@ -8,7 +8,7 @@ jobs:
   verify:
     env:
       LODGE_VERIFY_CORE: '1'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
         width: [1440, 390]
     env:
       LODGE_BROWSER_WIDTH: ${{ matrix.width }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
