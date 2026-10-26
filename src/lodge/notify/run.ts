@@ -1,3 +1,4 @@
+import { runWeeklyReports } from '../reports/schedules'
 import { scheduledAnalysis } from '../analysis/schedules'
 import { runNurture } from '../crm/run'
 import { runReminders } from '../reminders/run'
@@ -13,6 +14,7 @@ export async function scheduledRun(controller: ScheduledController, env: Binding
   await surveyMaintenance(env)
   await resumeIntakeMaintenance(controller, env)
   await scheduledAnalysis(env, controller.scheduledTime)
+  await runWeeklyReports(env, controller.scheduledTime)
   await runNurture(env, controller.scheduledTime)
   await runReminders(env, controller.scheduledTime)
   await flushApplicationEmails(env)

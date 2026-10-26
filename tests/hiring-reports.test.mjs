@@ -300,3 +300,8 @@ test('Reviewed chart delivery sends once with current access and stays inert aft
  await (await import('./analysis-schedule-flow.mjs')).checkAnalysisSchedules(t)
  await (await import('./analysis-schedule-restore.mjs')).checkAnalysisScheduleRestore(t)
 })
+
+test('Weekly reports recompute private recipient scopes and claim each period once', async t => {
+  await (await import('./weekly-report-flow.mjs')).checkWeeklyReports(t)
+  await (await import('./weekly-report-restore.mjs')).checkWeeklyRestore(t)
+})

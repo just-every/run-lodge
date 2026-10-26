@@ -1,3 +1,4 @@
+import { weeklyReportPage } from './weekly-report-browser.mjs'
 import { enterprisePage } from './enterprise-browser.mjs'
 import { bulkInvitationsPage } from './bulk-invitations-browser.mjs'
 import { analysisSchedulePage } from './analysis-schedule-browser.mjs'
@@ -67,6 +68,7 @@ try {
   await bulkInvitationsPage(browser, resolve(evidence, 'bulk-invitations'))
   await analysisPage(browser, resolve(evidence, 'analysis'))
   await analysisSchedulePage(browser, resolve(evidence, 'analysis'))
+  await weeklyReportPage(browser, resolve(evidence, 'weekly-reports'))
   await crmPage(browser, resolve(evidence, 'crm'))
   await reminderPage(browser, resolve(evidence, 'reminders'))
   await applicationEmailPage(browser, resolve(evidence, 'application-emails'))

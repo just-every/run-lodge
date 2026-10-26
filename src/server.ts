@@ -1,3 +1,4 @@
+import { weeklyPages } from './lodge/reports/pages'
 import { bulkInvitationPages } from './lodge/operations/bulk-invitations-page'
 import { enterprisePages } from './lodge/enterprise/http'
 import { schedulePages } from './lodge/analysis/schedule-pages'
@@ -58,6 +59,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
     if (lobby) return lobby
     if (/^\/candidate(\/|$)/.test(new URL(request.url).pathname)) return candidatePages.fetch(request, env, execution)
     if (isPublicPage(new URL(request.url).pathname)) return publicPages.fetch(request, env, execution)
+    if (new URL(request.url).pathname.startsWith('/reports/weekly') || new URL(request.url).pathname.startsWith('/api/lodge/reports/weekly')) return weeklyPages.fetch(request, env, execution)
     if (new URL(request.url).pathname.startsWith('/analysis/schedules') || new URL(request.url).pathname.startsWith('/api/lodge/analysis/schedules')) return schedulePages.fetch(request, env, execution)
     if (new URL(request.url).pathname === '/analysis' || new URL(request.url).pathname.startsWith('/analysis/') || new URL(request.url).pathname.startsWith('/api/lodge/analysis')) return analysisPages.fetch(request, env, execution)
     if (new URL(request.url).pathname.startsWith('/crm/reply/')) return crmReplyPages.fetch(request, env, execution)

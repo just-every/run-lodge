@@ -1,3 +1,4 @@
+import { weeklyPages } from '../src/lodge/reports/pages'
 import { bulkInvitationPages } from '../src/lodge/operations/bulk-invitations-page'
 import { enterprisePages } from '../src/lodge/enterprise/http'
 import { schedulePages } from '../src/lodge/analysis/schedule-pages'
@@ -63,6 +64,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   const path = new URL(request.url).pathname
   if (/^\/candidate(\/|$)/.test(path)) return candidatePages.fetch(request, env, execution)
   if (path.startsWith('/careers/') || path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
+    if (new URL(request.url).pathname.startsWith('/reports/weekly') || new URL(request.url).pathname.startsWith('/api/lodge/reports/weekly')) return weeklyPages.fetch(request, env, execution)
   if (new URL(request.url).pathname.startsWith('/analysis/schedules') || new URL(request.url).pathname.startsWith('/api/lodge/analysis/schedules')) return schedulePages.fetch(request, env, execution)
     if (new URL(request.url).pathname === '/analysis' || new URL(request.url).pathname.startsWith('/analysis/') || new URL(request.url).pathname.startsWith('/api/lodge/analysis')) return analysisPages.fetch(request, env, execution)
   if (new URL(request.url).pathname.startsWith('/crm/reply/')) return crmReplyPages.fetch(request, env, execution)
