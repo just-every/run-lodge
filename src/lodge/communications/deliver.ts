@@ -36,9 +36,10 @@ export async function flushApplicationEmails(env: Bindings) {
   try {
     if (!(await env.DB.prepare("SELECT 1 FROM l_records WHERE kind='application-email' AND json_extract(value,'$.status')='pending' LIMIT 1").first())) return
     for (;;) {
-      const s = await load(env.DB), found = s.all('application-email').find(x => x.status === 'pending')
+      const s = await load(env.DB), found = s.all('application-email').find(x => x.status === 'pending' && (!x.dueAt || Date.parse(x.dueAt) <= Date.now()))
       if (!found) return
       const mail = s.get('application-email', found.id), ready = await prepared(s, mail)
+      if (ready.defer) { s.put('application-email', mail.id, { ...mail, dueAt: ready.defer }); await save(env.DB, s, null); continue }
       const sender = env.MAIL_PROVIDER === 'sendgrid' && env.RER_DEMO !== '1' && env.MAIL_FROM ? operatorMail(env) : undefined
       let verified = false
       if (ready.transport && sender) { try { verified = await currentTransport(env, ready.transport) } catch { /* Verification failure withholds this message. */ } }
