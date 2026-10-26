@@ -44,7 +44,9 @@ export async function checkApplicationEmailSender(t) {
 }
 
 export async function checkApplicationEmailRestore(t) {
- const src = await applicationEmailFixture(); t.after(() => src.close())
+ const { reminderFixture, clock } = await import('./reminders-flow.mjs')
+ const src = await reminderFixture(); t.after(() => src.close())
+ const reminder = await src.command('hiring-reminder', { ...src.input, dueAt: '2026-10-26T15:00:00.000Z' })
  await src.review(); await src.policy(true)
  let release, entered
  const paused = new Promise(resolve => { entered = resolve })
@@ -65,7 +67,7 @@ export async function checkApplicationEmailRestore(t) {
  } finally { release(); received = await submission }
  const manifest = records[0], parts = records.filter(record => record.kind === 'part'), closing = records.at(-1)
  assert.ok(!manifest.tables.some(table => table.name === 'l_application_email_activation'))
- const dst = await harness({ claim: false, bindings: { MAIL_PROVIDER: 'sendgrid', MAIL_API_KEY: 'synthetic-lodge-2' } }); t.after(() => dst.close())
+ const dst = await harness({ clock, claim: false, bindings: { MAIL_PROVIDER: 'sendgrid', MAIL_API_KEY: 'synthetic-lodge-2' } }); t.after(() => dst.close())
  const target = await createPortability({ db: dst.db, policy }), id = await target.imports.create(manifest)
  for (const part of parts) await target.imports.uploadPart(id, part.index, part)
  await target.imports.finalize(id, { contentHash: closing.contentHash, archiveHash: closing.archiveHash })
@@ -75,6 +77,12 @@ export async function checkApplicationEmailRestore(t) {
  assert.equal(settings.status, 200); assert.match(settings.text, /Automatic application mail: Off/)
  await dst.command('application-email-policy', { vacancy: src.job.id, acknowledgment: true, stages: [] }, owner, 409)
  assert.equal((await dst.db.prepare('SELECT COUNT(*) AS n FROM l_application_email_activation').first()).n, 0)
+ const restoredReminders = await dst.send('/api/lodge/reminders', undefined, owner)
+ assert.equal(restoredReminders.status, 200)
+ assert.equal(restoredReminders.value.reminders.find(r => r.id === reminder.id).status, 'withheld')
+ await dst.setTime('2026-10-26T16:00:00.000Z')
+ await dst.mf.getWorker().then(w => w.scheduled({ scheduledTime: Date.parse('2026-10-26T16:00:00.000Z'), cron: '0 * * * *' }))
+ assert.equal((await dst.send('/api/lodge/reminders', undefined, owner)).value.reminders.find(r => r.id === reminder.id).outcomes.length, 0)
  const stored = (await dst.state(owner)).applicationEmails.find(mail => mail.application === received.application)
  assert.equal(stored.status, 'withheld')
  assert.equal(stored.id, 'ack:' + received.application)

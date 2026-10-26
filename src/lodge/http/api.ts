@@ -1,3 +1,4 @@
+import { reminderView } from '../reminders/records'
 import { applicationEmailEvents } from '../communications/events'
 import { captureAddress, captureList, captureRead, resolveCapture } from '../records/capture'
 import { surveyReport } from '../surveys/records'
@@ -191,6 +192,8 @@ api.get('/api/lodge/kit/:id', async c => {
 })
 
 api.get('/api/lodge/reports/surveys', async c => { const { state, actor } = await context(c); person(actor); return c.json(surveyReport(state, actor)) })
+
+api.get('/api/lodge/reminders', async c => { const { state, actor } = await context(c); return c.json(reminderView(state, actor)) })
 
 api.get('/api/lodge/home', async c => {
   const { state, actor } = await context(c)

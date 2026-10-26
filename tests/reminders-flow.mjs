@@ -18,7 +18,7 @@ export async function reminderFixture(options = {}) {
   const interview = await h.command('interview', { application: application.id, planItem: job.plan[0].id, participants: ['ivy@example.test'], slots: ['2026-10-28T14:00:00.000Z'], timezone: 'America/New_York' })
   const input = { interview: interview.id, kind: 'availability', recipient: 'candidate', owner: 'owner@example.test', escalation: 'owner@example.test', dueAt: clock, cadenceHours: 1, maxAttempts: 2, startHour: 9, endHour: 17, weekdays: [1, 2, 3, 4, 5], language: 'en', subject: 'Please share your availability', body: 'Jordan, please choose your interview availability through your private link.', footer: 'Example Builders, 10 Main Street, New York. Contact recruiting@example.test to opt out.', reviewed: true, enabled: true }
   const reminders = async () => { const response = await h.send('/reminders/settings', undefined, h.owner); assert.equal(response.status, 200); return response }
-  const rows = async () => (await h.db.prepare("SELECT value FROM l_records WHERE kind='hiring-reminder' ORDER BY id").all()).results.map(x => JSON.parse(x.value))
+  const rows = async () => { const response = await h.send('/api/lodge/reminders', undefined, h.owner); assert.equal(response.status, 200); return response.value.reminders }
   const outcomes = async id => (await h.state()).applicationEmails.filter(m => m.reminder === id)
   const tick = async at => { await h.setTime(at); await h.mf.getWorker().then(w => w.scheduled({ scheduledTime: Date.parse(at), cron: '0 * * * *' })) }
   const delivered = async (id, at) => {

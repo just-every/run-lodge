@@ -1223,7 +1223,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "2b5ef39680c18180f023efe18e5a31a329cd3e50a81281269f6bd953f9735d24",
+      "sha256": "8616f71579c998baa2b4f4e0d13193d9509a0ddcb54d274055f6571c1a8f3b11",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -3847,7 +3847,7 @@
       "executable": false
     },
     "tests/application-email-safety.mjs": {
-      "sha256": "8e20211575df8b55dd7b8eb71a88e01ce091e9b3f82ae041123744a3102082f0",
+      "sha256": "5243740612a2e4b8d3a91a33a93167fa59baf512d906bbefefb575a8d8010198",
       "executable": false
     },
     "tests/application-email-workspace.mjs": {
@@ -4067,7 +4067,7 @@
       "executable": false
     },
     "tests/reminders-flow.mjs": {
-      "sha256": "b49f0c024c205c90ba41a7ddcf3fb9a7fbabad983b9693166b15ae0669123a67",
+      "sha256": "e3c15a279dcb4d89727779ed1065cf1134924097f88373c000eec471549e0b26",
       "executable": false
     },
     "tests/reminders-live.mjs": {
