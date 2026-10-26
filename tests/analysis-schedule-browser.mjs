@@ -30,7 +30,8 @@ export async function analysisSchedulePage(browser, evidence) {
     }
     try {
       await context.addCookies(cookies(h.owner, h.origin))
-      await page.goto(h.origin + '/analysis/schedules/new?chart=' + h.chart.id)
+      await page.goto(h.origin + '/analysis/saved/' + h.chart.id)
+      await page.getByRole('link', { name: 'Schedule reviewed delivery', exact: true }).click()
       await page.getByRole('heading', { name: 'Schedule chart delivery', exact: true }).waitFor()
       await shot('analysis-schedule-new')
       assert.equal((await h.rows()).length, 0)

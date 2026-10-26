@@ -90,7 +90,7 @@ async function persist(c: C) {
 }
 async function reopen(c: C) {
   const current = await staff(c), chart = reopenChart(current.s, current.a, current.scope, c.req.param('id')!), result = execute(current.scope, chart.query)
-  return json(c) ? Response.json({ chart, result }) : document(c, current, [result], { title: chart.title, savedId: c.req.query('saved') ? chart.id : undefined })
+  return json(c) ? Response.json({ chart, result }) : document(c, current, [result], { title: chart.title, savedId: chart.id })
 }
 for (const prefix of ['/analysis', '/api/lodge/analysis']) {
   analysisPages.post(prefix + '/interpret', ask)

@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a3bfd6a14ca4ec6c41ec5cf3927718f0dffcf48a853d02d0a3f909080ab7de83",
+      "sha256": "5254dec18886855e76acbd35e981a43c559a49151a8b984f8ed397eb1c7b9e01",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1de08a7cf110b27dec68a3fadb90174e149cb3d6834b802addc31a6077f3a4a6",
+      "sha256": "74ff0c2952c59d35ec2fb5b6ae8c0b6bdaa9a0b0802458823520f66baafa8cfa",
       "executable": false
     },
     "DEMO.md": {
@@ -1055,7 +1055,7 @@
       "executable": false
     },
     "src/lodge/analysis/pages.ts": {
-      "sha256": "059449c3502c8f73d4d33f57680b88145d62cb026b5548b0225685b21a1b92ea",
+      "sha256": "1940b4db15468772344e7e53bb1d8fe56d39bc16976721137914c7861938cf8f",
       "executable": false
     },
     "src/lodge/analysis/provider.ts": {
@@ -3939,7 +3939,7 @@
       "executable": false
     },
     "tests/analysis-schedule-browser.mjs": {
-      "sha256": "a4842b59411cf6831f8fed6574d66cefc3117cdb2406800a951bce52a21177fc",
+      "sha256": "02f53f866385fd68ddd58cdaa6c8710e3376f4bb8440cc87536523d6dc29bfeb",
       "executable": false
     },
     "tests/analysis-schedule-flow.mjs": {
