@@ -1,3 +1,4 @@
+import analysisCss from '../public/lodge-analysis.css'
 import { analysisPages } from '../src/lodge/analysis/pages'
 import { crmReplyPages } from '../src/lodge/crm/reply-pages'
 import { crmPages } from '../src/lodge/crm/pages'
@@ -50,7 +51,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   const asset = await staticAssetResponse(request, env)
   if (asset) return asset
   // The stylesheets a hosted Worker serves from its assets, so pages in a browser look as shipped.
-  const sheet = ({ '/lodge-candidate.css': candidateCss, '/lodge-public.css': publicCss, '/rer-theme.css': themeCss, '/fonts/fonts.css': fontsCss } as Record<string, string>)[new URL(request.url).pathname]
+  const sheet = ({ '/lodge-analysis.css': analysisCss, '/lodge-candidate.css': candidateCss, '/lodge-public.css': publicCss, '/rer-theme.css': themeCss, '/fonts/fonts.css': fontsCss } as Record<string, string>)[new URL(request.url).pathname]
   if (sheet) return new Response(sheet, { headers: { 'content-type': 'text/css' } })
   const auth = await authResponse(request, env)
   if (auth) return auth

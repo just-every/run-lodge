@@ -514,6 +514,10 @@
       "sha256": "010451902632586408404afd562703f6f4ad799dde0745176248ee7f49721a4a",
       "executable": false
     },
+    "public/lodge-analysis.css": {
+      "sha256": "9df64eb7eae34feb6590ab311e8eb0b089e741562271574933681b1a04557f6a",
+      "executable": false
+    },
     "public/lodge-candidate.css": {
       "sha256": "d9d2013f3ca13fc10fa0d34bdc847566d71d809ffb992fbb3b445c52101c5e3d",
       "executable": false
@@ -1063,7 +1067,7 @@
       "executable": false
     },
     "src/lodge/analysis/render.ts": {
-      "sha256": "153ce0ed55b194115c598b4ab3b93a4222468037ae8103ced2f5861cba20a4f4",
+      "sha256": "63236d5b83ab11be6d19a3eb6a4c28553b5f93859a2e381fd42db73d0196798e",
       "executable": false
     },
     "src/lodge/analysis/saved.ts": {
@@ -4123,7 +4127,7 @@
       "executable": false
     },
     "tests/lodge-worker.ts": {
-      "sha256": "c764c5425c9fc4f7eda10a9d8f0f7ef40432d4a8dd2fc072f4b1cbc15b15f8cd",
+      "sha256": "95ffd128becde62171b58f1aee5045e97dd2382cec69b56c85e2753a80a7338a",
       "executable": false
     },
     "tests/mail-edge.mjs": {

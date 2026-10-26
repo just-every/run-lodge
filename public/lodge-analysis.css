@@ -1,0 +1,7 @@
+.analysis-evidence,
+.analysis-totals {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.analysis-evidence table { min-width: 44rem; }
+.analysis-totals table { min-width: 24rem; }
