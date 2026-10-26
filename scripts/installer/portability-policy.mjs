@@ -48,6 +48,8 @@ export async function validateStaged({ read }) {
 
  for (const row of rows) {
   const value = get(row.kind, row.id);
+  if (row.kind === 'weekly-report') refuse(value.enabled === false && value.status === 'withheld');
+  if (row.kind === 'weekly-report-attempt') reference('weekly-report', value.schedule);
   if (row.kind === 'analysis-schedule') reference('analysis-chart', value.chart);
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
   if (['crm-reply', 'crm-enrollment', 'hiring-reminder', 'interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
@@ -93,6 +95,10 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'weekly-report') {
+   const value = JSON.parse(row.value);
+   return { ...row, value: JSON.stringify({ ...value, enabled: false, status: 'withheld' }) };
+  }
   if (table === 'l_records' && row.kind === 'analysis-schedule') {
    const value = JSON.parse(row.value);
    return { ...row, value: JSON.stringify({ ...value, status: 'withheld', enabled: false, reason: 'Restored chart delivery requires fresh human review', finishedAt: value.finishedAt ?? value.createdAt }) };
