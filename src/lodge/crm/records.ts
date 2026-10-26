@@ -1,3 +1,4 @@
+import { businessZone, times } from '../core/time'
 import type { State } from '../core/state'
 import { can, canSeeApplication, canSeeContact, managesVacancy, isAdmin, requireAdmin, requireApplication, requireCan, requireCandidate, requireManages } from '../core/access'
 import { email, instant, integer, list, now, requireThat, text, uid, type Actor, type Data } from '../core/types'
@@ -76,7 +77,7 @@ export async function crmEnroll(s: State, a: Actor, b: Data) {
   requireThat(!s.scan('crm-enrollment').some(r => r.candidate === person.id && ['active', 'draft'].includes(r.status)), 'Stop the current sequence before preparing another', 409)
   const replyAddress = email(b.replyAddress, 'Configured monitored CRM reply address'), transport = activeApplicationTransport(s)
   requireThat(!transport || transport.replyTo === replyAddress, 'The configured CRM reply address must match the reviewed monitored sender', 409)
-  const followup = task(s, a, { candidate: person.id, owner, kind: 'follow-up', due: dueAt.slice(0, 10), note: 'Review nurture follow-up for ' + job.title })
+  const followup = task(s, a, { candidate: person.id, owner, kind: 'follow-up', due: times(businessZone(s.find('business', 'main'))).dateOf(dueAt), note: 'Review nurture follow-up for ' + job.title })
   const record = s.put('crm-enrollment', enrollmentId, { pool: pool.id, candidate: person.id, sourceApplication: app.id, application: app.id, sourceVacancy: app.vacancy, vacancy: job.id, targetVacancy: job.id, targetVersion: await versionOf(s, 'vacancy', job), selection: match, owner, task: followup.id, language, steps, to: person.email, replyAddress, replyURL, optOutToken, optOutURL, senderFrom: transport?.from ?? null, dueAt, cadenceHours, startHour: 9, endHour: 17, weekdays: [1, 2, 3, 4, 5], step: 0, by: a.email, at: now(), reviewed: false, enabled: false, status: 'draft', transportEpoch: transport?.epoch ?? null })
   s.audit(a, 'crm-sequence-prepared', 'application:' + app.id, { enrollment: record.id, owner, task: followup.id, targetVacancy: job.id })
   return record

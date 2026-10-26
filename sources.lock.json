@@ -1187,11 +1187,11 @@
       "executable": false
     },
     "src/lodge/crm/records.ts": {
-      "sha256": "57a49d1c0b53816d0cfc39f1f0490da660abaf97744546c40c19cff7166ea619",
+      "sha256": "e53a905ab8483c53081ee48831289a54a7c13d89cb41a5843ba118a7aace294d",
       "executable": false
     },
     "src/lodge/crm/reply-pages.ts": {
-      "sha256": "282311402965cc2599652a0d9fdcbc308ffc440cc2f1c5f7496b35849d9e4a9e",
+      "sha256": "0cc48aa5fe1227caea90a95299297285f74b41aa193f0ff4f70dd4469c7cbd1f",
       "executable": false
     },
     "src/lodge/crm/route-check.ts": {
@@ -3963,7 +3963,7 @@
       "executable": false
     },
     "tests/crm-browser.mjs": {
-      "sha256": "644b3c9fc7d8cfde25963c2c7b01ea0d4adfb7092817b6b8350af4850f7a54c8",
+      "sha256": "1c0214cfcc563a81801fb456b2c977fa2f2623d4bb3cb0c92d9da8921aa0bb9c",
       "executable": false
     },
     "tests/crm-cloudflare.mjs": {
