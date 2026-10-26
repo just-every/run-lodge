@@ -22,6 +22,12 @@ try {
  const pool = await h.command('crm-pool', { name: 'Controlled QA alumni', query: 'Bluebeam', candidates: [candidate.id], reason: 'Recorded factual experience' })
  const transport = await h.send('/application-emails/settings', form({ action: 'transport', replyTo: h.replyAddress, footer: 'Example Builders, 10 Main Street, New York. Controlled QA test; use the included opt-out link.', monitored: 'yes', legalReviewed: 'yes' }))
  assert.equal(transport.status, 303)
+ await h.startSchedule()
+ console.log('Native address and schedule created; allowing provider propagation before the single route-check send')
+ for (let minute = 0; minute < 15; minute++) {
+  await new Promise(resolve => setTimeout(resolve, 60000))
+  console.log('Provider propagation minute ' + (minute + 1))
+ }
  assert.equal((await h.send('/crm/reply-route/check', form({}))).status, 303)
  await waitUntil(h.view, v => v.replyRoute?.status === 'verified', 'Native inbound route verification')
  console.log('Real SendGrid verification reached the native Cloudflare email receiver')
@@ -35,7 +41,7 @@ try {
   const response = await fetch(url, { headers: { authorization: 'Bearer ' + process.env.QA_INBOX_RECEIPT_TOKEN } }); assert.equal(response.status, 200)
   return (await response.json()).receipts
  }
- const first = await prepare(marker + ' reply'); await h.startSchedule()
+ const first = await prepare(marker + ' reply')
  const arrived = await waitUntil(() => inbox(marker + ' reply'), r => r.length === 1, 'Live nurture delivery after schedule propagation', 240)
  assert.equal(arrived[0].auth.dmarc, 'pass')
  assert.equal((await h.send('/crm/reply/' + first.id, form({ body: 'Yes, I would like to discuss this opening. Please stop the automatic follow-up.' }))).status, 303)

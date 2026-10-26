@@ -3975,7 +3975,7 @@
       "executable": false
     },
     "tests/crm-live.mjs": {
-      "sha256": "6e67b7cac4707d83f0ff33f25bcef50632f5148bbdbc0f4272103160c51172a2",
+      "sha256": "5f5f0d2d95029b2623cb1ff8033892f552280dc3813ababd51f64722e44ed67d",
       "executable": false
     },
     "tests/crm-restore.mjs": {
