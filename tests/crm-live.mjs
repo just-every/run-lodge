@@ -36,7 +36,7 @@ try {
   return (await response.json()).receipts
  }
  const first = await prepare(marker + ' reply'); await h.startSchedule()
- const arrived = await waitUntil(() => inbox(marker + ' reply'), r => r.length === 1, 'Live nurture delivery', 60)
+ const arrived = await waitUntil(() => inbox(marker + ' reply'), r => r.length === 1, 'Live nurture delivery after schedule propagation', 240)
  assert.equal(arrived[0].auth.dmarc, 'pass')
  assert.equal((await h.send('/crm/reply/' + first.id, form({ body: 'Yes, I would like to discuss this opening. Please stop the automatic follow-up.' }))).status, 303)
  const stopped = (await h.view()).enrollments.find(e => e.id === first.id)
@@ -49,5 +49,9 @@ try {
  assert.equal(opted.status, 'stopped'); assert.equal(opted.outcomes.length, 1)
  const created = await h.command('crm-apply', { pool: pool.id, candidate: candidate.id, vacancy: target.id, reason: 'Human explicitly selected the evidenced candidate', confirmed: true }).catch(error => error)
  assert.ok(created instanceof Error, 'opt-out prevents later application creation through nurture selection')
- console.log(JSON.stringify({ journey: 'CRM-004 native installation', inboundRouteVerified: true, deliveries: [arrived[0], optedMail[0]].map(r => ({ id: r.id, receivedAt: r.receivedAt, dmarc: r.auth.dmarc })), nativeCandidateReply: true, replyStopped: stopped.status, optOutStopped: opted.status, pendingFollowups: 0, duplicateEmails: 0 }))
+ const finalReceipts = await inbox(marker)
+ assert.equal(finalReceipts.length, 2, 'Reply and opt-out leave exactly the two controlled deliveries')
+ const pendingFollowups = (await h.view()).enrollments.flatMap(e => e.outcomes).filter(m => m.status === 'pending').length
+ assert.equal(pendingFollowups, 0)
+ console.log(JSON.stringify({ journey: 'CRM-004 native installation', inboundRouteVerified: true, deliveries: [arrived[0], optedMail[0]].map(r => ({ id: r.id, receivedAt: r.receivedAt, dmarc: r.auth.dmarc })), nativeCandidateReply: true, replyStopped: stopped.status, optOutStopped: opted.status, pendingFollowups, deliveredMessages: finalReceipts.length }))
 } finally { await h.cleanup(); console.log('Temporary native worker, inbound rule and database removed') }
