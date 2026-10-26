@@ -1,3 +1,4 @@
+import { queueApplicationStageEmails } from '../communications/queue'
 import { syncReferralAlerts } from '../referrals/records'
 import { requireStageFields } from '../fields/values'
 import { operatorAuth, runtimeBindings, type Bindings } from '../../auth.server'
@@ -17,6 +18,7 @@ export function authority(actor: Actor, owner = false) {
 export async function load(db: D1Database): Promise<State> {
   const { results } = await db.prepare("SELECT kind,id,revision,value FROM l_records WHERE kind <> 'blob'").all<{ kind: string; id: string; revision: string; value: string }>()
   const state = new State(results.map(r => ({ kind: r.kind, id: r.id, revision: r.revision, value: JSON.parse(r.value) }) as Row))
+  state.applicationMailEpoch = (await db.prepare('SELECT epoch FROM l_application_email_activation WHERE id=1').first<{ epoch: string }>())?.epoch
   // Read only UTF-8 resume bytes for the sanitized REVIEW-002 text projection.
   const texts = await db.prepare("SELECT b.id,b.value FROM l_records b JOIN l_records d ON d.id=b.id AND d.kind='document' WHERE b.kind='blob' AND json_extract(d.value,'$.kind')='resume' AND (json_extract(d.value,'$.mediaType') LIKE 'text/%' OR json_extract(d.value,'$.name') LIKE '%.txt')").all<{ id: string; value: string }>()
   for (const row of texts.results) {
@@ -40,6 +42,7 @@ export async function save(db: D1Database, state: State, actor: Actor | null, ex
     const before = state.original('application', app.id)
     if (app.status === 'active' && (!before || before.stage !== app.stage || before.status !== app.status)) requireStageFields(state, state.get('vacancy', app.vacancy), app, app.stage)
   }
+  await queueApplicationStageEmails(state)
   syncReferralAlerts(state)
   recordBlindReveals(state, actor)
   // OFFER-005: an edit, email change, closure or outcome voids the offer's signing envelope in this same batch.

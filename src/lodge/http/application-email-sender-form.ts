@@ -1,0 +1,7 @@
+import type { Data } from '../core/types'
+import { esc } from './public'
+
+export function applicationEmailSenderForm(from: string, transport: Data | undefined, active: boolean, draft?: Data) {
+  const values = draft ?? transport ?? {}
+  return `<h2>Installation sender</h2><p>Automatic application mail: ${active ? 'On' : 'Off'}. Sender: ${esc(from || 'Not configured')}.</p><details class="disclosure"${draft ? ' open' : ''}><summary>Review installation sending</summary><form action="/application-emails/settings" method="post"><input type="hidden" name="action" value="transport"><label>Monitored employer reply-to<input name="replyTo" type="email" required value="${esc(values.replyTo)}"></label><label>Required employer footer<textarea name="footer" rows="5" required>${esc(values.footer)}</textarea></label><p>Include employer identification, physical address, contact details and a working opt-out route in every supported language.</p><label><input type="checkbox" name="monitored" value="yes" required> The employer monitors this mailbox and handles replies and opt-outs.</label><label><input type="checkbox" name="legalReviewed" value="yes" required> The employer reviewed this exact footer and sender for the intended messages and jurisdictions.</label><button>Verify sender and enable installation mail</button></form><form action="/application-emails/settings" method="post"><button name="action" value="transport-disable">Turn installation mail off</button></form></details>`
+}

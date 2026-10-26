@@ -1,3 +1,4 @@
+import { queueApplicationEmail } from '../communications/queue'
 import { requireTranslation } from '../languages/posts'
 import type { State } from '../core/state'
 import { Fault, about, email, now, optionalText, requireThat, sha256, canonical, text, uid, type Data } from '../core/types'
@@ -25,7 +26,7 @@ export const APPLICATIONS_PER_HOUR = 60
 export interface Door { source: string; path: string; entry: string; campaign?: Data; oncePerJob?: boolean }
 export const APPLICATION_PAGE: Door = { source: 'Application page', path: 'Careers page', entry: 'Application page' }
 
-export interface Submission { name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; customValues?: Data; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
+export interface Submission { submissionKey?: unknown; name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; customValues?: Data; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
 
 /** What the careers page shows of a job: a confidential one appears only under its neutral title, without its department; an internal-only one (ATTR-005) never. */
 export function publicPosting(v: Data): Data | null {
@@ -55,6 +56,14 @@ function likelySpamReasons(s: State, vacancy: Data, address: string, fingerprint
 /** Take one application; `post` is the ATTR-012 post it came through, recorded on the application. */
 export async function submit(s: State, vacancy: Data, input: Submission, door: Door = APPLICATION_PAGE, post: Data | null = null) {
   requireTranslation(s, vacancy, post)
+  const submissionKey = input.submissionKey ? text(input.submissionKey, 'Submission key', 100) : ''
+  const submissionId = submissionKey ? await sha256(canonical({ vacancy: vacancy.id, post: post?.id ?? '', path: door.path, submissionKey })) : ''
+  const submissionDigest = submissionId ? await sha256(canonical(input)) : ''
+  const previous = submissionId ? s.find('application-submission', submissionId) : null
+  if (previous) {
+    requireThat(previous.digest === submissionDigest, 'This submission changed; reload the application form', 409)
+    return { receipt: s.get('receipt', previous.receipt), accommodationContact: s.get('business', 'main').accommodationContact }
+  }
   const business = s.get('business', 'main')
   const notice = business.notices.at(-1)
   // The applicant must have been shown the current notice; a stale page is refused, not silently upgraded.
@@ -102,6 +111,8 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
     language: post?.language ?? 'en', application: application.id, vacancy: vacancy.id, vacancyTitle: post?.title ?? publicPosting(vacancy)!.title, noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), submittedAt: application.submittedAt,
     digest: await sha256(canonical({ ...fields, coverNote: application.coverNote, resume: input.resume?.base64 ?? null, talentPool })),
   })
+  if (submissionId) s.put('application-submission', submissionId, { application: application.id, receipt: code, digest: submissionDigest })
+  await queueApplicationEmail(s, s.get('application', application.id), 'acknowledgment', code, receipt)
   s.audit(null, 'application-received', 'application:' + application.id, { receipt: code })
   return { receipt, accommodationContact: business.accommodationContact }
 }

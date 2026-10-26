@@ -49,7 +49,14 @@ export async function validateStaged({ read }) {
  for (const row of rows) {
   const value = get(row.kind, row.id);
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
-  if (['interview', 'scorecard', 'interview-note', 'stage-event', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
+  if (['interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
+  if (row.kind === 'application-email') {
+   const app = reference('application', value.application);
+   refuse(value.candidate === app.candidate && value.vacancy === app.vacancy);
+   refuse(['pending', 'sending', 'handed', 'delivered', 'failed', 'withheld', 'uncertain', 'canceled', 'suppressed', 'bounced'].includes(value.status));
+  }
+  if (row.kind === 'application-submission') refuse(reference('receipt', value.receipt).application === value.application);
+  if (row.kind === 'application-email-policy' || row.kind === 'application-email-template') reference('vacancy', value.vacancy);
   if (['imported-note', 'imported-rating', 'imported-message'].includes(row.kind)) { reference('candidate', value.candidate); if (value.application) reference('application', value.application); }
   if (row.kind === 'resume-extraction') {
    reference('candidate', value.candidate);
@@ -85,6 +92,18 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && ['application-email-policy', 'application-email-transport', 'application-email'].includes(row.kind)) {
+   const value = JSON.parse(row.value);
+   if (row.kind === 'application-email-policy') {
+    return { ...row, value: JSON.stringify({ ...value, acknowledgment: false, stages: [] }) };
+   }
+   if (row.kind === 'application-email-transport') {
+    return { ...row, value: JSON.stringify({ ...value, enabled: false }) };
+   }
+   if (value.status === 'pending') {
+    return { ...row, value: JSON.stringify({ ...value, status: 'withheld', reason: 'Restored archive requires review' }) };
+   }
+  }
   if (table === 'l_records' && row.kind === 'candidate-email-change') {
    const value = JSON.parse(row.value);
    return { ...row, value: JSON.stringify({ id: row.id, candidate: value.candidate, application: value.application, expiresAt: 0 }) };
@@ -99,6 +118,7 @@ export const policy = {
  // Base's operator identities travel with the archive so restored memberships keep their people;
  // sessions, tokens, dependency keys and pending links stay behind (Base's default exclusions).
  includeTables: ['oa_operators', 'oa_bootstrap', 'oa_external_identities', 'oa_invitation_cancellations', 'oa_tokens', 'oa_auth_settings', 'oa_auth_audit', 'oa_domain_rules', 'oa_logout_events', 'oc_owner_claims', 'oc_idp_grants'],
+ excludeTables: ['l_application_email_activation'],
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'SETUP_TOKEN', 'AUTH_ORIGIN', 'MAIL_PROVIDER', 'MAIL_FROM'],
  validateStaged,
 };

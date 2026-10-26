@@ -1,3 +1,4 @@
+import { flushApplicationEmails } from '../communications/deliver'
 import { surveyMaintenance } from '../surveys/http'
 import type { Bindings } from '../../auth.server'
 import { resumeIntakeMaintenance } from '../resumes/maintenance'
@@ -8,11 +9,14 @@ import { flushAlerts, sendDigests } from './deliver'
 export async function scheduledRun(controller: ScheduledController, env: Bindings) {
   await surveyMaintenance(env)
   await resumeIntakeMaintenance(controller, env)
+  await flushApplicationEmails(env)
   await sendDigests(env, controller.scheduledTime)
 }
 
 /** TEAM-002/003: the immediate emails a write queued in its own save go out once it has committed, whichever door it came through. */
 export async function afterWrite(request: Request, response: Response, env: Bindings) {
-  if (!['GET', 'HEAD'].includes(request.method) && response.status < 400) { await flushAlerts(env); await flushReferralEmails(env) }
+  const path = new URL(request.url).pathname
+  const mailConfiguration = path === '/application-emails/settings' || /^\/api\/lodge\/command\/application-email-(policy|template)$/.test(path)
+  if (!['GET', 'HEAD'].includes(request.method) && response.status < 400) { if (!mailConfiguration) await flushApplicationEmails(env); await flushAlerts(env); await flushReferralEmails(env) }
   return response
 }

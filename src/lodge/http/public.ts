@@ -128,6 +128,7 @@ export const cpraSection = (n: Data) => `<details><summary>California applicant 
 <input type="hidden" name="cpraNoticeVersion" value="${esc(n.version)}">`
 
 export function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = [], action = `/jobs/${v.slug}`, hidden: Record<string, string> = {}, cpra: Data | null = null) {
+  hidden = { ...hidden, submissionKey: values.submissionKey || crypto.randomUUID() }
   if (v.language && v.language !== 'en') return translatedForm(v, business, error, values, questions, action, hidden, cpra, questionFields)
   const notice = business.notices.at(-1)
   const pay = v.compensation ? payRange(v.compensation) : ''

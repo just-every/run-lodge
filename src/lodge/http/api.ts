@@ -1,3 +1,4 @@
+import { applicationEmailEvents } from '../communications/events'
 import { captureAddress, captureList, captureRead, resolveCapture } from '../records/capture'
 import { surveyReport } from '../surveys/records'
 import { careersDomainChallenge, careersDomainOperation } from '../careers/domain'
@@ -64,6 +65,7 @@ api.use('/api/lodge/*', async (c, next) => {
 })
 // ATTR-009: the public job board answers under /api/board with its own errors and CORS.
 api.route('/api/board', boardApi)
+api.post('/api/lodge/application-emails/events', c => applicationEmailEvents(c.req.raw, c.env))
 
 api.onError((error, c) => {
   if (error instanceof Fault) return c.json({ error: error.message }, error.status as 400)

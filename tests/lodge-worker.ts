@@ -1,3 +1,4 @@
+import { applicationEmailPages } from '../src/lodge/http/application-email-pages'
 import { capturePages } from '../src/lodge/http/capture-pages'
 import { captureEmail } from '../src/lodge/records/capture'
 import { surveyPages } from '../src/lodge/surveys/http'
@@ -52,6 +53,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   const path = new URL(request.url).pathname
   if (/^\/candidate(\/|$)/.test(path)) return candidatePages.fetch(request, env, execution)
   if (path.startsWith('/careers/') || path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
+  if (new URL(request.url).pathname.startsWith('/application-emails/')) return applicationEmailPages.fetch(request, env, execution)
   if (/^\/capture(\/|$)/.test(new URL(request.url).pathname)) return capturePages.fetch(request, env, execution)
   if (new URL(request.url).pathname.startsWith('/surveys/')) return surveyPages.fetch(request, env, execution)
   if (isSignPage(path)) return signPages.fetch(request, env, execution)

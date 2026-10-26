@@ -16,10 +16,10 @@ const SETUP_TOKEN = 'synthetic-local-test-setup-token-0123456789abcdef'
 // Only the compiled source is shared. Bindings, sessions, migrations and D1
 // remain private to each fixture. A new test process recompiles the candidate.
 const bundles = new Map()
-function workerBundle() {
-  const root = process.cwd()
-  if (!bundles.has(root)) bundles.set(root, build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }], external: ['node:*'], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
-  return bundles.get(root)
+function workerBundle(liveMail = false) {
+  const root = process.cwd(), cacheKey = root + (liveMail ? ':live-mail' : ':edge-mail')
+  if (!bundles.has(cacheKey)) bundles.set(cacheKey, build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: liveMail ? [] : [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }], external: ['node:*'], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
+  return bundles.get(cacheKey)
 }
 
 async function freePort() {
@@ -31,11 +31,11 @@ async function freePort() {
 }
 
 /** A Worker with every migration; `claim: false` leaves it empty, as a restore destination. */
-export async function harness({ claim = true, bindings = {}, outboundService, clock, inbound = false } = {}) {
+export async function harness({ claim = true, bindings = {}, outboundService, clock, inbound = false, liveMail = false } = {}) {
   const port = await freePort(), origin = `http://127.0.0.1:${port}`
   const dir = await mkdtemp(join(tmpdir(), 'lodge-test-'))
-  const bundle = await workerBundle()
-  const mf = new Miniflare({
+  const bundle = await workerBundle(liveMail)
+  const runtimeOptions = {
     ...convertV4MiniflareOptions({
       host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat', 'global_fetch_strictly_public'],
       d1Databases: { DB: 'lodge' },
@@ -44,9 +44,10 @@ export async function harness({ claim = true, bindings = {}, outboundService, cl
     }),
     unsafeTriggerHandlers: inbound,
     resourcePersistencePath: dir,
-  })
+  }
+  let mf = new Miniflare(runtimeOptions)
   try {
-    const db = await mf.getD1Database('DB')
+    let db = await mf.getD1Database('DB')
     for (const file of (await readdir('migrations/core')).filter(f => f.endsWith('.sql')).sort())
       await db.batch(unstable_splitSqlQuery(await readFile('migrations/core/' + file, 'utf8')).map(sql => db.prepare(sql)))
 
@@ -99,7 +100,7 @@ export async function harness({ claim = true, bindings = {}, outboundService, cl
       assert.equal(confirmed.status, 303, JSON.stringify(confirmed.value))
       return confirmed.cookie
     }
-    return { db, mf, origin, owner, async setTime(at) { assert.ok(clock, 'enable the test clock explicitly'); assert.equal((await send('/__test/clock', { at })).status, 200) }, send, command, state, member, signIn, async close() { await mf.dispose(); await rm(dir, { recursive: true, force: true }) } }
+    return { get db() { return db }, get mf() { return mf }, origin, owner, async restart() { await mf.dispose(); mf = new Miniflare(runtimeOptions); db = await mf.getD1Database('DB') }, async setTime(at) { assert.ok(clock, 'enable the test clock explicitly'); assert.equal((await send('/__test/clock', { at })).status, 200) }, send, command, state, member, signIn, async close() { await mf.dispose(); await rm(dir, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose(); await rm(dir, { recursive: true, force: true })
     throw error

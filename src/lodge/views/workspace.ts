@@ -229,6 +229,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     alerts: alertsView(s, a), notify: notifyView(s, a),
     // MIG-008: the owner's cutovers of imported jobs into live ones.
     cutovers: a.owner && !a.agent ? s.all('cutover').sort((x, y) => y.at.localeCompare(x.at)) : [],
+    applicationEmails: s.all('application-email').filter(m => applications.some(app => app.id === m.application && canSeeContact(s, a, s.get('candidate', app.candidate)))),
     messages, offers, approvals,
     restricted: admin ? s.all('monitoring').filter(m => !hiddenApp(m.application)) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.

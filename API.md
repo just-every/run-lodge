@@ -696,3 +696,40 @@ A private keyed digest suppresses later captures mentioning those addresses.
 Previously erased addresses and identities inside attached forwarded messages
 cannot be recovered by this implementation. These custody, retention and
 suppression defaults await ct approval; COM-004 remains partial.
+
+
+## Application acknowledgment and status emails
+
+In People and settings, open Application emails. The settings page is
+`/application-emails/settings`; each application has scoped outcomes at
+`/application-emails/application/:id`. Only human owners and hiring admins with
+current job settings and contact authority can configure or review templates.
+
+`application-email-template` takes `vacancy`, `kind` (acknowledgment or status),
+`language`, `subject`, `body`, `reviewed: true` and a `stage` for status messages.
+Every save reviews a new exact version. Fields are `{{candidateName}}`,
+`{{jobTitle}}`, `{{businessName}}` and `{{receiptCode}}`; acknowledgments must
+include the receipt code. There is no language fallback.
+`application-email-policy` takes `vacancy`, `acknowledgment` and the list `stages`.
+Both kinds start off. Turning off acknowledgment leaves the receipt intact.
+
+The installation uses its existing `MAIL_PROVIDER`, `MAIL_FROM` and
+`MAIL_API_KEY` bindings. COM-001 connected senders remain unimplemented and this
+installation-mail default awaits ct. Every send is claimed before handoff;
+a failed or uncertain attempt is never automatically resent. Current review,
+contact preferences, withdrawal and reviewer authority are checked again.
+
+For authenticated delivery outcomes, configure the SendGrid signed Event Webhook
+URL as `https://<installation>/api/lodge/application-emails/events` and put its
+public verification key in `APPLICATION_EMAIL_SENDGRID_PUBLIC_KEY`. This is a
+public key, never the mail API key. The existing Base verifier checks the raw
+body and timestamp signature. Delivered, bounce and dropped events match only
+the provider message reference; duplicate events change nothing. Raw event
+bodies, recipient addresses, signatures and provider error text are not retained.
+An accepted send is displayed as Handed to provider until a verified event
+establishes Delivered or Failed.
+
+The controlled live journey is `node tests/application-email-live.mjs`; inject
+only `MAIL_API_KEY`, `MAIL_FROM`, `TEST_MAIL_TO` and `QA_INBOX_RECEIPT_TOKEN`.
+It sends only to the controlled test address, reads the QA inbox receipt,
+replays and verifies disable without removing the on-page receipt.

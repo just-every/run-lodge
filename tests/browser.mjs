@@ -1,3 +1,5 @@
+import { applicationEmailWorkspace } from './application-email-workspace.mjs'
+import { applicationEmailPage } from './application-email-browser.mjs'
 import { capturePage } from './capture-browser.mjs'
 import { browserWidths } from './browser-widths.mjs'
 import { careersPage as employerCareersPage } from './careers-driver.mjs'
@@ -55,6 +57,7 @@ try {
   server = await start(root, port)
   browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
 
+  await applicationEmailPage(browser, resolve(evidence, 'application-emails'))
   await capturePage(browser, resolve(evidence, 'capture'))
 
   // The owner starts from the empty-state onboarding page.
@@ -67,6 +70,8 @@ try {
   await owner.page.getByRole('heading', { name: 'Example Builders' }).waitFor()
   await owner.page.screenshot({ path: join(evidence, 'owner-overview-1440.png'), fullPage: true })
   for (const [as, roles, name] of PERSONAS) await api(owner.context, server.origin, 'member', { email: `${as}@dev.localhost`, name, roles })
+
+  await applicationEmailWorkspace(browser, root, server.origin, resolve(evidence, 'application-emails'))
 
   for (const width of browserWidths) result.journeys.push(await journey(browser, root, server.origin, width, evidence))
 

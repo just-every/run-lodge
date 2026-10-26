@@ -1328,3 +1328,11 @@ test('COM-004 private inbound capture preserves bytes and rechecks contact custo
   const { checkCapture } = await import('./capture-flow.mjs')
   await checkCapture(t)
 })
+
+test('Application acknowledgments keep receipts and suppress submission replay', async t => (await import('./application-email-flow.mjs')).checkApplicationEmailReceipt(t))
+test('Application mail requires human review in the recorded language', async t => (await import('./application-email-flow.mjs')).checkApplicationEmailLanguage(t))
+test('Approved chosen-stage emails record outcomes without resending failures', async t => (await import('./application-email-flow.mjs')).checkApplicationEmailStages(t))
+
+test('Application sender authentication and current approval fence automatic mail', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailSender(t))
+test('Restored application mail remains inert with receipts and duplicate protection retained', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailRestore(t))
+test('Per-job application email reviews remain isolated when another job changes', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailIsolation(t))

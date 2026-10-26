@@ -26,7 +26,7 @@ export function captureAddress(s: State, a: Actor, domain: unknown) {
   return { address, note: 'Private capability address; keep it in your own mail client. Rotation immediately refuses the previous address.' }
 }
 
-async function contactDigest(s: State, address: string) {
+export async function contactDigest(s: State, address: string) {
   let key = s.find('capture-custody', 'main')
   if (!key) key = s.put('capture-custody', 'main', { secret: uid() + uid() })
   const cryptoKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(key.secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])

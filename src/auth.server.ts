@@ -10,6 +10,7 @@ import branding from './branding.json'
 const theme = { href: '/rer-theme.css', productName: branding.name, accentColor: branding.primaryColor }
 
 export interface Bindings {
+ APPLICATION_EMAIL_SENDGRID_PUBLIC_KEY?: string
  CAPTURE_DOMAIN?: string
  CAREERS_CF_API_TOKEN?: string
  CAREERS_CF_ACCOUNT_ID?: string

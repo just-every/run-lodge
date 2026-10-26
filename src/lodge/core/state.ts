@@ -11,6 +11,7 @@ const key = (kind: string, id: string) => kind + '\u0000' + id
  */
 export class State {
   readonly resumeTexts = new Map<string, string>()
+  applicationMailEpoch?: string
   original(kind: string, id: string) { return this.initialRows.find(r => r.kind === kind && r.id === id)?.value }
 
   private rows = new Map<string, Row>()
