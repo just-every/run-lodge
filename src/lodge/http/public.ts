@@ -167,7 +167,7 @@ publicPages.get('/careers/brand.css', async c => new Response(brandCss(employerB
 export async function receiptPage(receipt: Data, contact: string, zone: string, copy: Data, embed?: { ancestors: string[] }, code?: string) {
   const body = translatedReceipt(receipt, contact, zone, receipt.language ?? 'en', copy)
   const recoveryPath = (embed ? '/embed/receipt' : '/jobs/receipt') + (receipt.language !== 'en' ? '?' + new URLSearchParams({ language: receipt.language }) : '')
-  const recovery = code ? `<section aria-label="${esc(copy.recoverTitle)}"><h2>${esc(copy.recoverTitle)}</h2><p>${esc(copy.recoverHelp)}</p><dl><dt>${esc(copy.recoverCode)}</dt><dd><code data-recovery-code>${esc(code)}</code></dd></dl><p><a href="${esc(recoveryPath)}">${esc(copy.recoveryLink)}</a></p></section>` : ''
+  const recovery = code ? `<section aria-label="${esc(copy.recoverTitle)}"><h2>${esc(copy.recoverTitle)}</h2><p>${esc(copy.recoverHelp)}</p><dl class="receipt-recovery"><dt>${esc(copy.recoverCode)}</dt><dd><code data-recovery-code>${esc(code)}</code></dd></dl><p><a href="${esc(recoveryPath)}">${esc(copy.recoveryLink)}</a></p></section>` : ''
   return page(copy.received, body + recovery, 200, embed, receipt.language ?? 'en')
 }
 export function recoveryForm(copy: Data, action: string, language = 'en') {

@@ -51,6 +51,7 @@ html.rer-themed .lodge-public :is(input,textarea,select):focus{border-color:var(
 
 /* Application outcomes keep long references readable on a phone. */
 @media (max-width:480px){
+ html.rer-themed .lodge-public dl.receipt-recovery{grid-template-columns:minmax(0,1fr)}
  html.rer-themed .lodge-public dl.application-email-facts{grid-template-columns:minmax(0,1fr);gap:4px}
  .application-email-facts dt{margin-top:12px}
  .application-email-facts dd{overflow-wrap:anywhere}

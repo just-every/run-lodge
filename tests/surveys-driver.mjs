@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { businessHarness } from './harness.mjs'
 import { careersJob } from './careers-driver.mjs'
+import { iconTooltips } from './icon-tooltips.mjs'
 
 const form = fields => { const b = new FormData(); for (const [k, v] of Object.entries(fields)) b.set(k, v); return b }
 const mail = async (h, to) => (await h.db.prepare('SELECT message FROM rer_mail_development_outbox ORDER BY sequence DESC').all()).results.map(x => JSON.parse(x.message)).find(m => m.to.includes(to))
@@ -107,6 +108,7 @@ export async function checkSurveys(browser, evidence) {
             const ctx = await browser.newContext({ viewport: { width, height: 1000 } }), p = await ctx.newPage()
             await p.goto(h.origin + link.response)
             await p.getByRole('heading', { name: survey.title }).waitFor()
+            await iconTooltips(p)
             assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'survey fits viewport')
             await p.getByLabel('How clear was the process?', { exact: true }).selectOption('4')
             await p.getByLabel('How timely was scheduling?', { exact: true }).selectOption('3')
@@ -151,6 +153,7 @@ export async function checkSurveys(browser, evidence) {
         const p = await ctx.newPage()
         const result = await p.goto(h.origin + '/surveys/settings')
         assert.equal(result.status(), expected)
+        await iconTooltips(p)
         if (expected === 200) { await p.getByText('How clear was the process?: 4.0 of 5', { exact: true }).first().waitFor(); await p.getByText('Synthetic survey stage 1 · stage days 0 · scheduled interview hours 48', { exact: true }).waitFor() }
         else assert.ok(!(await p.content()).includes('Post-interview experience'))
         assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
@@ -352,10 +355,12 @@ export async function surveysWorkspacePage(browser, { root, origin, run, evidenc
       await owner.page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: /^People/ }).click()
       const link = owner.page.getByRole('link', { name: 'Configure surveys and view permitted aggregate results' })
       await link.waitFor()
+      await iconTooltips(owner.page, `${evidence}/survey-tooltip-${width}.png`)
       assert.ok(await owner.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
       await owner.page.screenshot({ path: `${evidence}/people-surveys-${width}.png`, fullPage: true })
       await link.click()
       await owner.page.getByRole('heading', { name: 'Candidate experience surveys', exact: true }).waitFor()
+      await iconTooltips(owner.page)
       assert.ok(await owner.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
       await owner.page.screenshot({ path: `${evidence}/workspace-surveys-${width}.png`, fullPage: true })
     } finally { await owner.context.close() }

@@ -531,7 +531,7 @@
       "executable": false
     },
     "public/lodge-public.css": {
-      "sha256": "a8fc67ab1fe652e08d9391ad4d6bc7724ff9e59f32fc48836087c1698c051b91",
+      "sha256": "50a44f35962bc26bc7234efa0098779de36aa773cbd0a02014e6ae0714bc2efc",
       "executable": false
     },
     "public/lodge-shell.css": {
@@ -1391,7 +1391,7 @@
       "executable": false
     },
     "src/lodge/http/public.ts": {
-      "sha256": "aa644eabb011d07d05756fba29f3203ab2f5199b59b636b156a669bb39f2d460",
+      "sha256": "c8afb74ddb792eb99ffe2e075f2f7d1ae97322464c837c8d1d78aa21ea3f1be4",
       "executable": false
     },
     "src/lodge/http/sign-pages.ts": {
@@ -4395,7 +4395,7 @@
       "executable": false
     },
     "tests/surveys-driver.mjs": {
-      "sha256": "34bb7dbf41445dedcc15cdf4a3b8f99aa4768dc02f98f49164a007201a47c2b2",
+      "sha256": "467a83cc0a86ce0712ee56deb09bf054d29726a4d6451d74cff4802feb37b987",
       "executable": false
     },
     "tests/talent-page.mjs": {
