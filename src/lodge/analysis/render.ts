@@ -14,12 +14,12 @@ const fields = (entries: [string, unknown][]) => `<dl class="application-email-f
 export function queryForm(scope: AnalysisScope, q: Query, title = '', save = false) {
   const sources = [...new Set([...scope.sources, ...q.sources])].sort()
   return `<form method="post" action="/analysis/preview"><fieldset><legend>Editable query definition</legend>
-<label>Metric<select name="metric" required>${Object.entries(METRICS).map(([id, metric]) => option(id, metric.label, q.metric)).join('')}</select></label>
+<label>Metric<select aria-label="Metric" name="metric" required>${Object.entries(METRICS).map(([id, metric]) => option(id, metric.label, q.metric)).join('')}</select></label>
 ${input('From date (inclusive)', 'from', q.from, 'date', 'required')}${input('Through date (inclusive)', 'to', q.to, 'date', 'required')}
-<label>Job filters<select name="jobs" multiple size="3">${scope.jobs.map(j => option(j.id, j.title, q.jobs)).join('')}</select><small>No selection means all jobs you currently run. Select more than one with the platform selection key.</small></label>
-<label>Source filters<select name="sources" multiple size="3">${sources.map(s => option(s, s, q.sources)).join('')}</select><small>No selection means all recorded sources in your current scope.</small></label>
-<label>Group by<select name="groupBy" required>${Object.entries(GROUPS).map(([id, label]) => option(id, label, q.groupBy)).join('')}</select><small>Source conversion and scheduling support source, job or all records. Stage moves also support destination stage; offers also support offer outcome.</small></label>
-<label>Chart display<select name="chart" required>${option('bar', 'Bar chart and data table', q.chart)}${option('table', 'Data table', q.chart)}</select></label>
+<label>Job filters<select aria-label="Job filters" name="jobs" multiple size="3">${scope.jobs.map(j => option(j.id, j.title, q.jobs)).join('')}</select><small>No selection means all jobs you currently run. Select more than one with the platform selection key.</small></label>
+<label>Source filters<select aria-label="Source filters" name="sources" multiple size="3">${sources.map(s => option(s, s, q.sources)).join('')}</select><small>No selection means all recorded sources in your current scope.</small></label>
+<label>Group by<select aria-label="Group by" name="groupBy" required>${Object.entries(GROUPS).map(([id, label]) => option(id, label, q.groupBy)).join('')}</select><small>Source conversion and scheduling support source, job or all records. Stage moves also support destination stage; offers also support offer outcome.</small></label>
+<label>Chart display<select aria-label="Chart display" name="chart" required>${option('bar', 'Bar chart and data table', q.chart)}${option('table', 'Data table', q.chart)}</select></label>
 <button type="submit">Preview edited query</button>
 ${save ? `${input('Chart name', 'title', title || METRICS[q.metric].label + ' · ' + q.from + ' to ' + q.to, 'text', 'maxlength="120"')}<p>Saving creates a new definition. Existing saved charts remain available as prior versions. Reopening always recomputes current evidence.</p><button type="submit" formaction="/analysis/save">Save chart definition</button>` : ''}
 </fieldset></form>`

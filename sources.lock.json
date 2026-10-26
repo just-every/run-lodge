@@ -311,7 +311,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "e53ea9b1d7d9c917d8b606ffd544f70481857cef6810e0446100babfb29fa543",
+      "sha256": "b5902ff79a4af810084b86e0053b8cccf680d1ef0ffc7550e5be67f1a366fa73",
       "executable": false
     },
     "migrations/core/0001_owner.sql": {
@@ -1063,7 +1063,7 @@
       "executable": false
     },
     "src/lodge/analysis/render.ts": {
-      "sha256": "6f95606007b95966c07ff3ffb1000f2a421d213674909aa7bad3dd64b28ebf71",
+      "sha256": "f37499dbdfbcb0079ab730f2c00ad1c79513c242f1fb85c4c350b23a270776d1",
       "executable": false
     },
     "src/lodge/analysis/saved.ts": {
