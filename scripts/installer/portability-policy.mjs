@@ -92,6 +92,7 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'crm-reply-route') return { ...row, value: JSON.stringify({ ...JSON.parse(row.value), status: 'withheld', digest: null, epoch: null }) };
   if (table === 'l_records' && ['hiring-reminder', 'crm-enrollment'].includes(row.kind)) {
    const value = JSON.parse(row.value);
    return { ...row, value: JSON.stringify({ ...value, status: 'withheld', reason: 'Restored archive requires fresh reminder review' }) };
