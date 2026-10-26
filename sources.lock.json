@@ -155,7 +155,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "62f13cf529a832658f46466f7e6ece20e9b0275d4936443415ae2fa7f9c0957d",
+      "sha256": "df73e9c55911a71e9c8f1dd9cee061c2514dc1896483288378d2b6c5905afd2a",
       "executable": false
     },
     "base-copies.json": {
@@ -3975,7 +3975,7 @@
       "executable": false
     },
     "tests/crm-live.mjs": {
-      "sha256": "3869e8f3a790cc305ad50cba27f6be9e688c122a644557388da479729f0e6b42",
+      "sha256": "6e67b7cac4707d83f0ff33f25bcef50632f5148bbdbc0f4272103160c51172a2",
       "executable": false
     },
     "tests/crm-restore.mjs": {
