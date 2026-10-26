@@ -38,6 +38,8 @@ export async function checkReminderCadence(t) {
  const panel = await h.command('hiring-reminder', { ...h.input, recipient: 'ivy@example.test' })
  assert.equal((await h.send('/api/lodge/command/hiring-reminder', h.input, h.ivy)).status, 403)
  assert.equal((await h.send('/reminders/settings', undefined, h.ivy)).status, 403)
+ assert.equal((await h.send('/api/lodge/reminders', undefined, h.ivy)).status, 403)
+ assert.equal((await h.send('/api/lodge/reminders')).status, 401)
  await h.command('hiring-reminder', h.input, h.owner, 409)
  assert.equal((await h.outcomes(candidate.id)).length, 0, 'configuration creates no contact')
  await h.tick(clock)
