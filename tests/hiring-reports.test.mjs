@@ -293,3 +293,5 @@ test('REPORT-004 opt-in surveys preserve anonymity, contact refusal, aggregate l
   const { checkSurveys } = await import('./surveys-driver.mjs')
   await checkSurveys()
 })
+
+test('Recruiting analysis grounds editable charts in authorized events and preserves private evidence', async t => (await import('./analysis-flow.mjs')).checkAnalysis(t))

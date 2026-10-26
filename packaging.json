@@ -53,7 +53,13 @@
         "CAREERS_CF_API_TOKEN",
         "CAREERS_CF_ACCOUNT_ID",
         "CAREERS_CF_ZONE_ID",
-        "CAREERS_CF_WORKER"
+        "CAREERS_CF_WORKER",
+        "AI_ENABLED",
+        "AI_MODEL",
+        "AI_API_KEY",
+        "AI_BASE_URL",
+        "MODELS_SERVICE",
+        "MODELS_KEY"
       ],
       "healthPath": "/health",
       "recovery": "Follow OPERATIONS.md: stop writes and scheduled work, retain exact source and private configuration, export the installation, restore into empty resources, run setup again and verify records, original document bytes and owner access before routing traffic. Preserve applied migration names and bytes.",

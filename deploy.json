@@ -62,6 +62,36 @@
       "binding": "CAREERS_CF_WORKER",
       "environment": "CAREERS_CF_WORKER",
       "optional": true
+    },
+    {
+      "binding": "AI_ENABLED",
+      "environment": "AI_ENABLED",
+      "optional": true
+    },
+    {
+      "binding": "AI_MODEL",
+      "environment": "AI_MODEL",
+      "optional": true
+    },
+    {
+      "binding": "AI_API_KEY",
+      "environment": "AI_API_KEY",
+      "optional": true
+    },
+    {
+      "binding": "AI_BASE_URL",
+      "environment": "AI_BASE_URL",
+      "optional": true
+    },
+    {
+      "binding": "MODELS_SERVICE",
+      "environment": "MODELS_SERVICE",
+      "optional": true
+    },
+    {
+      "binding": "MODELS_KEY",
+      "environment": "MODELS_KEY",
+      "optional": true
     }
   ],
   "platforms": [

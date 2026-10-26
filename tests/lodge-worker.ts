@@ -1,3 +1,4 @@
+import { analysisPages } from '../src/lodge/analysis/pages'
 import { crmReplyPages } from '../src/lodge/crm/reply-pages'
 import { crmPages } from '../src/lodge/crm/pages'
 import { lodgeEmail } from '../src/lodge/crm/email'
@@ -56,6 +57,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   const path = new URL(request.url).pathname
   if (/^\/candidate(\/|$)/.test(path)) return candidatePages.fetch(request, env, execution)
   if (path.startsWith('/careers/') || path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
+  if (new URL(request.url).pathname === '/analysis' || new URL(request.url).pathname.startsWith('/analysis/') || new URL(request.url).pathname.startsWith('/api/lodge/analysis')) return analysisPages.fetch(request, env, execution)
   if (new URL(request.url).pathname.startsWith('/crm/reply/')) return crmReplyPages.fetch(request, env, execution)
     if (/^\/crm(\/|$)/.test(new URL(request.url).pathname)) return crmPages.fetch(request, env, execution)
   if (new URL(request.url).pathname.startsWith('/reminders/')) return reminderPages.fetch(request, env, execution)

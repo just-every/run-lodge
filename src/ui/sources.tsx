@@ -19,6 +19,7 @@ export function SourceSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
   const live = w.sources.filter((x: D) => !x.retired)
   return <section aria-label="Sources and hire credit">
     <h2>Sources and hire credit</h2>
+    <p><a href="/analysis">Ask a recruiting question and inspect its chart</a></p>
     <Table heads={['Source', 'Type', 'Mapped texts', '']} empty="No sources yet.">{live.map((x: D) => <tr key={x.id}><td>{x.name}{x.automatic && <small> · added by Lodge</small>}</td><td>{TYPE[x.type]}</td><td>{x.aliases.join(', ')}</td>
       <td><Form label="Retire" compact onSubmit={() => mutate('source', { ...x, retired: true })} /></td></tr>)}</Table>
     <Form label="Save source" reset onSubmit={x => { const current = live.find((s: D) => s.name.toLowerCase() === String(x.name).trim().toLowerCase()); return mutate('source', { id: current?.id, name: x.name, type: x.type, aliases: [...(current?.aliases ?? []), ...texts(x.aliases)] }) }}>

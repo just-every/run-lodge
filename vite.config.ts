@@ -8,7 +8,7 @@ import { archiveOutputGuard } from '@runeditrun/rer/archive-output'
 // Only `vite dev` loads the local-only entry and the checkout's dev key; a build
 // keeps src/server.ts and never sees either (rer build checks its output).
 const local = (name: string) => process.env[name] ? { [name]: process.env[name] } : {}
-const serve = { main: './src/server.dev.ts', vars: { ...local('RER_DEMO'), ...local('RER_DEMO_EXPIRES'), ...local('RER_DEV_ORIGIN'), ...local('RER_DEV_KEY'), ...local('RER_DEV_IDENTITY'), ...local('RER_MODELS_SERVICE'), ...local('RER_MODELS_KEY') } }
+const serve = { main: './src/server.dev.ts', vars: { ...local('RER_DEMO'), ...local('RER_DEMO_EXPIRES'), ...local('RER_DEV_ORIGIN'), ...local('RER_DEV_KEY'), ...local('RER_DEV_IDENTITY'), ...local('RER_MODELS_SERVICE'), ...local('RER_MODELS_KEY'), ...local('AI_ENABLED'), ...local('AI_MODEL'), ...local('AI_API_KEY'), ...local('AI_BASE_URL'), ...local('MODELS_SERVICE'), ...local('MODELS_KEY') } }
 
 // `vite dev` serves only the folders the app is built from (and what they
 // import, plus the public run site declaration its identity reads), never the rest of the checkout: not rer's private folders (the dev
