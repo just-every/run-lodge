@@ -9,7 +9,7 @@ import { activeApplicationTransport, currentTransport } from '../communications/
 /** An admin verifies the actual inbound path; this never contacts a candidate. */
 export async function checkReplyRoute(env: Bindings, a: Actor) {
   requireAdmin(a); requireThat(!a.agent, 'A human admin verifies the reply route', 403)
-  const s = await load(env.DB), transport = activeApplicationTransport(s), address = email(env.CRM_REPLY_ADDRESS, 'Configured CRM reply address')
+  const s = await load(env.DB), transport = activeApplicationTransport(s), address = email(env.CRM_REPLY_ADDRESS ?? transport?.replyTo, 'Configured CRM reply address')
   requireThat(transport && transport.replyTo === address && await currentTransport(env, transport), 'Review the authenticated sender and this exact reply address first', 409)
   const token = uid().replaceAll('-', '') + uid().replaceAll('-', ''), digest = await sha256(token)
   s.put('crm-reply-route', 'main', { address, epoch: transport.epoch, digest, expiresAt: Date.now() + 600000, status: 'uncertain', by: a.email, at: now() })

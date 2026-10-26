@@ -215,3 +215,5 @@ test('Persistent reminders deliver on cadence, escalate once and survive restart
 test('Reminder stops honor live work and contact, preserve honest failures, and erase personal schedules', checkReminderStops)
 
 test('Nurture pools preserve consent, exact review, replies, opt-out, owned tasks and human application selection', async t => (await import('./crm-flow.mjs')).checkNurture(t))
+
+test('Nurture stops on expired consent, withdrawal, hire, revoked authority and uncertain delivery; imported pools never grant consent', async t => (await import('./crm-stops.mjs')).checkNurtureStops(t))

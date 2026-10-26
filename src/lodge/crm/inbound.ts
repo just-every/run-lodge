@@ -41,8 +41,8 @@ export async function publicOptOut(s: State, token: string) {
 
 /** Native email only: a private installation address selects custody; no HTTP ingestion exists. */
 export async function receiveNurtureReply(message: ForwardableEmailMessage, env: Bindings) {
-  requireThat(env.CRM_REPLY_ADDRESS && message.to.toLowerCase() === env.CRM_REPLY_ADDRESS.toLowerCase(), 'Reply refused', 550)
-  const s = await load(env.DB), sender = message.from.toLowerCase()
+  const s = await load(env.DB), sender = message.from.toLowerCase(), configured = s.find('crm-reply-route', 'main')
+  requireThat(configured?.address && message.to.toLowerCase() === configured.address.toLowerCase(), 'Reply refused', 550)
   const mail = await normalizeInbound({ provider: 'cloudflare', message }, { maxRawBytes: 1000000, maxBodyBytes: 100000, maxAttachments: 10, maxAttachmentBytes: 500000, maxTotalAttachmentBytes: 1000000 })
   const challenge = /Lodge-CRM-Route: ([a-f0-9]{64})/.exec(mail.text ?? '')
   if (challenge) {

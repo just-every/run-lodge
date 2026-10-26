@@ -15,7 +15,7 @@ const path = '/crm', title = 'Talent pools and follow-up'
 const hidden = (name: string, value: unknown) => `<input type="hidden" name="${name}" value="${esc(value)}">`
 const input = (label: string, name: string, value: unknown, type = 'text', attrs = 'required') => `<label>${esc(label)}<input name="${name}" type="${type}" value="${esc(value)}" ${attrs}></label>`
 const area = (label: string, name: string, value: unknown, required = true) => `<label>${esc(label)}<textarea name="${name}" rows="5"${required ? ' required' : ''}>${esc(value)}</textarea></label>`
-const select = (label: string, name: string, rows: Data[], value: unknown, labelOf: (r: Data) => string) => `<label>${esc(label)}<select name="${name}" required><option value="">Choose ${esc(label.toLowerCase())}</option>${rows.map(r => `<option value="${esc(r.id)}"${r.id === value ? ' selected' : ''}>${esc(labelOf(r))}</option>`).join('')}</select></label>`
+const select = (label: string, name: string, rows: Data[], value: unknown, labelOf: (r: Data) => string) => `<label>${esc(label)}<select name="${name}" aria-label="${esc(label)}" required><option value="">Choose ${esc(label.toLowerCase())}</option>${rows.map(r => `<option value="${esc(r.id)}"${r.id === value ? ' selected' : ''}>${esc(labelOf(r))}</option>`).join('')}</select></label>`
 const facts = (rows: [string, unknown][]) => `<dl class="application-email-facts">${rows.map(([key, value]) => `<dt>${esc(key)}</dt><dd>${esc(value ?? 'Not recorded')}</dd>`).join('')}</dl>`
 const link = (values: Record<string, string>) => path + '?' + new URLSearchParams(values)
 const statuses: Record<string, string> = { draft: 'Draft · sending off', queued: 'Enabled', active: 'Enabled', pending: 'Pending', sending: 'Handoff in progress', handed: 'Accepted by provider', delivered: 'Delivered', uncertain: 'Uncertain · human reconciliation required', failed: 'Failed', bounced: 'Bounced', stopped: 'Stopped', canceled: 'Canceled', completed: 'Completed', suppressed: 'Suppressed', withheld: 'Withheld' }
@@ -91,11 +91,11 @@ crmPages.post(path, async c => {
       requireThat(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(d.dueAt), 'Enter the first due date and time in the business time zone')
       const zone = businessZone(s.find('business', 'main')), dueAt = instantOf(d.dueAt, zone)
       requireThat(new Date(toWall(Date.parse(dueAt), zone)).toISOString().slice(0, 16) === d.dueAt, 'Choose a valid local date and time')
-      const r = await crmEnroll(s, a, { ...d, dueAt, cadenceHours: Number(d.cadenceHours), steps: d.steps.filter((step: Data) => step.subject || step.body || step.footer), reviewed: false, enabled: false, replyAddress: c.env.CRM_REPLY_ADDRESS, origin: c.env.AUTH_ORIGIN })
+      const r = await crmEnroll(s, a, { ...d, dueAt, cadenceHours: Number(d.cadenceHours), steps: d.steps.filter((step: Data) => step.subject || step.body || step.footer), reviewed: false, enabled: false, replyAddress: c.env.CRM_REPLY_ADDRESS ?? s.find('application-email-transport', 'main')?.replyTo, origin: c.env.AUTH_ORIGIN })
       destination = link({ enrollment: r.id, saved: '1' })
     } else if (d.action === 'enable') {
       requireThat(form.get('reviewed') === 'yes' && form.get('enabled') === 'yes', 'Review the exact preview and explicitly enable this sequence')
-      await crmEnable(s, a, { id: d.id, reviewed: true, enabled: true, previewEpoch: d.previewEpoch, replyAddress: c.env.CRM_REPLY_ADDRESS }); destination = link({ enrollment: d.id, saved: '1' })
+      await crmEnable(s, a, { id: d.id, reviewed: true, enabled: true, previewEpoch: d.previewEpoch, replyAddress: c.env.CRM_REPLY_ADDRESS ?? s.find('application-email-transport', 'main')?.replyTo }); destination = link({ enrollment: d.id, saved: '1' })
     } else if (d.action === 'apply') {
       requireThat(form.get('confirmed') === 'yes', 'Explicitly approve creating this application')
       await crmApply(s, a, { ...d, confirmed: true, source: 'Talent pool' }); destination = link({ pool: d.pool, candidate: d.candidate, saved: '1' })

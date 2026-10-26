@@ -82,7 +82,7 @@ export function correctCandidate(s: State, a: Actor, b: Data) {
   const current = requireCandidate(s, a, b.id)
   requireThat(!current.mergedInto && !current.deleted, 'This candidate record is closed', 409)
   const record = s.put('candidate', current.id, { ...current, ...candidateFields(b), consent: { ...current.consent, talentPool: b.talentPool === undefined ? current.consent.talentPool : b.talentPool === true } })
-  s.audit(a, 'candidate-corrected', 'candidate:' + record.id, { reason: text(b.reason, 'Reason for the correction', 500) })
+  s.audit(a, 'candidate-corrected', 'candidate:' + record.id, { reason: text(b.reason, 'Reason for the correction', 500), ...(b.talentPool !== undefined ? { talentPool: b.talentPool === true } : {}) })
   return record
 }
 

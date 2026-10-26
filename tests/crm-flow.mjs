@@ -4,7 +4,7 @@ import { applicationEmailFixture, form } from './application-email-flow.mjs'
 export const crmClock = '2026-10-26T14:00:00.000Z'
 export async function crmFixture() {
  const address = 'nurture@capture.example.test'
- const h = await applicationEmailFixture({ clock: crmClock, inbound: true, bindings: { CRM_REPLY_ADDRESS: address }, sender: { replyTo: address } })
+ const h = await applicationEmailFixture({ clock: crmClock, inbound: true, sender: { replyTo: address } })
  try {
   const target = await h.command('clone-vacancy', { id: h.job.id, title: 'Future warehouse lead', headcount: 1 })
   const asked = await h.command('request-vacancy-approval', { id: target.id, approver: 'owner@example.test' })
