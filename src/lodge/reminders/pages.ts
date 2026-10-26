@@ -49,10 +49,10 @@ ${input('Exact subject', 'subject', d.subject)}${area('Exact message body', 'bod
 <label><input type="checkbox" name="enabled" value="yes" required${checked(d.enabled === true)}> Enable this reminder</label><button>Enable reviewed reminder</button></form></details>`
 }
 
-function reminderCard(r: Data, zone: string) {
+function reminderCard(r: Data, zone: string, open = false) {
   const when = (value: string | undefined) => value ? esc(times(zone).stamped(value)) : 'Not recorded'
   const facts = (entries: [string, unknown][]) => `<dl class="application-email-facts">${entries.map(([label, value]) => `<dt>${label}</dt><dd>${esc(value ?? 'Not recorded')}</dd>`).join('')}</dl>`
-  return `<details class="disclosure"><summary>${esc(r.title)} · ${esc(kinds[r.kind] ?? r.kind)} · ${esc(statuses[r.status] ?? r.status)}</summary>
+  return `<details class="disclosure"${open ? ' open' : ''}><summary>${esc(r.title)} · ${esc(kinds[r.kind] ?? r.kind)} · ${esc(statuses[r.status] ?? r.status)}</summary>
 ${facts([['Recipient', r.recipient], ['Responsible owner', r.owner], ['Escalation owner', r.escalation || 'None'], ['Attempts', `${r.attempts} of ${r.maxAttempts}`], ['Hours between attempts', r.cadenceHours], ['Business hours', `${r.startHour}:00 to ${r.endHour}:00 · ${zone}`], ['Weekdays', (r.weekdays ?? []).map((n: number) => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][n]).join(', ')], ['Reason', r.reason || 'None']])}<p>Next due: ${when(r.nextDueAt)}</p>
 <p><a href="${esc(url(r.interview) + '&reminder=' + encodeURIComponent(r.id))}">Review these settings</a></p>
 <details><summary>Reviewed message</summary><p>${esc(r.language)}</p><p>Subject</p><div class="sign-doc">${esc(r.subject)}</div><p>Body</p><div class="sign-doc">${esc(r.body)}</div><p>Footer</p><div class="sign-doc">${esc(r.footer)}</div></details>
@@ -68,7 +68,7 @@ function settingsPage(c: C, s: State, a: Actor, draft?: Data, error?: string, st
 ${error ? `<p role="alert">${esc(error)}</p>` : c.req.query('saved') ? '<p role="status">Saved</p>' : ''}<p>Email transport: ${v.transportReady ? 'Ready for provider handoff' : 'Unavailable'}.</p>
 <details class="disclosure"><summary>How reminders work</summary><p>Reminders start off. Enable each reviewed reminder explicitly. Attempts follow its business hours, weekdays and limit while the interview still needs this action. Upcoming interview reminders run once before the interview; scorecard reminders wait until it finishes. Cancel an existing reminder before enabling its replacement.</p><p>A provider handoff confirms provider acceptance, not delivery. Only a recorded delivery outcome confirms delivery. Escalation sends a separate factual email to the named manager after the reminder limit.</p></details>
 ${iv ? `<form action="${path}" method="get"><label>Interview<select name="interview" required>${v.interviews.map((item: Data) => option(item.id, `${item.title} · ${item.status}`, iv.id)).join('')}</select></label><button>Open interview reminders</button></form><h2>${esc(iv.title)}</h2>${reminderForm(s, a, iv, v.members, record, draft)}` : '<p>No interviews are available. Create an interview in the workspace to configure a reminder.</p>'}
-<h2>Reminder settings and outcomes</h2>${v.reminders.length ? v.reminders.map((r: Data) => reminderCard(r, zone)).join('') : '<p>No reminders configured.</p>'}`, status)
+<h2>Reminder settings and outcomes</h2>${v.reminders.length ? v.reminders.map((r: Data) => reminderCard(r, zone, r.id === record?.id)).join('') : '<p>No reminders configured.</p>'}`, status)
 }
 
 reminderPages.get(path, async c => { const { s, a } = await staff(c); return settingsPage(c, s, a) })

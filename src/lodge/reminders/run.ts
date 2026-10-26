@@ -36,7 +36,7 @@ export async function runReminders(env: Bindings, at: number) {
     const escalation = r.attempts >= r.maxAttempts
     const id = 'reminder-' + r.id + '-' + r.attempts
     if (s.find('application-email', id)) continue
-    const content = escalation ? { to: r.escalation, subject: 'Lodge: hiring reminder needs manager attention', text: `The ${r.kind} request remains outstanding. Responsible owner: ${r.owner}. Open the reviewed reminder: ${env.AUTH_ORIGIN}/reminders/settings#${r.id}`, missing: [] } : { to: r.to, subject: r.subject, text: r.body + '\n\n' + r.footer, missing: [] }
+    const content = escalation ? { to: r.escalation, subject: 'Lodge: hiring reminder needs manager attention', text: `The ${r.kind} request remains outstanding. Responsible owner: ${r.owner}. Open the reviewed reminder: ${env.AUTH_ORIGIN}/reminders/settings?reminder=${r.id}`, missing: [] } : { to: r.to, subject: r.subject, text: r.body + '\n\n' + r.footer, missing: [] }
     s.put('application-email', id, { kind: 'reminder', reminder: r.id, purpose: escalation ? 'escalation' : r.kind, application: r.application, candidate: r.candidate, vacancy: r.vacancy, status: 'pending', content, language: escalation ? 'en' : r.language, reviewedBy: r.by, templateVersion: 1, at: now(), dueAt: r.nextDueAt, attempts: 0 })
     s.put('hiring-reminder', r.id, { ...r, attempts: r.attempts + (escalation ? 0 : 1), status: escalation || r.kind === 'upcoming' ? 'completed' : 'queued', nextDueAt: escalation || r.kind === 'upcoming' ? null : businessDue(s, r, at + r.cadenceHours * 3600000) })
     s.audit(null, 'hiring-reminder-queued', 'application:' + r.application, { reminder: r.id, purpose: escalation ? 'escalation' : r.kind })
