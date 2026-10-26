@@ -48,3 +48,10 @@ html.rer-themed .lodge-public :is(input,textarea,select):focus{border-color:var(
 .lodge-public .disclosure{margin:12px 0;padding:4px 16px;border:1px solid var(--line);border-radius:var(--radius-control)}
 .lodge-public .downloads{padding-left:20px}.lodge-public .downloads li{margin:8px 0}
 .lodge-public code{overflow-wrap:anywhere;word-break:break-all}
+
+/* Application outcomes keep long references readable on a phone. */
+@media (max-width:480px){
+ html.rer-themed .lodge-public dl.application-email-facts{grid-template-columns:minmax(0,1fr);gap:4px}
+ .application-email-facts dt{margin-top:12px}
+ .application-email-facts dd{overflow-wrap:anywhere}
+}
