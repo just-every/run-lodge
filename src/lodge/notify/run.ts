@@ -1,3 +1,4 @@
+import { runNurture } from '../crm/run'
 import { runReminders } from '../reminders/run'
 import { flushApplicationEmails } from '../communications/deliver'
 import { surveyMaintenance } from '../surveys/http'
@@ -10,6 +11,7 @@ import { flushAlerts, sendDigests } from './deliver'
 export async function scheduledRun(controller: ScheduledController, env: Bindings) {
   await surveyMaintenance(env)
   await resumeIntakeMaintenance(controller, env)
+  await runNurture(env, controller.scheduledTime)
   await runReminders(env, controller.scheduledTime)
   await flushApplicationEmails(env)
   await sendDigests(env, controller.scheduledTime)

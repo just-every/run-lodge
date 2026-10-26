@@ -49,7 +49,7 @@ export async function validateStaged({ read }) {
  for (const row of rows) {
   const value = get(row.kind, row.id);
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
-  if (['hiring-reminder', 'interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
+  if (['crm-reply', 'crm-enrollment', 'hiring-reminder', 'interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
   if (row.kind === 'application-email') {
    const app = reference('application', value.application);
    refuse(value.candidate === app.candidate && value.vacancy === app.vacancy);
@@ -92,7 +92,7 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
-  if (table === 'l_records' && row.kind === 'hiring-reminder') {
+  if (table === 'l_records' && ['hiring-reminder', 'crm-enrollment'].includes(row.kind)) {
    const value = JSON.parse(row.value);
    return { ...row, value: JSON.stringify({ ...value, status: 'withheld', reason: 'Restored archive requires fresh reminder review' }) };
   }
