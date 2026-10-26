@@ -61,6 +61,8 @@ export async function nurtureEligibility(s: State, r: Data, at = Date.now()): Pr
   if (s.scan('message').some(m => ids.has(m.application) && (m.downloads ?? []).some((d: Data) => d.at >= r.at))) return stop('Human outreach continued after enrollment')
   const transport = activeApplicationTransport(s)
   if (!transport || transport.epoch !== r.transportEpoch || !nurtureAuthority(s, transport.by, job, app, true)) return stop('Installation sending is off or requires fresh human review', 'withheld')
+  const route = s.find('crm-reply-route', 'main')
+  if (route?.status !== 'verified' || route.epoch !== transport.epoch || route.address !== r.replyAddress) return stop('Native reply routing requires verification', 'withheld')
   return { transport, app, person, job, reason: 'Current talent pool consent, email preference, exact language and human review permit outreach' }
 }
 

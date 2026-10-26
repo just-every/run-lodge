@@ -1,4 +1,4 @@
-import { normalizeInbound } from '../../inbound.server.mjs'
+import { addresses, normalizeInbound } from '../../inbound.server.mjs'
 import type { Bindings } from '../../auth.server'
 import { load, save } from '../core/store'
 import type { State } from '../core/state'
@@ -41,7 +41,10 @@ export async function publicOptOut(s: State, token: string) {
 
 /** Native email only: a private installation address selects custody; no HTTP ingestion exists. */
 export async function receiveNurtureReply(message: ForwardableEmailMessage, env: Bindings) {
-  const s = await load(env.DB), sender = message.from.toLowerCase(), configured = s.find('crm-reply-route', 'main')
+  const s = await load(env.DB), configured = s.find('crm-reply-route', 'main')
+  const claimed = addresses(message.headers.get('from') ?? message.from).map((address: string) => address.toLowerCase())
+  requireThat(claimed.length === 1, 'Reply refused', 550)
+  const sender = claimed[0]
   requireThat(configured?.address && message.to.toLowerCase() === configured.address.toLowerCase(), 'Reply refused', 550)
   const mail = await normalizeInbound({ provider: 'cloudflare', message }, { maxRawBytes: 1000000, maxBodyBytes: 100000, maxAttachments: 10, maxAttachmentBytes: 500000, maxTotalAttachmentBytes: 1000000 })
   const challenge = /Lodge-CRM-Route: ([a-f0-9]{64})/.exec(mail.text ?? '')
@@ -53,6 +56,8 @@ export async function receiveNurtureReply(message: ForwardableEmailMessage, env:
     }
     throw new Fault(550, 'Reply refused')
   }
+  const transport = s.find('application-email-transport', 'main')
+  requireThat(configured.status === 'verified' && configured.epoch === s.applicationMailEpoch && transport?.epoch === configured.epoch && transport?.enabled, 'Reply refused', 550)
   const digest = await contactDigest(s, sender)
   if (s.find('capture-erased', digest)) return
   const people = s.scan('candidate').filter(c => !c.deleted && !c.mergedInto && c.email?.toLowerCase() === sender)
@@ -62,7 +67,7 @@ export async function receiveNurtureReply(message: ForwardableEmailMessage, env:
   requireThat(enrollments.length, 'Reply refused', 550)
   const id = await sha256(JSON.stringify([message.to.toLowerCase(), sender, mail.messageId, mail.subject, mail.text]))
   if (s.find('crm-reply', id)) return
-  s.put('crm-reply', id, { candidate: person.id, application: enrollments[0].sourceApplication, enrollments: enrollments.map(e => e.id), from: sender, to: message.to.toLowerCase(), subject: mail.subject, body: mail.text ?? '', attachments: mail.attachments.map(f => ({ name: f.filename, mediaType: f.contentType, base64: bytesToBase64(f.content) })), messageId: mail.messageId, inReplyTo: message.headers.get('in-reply-to')?.slice(0, 2000) ?? '', references: message.headers.get('references')?.slice(0, 4000) ?? '', receivedAt: now() })
+  s.put('crm-reply', id, { candidate: person.id, application: enrollments[0].sourceApplication, enrollments: enrollments.map(e => e.id), source: 'native-email', senderIdentity: 'claimed-email-address', from: sender, to: message.to.toLowerCase(), subject: mail.subject, body: mail.text ?? '', attachments: mail.attachments.map(f => ({ name: f.filename, mediaType: f.contentType, base64: bytesToBase64(f.content) })), messageId: mail.messageId, inReplyTo: message.headers.get('in-reply-to')?.slice(0, 2000) ?? '', references: message.headers.get('references')?.slice(0, 4000) ?? '', receivedAt: now() })
   stopCandidateNurture(s, person.id, 'Candidate replied')
   s.audit(null, 'nurture-reply-received', 'candidate:' + person.id, { reply: id })
   await save(env.DB, s, null)
