@@ -138,7 +138,7 @@ ${error ? `<p role="alert" class="error">${esc(error)}</p>` : ''}
 <h2>Apply</h2>
 <p>Need an adjustment to apply or interview? Contact ${esc(business.accommodationContact)}, or describe it below. Only the hiring administrators see it.</p>
 <form method="post" enctype="multipart/form-data" action="${esc(action)}">
-${Object.entries(hidden).map(([name, value]) => `<input type="hidden" name="${esc(name)}" value="${esc(value)}">`).join('')}
+${Object.entries(hidden).map(([name, value]) => `<input type="hidden" name="${esc(name)}" value="${esc(value)}"${name === "submissionKey" ? " data-draft-volatile" : ""}>`).join('')}
 ${field('name', 'Full name', 'text', 'required autocomplete="name" maxlength="160"')}
 ${field('email', 'Email', 'email', 'required autocomplete="email"')}
 ${field('phone', 'Phone (optional)', 'tel', 'autocomplete="tel"')}

@@ -56,7 +56,7 @@ export function translatedForm(v: Data, business: Data, error: string, values: D
 ${error ? `<p role="alert" class="error">${m('refusal')}</p>` : ''}
 <h2>${m('apply')}</h2><p>${esc(tr.accommodation)} ${esc(business.accommodationContact)}</p>
 <form method="post" enctype="multipart/form-data" action="${esc(action)}">
-${Object.entries(hidden).map(([name, value]) => `<input type="hidden" name="${esc(name)}" value="${esc(value)}">`).join('')}
+${Object.entries(hidden).map(([name, value]) => `<input type="hidden" name="${esc(name)}" value="${esc(value)}"${name === "submissionKey" ? " data-draft-volatile" : ""}>`).join('')}
 ${field('name', 'name', 'text', 'required autocomplete="name" maxlength="160"')}
 ${field('email', 'email', 'email', 'required autocomplete="email"')}
 ${field('phone', 'phone', 'tel', 'autocomplete="tel"')}

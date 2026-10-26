@@ -12,8 +12,8 @@ for (const tools of document.querySelectorAll('[data-careers-draft]')) {
   const allowed = control => control.name && !control.closest('[data-draft-private]') && !['hidden', 'submit', 'button'].includes(control.type) && !PRIVATE.includes(control.name)
   const controls = [...form.elements].filter(allowed)
   const text = control => [control.closest('label')?.textContent, control.closest('fieldset')?.querySelector('legend')?.textContent]
-  // A draft only fits the form it was saved against: every kept control, the hidden fields and the employer's form version.
-  const schema = JSON.stringify([tools.dataset.version, ...controls.map(control => [control.name, control.type, control.required, ['radio', 'checkbox'].includes(control.type) ? control.value : null, ...text(control)]), ...[...form.querySelectorAll('input[type=hidden]')].map(control => [control.name, control.value])])
+  // A draft binds the employer form and versioned hidden fields; a fresh request nonce does not change that form.
+  const schema = JSON.stringify([tools.dataset.version, ...controls.map(control => [control.name, control.type, control.required, ['radio', 'checkbox'].includes(control.type) ? control.value : null, ...text(control)]), ...[...form.querySelectorAll('input[type=hidden]:not([data-draft-volatile])')].map(control => [control.name, control.value])])
   const groups = [...new Set(controls.map(control => control.name))]
   const read = async name => {
     const group = controls.filter(control => control.name === name), first = group[0]
