@@ -1,4 +1,5 @@
 import { reminderView } from '../reminders/records'
+import { crmView } from '../crm/records'
 import { applicationEmailEvents } from '../communications/events'
 import { captureAddress, captureList, captureRead, resolveCapture } from '../records/capture'
 import { surveyReport } from '../surveys/records'
@@ -139,6 +140,7 @@ api.get('/api/lodge/state', async c => {
 api.post('/api/lodge/command/:op', async c => {
   const { state, actor } = await context(c, c.req.param('op') === 'agency-submit', ['referral-alerts', 'referral-submit', 'apply-internal'].includes(c.req.param('op')))
   const op = c.req.param('op'), input = await body(c)
+  if (op === 'crm-enroll' || op === 'crm-enable') { input.origin = runtimeBindings(c.env).AUTH_ORIGIN; input.replyAddress = c.env.CRM_REPLY_ADDRESS }
   if (['careers-domain-verify', 'careers-domain-connect', 'careers-domain-disconnect'].includes(op)) return c.json(await careersDomainOperation(runtimeBindings(c.env), actor, op.slice('careers-domain-'.length) as 'verify' | 'connect' | 'disconnect', input))
   const result = op === 'careers-domain-challenge' ? careersDomainChallenge(state, actor, input, runtimeBindings(c.env)) : await run(state, actor, op, input)
   await save(c.env.DB, state, actor)
@@ -249,6 +251,8 @@ api.get('/api/lodge/audit', async c => {
   const { state, actor } = await context(c)
   return c.json(auditTrail(state, actor, auditQuery(c.req.query())))
 })
+
+api.get('/api/lodge/crm', async c => { const { state, actor } = await context(c); return c.json(await crmView(state, actor, c.req.query('q'))) })
 
 api.get('/api/lodge/talent', async c => {
   const { state, actor } = await context(c)

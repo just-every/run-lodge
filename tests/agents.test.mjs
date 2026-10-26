@@ -213,3 +213,5 @@ test('COORD-006 a debrief brief quotes released scorecards only, names disagreem
 test('Persistent reminders deliver on cadence, escalate once and survive restart without stale contact', checkReminderCadence)
 
 test('Reminder stops honor live work and contact, preserve honest failures, and erase personal schedules', checkReminderStops)
+
+test('Nurture pools preserve consent, exact review, replies, opt-out, owned tasks and human application selection', async t => (await import('./crm-flow.mjs')).checkNurture(t))

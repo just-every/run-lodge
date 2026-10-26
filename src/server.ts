@@ -1,3 +1,6 @@
+import { crmReplyPages } from './lodge/crm/reply-pages'
+import { crmPages } from './lodge/crm/pages'
+import { lodgeEmail } from './lodge/crm/email'
 import { reminderPages } from './lodge/reminders/pages'
 import { applicationEmailPages } from './lodge/http/application-email-pages'
 import { capturePages } from './lodge/http/capture-pages'
@@ -50,6 +53,8 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
     if (lobby) return lobby
     if (/^\/candidate(\/|$)/.test(new URL(request.url).pathname)) return candidatePages.fetch(request, env, execution)
     if (isPublicPage(new URL(request.url).pathname)) return publicPages.fetch(request, env, execution)
+    if (new URL(request.url).pathname.startsWith('/crm/reply/')) return crmReplyPages.fetch(request, env, execution)
+    if (/^\/crm(\/|$)/.test(new URL(request.url).pathname)) return crmPages.fetch(request, env, execution)
     if (new URL(request.url).pathname.startsWith('/reminders/')) return reminderPages.fetch(request, env, execution)
     if (new URL(request.url).pathname.startsWith('/application-emails/')) return applicationEmailPages.fetch(request, env, execution)
     if (/^\/capture(\/|$)/.test(new URL(request.url).pathname)) return capturePages.fetch(request, env, execution)
@@ -62,7 +67,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
 }
 
 export default withDemo({
-  email: captureEmail,
+  email: lodgeEmail,
   scheduled: scheduledRun,
   async fetch(request, env, execution) { return afterWrite(request, await route(request, env, execution), env) },
 } satisfies ExportedHandler<Bindings>, { seed: seedDemo })

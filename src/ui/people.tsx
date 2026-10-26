@@ -36,7 +36,7 @@ export function People({ w, mutate, setNotice }: PageProps) {
   return <div className="page">
     <h1>People and settings</h1>
     {w.actor.owner && <><h2>Business</h2><BusinessForm w={w} mutate={mutate} /></>}
-    <section className="card"><h2>Application emails</h2><p><a href="/reminders/settings">Configure hiring reminders</a></p><p><a href="/application-emails/settings">Configure acknowledgment and status emails</a></p></section>
+    <section className="card"><h2>Application emails</h2><p><a href="/crm">Talent pools and nurture campaigns</a></p><p><a href="/reminders/settings">Configure hiring reminders</a></p><p><a href="/application-emails/settings">Configure acknowledgment and status emails</a></p></section>
     <h2>Hiring team</h2>
     <Table heads={['Name', 'Email', 'Roles', 'Status', '']} empty="No members yet.">{w.members.map((m: D) => <tr key={m.email}><td>{m.name}</td><td>{m.email}</td><td>{m.owner ? 'owner (all roles)' : m.roles.join(', ')}</td><td><Status tone={m.active ? 'good' : 'neutral'}>{m.active ? 'active' : 'inactive'}</Status></td>
       <td>{w.actor.owner && !m.owner && m.active && <button onClick={async () => { await call('invite', { email: m.email }); setNotice(`Sign-in invitation accepted for ${m.email}.`) }}>Invite to sign in</button>}</td></tr>)}</Table>

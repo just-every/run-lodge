@@ -1,3 +1,5 @@
+import { crmPool, crmEnroll, crmEnable, crmApply } from './crm/records'
+import { stopEnrollment } from './crm/inbound'
 import { configureReminder, cancelReminder } from './reminders/records'
 import { configureApplicationEmails, reviewApplicationEmailTemplate } from './communications/templates'
 import { configureSurvey, surveyConsent } from './surveys/records'
@@ -69,6 +71,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'crm-pool': crmPool, 'crm-enroll': crmEnroll, 'crm-enable': crmEnable, 'crm-apply': crmApply, 'crm-stop': stopEnrollment,
   'hiring-reminder': configureReminder, 'cancel-hiring-reminder': cancelReminder,
   'application-email-policy': configureApplicationEmails, 'application-email-template': reviewApplicationEmailTemplate,
   'survey-configure': configureSurvey, 'survey-consent': surveyConsent,

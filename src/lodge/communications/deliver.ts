@@ -1,3 +1,4 @@
+import { prepareNurture } from '../crm/run'
 import { prepareReminder } from '../reminders/run'
 import type { MailMessage } from '../../modules/operator-auth/index.mjs'
 import { memberActor } from '../notify/describe'
@@ -18,6 +19,7 @@ function authorized(s: State, email: string, job: Data, person: Data) {
 }
 
 async function prepared(s: State, mail: Data): Promise<Data> {
+  if (mail.kind === 'nurture') return prepareNurture(s, mail)
   if (mail.kind === 'reminder') return prepareReminder(s, mail)
   const app = s.find('application', mail.application), person = s.find('candidate', mail.candidate), job = s.find('vacancy', mail.vacancy)
   if (!app || !person || person.deleted || person.mergedInto || !job || app.imported || job.imported || app.candidateWithdrawnAt || (mail.kind === 'status' && (app.status !== 'active' || app.stage !== mail.stage))) return { status: 'canceled', reason: 'Application is no longer eligible for this event' }

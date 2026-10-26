@@ -1,3 +1,6 @@
+import { crmReplyPages } from '../src/lodge/crm/reply-pages'
+import { crmPages } from '../src/lodge/crm/pages'
+import { lodgeEmail } from '../src/lodge/crm/email'
 import { reminderPages } from '../src/lodge/reminders/pages'
 import { applicationEmailPages } from '../src/lodge/http/application-email-pages'
 import { capturePages } from '../src/lodge/http/capture-pages'
@@ -32,7 +35,7 @@ function setClock(at: string) {
   } as DateConstructor
 }
 export default {
-  email: captureEmail,
+  email: lodgeEmail,
   scheduled: scheduledRun,
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
     const fixture = (env as any).TEST_CLOCK
@@ -54,6 +57,8 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   const path = new URL(request.url).pathname
   if (/^\/candidate(\/|$)/.test(path)) return candidatePages.fetch(request, env, execution)
   if (path.startsWith('/careers/') || path === '/jobs' || path.startsWith('/jobs/') || path.startsWith('/availability/')) return publicPages.fetch(request, env, execution)
+  if (new URL(request.url).pathname.startsWith('/crm/reply/')) return crmReplyPages.fetch(request, env, execution)
+    if (/^\/crm(\/|$)/.test(new URL(request.url).pathname)) return crmPages.fetch(request, env, execution)
   if (new URL(request.url).pathname.startsWith('/reminders/')) return reminderPages.fetch(request, env, execution)
   if (new URL(request.url).pathname.startsWith('/application-emails/')) return applicationEmailPages.fetch(request, env, execution)
   if (/^\/capture(\/|$)/.test(new URL(request.url).pathname)) return capturePages.fetch(request, env, execution)
