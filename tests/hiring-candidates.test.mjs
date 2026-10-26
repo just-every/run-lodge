@@ -1257,8 +1257,18 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
     assert.deepEqual((await state()).events.find(e => e.id === expo.id).jobs, [shown.id, secret.id])
   })
 
-  await t.test('the hosted and embedded application forms take at most sixty attempts an hour from one connection', async () => {
-    const job = await openJob('Glazier', 'Brooklyn, NY')
+  await t.test('the hosted and embedded application forms take at most sixty attempts an hour from one connection', async t => {
+    // Keep every attempt in the same hour, even across a real hour boundary.
+    const h = await harness({ clock: '2026-10-26T15:30:00.000Z' })
+    t.after(() => h.close())
+    const { command: cmd, send, state } = h
+    await cmd('business', BUSINESS)
+    const draft = await cmd('vacancy', { title: 'Glazier', location: 'Brooklyn, NY', headcount: 1, compensation: RANGE, manager: 'owner@example.test' })
+    await cmd('rubric', { id: draft.id, criteria: RUBRIC })
+    await cmd('interview-plan', { id: draft.id, plan: [{ name: 'Floor walk', stage: draft.stages[2].id }] })
+    const approval = await cmd('request-vacancy-approval', { id: draft.id, approver: 'owner@example.test' })
+    await cmd('decide-approval', { id: approval.id, decision: 'approved', reason: 'Within budget', version: approval.version })
+    const job = await cmd('publish', { id: draft.id })
     const notice = (await state()).business.notices.at(-1).version
     const post = (path, fields) => { const f = new FormData(); for (const [k, v] of Object.entries({ name: 'Flo Reed', email: 'flo@example.test', noticeVersion: String(notice), ...fields })) f.append(k, v); return send(path, f, '', { 'cf-connecting-ip': '198.51.100.41' }) }
     const refused = []

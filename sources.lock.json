@@ -4223,7 +4223,7 @@
       "executable": false
     },
     "tests/hiring-candidates.test.mjs": {
-      "sha256": "1ea389b0963e3f91c324df5f237a4bdeef815cda155ff07ed31f0f36ea000dbf",
+      "sha256": "160c0695334afd6696f357c4add4ca77c8a9a910057594543356666ef659d49e",
       "executable": false
     },
     "tests/hiring-fixture.mjs": {
