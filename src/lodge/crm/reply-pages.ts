@@ -6,7 +6,7 @@ import { esc, formBody, page, sameOrigin } from '../http/public'
 import { stopCandidateNurture } from './inbound'
 
 export const crmReplyPages = new Hono<{ Bindings: Bindings }>()
-crmReplyPages.use('*', async (c, next) => { await next(); c.header('cache-control', 'no-store'); c.header('referrer-policy', 'no-referrer') })
+crmReplyPages.use('*', async (c, next) => { await next(); c.header('cache-control', 'no-store'); c.header('referrer-policy', 'same-origin') })
 crmReplyPages.onError(error => page('Candidate conversation', `<h1>Candidate conversation</h1><p role="alert">${esc(error instanceof Fault ? error.message : 'Please try again later.')}</p>`, error instanceof Fault ? error.status : 500))
 async function conversation(c: Context<{ Bindings: Bindings }>) {
   const session = await signedIn(c.req.raw, c.env), s = await load(c.env.DB), e = s.find('crm-enrollment', c.req.param('id')), person = e && s.find('candidate', e.candidate)
