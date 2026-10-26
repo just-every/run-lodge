@@ -702,32 +702,61 @@ suppression defaults await ct approval; COM-004 remains partial.
 
 In People and settings, open Application emails. The settings page is
 `/application-emails/settings`; each application has scoped outcomes at
-`/application-emails/application/:id`. Only human owners and hiring admins with
-current job settings and contact authority can configure or review templates.
+`/application-emails/application/:id`. Only current human owners and hiring
+admins with job settings and contact authority can enable a job or review text.
+
+Installation sending starts off. The sender form posts to the settings page with
+`action=transport`, `replyTo`, `footer`, `monitored=yes` and `legalReviewed=yes`.
+It uses the configured `MAIL_PROVIDER=sendgrid`, `MAIL_FROM` and `MAIL_API_KEY`.
+The configured account must permit authenticated-domain reads as well as mail
+sending. The exact sender domain must be valid in SendGrid; that check runs
+before approval and again before dispatch. The human confirms the monitored
+reply mailbox and exact employer footer. This does not verify mailbox ownership
+or certify legal content. `action=transport-disable` turns installation mail off.
+Changing the sender approval or credential requires fresh job and text review.
 
 `application-email-template` takes `vacancy`, `kind` (acknowledgment or status),
-`language`, `subject`, `body`, `reviewed: true` and a `stage` for status messages.
-Every save reviews a new exact version. Fields are `{{candidateName}}`,
-`{{jobTitle}}`, `{{businessName}}` and `{{receiptCode}}`; acknowledgments must
-include the receipt code. There is no language fallback.
+`language`, `subject`, `body`, `footer`, `reviewed: true` and a `stage` for status
+messages. English may use the installation footer; another language requires its
+own reviewed footer. Common fields are `{{candidateName}}`, `{{jobTitle}}` and
+`{{businessName}}`. Acknowledgments require `{{receiptCode}}`; status messages may
+use `{{publicStatus}}` with an explicit reviewed `publicStatus` label. Unsupported
+fields and missing required values refuse approval or withhold dispatch. Every
+save reviews a new exact version. There is no language fallback. The preview
+can fill a current accessible application and shows recipient, sender, reply-to,
+required footer, missing values and immediate event timing.
+
 `application-email-policy` takes `vacancy`, `acknowledgment` and the list `stages`.
-Both kinds start off. Turning off acknowledgment leaves the receipt intact.
+Both kinds start off. Each job has its own reviewed text and policy. Turning off
+acknowledgment leaves the receipt intact. Settings edits and previews do not
+trigger application mail. Current stage, frozen text, configuration, language,
+contact preferences, suppression and the approving humans' authority are checked
+again before dispatch. Obsolete stage mail is canceled. Pending work is recovered
+by the existing scheduled handler; claimed uncertain work is never blindly resent.
 
-The installation uses its existing `MAIL_PROVIDER`, `MAIL_FROM` and
-`MAIL_API_KEY` bindings. COM-001 connected senders remain unimplemented and this
-installation-mail default awaits ct. Every send is claimed before handoff;
-a failed or uncertain attempt is never automatically resent. Current review,
-contact preferences, withdrawal and reviewer authority are checked again.
+Outcomes distinguish Pending, Withheld, Suppressed, Canceled, Uncertain, Handed to
+provider, Delivered, Bounced and Failed. The record includes its frozen message,
+version, due time, attempt count and responsible reviewer. An accepted provider
+request is not recipient delivery. Uncertain outcomes need human reconciliation.
 
-For authenticated delivery outcomes, configure the SendGrid signed Event Webhook
+For authenticated delivery facts, configure the SendGrid signed Event Webhook
 URL as `https://<installation>/api/lodge/application-emails/events` and put its
 public verification key in `APPLICATION_EMAIL_SENDGRID_PUBLIC_KEY`. This is a
-public key, never the mail API key. The existing Base verifier checks the raw
-body and timestamp signature. Delivered, bounce and dropped events match only
-the provider message reference; duplicate events change nothing. Raw event
-bodies, recipient addresses, signatures and provider error text are not retained.
-An accepted send is displayed as Handed to provider until a verified event
-establishes Delivered or Failed.
+public key, never the mail API key. Base verifies the raw body and timestamp
+signature. Delivered, bounce, dropped, spamreport, unsubscribe and group_unsubscribe
+events correlate by provider message reference; repeated events do not resend.
+Negative contact events create keyed suppression records without raw addresses,
+blocking subsequent application mail across jobs. Raw provider payloads, signatures
+and provider error text are not retained.
+
+Archives exclude installation activation, disable saved sending and make pending
+mail inert while preserving duplicate IDs. Restore requires fresh human sender,
+text and job review. Erasure removes candidate-linked message content. Historical
+erasures and stale-archive continuity remain gaps, as CONTRACT.md records.
+
+CT approved the installation-mail default with riders on 25 October 2026.
+COM-001 connected Gmail and Microsoft 365 senders remain unimplemented; the
+remaining operational, legal, reply and reconciliation gaps are in CONTRACT.md.
 
 The controlled live journey is `node tests/application-email-live.mjs`; inject
 only `MAIL_API_KEY`, `MAIL_FROM`, `TEST_MAIL_TO` and `QA_INBOX_RECEIPT_TOKEN`.
