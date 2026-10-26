@@ -1,3 +1,4 @@
+import { prepareReminder } from '../reminders/run'
 import type { MailMessage } from '../../modules/operator-auth/index.mjs'
 import { memberActor } from '../notify/describe'
 import { canSeeContact, can, isAdmin, managesVacancy } from '../core/access'
@@ -16,7 +17,8 @@ function authorized(s: State, email: string, job: Data, person: Data) {
   return actor && isAdmin(actor) && managesVacancy(actor, job) && can(s, actor, job, 'contact') && can(s, actor, job, 'settings') && canSeeContact(s, actor, person)
 }
 
-async function prepared(s: State, mail: Data) {
+async function prepared(s: State, mail: Data): Promise<Data> {
+  if (mail.kind === 'reminder') return prepareReminder(s, mail)
   const app = s.find('application', mail.application), person = s.find('candidate', mail.candidate), job = s.find('vacancy', mail.vacancy)
   if (!app || !person || person.deleted || person.mergedInto || !job || app.imported || job.imported || app.candidateWithdrawnAt || (mail.kind === 'status' && (app.status !== 'active' || app.stage !== mail.stage))) return { status: 'canceled', reason: 'Application is no longer eligible for this event' }
   if ((app.activated && app.contactBasis?.basis !== 'application') || (person.contactPreference && person.contactPreference.preference !== 'email')) return { status: 'suppressed', reason: 'Current contact preference does not permit email' }

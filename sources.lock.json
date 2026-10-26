@@ -835,7 +835,7 @@
       "executable": false
     },
     "scripts/installer/portability-policy.mjs": {
-      "sha256": "e7148a3ff18f43089f1ae9b6a3cdb6f507049374559a107e3322227f8b6d4602",
+      "sha256": "7f5502ea3a5683d63d10d2c44b2a28a4617f81cd314c6191705f9f17b969228f",
       "executable": false
     },
     "scripts/installer/referral-policy.mjs": {
@@ -1091,7 +1091,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "41dea417aef7c75b06266589ba981ef6eb4a11b836b7c1e49030f45e9990eb67",
+      "sha256": "991cbdf8d91ca125d8eba546ef93eba07e4eb486dd29d84a11f572cca0356760",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -1099,7 +1099,7 @@
       "executable": false
     },
     "src/lodge/communications/deliver.ts": {
-      "sha256": "961ecddedd86765d970ac8a418758bef51ec288f0767711eb8abab3fb3b7b487",
+      "sha256": "6f8e1638f102f5891233c3ba279e792db2990ac8ad5ad7951d845616b3a09674",
       "executable": false
     },
     "src/lodge/communications/events.ts": {
@@ -1343,7 +1343,7 @@
       "executable": false
     },
     "src/lodge/notify/run.ts": {
-      "sha256": "d36fb9a4ba4afcdf3aed9165ab4632ab61154509d471fa89f46d6e2ae206ff56",
+      "sha256": "0363e668546c69741f2c52a58e5597bd8589d1000b02a67bf164056af98ab463",
       "executable": false
     },
     "src/lodge/notify/view.ts": {
@@ -1487,7 +1487,7 @@
       "executable": false
     },
     "src/lodge/records/retention.ts": {
-      "sha256": "c00c733e9f740ed4b024118be1121705365541ce617c934b1ded42f4d30a11ac",
+      "sha256": "81d7a57c007da5a2e47622918ec58811f5da17a07364f7a809ec5532ac5540d0",
       "executable": false
     },
     "src/lodge/records/reviews.ts": {
@@ -1536,6 +1536,26 @@
     },
     "src/lodge/referrals/views.ts": {
       "sha256": "443fe5289ba053833a6da49ad51404e87de3f6004e76fa56c0f8a4c11abc7a18",
+      "executable": false
+    },
+    "src/lodge/reminders/eligibility.ts": {
+      "sha256": "9406e6930915f2cbf974b6695165991a3f833f50cdee2f49e45707c67e8863cd",
+      "executable": false
+    },
+    "src/lodge/reminders/pages.ts": {
+      "sha256": "688819e1112844d8fbec6ad7e3c653ed078fe03e436edac000daaee7bf95a2d5",
+      "executable": false
+    },
+    "src/lodge/reminders/records.ts": {
+      "sha256": "27355d95668af2eae640eec939e4a7de1ada2c613fc87c8f958468079089b542",
+      "executable": false
+    },
+    "src/lodge/reminders/run.ts": {
+      "sha256": "020107da3844b890dc27286b6f4055b6037206df3e67cfda89b6a414d8e12586",
+      "executable": false
+    },
+    "src/lodge/reminders/timing.ts": {
+      "sha256": "91d602583cf6cc626b890d90162e90a34ccac1dcc19edb8d504bbe4ccf27343e",
       "executable": false
     },
     "src/lodge/resumes/extraction.ts": {
@@ -1587,7 +1607,7 @@
       "executable": false
     },
     "src/lodge/views/exports.ts": {
-      "sha256": "3f69d7961fc5131eaa86745d56b35d72c9bc7a7293cc13d7895fea7d717421c9",
+      "sha256": "86ac6bf2cba285bbdeb38a99d4d1b64db20c6bcfeaa531c0989ef5cb02a08815",
       "executable": false
     },
     "src/lodge/views/field-views.ts": {
@@ -3355,7 +3375,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "88c5561ccda058f521dd4ca67e63aee7770b06ec6f234a314b324c1dfc1624f7",
+      "sha256": "5e3ab4168482939f311a9ef700a477a1a85850f57b302d0edea5a06d46be9044",
       "executable": false
     },
     "src/site/docs/content.ts": {
@@ -3655,7 +3675,7 @@
       "executable": false
     },
     "src/ui/people.tsx": {
-      "sha256": "47e2a89acd8f838ab4c146697eadf2b7125ba4c5c66f22e9f937066e0706f5c1",
+      "sha256": "d6f83140a94392adc6065d811fe2e4a848e60596b86c1d3cb4f7e9bce78b3857",
       "executable": false
     },
     "src/ui/pipeline/activity.tsx": {
@@ -3811,7 +3831,7 @@
       "executable": false
     },
     "tests/agents.test.mjs": {
-      "sha256": "fe7574ae64b0551efe2e3bfe3ed5bf42792808f91ce0f0c397a6002fdea267d8",
+      "sha256": "72394d7516155da83f756a3e1a1196919a08029d4e1bad41a0be495b02aede34",
       "executable": false
     },
     "tests/application-email-browser.mjs": {
@@ -3859,7 +3879,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "2ea415d30dd02805829fd2b87fbb85729bee925ccbd501ed4c17f8db631da6d0",
+      "sha256": "cc510e5c1f7acb1417267de96909631086823740778119d8cb5c28f297ca6721",
       "executable": false
     },
     "tests/bulk-page.mjs": {
@@ -3895,7 +3915,7 @@
       "executable": false
     },
     "tests/clause-browser.mjs": {
-      "sha256": "7f9b888d4fa7939705749ee98f440dea33829a0309407ab2224f003b553dbab2",
+      "sha256": "6588f022bc2051e4e7f81e8b5bc955370bc075e5666c75ef31d397607d5d29b6",
       "executable": false
     },
     "tests/connectors-driver.mjs": {
@@ -3987,11 +4007,11 @@
       "executable": false
     },
     "tests/lodge-worker.ts": {
-      "sha256": "9ecbac53c359193fb7c8adbec6746d68b1168a97e8ddb369b0664bfa0871656c",
+      "sha256": "ea7daefbe52da5a1fbfee793cb70c27d441acf5011966e83ac47b9acd5a93a22",
       "executable": false
     },
     "tests/mail-edge.mjs": {
-      "sha256": "e17dc8dec35e07b768afd6a53142d80c8d1562323b08ebc34b22cff9c0b1184d",
+      "sha256": "6f054d209f2201b91a5f30540504dae164f24569619c8afb1707764db746ed10",
       "executable": false
     },
     "tests/merge-flow.mjs": {
@@ -4040,6 +4060,14 @@
     },
     "tests/referrals-email-flow.mjs": {
       "sha256": "2fb28bedbef5f4b04a6794129e03615062a2d2b80a809f96fa0a820455f4cc5e",
+      "executable": false
+    },
+    "tests/reminders-browser.mjs": {
+      "sha256": "ecb7681c1e946327984ac799d1506c744fc466dd1dcd992e3fa6c319e1a007eb",
+      "executable": false
+    },
+    "tests/reminders-flow.mjs": {
+      "sha256": "4209c810538cb560c14de7db0b2f156896ab67285a5d4d1d8a65c4878d00c810",
       "executable": false
     },
     "tests/resume-driver.mjs": {

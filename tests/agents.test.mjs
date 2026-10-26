@@ -1,3 +1,4 @@
+import { checkReminderCadence, checkReminderStops } from './reminders-flow.mjs'
 // LDG-013: agent-native workflows through the same API a person uses. The
 // "agent" here is a test client signed in as an agent member: Lodge runs no
 // model, so there is nothing to fake; these requests are what any coding agent sends.
@@ -208,3 +209,7 @@ test('COORD-006 a debrief brief quotes released scorecards only, names disagreem
     assert.deepEqual((await state(morgan)).debriefs, [])
   } finally { await h.close() }
 })
+
+test('Persistent reminders deliver on cadence, escalate once and survive restart without stale contact', checkReminderCadence)
+
+test('Reminder stops honor live work and contact, preserve honest failures, and erase personal schedules', checkReminderStops)

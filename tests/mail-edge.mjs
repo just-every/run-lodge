@@ -9,6 +9,8 @@ export function operatorMail(env) {
    if (url !== endpoint || init.method !== 'POST') throw Error('Unexpected mail provider request')
    const wire = JSON.parse(init.body)
    const message = provider === 'sendgrid' ? { from: wire.from.email, replyTo: wire.reply_to?.email, to: wire.personalizations[0].to.map(x => x.email), subject: wire.subject, text: wire.content.find(c => c.type === 'text/plain')?.value } : wire
+   if (env.TEST_MAIL_REJECT_SUBJECT && message.subject === env.TEST_MAIL_REJECT_SUBJECT) return Response.json({ errors: [{ message: 'Synthetic provider refusal' }] }, { status: 400 })
+   if (env.TEST_MAIL_UNCERTAIN_SUBJECT && message.subject === env.TEST_MAIL_UNCERTAIN_SUBJECT) throw new Error('Synthetic lost provider response')
    await env.DB.prepare('INSERT INTO rer_mail_development_outbox(id,created_at,message) VALUES(?,?,?)').bind(crypto.randomUUID(), Date.now(), JSON.stringify(message)).run()
    const id = crypto.randomUUID()
    return provider === 'sendgrid' ? new Response(null, { status: 202, headers: { 'x-message-id': id } }) : Response.json({ id })

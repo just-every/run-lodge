@@ -89,6 +89,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
   }
   const body = {
     captures, agencySubmissions, referrals,
+    hiringReminders: s.all('hiring-reminder').filter(reminder => appIds.has(reminder.application)),
     surveyResponses: surveyReport(s, a).surveys.flatMap(survey => survey.identified.filter(answer => appIds.has(answer.application)).map(answer => ({ ...answer, survey: survey.id, version: survey.version }))),
     format: 'lodge-candidate-export-1', exportedAt: now(), exportedBy: a.email,
     candidate, mergedCandidates: mergedCandidates(view.mergedCandidates, id),

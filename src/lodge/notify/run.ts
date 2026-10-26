@@ -1,3 +1,4 @@
+import { runReminders } from '../reminders/run'
 import { flushApplicationEmails } from '../communications/deliver'
 import { surveyMaintenance } from '../surveys/http'
 import type { Bindings } from '../../auth.server'
@@ -9,6 +10,7 @@ import { flushAlerts, sendDigests } from './deliver'
 export async function scheduledRun(controller: ScheduledController, env: Bindings) {
   await surveyMaintenance(env)
   await resumeIntakeMaintenance(controller, env)
+  await runReminders(env, controller.scheduledTime)
   await flushApplicationEmails(env)
   await sendDigests(env, controller.scheduledTime)
 }
