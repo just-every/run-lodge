@@ -1,3 +1,4 @@
+import { schedulePages } from './lodge/analysis/schedule-pages'
 import { analysisPages } from './lodge/analysis/pages'
 import { crmReplyPages } from './lodge/crm/reply-pages'
 import { crmPages } from './lodge/crm/pages'
@@ -53,6 +54,7 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
     if (lobby) return lobby
     if (/^\/candidate(\/|$)/.test(new URL(request.url).pathname)) return candidatePages.fetch(request, env, execution)
     if (isPublicPage(new URL(request.url).pathname)) return publicPages.fetch(request, env, execution)
+    if (new URL(request.url).pathname.startsWith('/analysis/schedules') || new URL(request.url).pathname.startsWith('/api/lodge/analysis/schedules')) return schedulePages.fetch(request, env, execution)
     if (new URL(request.url).pathname === '/analysis' || new URL(request.url).pathname.startsWith('/analysis/') || new URL(request.url).pathname.startsWith('/api/lodge/analysis')) return analysisPages.fetch(request, env, execution)
     if (new URL(request.url).pathname.startsWith('/crm/reply/')) return crmReplyPages.fetch(request, env, execution)
     if (/^\/crm(\/|$)/.test(new URL(request.url).pathname)) return crmPages.fetch(request, env, execution)

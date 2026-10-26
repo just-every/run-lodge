@@ -155,7 +155,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "f8262899ead70091be0c70e649f8a75b85c74df530cf92a1729fb94afa7592a5",
+      "sha256": "2ff5292291dd44e697bfa0ce64374fa6f85239a73d9798803eec7453caf1a73c",
       "executable": false
     },
     "base-copies.json": {
@@ -839,7 +839,7 @@
       "executable": false
     },
     "scripts/installer/portability-policy.mjs": {
-      "sha256": "00581fbc7b352bd646f2a11b70bed054c35bd2a5b496927d22991aa04708f158",
+      "sha256": "d3c74b2a56639f72125bd46fe37133c6cf5838c3daa827afbdda405356351b47",
       "executable": false
     },
     "scripts/installer/referral-policy.mjs": {
@@ -1067,11 +1067,23 @@
       "executable": false
     },
     "src/lodge/analysis/render.ts": {
-      "sha256": "63236d5b83ab11be6d19a3eb6a4c28553b5f93859a2e381fd42db73d0196798e",
+      "sha256": "0f40c0b8656263625ad531656ba456475d22ab1fcb2a516d7a2117615362b835",
       "executable": false
     },
     "src/lodge/analysis/saved.ts": {
       "sha256": "7790cc4dd0d47b80f563327a199ea578d1184604756c92c9e9374580f3b13a00",
+      "executable": false
+    },
+    "src/lodge/analysis/schedule-pages.ts": {
+      "sha256": "a001a07b25a5b15c8f8156a83a6c68d142f38d89107674938cffb998573b5d7d",
+      "executable": false
+    },
+    "src/lodge/analysis/schedule-render.ts": {
+      "sha256": "65ee15cc39638ac6efb50c0d0283f4473ed4101e9014735227a7d8facbf12e40",
+      "executable": false
+    },
+    "src/lodge/analysis/schedules.ts": {
+      "sha256": "d5cb7c5e408bdb3ec66f8b8318aa695fd57413f3ff7023f323cb95287f00f3e5",
       "executable": false
     },
     "src/lodge/analysis/scope.ts": {
@@ -1419,7 +1431,7 @@
       "executable": false
     },
     "src/lodge/notify/run.ts": {
-      "sha256": "ba2b104a9d35df3b49c5cac8712b28dda203013988aff4072a3ab65b9fd42563",
+      "sha256": "588752d6983c8b3c669ac6f64dbbdee5ad2edb7207d07e8f579b21f4f8558b51",
       "executable": false
     },
     "src/lodge/notify/view.ts": {
@@ -3451,7 +3463,7 @@
       "executable": false
     },
     "src/server.ts": {
-      "sha256": "b8a87e2f9a7323d4fec36cefbc55e59a58e6b4140446a51b9823d981f4c173fe",
+      "sha256": "af423b4de033386fad954cd57a4a4ce47afdeeec17d320415c2df0b8ef2abc95",
       "executable": false
     },
     "src/site/docs/content.ts": {
@@ -3923,7 +3935,23 @@
       "executable": false
     },
     "tests/analysis-proof.mjs": {
-      "sha256": "69542bc6790973e54d3e92aea28ae24da7740a296b2b14d7cdcfa5e36c7e4420",
+      "sha256": "914b71d8f47ea82623ac588b524033d661544aeb31b32d6e2f8f0104b8a5f360",
+      "executable": false
+    },
+    "tests/analysis-schedule-browser.mjs": {
+      "sha256": "a4842b59411cf6831f8fed6574d66cefc3117cdb2406800a951bce52a21177fc",
+      "executable": false
+    },
+    "tests/analysis-schedule-flow.mjs": {
+      "sha256": "8e496abf54a25ea38403f6791d80bfcdfe25a313c8d8d7cf0465099e0a3cb7a3",
+      "executable": false
+    },
+    "tests/analysis-schedule-live.mjs": {
+      "sha256": "a3d9942f7516e62a65200c911c14fcdd56ee52a2189dba618e53ead187710892",
+      "executable": false
+    },
+    "tests/analysis-schedule-restore.mjs": {
+      "sha256": "15707f6c8385e85889e7bbc807506fbe900251293c7e9c46305539c6749efbb1",
       "executable": false
     },
     "tests/analysis-workspace.mjs": {
@@ -3975,7 +4003,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "953bf14c9d118b3be400db500e48a086be4fe4cce5ee84d87d2954dac3b22c67",
+      "sha256": "883341415c7ce0550758a658ab9af71444a516471f04a627cb48aad1d858d4f3",
       "executable": false
     },
     "tests/bulk-page.mjs": {
@@ -4099,7 +4127,7 @@
       "executable": false
     },
     "tests/hiring-reports.test.mjs": {
-      "sha256": "21cb270d704c5b7366319070a3bd73bbcdafb6f57f4c494f34b115d1b5852aee",
+      "sha256": "50139a1a22979db871ea438e5fcd7257116662fc1faa731475f4cfe0597d517e",
       "executable": false
     },
     "tests/hiring-security.test.mjs": {
@@ -4127,7 +4155,7 @@
       "executable": false
     },
     "tests/lodge-worker.ts": {
-      "sha256": "95ffd128becde62171b58f1aee5045e97dd2382cec69b56c85e2753a80a7338a",
+      "sha256": "68512778e38faecfb941e6829aae48c8551fa0a955cf4ae8dc5cf29a00862f70",
       "executable": false
     },
     "tests/mail-edge.mjs": {

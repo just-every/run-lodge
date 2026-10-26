@@ -1,3 +1,4 @@
+import { analysisSchedulePage } from './analysis-schedule-browser.mjs'
 import { analysisPage } from './analysis-browser.mjs'
 import { crmPage } from './crm-browser.mjs'
 import { reminderPage } from './reminders-browser.mjs'
@@ -61,6 +62,7 @@ try {
   browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
 
   await analysisPage(browser, resolve(evidence, 'analysis'))
+  await analysisSchedulePage(browser, resolve(evidence, 'analysis'))
   await crmPage(browser, resolve(evidence, 'crm'))
   await reminderPage(browser, resolve(evidence, 'reminders'))
   await applicationEmailPage(browser, resolve(evidence, 'application-emails'))

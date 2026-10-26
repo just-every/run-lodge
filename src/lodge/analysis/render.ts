@@ -41,8 +41,8 @@ ${bars}<div class="sign-doc analysis-totals" role="region" aria-label="${esc(met
 ${queryForm(scope, r.query, title, true)}</article>`
 }
 export async function analysisDocument(scope: AnalysisScope, saved: { id: string; title: string; createdAt: string }[], status: Status, results: Result[] = [], extra: { error?: string; savedId?: string; title?: string; status?: number } = {}) {
-  const response = await page('Recruiting analysis', `<h1>Recruiting analysis</h1><p><a href="/app">Back to workspace</a> · <a href="/analysis">New analysis</a> · <a href="/analysis/setup">Analysis provider setup</a></p>
-${extra.error ? `<p role="alert">${esc(extra.error)}</p>` : ''}${extra.savedId ? `<p role="status">Chart definition saved. <a href="/analysis/saved/${esc(extra.savedId)}">Reopen saved chart</a></p>` : ''}
+  const response = await page('Recruiting analysis', `<h1>Recruiting analysis</h1><p><a href="/app">Back to workspace</a> · <a href="/analysis">New analysis</a> · <a href="/analysis/setup">Analysis provider setup</a> · <a href="/analysis/schedules">Scheduled chart delivery</a></p>
+${extra.error ? `<p role="alert">${esc(extra.error)}</p>` : ''}${extra.savedId ? `<p role="status">Chart definition saved. <a href="/analysis/saved/${esc(extra.savedId)}">Reopen saved chart</a> · <a href="/analysis/schedules/new?chart=${esc(extra.savedId)}">Schedule reviewed delivery</a></p>` : ''}
 <p>Ask a recruiting question to create editable charts over authorized stage events, scheduling, sources and offer outcomes. Charts do not make or change hiring decisions.</p>
 <p>Provider: ${status.ready ? 'Reviewed and enabled' : esc(status.reason)}</p>
 <form action="/analysis/interpret" method="post"><label>Recruiting question<textarea name="question" rows="3" maxlength="1000" required placeholder="Show last-quarter source conversion and scheduling delay"></textarea></label><p>Submitting sends this question and safe metric and filter metadata to the configured model. No hiring source rows are sent. This explicit action may incur a provider charge.</p><button type="submit">Interpret recruiting question</button></form>

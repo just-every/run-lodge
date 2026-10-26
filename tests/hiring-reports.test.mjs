@@ -295,3 +295,8 @@ test('REPORT-004 opt-in surveys preserve anonymity, contact refusal, aggregate l
 })
 
 test('Recruiting analysis grounds editable charts in authorized events and preserves private evidence', async t => (await import('./analysis-flow.mjs')).checkAnalysis(t))
+
+test('Reviewed chart delivery sends once with current access and stays inert after restore', async t => {
+ await (await import('./analysis-schedule-flow.mjs')).checkAnalysisSchedules(t)
+ await (await import('./analysis-schedule-restore.mjs')).checkAnalysisScheduleRestore(t)
+})
