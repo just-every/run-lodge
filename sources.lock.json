@@ -3967,7 +3967,7 @@
       "executable": false
     },
     "tests/crm-cloudflare.mjs": {
-      "sha256": "fdd72a6891663443d7e4b503bac176f791060107c30c9ebf79d02e31c57af6fd",
+      "sha256": "76dc668270cc80f9d77248acea30183ca6ea7304ee9f2cdf40747b55cbb928f7",
       "executable": false
     },
     "tests/crm-flow.mjs": {
@@ -3983,7 +3983,7 @@
       "executable": false
     },
     "tests/crm-stops.mjs": {
-      "sha256": "44b759715229152d21819a56128030e14e9dadba8cacbaa52abf8c171c3d3967",
+      "sha256": "8e32131ebb0c157218ad17ed648015f6b5f76b8523404dacca055162a72415b6",
       "executable": false
     },
     "tests/css-modules.d.ts": {

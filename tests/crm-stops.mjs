@@ -42,7 +42,7 @@ export async function checkNurtureStops(t) {
  await h.db.exec('DROP TRIGGER fail_nurture_mail')
  assert.equal((await outcomes(failed.draft))[0].status, 'uncertain')
  await h.restart(); await h.tick('2026-10-26T16:00:00.000Z'); assert.equal((await outcomes(failed.draft)).length, 1)
- const pkg = { filename: 'workable-export.zip', base64: zip(await folderEntries('fixtures/workable-full-export')).toString('base64') }
+ const pkg = { filename: 'workable-export.zip', base64: zip(await folderEntries('./fixtures/workable-full-export')).toString('base64') }
  const preview = await h.send('/api/lodge/import/preview', pkg, h.owner); assert.equal(preview.status, 200)
  assert.equal((await h.send('/api/lodge/import/commit', { ...pkg, fingerprint: preview.value.plan.fingerprint }, h.owner)).status, 200)
  const imported = (await h.state()).candidates.find(c => c.name === 'Dana Whitfield')
