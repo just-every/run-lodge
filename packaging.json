@@ -59,7 +59,15 @@
         "AI_API_KEY",
         "AI_BASE_URL",
         "MODELS_SERVICE",
-        "MODELS_KEY"
+        "MODELS_KEY",
+        "ENTERPRISE_OKTA_ISSUER",
+        "ENTERPRISE_OKTA_CLIENT_ID",
+        "ENTERPRISE_OKTA_CLIENT_SECRET",
+        "ENTERPRISE_OIDC_SECRET",
+        "ENTERPRISE_SCIM_TOKEN",
+        "ENTERPRISE_SAML_ISSUER",
+        "ENTERPRISE_SAML_ENTRY_POINT",
+        "ENTERPRISE_SAML_CERTIFICATE"
       ],
       "healthPath": "/health",
       "recovery": "Follow OPERATIONS.md: stop writes and scheduled work, retain exact source and private configuration, export the installation, restore into empty resources, run setup again and verify records, original document bytes and owner access before routing traffic. Preserve applied migration names and bytes.",

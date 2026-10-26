@@ -1,3 +1,5 @@
+import { bulkInvitationPages } from '../src/lodge/operations/bulk-invitations-page'
+import { enterprisePages } from '../src/lodge/enterprise/http'
 import { schedulePages } from '../src/lodge/analysis/schedule-pages'
 import analysisCss from '../public/lodge-analysis.css'
 import { analysisPages } from '../src/lodge/analysis/pages'
@@ -54,6 +56,8 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
   // The stylesheets a hosted Worker serves from its assets, so pages in a browser look as shipped.
   const sheet = ({ '/lodge-analysis.css': analysisCss, '/lodge-candidate.css': candidateCss, '/lodge-public.css': publicCss, '/rer-theme.css': themeCss, '/fonts/fonts.css': fontsCss } as Record<string, string>)[new URL(request.url).pathname]
   if (sheet) return new Response(sheet, { headers: { 'content-type': 'text/css' } })
+  if (/^\/enterprise\/invitations(?:\/|$)/.test(new URL(request.url).pathname)) return bulkInvitationPages.fetch(request, env, execution)
+  if (/^\/(?:enterprise|scim)(?:\/|$)/.test(new URL(request.url).pathname) || new URL(request.url).pathname.startsWith('/auth/oidc/lodge-okta/')) return enterprisePages.fetch(request, env, execution)
   const auth = await authResponse(request, env)
   if (auth) return auth
   const path = new URL(request.url).pathname

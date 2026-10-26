@@ -2,7 +2,7 @@ import type { State } from '../core/state'
 import { requireAdmin } from '../core/access'
 import { email, integer, list, now, oneOf, optionalText, requireThat, text, ROLES, type Actor, type Data } from '../core/types'
 import { isZone } from '../core/time'
-import { reassignTasks } from './tasks'
+import { suspendOwnedWork } from '../enterprise/work'
 
 // The business's hiring settings and the people who can work in Lodge.
 
@@ -56,8 +56,8 @@ export function member(s: State, a: Actor, b: Data) {
   requireThat(a.owner || (!roles.includes('admin') && !existing?.roles?.includes('admin')), 'Only the owner can manage hiring admins', 403)
   // Only the owner grants the "see private" permission (confidential jobs, private candidates).
   const seePrivate = !agent && (a.owner ? b.seePrivate === true : existing?.seePrivate === true)
-  const record = s.put('member', address, { email: address, name: text(b.name, 'Member name', 120), roles: [...new Set(roles)], active: b.active !== false, owner: false, agent, actsFor, seePrivate, reportsTo: existing?.reportsTo ?? null })
-  if (existing?.active && !record.active) reassignTasks(s, a, address)
+  const record = s.put('member', address, { ...existing, email: address, name: text(b.name, 'Member name', 120), roles: [...new Set(roles)], active: b.active !== false, owner: false, agent, actsFor, seePrivate, reportsTo: existing?.reportsTo ?? null })
+  if (existing?.active && !record.active) suspendOwnedWork(s, a, address)
   s.audit(a, existing ? 'member-updated' : 'member-added', 'member:' + address, { roles: record.roles, active: record.active, agent, actsFor, seePrivate })
   return record
 }

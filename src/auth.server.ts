@@ -10,6 +10,14 @@ import branding from './branding.json'
 const theme = { href: '/rer-theme.css', productName: branding.name, accentColor: branding.primaryColor }
 
 export interface Bindings {
+ ENTERPRISE_OKTA_ISSUER?: string
+ ENTERPRISE_OKTA_CLIENT_ID?: string
+ ENTERPRISE_OKTA_CLIENT_SECRET?: string
+ ENTERPRISE_OIDC_SECRET?: string
+ ENTERPRISE_SCIM_TOKEN?: string
+ ENTERPRISE_SAML_ISSUER?: string
+ ENTERPRISE_SAML_ENTRY_POINT?: string
+ ENTERPRISE_SAML_CERTIFICATE?: string
  AI_ENABLED?: string
  AI_MODEL?: string
  AI_API_KEY?: string

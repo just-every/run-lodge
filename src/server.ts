@@ -1,3 +1,5 @@
+import { bulkInvitationPages } from './lodge/operations/bulk-invitations-page'
+import { enterprisePages } from './lodge/enterprise/http'
 import { schedulePages } from './lodge/analysis/schedule-pages'
 import { analysisPages } from './lodge/analysis/pages'
 import { crmReplyPages } from './lodge/crm/reply-pages'
@@ -44,6 +46,8 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
     if (careers) return careers
     const asset = await staticAssetResponse(request, env)
     if (asset) return asset
+  if (/^\/enterprise\/invitations(?:\/|$)/.test(new URL(request.url).pathname)) return bulkInvitationPages.fetch(request, env, execution)
+  if (/^\/(?:enterprise|scim)(?:\/|$)/.test(new URL(request.url).pathname) || new URL(request.url).pathname.startsWith('/auth/oidc/lodge-okta/')) return enterprisePages.fetch(request, env, execution)
     const auth = await authResponse(request, env)
     if (auth) return auth
     // The installed variant: the Lobby at / and the public claim state it reads.

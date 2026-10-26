@@ -9,7 +9,7 @@ import { blindResult } from '../core/blind'
 import { blindProjection } from './blind-review'
 import { canSeeProposal } from './proposals'
 import type { State } from '../core/state'
-import { isAgency, cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy, can, permissionsOn, SEEDED_LEVELS } from '../core/access'
+import { isCompliance, isComplianceOnly, canSeeCompliance, isAgency, cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy, can, permissionsOn, SEEDED_LEVELS } from '../core/access'
 import { requireThat, scope, type Actor, type Data } from '../core/types'
 import { latestApproval, versionOf } from '../records/approvals'
 import { duplicateSuggestions, transferredFrom } from '../records/candidates'
@@ -169,7 +169,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
   const today = businessToday(s)
   const movedIn = new Map<string, string>(applications.filter(x => x.activated && !x.activated.undone).map(x => [x.activated.from, x.id]))
   const teamNotes = s.all('team-note').filter(n => visibleCandidates.has(n.candidate) && canSeeTeamNote(s, a, n)).sort((x, y) => x.at.localeCompare(y.at))
-  return blindProjection(s, a, fieldProjection(s, a, {
+  const view = blindProjection(s, a, fieldProjection(s, a, {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
     business: s.all('business')[0] ?? null,
     careers: admin && !a.agent && s.find('business', 'main') ? { brand: s.find('careers-brand', 'main') ?? null, ...careersDomainView(s, a, env ?? { AUTH_ORIGIN: 'https://unconfigured.invalid' }) } : null,
@@ -231,7 +231,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     cutovers: a.owner && !a.agent ? s.all('cutover').sort((x, y) => y.at.localeCompare(x.at)) : [],
     applicationEmails: s.all('application-email').filter(m => applications.some(app => app.id === m.application && canSeeContact(s, a, s.get('candidate', app.candidate)))),
     messages, offers, approvals,
-    restricted: admin ? s.all('monitoring').filter(m => !hiddenApp(m.application)) : [],
+    restricted: isCompliance(a) ? s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) }) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.
     fairChance: admin ? fairChanceView(s, a, appIds) : null,
     holds: admin ? s.all('hold').filter(h => !(h.candidate && hiddenCandidate(h.candidate)) && !(h.vacancy && hiddenVacancy(h.vacancy))) : [],
@@ -255,12 +255,30 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     coordination: coordination(s, a),
     audit: admin ? s.all('audit').filter(e => !concealed(e.record ?? '')).sort((x, y) => y.at.localeCompare(x.at)).slice(0, 300) : [],
   }))
+  // Field projection strips restricted custom fields and embedded hiring records.
+  // Restore only the independently authorized document metadata, never that hiring data.
+  const complianceDocuments = s.all('document').filter(d => d.restricted && canSeeDocument(s, a, s.get('document', d.id)))
+  view.documents = [...view.documents.filter(d => !d.restricted), ...complianceDocuments]
+  if (isComplianceOnly(a)) {
+    // An old team, event or notification assignment must not survive a move
+    // from hiring to compliance. Every human keeps their own employee portal.
+    const empty = (value: any): any => Array.isArray(value) ? [] : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, empty(item)])) : null
+    for (const key of Object.keys(view)) {
+      if (['actor', 'business', 'referrals', 'internalBoard'].includes(key)) continue
+      ;(view as Data)[key] = empty((view as Data)[key])
+    }
+    view.vacancies = s.all('vacancy').filter(v => isCompliance(a) && (v.compliancePeople ?? []).includes(scope(a))).map(v => ({ id: v.id, title: v.title, stages: [], rubrics: [], plan: [], manages: false, permissions: [], compliance: true }))
+    view.documents = complianceDocuments
+    view.restricted = s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) })
+  }
+  return view
 }
 
 export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
 
 export async function workspace(s: State, a: Actor, env?: Bindings) {
   const records = await workspaceRecords(s, a, env)
+  if (isComplianceOnly(a)) return { ...records, proposals: [], interviewerActivity: null }
   return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication)))), interviewerActivity: interviewerActivity(s, a, records) }
 }
 

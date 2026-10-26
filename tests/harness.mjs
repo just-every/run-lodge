@@ -4,6 +4,7 @@
 // code is faked; only the mail provider network edge is faked.
 import assert from 'node:assert/strict'
 import { createServer } from 'node:net'
+import { builtinModules } from 'node:module'
 import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -18,7 +19,7 @@ const SETUP_TOKEN = 'synthetic-local-test-setup-token-0123456789abcdef'
 const bundles = new Map()
 function workerBundle(liveMail = false) {
   const root = process.cwd(), cacheKey = root + (liveMail ? ':live-mail' : ':edge-mail')
-  if (!bundles.has(cacheKey)) bundles.set(cacheKey, build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], plugins: liveMail ? [] : [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }], external: ['node:*'], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
+  if (!bundles.has(cacheKey)) bundles.set(cacheKey, build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', mainFields: ['module', 'main'], banner: { js: 'import { createRequire } from "node:module"; const require = createRequire("/");' }, conditions: ['workerd', 'worker', 'browser'], plugins: liveMail ? [] : [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }], external: ['node:*', ...builtinModules], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
   return bundles.get(cacheKey)
 }
 

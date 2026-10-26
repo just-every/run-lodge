@@ -10,7 +10,7 @@ import { JobBoardSettings } from './job-board'
 import { InternalSettings } from './internal'
 import { FairChanceSettings } from './fair-chance'
 
-const ROLES = [['admin', 'Hiring admin'], ['manager', 'Hiring manager'], ['interviewer', 'Interviewer'], ['approver', 'Approver'], ['employee', 'Employee referrals']]
+const ROLES = [['admin', 'Hiring admin'], ['manager', 'Hiring manager'], ['interviewer', 'Interviewer'], ['approver', 'Approver'], ['employee', 'Employee referrals'], ['compliance', 'Compliance reviewer']]
 
 /** Every zone this browser knows, with the one already chosen (or this computer's, for a new business) among them. */
 function zones(current: string) {
@@ -40,6 +40,7 @@ export function People({ w, mutate, setNotice }: PageProps) {
     <h2>Hiring team</h2>
     <Table heads={['Name', 'Email', 'Roles', 'Status', '']} empty="No members yet.">{w.members.map((m: D) => <tr key={m.email}><td>{m.name}</td><td>{m.email}</td><td>{m.owner ? 'owner (all roles)' : m.roles.join(', ')}</td><td><Status tone={m.active ? 'good' : 'neutral'}>{m.active ? 'active' : 'inactive'}</Status></td>
       <td>{w.actor.owner && !m.owner && m.active && <button onClick={async () => { await call('invite', { email: m.email }); setNotice(`Sign-in invitation accepted for ${m.email}.`) }}>Invite to sign in</button>}</td></tr>)}</Table>
+    <p><a href="/enterprise/settings">Enterprise identity settings</a></p><p><a href="/enterprise/invitations">Invite people in bulk</a></p>
     <h3>Add or change a member</h3>
     <Form label="Save member" reset onSubmit={v => mutate('member', { email: v.email, name: v.name, roles: ROLES.filter(([r]) => v['role-' + r]).map(([r]) => r), active: !v.inactive, seePrivate: v.seePrivate === true })}>
       <Field label="Email" name="email" type="email" />
@@ -56,6 +57,6 @@ export function People({ w, mutate, setNotice }: PageProps) {
     {(w.actor.owner || w.actor.roles.includes('admin')) && <section className="card"><h2>Experience surveys</h2><p><a href="/surveys/settings">Configure surveys and view permitted aggregate results</a></p></section>}
     <ConnectorSettings w={w} mutate={mutate} />
     <CareersSettings w={w} mutate={mutate} />
-    <p className="hint">Interviewers see only the applications they are assigned to, without contact details. Restricted documents and voluntary monitoring answers stay with the owner and hiring admins.</p>
+    <p className="hint">Interviewers see only the applications they are assigned to, without contact details. Restricted documents and voluntary monitoring answers stay with the owner, hiring admins and explicitly assigned human compliance reviewers.</p>
   </div>
 }

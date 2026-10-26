@@ -1,3 +1,5 @@
+import { enterprisePage } from './enterprise-browser.mjs'
+import { bulkInvitationsPage } from './bulk-invitations-browser.mjs'
 import { analysisSchedulePage } from './analysis-schedule-browser.mjs'
 import { analysisPage } from './analysis-browser.mjs'
 import { crmPage } from './crm-browser.mjs'
@@ -61,6 +63,8 @@ try {
   server = await start(root, port)
   browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
 
+  await enterprisePage(browser, resolve(evidence, 'enterprise'))
+  await bulkInvitationsPage(browser, resolve(evidence, 'bulk-invitations'))
   await analysisPage(browser, resolve(evidence, 'analysis'))
   await analysisSchedulePage(browser, resolve(evidence, 'analysis'))
   await crmPage(browser, resolve(evidence, 'crm'))

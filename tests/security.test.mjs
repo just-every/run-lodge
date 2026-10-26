@@ -1,3 +1,7 @@
+import { checkEnterpriseSaml } from './enterprise-saml-flow.mjs'
+import { checkEnterprise } from './enterprise-flow.mjs'
+import { checkBulkInvitations } from './bulk-invitations-flow.mjs'
+import { checkCompliance } from './compliance-flow.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { fixture } from './security-fixture.mjs'
@@ -197,3 +201,9 @@ test('INT-002 admin connector registry refuses credentials and never fabricates 
  const h = await fixture()
  try { const { checkConnectors } = await import('./connectors-driver.mjs'); await checkConnectors(h) } finally { await h.close() }
 })
+
+test('enterprise provisioned identities use bound Okta subjects, revoke access and transfer owned work without losing referrals', checkEnterprise)
+test('bulk invitation preview grants scoped access and sends each valid row once', checkBulkInvitations)
+test('compliance grants are separate from hiring scope and are revoked on every document door', checkCompliance)
+
+test('signed SAML sign-in binds the provisioned subject and refuses replay, stale settings and invalid assertions', checkEnterpriseSaml)

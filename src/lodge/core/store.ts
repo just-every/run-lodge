@@ -70,7 +70,7 @@ export async function save(db: D1Database, state: State, actor: Actor | null, ex
   }
 }
 
-export interface Session { operator: { id: string; email: string; displayName: string; role: string; version: number }; id: string }
+export interface Session { operator: { id: string; email: string; displayName: string; role: string; version: number }; id: string; kind?: string; issuer?: string; subject?: string }
 
 /** The current person, from the native session; mutations also need an exact same-origin request. */
 export async function signedIn(request: Request, original: Bindings): Promise<Session> {
@@ -108,6 +108,7 @@ export function actorFor(session: Session, state: State): Actor {
   // Members are keyed by email; reading it here fences the membership in any save.
   const member = state.find('member', session.operator.email.toLowerCase())
   requireThat(member?.active || (owner && !member && !state.find('business', 'main')), 'Active Lodge membership required', 403)
+  requireThat(!member?.enterprise || (session.kind === 'oidc' && session.issuer === member.enterprise.issuer && session.subject === member.enterprise.subject), 'Use employer sign-in for this provisioned identity', 403)
   const memberships = [{ email: session.operator.email.toLowerCase(), revision: state.revisionOf('member', session.operator.email.toLowerCase()) }]
   const all: Role[] = ['admin', 'manager', 'interviewer', 'approver']
   const base = { id: session.operator.id, email: session.operator.email.toLowerCase(), name: member?.name ?? session.operator.displayName, session: session.id, version: session.operator.version, owner, memberships }

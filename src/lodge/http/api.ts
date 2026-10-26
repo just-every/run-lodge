@@ -1,3 +1,4 @@
+import { bulkInvitationPreview, bulkInvitationSubmit } from '../operations/bulk-invitations'
 import { reminderView } from '../reminders/records'
 import { crmView } from '../crm/records'
 import { applicationEmailEvents } from '../communications/events'
@@ -257,6 +258,17 @@ api.get('/api/lodge/crm', async c => { const { state, actor } = await context(c)
 api.get('/api/lodge/talent', async c => {
   const { state, actor } = await context(c)
   return c.json({ matches: talentPool(state, actor, c.req.query('q')) })
+})
+
+api.post('/api/lodge/bulk-invitations/preview', async c => {
+  const { state, actor } = await context(c); person(actor)
+  const result = await bulkInvitationPreview(state, actor, await body(c))
+  await save(c.env.DB, state, actor)
+  return c.json(result)
+})
+api.post('/api/lodge/bulk-invitations/send', async c => {
+  const { state, actor } = await context(c); person(actor)
+  return c.json(await bulkInvitationSubmit(c.req.raw, c.env, state, actor, await body(c)))
 })
 
 api.post('/api/lodge/invite', async c => {

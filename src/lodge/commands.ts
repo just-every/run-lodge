@@ -1,3 +1,4 @@
+import { vacancyCompliance } from './enterprise/grants'
 import { crmPool, crmEnroll, crmEnable, crmApply } from './crm/records'
 import { stopEnrollment } from './crm/inbound'
 import { configureReminder, cancelReminder } from './reminders/records'
@@ -86,7 +87,7 @@ export const commands: Record<string, Command> = {
   'provider-setup': providerSetup, 'provider-review': reviewProviderSetup,
   'field-schema': fieldSchema, 'field-values': fieldValues, 'hiring-view': hiringViews,
   'blind-review': blindReview, 'blind-identity': blindIdentity,
-  business, member,
+  business, member, 'vacancy-compliance': vacancyCompliance,
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy, 'hiring-team': team,
   'job-template': jobTemplate, 'vacancy-from-template': vacancyFromTemplate, 'clone-vacancy': cloneVacancy,
   'job-post': jobPost, 'post-translation': postTranslation, 'post-status': postStatus, 'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening, question, 'job-questions': jobQuestions,

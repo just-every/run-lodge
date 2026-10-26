@@ -10,6 +10,18 @@ import { Fault, requireThat, scope, type Actor, type Data, type Role } from './t
 export const isAgency = (a: Pick<Actor, 'owner' | 'roles'>) => !a.owner && a.roles.includes('agency')
 export const isEmployeeOnly = (a: Pick<Actor, 'owner' | 'roles'>) => !a.owner && a.roles.length === 1 && a.roles[0] === 'employee'
 export const isAdmin = (a: Actor) => a.owner || (!isAgency(a) && a.roles.includes('admin'))
+/** OPS-002: compliance is a human read role, separate from hiring authority. */
+export const isCompliance = (a: Actor) => !a.agent && !isAgency(a) && (isAdmin(a) || a.roles.includes('compliance'))
+export const isComplianceOnly = (a: Actor) => !a.owner && !isAgency(a) && a.roles.includes('compliance') && !a.roles.some(r => ['admin', 'manager', 'interviewer', 'approver'].includes(r))
+
+/** A compliance grant never grants the job's hiring records or candidate identity. */
+export function canSeeCompliance(s: State, a: Actor, application: Data) {
+  if (!isCompliance(a)) return false
+  const app = s.find('application', application.id), vacancy = app && s.find('vacancy', app.vacancy)
+  if (!app || !vacancy) return false
+  if (isAdmin(a)) return canSeeApplication(s, a, app)
+  return (vacancy.compliancePeople ?? []).includes(scope(a))
+}
 export const canReview = (a: Pick<Actor, 'owner' | 'roles'>) => !isAgency(a) && (a.owner || a.roles.some(role => ['admin', 'manager', 'interviewer'].includes(role)))
 export const onPanel = (a: Actor, interview: Data) => canReview(a) && (interview.participants ?? []).includes(scope(a))
 export const has = (a: Actor, role: Role) => !isAgency(a) && (a.owner || a.roles.includes(role))
@@ -98,7 +110,7 @@ function assignedLevels(s: State, a: Actor, vacancy: Data): Data[] | null {
 
 /** What this person may do on this job (OPS-004), read from the saved records on every request. */
 export function permissionsOn(s: State, a: Actor, vacancy: Data): Set<Permission> {
-  if (isAgency(a)) return new Set()
+  if (isAgency(a) || isComplianceOnly(a)) return new Set()
   // Admins hold every permission business-wide; seeing private candidates stays with the owner and "see private" holders (OPS-005).
   if (isAdmin(a) && cleared(a, vacancy, 'confidential')) return new Set(PERMISSIONS.filter(p => p !== 'private' || a.owner || a.seePrivate))
   const levels = assignedLevels(s, a, vacancy)
@@ -124,7 +136,7 @@ export function assignedTo(s: State, a: Actor, application: Data) {
 }
 
 export function canSeeApplication(s: State, a: Actor, application: Data) {
-  if (isAgency(a)) return false
+  if (isAgency(a) || isComplianceOnly(a)) return false
   // A deactivated member keeps their history but loses every view at once.
   if (!a.owner && !a.roles.length) return false
   s.get('application', application.id)
@@ -145,7 +157,7 @@ export function requireApplication(s: State, a: Actor, id: unknown): Data {
 
 /** CRM-009: who sees an event and its pool: the owner and admins, the event's owner, and the hiring teams (REQ-003) of its linked jobs. */
 export function seesEvent(s: State, a: Actor, e: Data) {
-  if (isAgency(a)) return false
+  if (isAgency(a) || isComplianceOnly(a)) return false
   if (!a.owner && !a.roles.length) return false
   if (isAdmin(a)) return true
   const who = scope(a)
@@ -159,7 +171,7 @@ const inSeenPool = (s: State, a: Actor, candidate: Data) => s.all('event-capture
 const privateByLevel = (s: State, a: Actor, candidate: Data) => s.all('application').some(app => { const v = app.candidate === candidate.id && s.find('vacancy', app.vacancy); return !!v && managesVacancy(a, v) && can(s, a, v, 'private') })
 
 export function canSeeCandidate(s: State, a: Actor, candidate: Data) {
-  if (isAgency(a)) return false
+  if (isAgency(a) || isComplianceOnly(a)) return false
   if (!cleared(a, candidate, 'private') && !privateByLevel(s, a, candidate)) return false
   if (inSeenPool(s, a, candidate)) return true
   const apps = s.all('application').filter(app => app.candidate === candidate.id)
@@ -177,7 +189,7 @@ export function requireCandidate(s: State, a: Actor, id: unknown): Data {
 
 /** Contact details stay with the people who run the vacancy; interviewers see names. */
 export function canSeeContact(s: State, a: Actor, candidate: Data) {
-  if (isAgency(a)) return false
+  if (isAgency(a) || isComplianceOnly(a)) return false
   if (isAdmin(a)) return canSeeCandidate(s, a, candidate)
   if (!cleared(a, candidate, 'private') && !privateByLevel(s, a, candidate)) return false
   if (inSeenPool(s, a, candidate)) return true
@@ -192,11 +204,18 @@ export function canSeeContact(s: State, a: Actor, candidate: Data) {
 
 /**
  * Restricted documents (right-to-work papers, voluntary monitoring answers,
- * anything marked restricted) are visible to the owner and hiring admins only.
+ * anything marked restricted) require human compliance access. A separate
+ * compliance member reads only application documents on explicitly granted jobs.
  */
 export function canSeeDocument(s: State, a: Actor, doc: Data) {
   if (isAgency(a)) return false
-  if (doc.restricted && !isAdmin(a)) return false
+  if (doc.restricted) {
+    if (!isCompliance(a)) return false
+    if (!isAdmin(a)) {
+      const app = doc.application && s.find('application', doc.application)
+      return !doc.esign && !!app && canSeeCompliance(s, a, app)
+    }
+  }
   // OFFER-005: a natively signed PDF or certificate follows offer rights on its job, and never reaches an agent.
   if (doc.esign) { const app = s.find('application', doc.application), vacancy = app && s.find('vacancy', app.vacancy); return !a.agent && !!vacancy && managesVacancy(a, vacancy) && can(s, a, vacancy, 'offers') && !blindFor(s, a, app) }
   if (doc.application && s.find('application', doc.application)) {

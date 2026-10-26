@@ -788,3 +788,26 @@ An owner or hiring administrator first reviews the configured model and transpor
 GET /api/lodge/analysis returns current metadata and saved definitions. POST /api/lodge/analysis/interpret takes question. POST /api/lodge/analysis/preview takes query. POST /api/lodge/analysis/save takes title and query. GET /api/lodge/analysis/saved/:id reloads an owned definition. A query contains metric, inclusive local from and to dates, jobs, sources, groupBy and chart. Only the closed metric and grouping choices returned by the metadata route are accepted. The model receives the question and permitted filter metadata, never candidate rows, interview notes or monitoring answers. Restricted questions and unsupported output refuse. Saved chart definitions do not schedule delivery.
 
 Scheduled recruiting charts use `/analysis/schedules` and `/api/lodge/analysis/schedules`. A current human owner or hiring admin reviews an owned immutable chart, exact English aggregate format, verified installation sender, own native recipient and one future time before enabling. Preview creates no work. Scheduled delivery recomputes current authorized data without a model call and sends aggregate totals with an authenticated chart link, never candidate evidence rows. Sender changes, revoked author access and restored archives withhold delivery. A claimed provider request is never automatically retried; accepted mail is described as handed, without asserting delivery. Cancel pending work through the queue.
+
+## Enterprise administration
+
+- `POST /enterprise/settings` with `{enabled:true}`: the native owner explicitly
+  enables the configured employer connection. `false` disables provider sign-in
+  and revokes provider sessions. The settings page accepts the same native form.
+- `POST /api/lodge/command/vacancy-compliance` with `{id,people}`: a human hiring
+  admin or owner replaces that job's explicit compliance reviewers. Each person
+  must be an active compliance member. Confidential jobs require current access.
+- `GET /enterprise/compliance`: current human compliance records, scoped to the
+  explicit job grants. Original files retain the normal live download checks.
+- `POST /api/lodge/bulk-invitations/preview` with `{source}`: a human admin previews
+  a pasted list or CSV. Returns the exact persisted rows and preview token.
+- `POST /api/lodge/bulk-invitations/send` with `{id,token}`: owner-only confirmation
+  of that preview. Current membership and job settings are fenced before adding
+  members. Durable attempt claims prevent replay and automatic duplicate sends.
+- `/scim/v2/Users`: bearer-authenticated SCIM list and create. Reads support exact
+  `userName eq` filtering, `startIndex` and `count`. Individual user routes support
+  read, replace, bounded patch and suspension. The stable external subject cannot
+  be rebound to another member or email. SCIM roles never grant hiring authority.
+- `POST /auth/oidc/lodge-okta/start` and the configured callback use Base's pinned
+  Okta authorization-code verifier. Only active provisioned subject associations
+  can receive a Lodge session; token email cannot select an account.

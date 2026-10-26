@@ -120,6 +120,12 @@
       "name": "0019_application_email_activation.sql",
       "sha256": "5abaf95a06e5eec29b731eb541a57351381079455c9b9f505c9b3f8a412b99e8",
       "sql": "-- Installation-local approval prerequisite; never restored from an archive.\n-- Only an explicit current human admin approval creates or replaces its epoch.\nCREATE TABLE l_application_email_activation (\n  id INTEGER PRIMARY KEY CHECK (id = 1),\n  epoch TEXT NOT NULL\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0020_enterprise_saml_transactions.sql",
+      "sha256": "09e2c48aee5d1627b32bb4e46c35f1452d51d30212d39fdee3a44b83c2447529",
+      "sql": "-- One-use SP requests and assertion replay protection. Only hashes of browser\n-- bindings and verified assertion identifiers are retained.\nCREATE TABLE l_enterprise_saml_transactions (\n request_id TEXT PRIMARY KEY,\n browser_hash TEXT NOT NULL,\n config_hash TEXT NOT NULL,\n generation INTEGER NOT NULL,\n created_at INTEGER NOT NULL,\n expires_at INTEGER NOT NULL,\n consumed_at INTEGER,\n assertion_key TEXT UNIQUE,\n response_key TEXT UNIQUE\n);\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
@@ -155,7 +161,15 @@
     "AI_API_KEY",
     "AI_BASE_URL",
     "MODELS_SERVICE",
-    "MODELS_KEY"
+    "MODELS_KEY",
+    "ENTERPRISE_OKTA_ISSUER",
+    "ENTERPRISE_OKTA_CLIENT_ID",
+    "ENTERPRISE_OKTA_CLIENT_SECRET",
+    "ENTERPRISE_OIDC_SECRET",
+    "ENTERPRISE_SCIM_TOKEN",
+    "ENTERPRISE_SAML_ISSUER",
+    "ENTERPRISE_SAML_ENTRY_POINT",
+    "ENTERPRISE_SAML_CERTIFICATE"
   ],
   "schedules": [
     "0 * * * *"

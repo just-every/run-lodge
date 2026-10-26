@@ -36,8 +36,10 @@
     "check:deployment-spec": "node scripts/build-deployment-spec.mjs --check"
   },
   "dependencies": {
+    "@node-saml/node-saml": "5.1.0",
     "@tanstack/react-router": "1.170.41",
     "@tanstack/react-start": "1.168.60",
+    "@xmldom/xmldom": "0.8.15",
     "hono": "4.13.7",
     "mammoth": "1.13.0",
     "pdfjs-dist": "6.4.299",
@@ -58,13 +60,15 @@
     "miniflare": "5.20260907.0-alpha",
     "typescript": "5.9.3",
     "vite": "8.2.2",
-    "wrangler": "4.129.1"
+    "wrangler": "4.129.1",
+    "xml-crypto": "6.4.0"
   },
   "packageManager": "pnpm@10.12.4",
   "pnpm": {
     "overrides": {
       "sharp": "0.35.5",
-      "undici": "7.29.1"
+      "undici": "7.29.1",
+      "@xmldom/xmldom": "0.8.15"
     },
     "onlyBuiltDependencies": [
       "esbuild",
