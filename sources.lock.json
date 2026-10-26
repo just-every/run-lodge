@@ -1063,7 +1063,7 @@
       "executable": false
     },
     "src/lodge/analysis/render.ts": {
-      "sha256": "f37499dbdfbcb0079ab730f2c00ad1c79513c242f1fb85c4c350b23a270776d1",
+      "sha256": "153ce0ed55b194115c598b4ab3b93a4222468037ae8103ced2f5861cba20a4f4",
       "executable": false
     },
     "src/lodge/analysis/saved.ts": {
