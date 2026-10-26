@@ -23,8 +23,8 @@ export async function liveCrmInstallation() {
   const subdomain = (await api('accounts/' + account + '/workers/subdomain')).subdomain
   const origin = 'https://' + name + '.' + subdomain + '.workers.dev'
   database = (await api('accounts/' + account + '/d1/database', { method: 'POST', ...json({ name }) })).uuid
-  for (const migration of (await readdir('migrations/core')).filter(f => f.endsWith('.sql')).sort()) {
-   await api('accounts/' + account + '/d1/database/' + database + '/query', { method: 'POST', ...json({ sql: await readFile('migrations/core/' + migration, 'utf8') }) })
+  for (const migration of (await readdir('./migrations/core')).filter(f => f.endsWith('.sql')).sort()) {
+   await api('accounts/' + account + '/d1/database/' + database + '/query', { method: 'POST', ...json({ sql: await readFile('./migrations/core/' + migration, 'utf8') }) })
   }
   const bundle = await build({ entryPoints: ['src/lodge/crm/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', conditions: ['workerd', 'worker', 'browser'], external: ['node:*'], target: 'es2023', logLevel: 'error' })
   const setupToken = crypto.randomUUID() + crypto.randomUUID(), secret = crypto.randomUUID() + crypto.randomUUID()
