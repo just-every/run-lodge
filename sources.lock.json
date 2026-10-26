@@ -3971,7 +3971,7 @@
       "executable": false
     },
     "tests/crm-flow.mjs": {
-      "sha256": "366f59e424200bbde0cdef5e1b977b00ba00d2e9de0b39a8229fe411eaa73709",
+      "sha256": "4278364cca6fa291abbf31885d225b7eb32904045f75e60eefc772589020554b",
       "executable": false
     },
     "tests/crm-live.mjs": {
