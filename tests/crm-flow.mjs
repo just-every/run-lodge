@@ -87,6 +87,7 @@ export async function checkNurture(t) {
  await h.tick('2026-10-26T17:00:00.000Z')
  const route = '/crm/opt-out/' + opted.optOutToken
  assert.equal((await h.send(route)).status, 200)
+ assert.equal((await h.send(route, form({ confirm: 'yes' }), '', { origin: 'https://foreign.example.test' })).status, 403, 'foreign pages cannot revoke consent through a forged form')
  assert.equal((await h.send(route, form({ confirm: 'yes' }))).status, 200)
  await h.restart(); await h.tick('2026-10-26T19:00:00.000Z')
  v = await h.view(); assert.equal(v.enrollments.find(e => e.id === opted.id).outcomes.length, 1)

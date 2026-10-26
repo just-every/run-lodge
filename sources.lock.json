@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a29175df3baf2e79cf7c9f953d3cf21dee6b9b8bf2564c884421f6e6381917a2",
+      "sha256": "a3bfd6a14ca4ec6c41ec5cf3927718f0dffcf48a853d02d0a3f909080ab7de83",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8811be53b12970d5b77f5a982fddecf8b1022554cd3ae77c8a98d0fee064bca1",
+      "sha256": "1de08a7cf110b27dec68a3fadb90174e149cb3d6834b802addc31a6077f3a4a6",
       "executable": false
     },
     "DEMO.md": {
@@ -3971,7 +3971,7 @@
       "executable": false
     },
     "tests/crm-flow.mjs": {
-      "sha256": "4278364cca6fa291abbf31885d225b7eb32904045f75e60eefc772589020554b",
+      "sha256": "0383aecfcb639e3d364b81a3f75d60dc39f59b4e740d76137762ae29d3a74f2c",
       "executable": false
     },
     "tests/crm-live.mjs": {
