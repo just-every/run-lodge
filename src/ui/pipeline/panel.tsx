@@ -1,3 +1,4 @@
+import { References } from '../references'
 import { useState } from 'react'
 import type { PageProps } from '../app'
 import { Icon } from '../icons'
@@ -17,7 +18,7 @@ import { BlindIdentityValues, BlindResume, BlindReveals } from '../blind-review'
 export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () => void } & PageProps) {
   const v = w.vacancies.find((x: D) => x.id === app.vacancy)
   const c = w.candidates.find((x: D) => x.id === app.candidate) ?? { name: app.candidateName }
-  const tabs = ['Overview', 'Notes', 'Interviews', 'Scorecards', ...(app.manages ? ['Decisions'] : []), 'Documents']
+  const tabs = ['Overview', 'Notes', 'Interviews', 'Scorecards', ...(app.manages ? ['Decisions'] : []), ...(w.references?.questionnaires.some((q: D) => q.application === app.id) && !app.manages ? ['References'] : []), 'Documents']
   const [tab, setTab] = useState('Overview')
   const id = (t: string) => `panel-${t.toLowerCase()}`
   return <section className="app-panel" aria-label={`Application of ${c.name}`}>
@@ -39,7 +40,8 @@ export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () 
       {tab === 'Notes' && <Notes app={app} w={w} mutate={mutate} />}
       {tab === 'Interviews' && <Interviews app={app} v={v} w={w} mutate={mutate} />}
       {tab === 'Scorecards' && <><Scorecards app={app} v={v} w={w} mutate={mutate} /><Debriefs app={app} v={v} w={w} mutate={mutate} /><div className="document-and-scorecard">{app.blind ? <BlindResume app={app} /> : <DocumentViewer documents={applicationDocuments(app, w)} />}<ScorecardForm app={app} v={v} w={w} mutate={mutate} /></div></>}
-      {tab === 'Decisions' && <><Offers app={app} v={v} w={w} mutate={mutate} /><Messages app={app} w={w} mutate={mutate} /></>}
+      {tab === 'Decisions' && <><References app={app} w={w} mutate={mutate} /><Offers app={app} v={v} w={w} mutate={mutate} /><Messages app={app} w={w} mutate={mutate} /></>}
+      {tab === 'References' && <References app={app} w={w} mutate={mutate} />}
       {tab === 'Documents' && (app.blind ? <BlindResume app={app} /> : <Documents app={app} w={w} mutate={mutate} />)}
     </div>
   </section>
