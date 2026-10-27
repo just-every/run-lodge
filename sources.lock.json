@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "816a41786d5489a1425e38ef3a6fb1364e9e52b7cd5cbad6cff92b69f5c698c5",
+      "sha256": "26e23e51c511174f63eb6597ba406405e65c7a2d3fdb706f7b99a9514618073c",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4010cbb1e4224850fd272d6f1f657131db8ed91dc47ee0f9edd8e195fccb93d2",
+      "sha256": "9491a75ff9b0d63491c7a4ecf96baecb046bc36b4916cccb896d9c09fa0b2de6",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "823116125d3690b7e762c80dccce5d0c80fe9e3c4317169b1250a816a55f523e",
+      "sha256": "050fe21509bfa58ad23abb869d5646896596943185db449bd8990445c54e2c18",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -678,6 +678,10 @@
       "sha256": "5e091bc59ac406a9c1b4ba6a46ac528ae4c90d5f6239301c9a315b705a22bad6",
       "executable": false
     },
+    "RULINGS.md": {
+      "sha256": "df30696ffbe52dad9add90c8af18e535670a675d1eb7303456a8230ca5b2e19c",
+      "executable": false
+    },
     "RUN-LOCALLY.md": {
       "sha256": "eb0e5d48c7fae54f001dff71a7ff1a942fa9ff800e4e22d6a4a6c46eb609a256",
       "executable": false
@@ -695,7 +699,7 @@
       "executable": true
     },
     "scripts/contract-docs.mjs": {
-      "sha256": "e620db4b680a0443a0145891dc8a601ddebd9822f71584a4fd432d91c4e3d5a4",
+      "sha256": "78cd4454f6823f3850f7493e260d75e1877a688d6a54af0d381af1560675755f",
       "executable": false
     },
     "scripts/delivery/base/artifact.mjs": {
@@ -1671,7 +1675,7 @@
       "executable": false
     },
     "src/lodge/references/records.ts": {
-      "sha256": "3d3a5ef0c32d3e290ea261bc0d9aa80230b498803f347518d238ef3f94483366",
+      "sha256": "ee6ef0bf474406e215a94ba96fe3867691f5119d59be4ba37fe2842260051dae",
       "executable": false
     },
     "src/lodge/references/views.ts": {
@@ -3915,7 +3919,7 @@
       "executable": false
     },
     "src/ui/references.tsx": {
-      "sha256": "75194b955ef0c357fcdd88020600c044897b7f13ec4bb18b72c655273f7b4917",
+      "sha256": "fb996cbb9a87fd9d78c12f73f63f02224bedf39d096c2024c96a058fd57a2f76",
       "executable": false
     },
     "src/ui/referrals.tsx": {
@@ -4355,7 +4359,7 @@
       "executable": false
     },
     "tests/reference-flow.mjs": {
-      "sha256": "e665c367e6b3d091083c2eb7547673605bf0416cb28787e5fbdd31b6856e88a7",
+      "sha256": "c555f7a5dcf46246d67037760984153621175eb80a46eb356e424bc56907360a",
       "executable": false
     },
     "tests/referrals-driver.mjs": {

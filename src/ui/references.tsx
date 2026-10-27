@@ -6,6 +6,7 @@ import { Check, Field, Form, memberOptions, type D } from './shared'
 export function References({ app, w, mutate }: { app: D; w: D; mutate: PageProps['mutate'] }) {
   const view = w.references
   const editable = view?.editable.includes(app.id)
+  const manages = w.vacancies.find((v: D) => v.id === app.vacancy)?.manages
   const questionnaire = view?.questionnaires.find((q: D) => q.application === app.id)
   const current = questionnaire?.versions.at(-1)
   const tasks = (view?.tasks ?? []).filter((t: D) => t.application === app.id)
@@ -27,7 +28,7 @@ export function References({ app, w, mutate }: { app: D; w: D; mutate: PageProps
         const record = view.records.find((r: D) => r.task === task.id), latest = record?.versions.at(-1)
         return <section key={task.id} aria-label={'Reference call: ' + task.note}>
           <h4>{task.note}</h4><p>{task.status} · {task.owner}</p>
-          {task.owner === w.actor.email && task.status !== 'cancelled' && app.status === 'active' && <details><summary>{latest ? 'Record corrected answers' : 'Record call answers'}</summary>
+          {manages && task.owner === w.actor.email && task.status !== 'cancelled' && app.status === 'active' && <details><summary>{latest ? 'Record corrected answers' : 'Record call answers'}</summary>
             <Form key={(record?.versions.length ?? 0) + ':' + current.version} label="Save manually recorded answers" onSubmit={x => mutate('reference-record', { task: task.id, version: record?.versions.length ?? 0, questionnaireVersion: current.version, refereeName: x.refereeName, relationship: x.relationship, source: x.source, consent: x.consent, consentConfirmed: x.consentConfirmed, answers: Object.fromEntries(current.questions.map((q: D) => [q.id, x[q.id]])) })}>
               <Field label="Referee name" name="refereeName" defaultValue={latest?.referee.name} />
               <Field label="Referee relationship" name="relationship" defaultValue={latest?.referee.relationship} />
