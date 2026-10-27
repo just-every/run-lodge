@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "6b6b4d04fa884aea062f660b2261b9bcb87dd3d972aa82d52762c139d62b9b97",
+      "sha256": "3001616d25a606806c68d66025ece51a629281592d19a38f0b29e6f147e8a077",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "88c5fda9982d438352c52906af2bd515144ee873405055701e08328b7833325a",
+      "sha256": "f8a96553519c89e575f1a8905a9e61a79922d30cc26a0e4dd2fea3772a96a148",
       "executable": false
     },
     "DEMO.md": {
@@ -1207,7 +1207,7 @@
       "executable": false
     },
     "src/lodge/core/protected.ts": {
-      "sha256": "35b1d1e297752aa73c4f1af8c4ed0c3ed3377a520c63eff4a3518a0a2be6ee93",
+      "sha256": "c82f1eaa17e1b80a7ecd0d937a283dde16805436d9beb046e8c99dd6366aafd3",
       "executable": false
     },
     "src/lodge/core/state.ts": {
@@ -3691,7 +3691,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "1e402c26f2628997a3e5512d653af4c204ee1fb71acbb1da6f9ad15ecadaff42",
+      "sha256": "b3332f9fdc18b36690bfdd2652bc4a1b84cf37f36f1e69d089fba7a747dc0d4c",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -3911,7 +3911,7 @@
       "executable": false
     },
     "src/ui/references.tsx": {
-      "sha256": "62a72fef66c5595227c647155f7a5acf6133bbcecfcd02126f79b32b4acf7bbc",
+      "sha256": "75194b955ef0c357fcdd88020600c044897b7f13ec4bb18b72c655273f7b4917",
       "executable": false
     },
     "src/ui/referrals.tsx": {
@@ -4347,11 +4347,11 @@
       "executable": false
     },
     "tests/reference-browser.mjs": {
-      "sha256": "6e96da9ad0c704eaacd8563e8584d20d2b4f6376344f7d8fb80fc7e3e6f6b9eb",
+      "sha256": "8190c3bc636e6d063aa48613a1db7d0324427073ae49f059ff8c2e85ec90b241",
       "executable": false
     },
     "tests/reference-flow.mjs": {
-      "sha256": "8b6d7f9afcc1e14e06c211846c9a83825e98af71d76c10f71c3b9452b6807486",
+      "sha256": "52a72948c9eb3b15ba38e4a703c81a91ff19bc66ac31ae10872df0f1cb1b7ce2",
       "executable": false
     },
     "tests/referrals-driver.mjs": {
