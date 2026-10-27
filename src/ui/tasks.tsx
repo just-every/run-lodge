@@ -21,8 +21,8 @@ export function Tasks({ w, mutate, go }: Pick<PageProps, 'w' | 'mutate' | 'go'>)
     <button onClick={() => mutate('complete-task', { id: t.id })}>Done</button></li>
   if (!mine.length && !set.length && !recruiter(w)) return null
   return <section className="card"><h2>Your follow-ups and tasks</h2>
-    {mine.length ? <ul className="list rich">{mine.map((t: D) => row(t, true))}</ul> : <p className="empty">Nothing on your list.</p>}
-    {set.length > 0 && <><h3>Set for others</h3><ul className="list rich">{set.map((t: D) => row(t, false))}</ul></>}
+    {mine.length ? <ul className="list rich task-list">{mine.map((t: D) => row(t, true))}</ul> : <p className="empty">Nothing on your list.</p>}
+    {set.length > 0 && <><h3>Set for others</h3><ul className="list rich task-list">{set.map((t: D) => row(t, false))}</ul></>}
     {recruiter(w) && <details><summary>New task</summary><Form label="Add task" reset onSubmit={x => mutate('task', { kind: 'task', note: x.note, due: x.due, owner: x.owner })}>
       <Field label="Task" name="note" hint="For example: call references" /><Field label="Due" name="due" type="date" /><Field label="Owner" name="owner" defaultValue={me} options={people(w)} />
     </Form></details>}
