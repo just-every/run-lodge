@@ -4059,7 +4059,7 @@
       "executable": false
     },
     "tests/blind-driver.mjs": {
-      "sha256": "99a438e3dfd38d6d39f8b6028a8219a25862a03e2922699b1fc9051c0b38b7de",
+      "sha256": "bb3b15a385c4a82b45ea92c7b1e09ef5b9a84db7a8ff142de37b7db97800b0df",
       "executable": false
     },
     "tests/blind-rules.mjs": {

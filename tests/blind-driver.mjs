@@ -27,6 +27,9 @@ export async function checkBlindReview(t) {
   return cmd('publish', { id: v.id })
  }
  const v = await job('Blind warehouse lead'), other = await job('Other warehouse lead')
+ // Keep a year-shaped substring in the job reference so the privacy scan is
+ // exercised deterministically even when the generated vacancy ID differs.
+ await cmd('opening', { vacancy: v.id, opening: v.openings[0].id, code: 'LDG-2020AA-01' })
  await cmd('hiring-team', { id: v.id, recruiters: ['blind.recruiter@example.test'] })
  const school = 'North College', year = '2020', name = 'Jules Carter', email = 'jules.blind@example.test', phone = '+1 (212) 555-0147', address = '55 Pine Street'
  const sourceText = `${name}\n${email}\n${phone}\n${address}\n${school}, ${year}\nInventory planning and forklift inspections`
@@ -77,6 +80,7 @@ export async function checkBlindReview(t) {
   if (cookie !== reviewer) {
    const exported = await send('/api/lodge/download/vacancy/' + v.id, undefined, cookie)
    assert.equal(exported.status, 200)
+   assert.equal(exported.value.vacancy.openings[0].code, 'LDG-2020AA-01', 'blind export preserves the job reference')
    for (const value of hidden) assert.deepEqual(identityHits(exported.value, value), [], `export hides ${value}`)
    assert.ok(!exported.text.includes(first.candidate.id), 'no shared-person join in blind export')
   }
@@ -147,11 +151,12 @@ export async function checkBlindReview(t) {
 
 
 // A graduation year must disappear from identity facts and passages. A coincidental
-// substring of an opaque UUID or SHA-256 is not a year; join IDs are checked separately.
+// substring of an opaque UUID, short ID, SHA-256 or generated opening reference
+// is not a year; join IDs are checked separately. Identity text is still scanned.
 function identityHits(value, needle, path = '') {
  if (typeof value === 'number') return String(value) === needle ? [path] : []
  if (typeof value === 'string') {
-  const opaque = /^(?:(?:[a-z-]+:|Application )?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{64})$/i.test(value)
+  const opaque = /^(?:(?:[a-z-]+:|Application )?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{8}|[0-9a-f]{64}|LDG-[0-9a-f]{6}-[0-9]{2,})$/i.test(value)
   return value.includes(needle) && !( /^\d{4}$/.test(needle) && opaque ) ? [path] : []
  }
  if (!value || typeof value !== 'object') return []
