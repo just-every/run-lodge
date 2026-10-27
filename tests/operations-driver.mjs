@@ -193,7 +193,9 @@ export async function reviewStatusTiming(h, timing, eventAt, expected) {
   await cmd('unpublish', { id: h.job.id, reason: 'Review delayed status timing' })
   const box = await cmd('sandbox-create', { name: 'Timing trial', vacancy: h.job.id, mode: 'historical', samples: [{ application: h.timingApplication, eventAt }] })
   await cmd('sandbox-edit', { id: box.id, edits: [{ op: 'application-email-timing', input: { timing } }] })
+  const beforePreview = { mails: (await h.mails()).length, providerRequests: h.edge.checks }
   let preview = await cmd('sandbox-preview', { id: box.id })
+  assert.deepEqual({ mails: (await h.mails()).length, providerRequests: h.edge.checks }, beforePreview, 'an isolated timing preview contacts no recipient or provider')
   assert.equal(preview.impact.outcomes[0].statusEmail.dueAt, expected)
   assert.equal(preview.impact.outcomes[0].statusEmail.productionContact, 0)
   assert.equal((await h.state()).vacancies.find(v => v.id === h.job.id).applicationEmailTiming, undefined)

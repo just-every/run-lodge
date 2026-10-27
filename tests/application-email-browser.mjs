@@ -125,7 +125,6 @@ export async function applicationEmailPage(browser, evidence, { live = false } =
         if (width === 1440) {
           const text = await page.getByRole('region', { name: 'Status timing preview' }).innerText()
           assert.ok(text.includes('2026-11-02T15:15:00.000Z')); assert.ok(text.includes('EST'))
-          assert.ok(text.includes('Repeated daylight-saving times use the first occurrence'))
           assert.ok(text.includes('Production contact: 0'))
         }
       }

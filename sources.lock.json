@@ -4039,7 +4039,7 @@
       "executable": false
     },
     "tests/application-email-browser.mjs": {
-      "sha256": "a309d89e507cfd3363204c634201b9c6421a1d9abb9d9be72c5bb10de4aabd47",
+      "sha256": "29c74211594c50a91e7ea34964243f56c64b0195fc24ce683497eaff5b82256d",
       "executable": false
     },
     "tests/application-email-flow.mjs": {
@@ -4307,7 +4307,7 @@
       "executable": false
     },
     "tests/operations-driver.mjs": {
-      "sha256": "c43bb8bb268eb70965603e3ebfa70e9e76280f5e8147f62b2ca6264b8c88c43b",
+      "sha256": "4642d2e4efc4bd1a49876e0b895704061a8e135fb35f61ebdbbf1c3cbddbebc1",
       "executable": false
     },
     "tests/pay-transparency-browser.mjs": {
