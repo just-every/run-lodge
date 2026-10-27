@@ -6,7 +6,7 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   const stageBefore = (await state()).applications.find(x => x.id === app.id)
   const historyBefore = structuredClone(stageBefore.history)
   const configure = body => send('/api/lodge/command/reference-questionnaire', { application: app.id, ...body }, manager)
-  for (const question of ['What is their age?', 'Is the candidate male or female?', 'What year were they born?', 'Do they have kids?', 'What is their date of birth?', 'What is their gender identity?', 'Are they married?', 'What is their family status?', 'Describe their religion', 'What is their race?', 'What is their ethnic background?', 'What is their national origin?', 'What is their citizenship?', 'Are they pregnant?', 'Do they have a disability?', 'Do they have genetic conditions?', 'Are they a veteran?']) {
+  for (const question of ['What is their age?', 'Is the candidate male or female?', 'What year were they born?', 'Do they have kids?', 'What is their date of birth?', 'What is their gender identity?', 'Are they married?', 'What is their family status?', 'Describe their religion', 'What is their race?', 'What is their ethnic background?', 'What is their national origin?', 'What is their citizenship?', 'Are they pregnant?', 'Do they have a disability?', 'Do they have genetic conditions?', 'Are they a veteran?', 'What is their skin color?', 'What is their ancestry?', 'What is their creed?']) {
     const denied = await configure({ version: 0, questions: [question], roles: ['owner', 'manager'] })
     assert.equal(denied.status, 400, question)
     assert.match(denied.value.error, /protected traits/)
