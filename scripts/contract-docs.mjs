@@ -1,41 +1,33 @@
-// Incremental contract generation preserves legacy acceptance prose for clauses outside this round.
-import { readFile, writeFile } from 'node:fs/promises'
+// Incrementally regenerate selected legacy acceptance rows from CONTRACT.md.
+// Existing policy quotations and required journeys stay intact.
+import { readFileSync, writeFileSync } from 'node:fs'
 import { parseContract } from '../src/base/seed-contract.mjs'
 
-const mode = process.argv[2]
-if (!['write', 'check'].includes(mode)) throw new Error('Use write or check, followed by clause IDs')
-const selected = new Set(process.argv.slice(3))
-if (!selected.size) throw new Error('Name the clauses whose acceptance rows should be regenerated')
-let source = await readFile('CONTRACT.md', 'utf8')
-const rows = source.split('\n').flatMap(line => {
-  const cells = line.split(/(?<!\\)\|/).slice(1, -1).map(cell => cell.trim())
-  if (cells.length !== 6 || !/^[A-Z][A-Z0-9-]*-\d+$/.test(cells[0].replace(/`/g, ''))) return []
-  return [[line, cells[0].replace(/`/g, ''), ...cells.slice(1)]]
-})
-for (const [label, kinds] of [['Published', ['published']], ['Target and push further', ['target', 'push-further']], ['All', ['published', 'target', 'push-further']]]) {
-  const group = rows.filter(row => kinds.includes(row[3]))
-  const tally = ['done', 'partial', 'missing'].map(status => group.filter(row => row[4] === status).length)
-  source = source.replace(new RegExp('^\\| ' + label + ' \\|.*$', 'm'), '| ' + label + ' | ' + [...tally, group.length].join(' | ') + ' |')
-}
+const [mode, ...ids] = process.argv.slice(2)
+if (!['write', 'check'].includes(mode) || !ids.length) throw Error('Usage: node scripts/contract-docs.mjs write|check CLAUSE [CLAUSE ...]')
+const source = readFileSync('CONTRACT.md', 'utf8'), lines = source.split('\n')
 const contract = parseContract(source)
-for (const id of selected) if (!contract.clauses.some(c => c.id === id)) throw new Error('Unknown clause: ' + id)
-const escape = value => value.replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim()
-let acceptance = await readFile('ACCEPTANCE.md', 'utf8')
-for (const clause of contract.clauses.filter(c => selected.has(c.id))) {
-  const row = rows.find(row => row[1] === clause.id)
-  const journey = clause.text.split('**Acceptance evidence:**')[1]?.trim() ?? clause.text
-  const proof = [row[5], 'Required journey: ' + journey, clause.gap ? 'Remaining: ' + clause.gap : ''].filter(Boolean).join(' ')
-  const line = '| ' + [clause.id, clause.title + '.', proof, clause.status].map(escape).join(' | ') + ' |'
-  const match = new RegExp('^\\| ' + clause.id + ' \\|.*$', 'm')
-  if (!match.test(acceptance)) throw new Error('Missing acceptance row: ' + clause.id)
-  acceptance = acceptance.replace(match, () => line)
+let acceptance = readFileSync('ACCEPTANCE.md', 'utf8')
+let claims
+try { claims = readFileSync('docs/CLAIMS.md', 'utf8') } catch { claims = '# Lodge implementation claims\n\nSelected rows generated from CONTRACT.md. The complete status register remains in CONTRACT.md.\n\n| Clause | Status | Evidence | Gap |\n| --- | --- | --- | --- |\n' }
+for (const id of ids) {
+  const clause = contract.clauses.find(c => c.id === id)
+  if (!clause) throw Error('Unknown clause: ' + id)
+  const cells = lines[clause.row - 1].split('|').slice(1, -1).map(x => x.trim())
+  if (cells.length !== 6) throw Error('Expected six source status cells: ' + id)
+  const [,, , status, evidence, gap] = cells
+  const pattern = new RegExp('^\\| ' + id + ' \\|.*$', 'm')
+  const old = acceptance.match(pattern)?.[0]
+  if (!old) throw Error('Missing acceptance row: ' + id)
+  const oldCells = old.split('|').slice(1, -1).map(x => x.trim())
+  const journey = oldCells[2].startsWith('Required journey:') ? oldCells[2].split('`')[0].trim() + ' ' : ''
+  const row = `| ${id} | ${oldCells[1]} | ${journey}${evidence}${gap ? ' Remaining: ' + gap : ''} | ${status} |`
+  acceptance = acceptance.replace(pattern, row)
+  const claim = `| ${id} | ${status} | ${evidence} | ${gap} |`
+  claims = pattern.test(claims) ? claims.replace(pattern, claim) : claims.trimEnd() + '\n' + claim + '\n'
 }
-let claims = '# Lodge implementation claims\n\nGenerated from CONTRACT.md by the seed contract documentation command. The contract retains every acceptance requirement and evidence gap.\n\n'
-claims += '| Clause | Title | Status |\n| --- | --- | --- |\n'
-for (const row of rows) claims += '| ' + [row[1], row[2], row[4]].map(escape).join(' | ') + ' |\n'
-for (const [path, output] of [['CONTRACT.md', source], ['ACCEPTANCE.md', acceptance], ['docs/CLAIMS.md', claims]]) {
-  const original = await readFile(path, 'utf8').catch(error => { if (error.code === 'ENOENT') return ''; throw error })
-  if (mode === 'write') { if (original !== output) await writeFile(path, output) }
-  else if (original !== output) throw new Error(path + ' needs contract documentation regeneration')
+for (const [path, generated] of [['ACCEPTANCE.md', acceptance], ['docs/CLAIMS.md', claims]]) {
+  if (mode === 'write') writeFileSync(path, generated)
+  else if (readFileSync(path, 'utf8') !== generated) throw Error('Stale generated contract record: ' + path)
 }
-console.log('Contract documentation ' + mode + ' passed; ' + JSON.stringify(contract.counts))
+console.log('contract-docs ' + mode + ': ' + ids.join(', ') + '; counts ' + JSON.stringify(contract.counts))

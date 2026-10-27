@@ -1,3 +1,5 @@
+import { businessZone } from '../core/time'
+import { sameTiming, statusTiming } from './timing'
 import { prepareNurture } from '../crm/run'
 import { prepareReminder } from '../reminders/run'
 import type { MailMessage } from '../../modules/operator-auth/index.mjs'
@@ -22,12 +24,14 @@ async function prepared(s: State, mail: Data): Promise<Data> {
   if (mail.kind === 'nurture') return prepareNurture(s, mail)
   if (mail.kind === 'reminder') return prepareReminder(s, mail)
   const app = s.find('application', mail.application), person = s.find('candidate', mail.candidate), job = s.find('vacancy', mail.vacancy)
-  if (!app || !person || person.deleted || person.mergedInto || !job || app.imported || job.imported || app.candidateWithdrawnAt || (mail.kind === 'status' && (app.status !== 'active' || app.stage !== mail.stage))) return { status: 'canceled', reason: 'Application is no longer eligible for this event' }
+  if (!app || !person || person.deleted || person.mergedInto || !job || job.status === 'closed' || app.imported || job.imported || app.candidateWithdrawnAt || (mail.kind === 'status' && (app.status !== 'active' || app.stage !== mail.stage))) return { status: 'canceled', reason: 'Application is no longer eligible for this event' }
   if ((app.activated && app.contactBasis?.basis !== 'application') || (person.contactPreference && person.contactPreference.preference !== 'email')) return { status: 'suppressed', reason: 'Current contact preference does not permit email' }
   const digest = person.email ? await contactDigest(s, person.email) : ''
   if (digest && (s.find('capture-erased', digest) || s.find('application-email-suppression', digest))) return { status: 'suppressed', reason: 'Recipient contact is suppressed' }
   const transport = activeApplicationTransport(s), policy = s.find('application-email-policy', job.id), template = s.find('application-email-template', mail.template)
   if (!transport || !policy || transport.epoch !== mail.transportEpoch || policy?.version !== mail.policyVersion || policy.transportEpoch !== transport.epoch || (mail.kind === 'acknowledgment' ? !policy.acknowledgment : !policy.stages.includes(mail.stage))) return { status: 'withheld', reason: 'Current sender or job configuration requires review' }
+  if (mail.kind === 'status' && (!sameTiming(mail.timing ?? statusTiming({}), statusTiming(job)) || mail.timing?.delayDays && mail.timing.timeZone !== businessZone(s.get('business', 'main')))) return { status: 'withheld', reason: 'Status timing changed; review current configuration' }
+  if (mail.kind === 'status' && mail.timing?.delayDays && (mail.timingReviewedBy !== job.applicationEmailTimingBy || !authorized(s, mail.timingReviewedBy, job, person))) return { status: 'withheld', reason: 'Current human timing review does not permit this email' }
   if (!template || template.version !== mail.templateVersion || template.language !== (app.language ?? 'en') || !authorized(s, template.reviewedBy, job, person) || !authorized(s, policy.by, job, person) || !authorized(s, transport.by, job, person)) return { status: 'withheld', reason: 'Current human review or contact permission does not permit this email' }
   if (!mail.content?.to || mail.content.to !== person.email || mail.content.missing?.length || !mail.content.subject || !mail.content.text) return { status: 'withheld', reason: 'Reviewed message values are missing or the recipient changed' }
   return { transport, message: mail.content }

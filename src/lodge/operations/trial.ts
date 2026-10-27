@@ -1,3 +1,4 @@
+import { statusDue, statusTiming, timingLabel } from '../communications/timing'
 import { schemaOf } from '../fields/schema'
 import { validateValues, valuesFor, requireStageFields } from '../fields/values'
 import type { State } from '../core/state'
@@ -16,11 +17,11 @@ export function selection(s: State, a: Actor, job: string, input: Data) {
     if (mode === 'historical') {
       const app = requireApplication(s, a, raw.application)
       requireThat(app.vacancy === job, 'Select history from this vacancy')
-      return { application: app.id, move: raw.move, interview: raw.interview }
+      return { application: app.id, eventAt: raw.eventAt, move: raw.move, interview: raw.interview }
     }
     requireThat(input.confirmSynthetic === true, 'Confirm these are synthetic test inputs')
     // Typed answers are validated by the real SCREEN-001 validator during preview.
-    return { label: text(raw.label ?? `Test case ${index + 1}`, 'Test case label', 100), answers: raw.answers ?? {}, customValues: raw.customValues ?? {}, move: raw.move, interview: raw.interview }
+    return { eventAt: raw.eventAt, label: text(raw.label ?? `Test case ${index + 1}`, 'Test case label', 100), answers: raw.answers ?? {}, customValues: raw.customValues ?? {}, move: raw.move, interview: raw.interview }
   })
   requireThat(samples.length, 'Select at least one test case')
   return { mode, samples, confirmSynthetic: mode === 'synthetic' }
@@ -36,6 +37,9 @@ export async function trial(s: State, a: Actor, job: string, selected: Data) {
     isolated.put('candidate', candidate, { ...person, id: candidate })
     const app = isolated.put('application', id, original ? { ...original, candidate, id } : { vacancy: job, candidate, status: 'active', stage: v.stages[0].id, rubricVersion: v.rubrics.at(-1)?.version, submittedAt: now(), answers: answers(isolated, v, sample.answers), reviewers: [], tags: [] })
     const before = { stage: app.stage, status: app.status, reviewers: app.reviewers ?? [], tags: app.tags ?? [] }
+    const timing = statusTiming(v), eventAt = sample.eventAt ?? now()
+    requireThat(Number.isFinite(Date.parse(eventAt)), 'Choose a valid trial event time')
+    const statusEmail = { eventAt, dueAt: statusDue(timing, eventAt), timing: timingLabel(timing), productionContact: 0 }
     try {
     if (selected.mode === 'synthetic') {
       const schema = schemaOf(v), values = validateValues(schema, sample.customValues ?? {})
@@ -57,7 +61,7 @@ export async function trial(s: State, a: Actor, job: string, selected: Data) {
     const projected = await workspaceRecords(isolated, a)
     const projectedJob = projected.vacancies.find(v => v.id === job)
     const views = (projectedJob?.hiringViews ?? []).map((view: Data) => ({ id: view.id, name: view.name, matches: savedHiringView(projected, job, view.id).applications.some(app => app.id === id) }))
-    outcomes.push({ case: index + 1, before, views, after: { stage: after.stage, status: after.status, reviewers: after.reviewers ?? [], tags: after.tags ?? [] }, scheduling,
+    outcomes.push({ case: index + 1, before, views, statusEmail, after: { stage: after.stage, status: after.status, reviewers: after.reviewers ?? [], tags: after.tags ?? [] }, scheduling,
       rules: isolated.all('rule-match').filter(m => m.application === id).map(m => ({ rule: m.ruleName, version: m.version, status: m.status, reason: m.reason })),
       scheduledRejectionEmails: isolated.all('rejection-email').filter(m => m.application === id).length,
     })
@@ -67,7 +71,7 @@ export async function trial(s: State, a: Actor, job: string, selected: Data) {
     const projected = await workspaceRecords(isolated, a)
     const projectedJob = projected.vacancies.find(v => v.id === job)
     const views = (projectedJob?.hiringViews ?? []).map((view: Data) => ({ id: view.id, name: view.name, matches: savedHiringView(projected, job, view.id).applications.some(app => app.id === id) }))
-    outcomes.push({ case: index + 1, before, views, after: before, error: error instanceof Error ? error.message : 'Trial could not complete', scheduling: null, rules: [], scheduledRejectionEmails: 0 })
+    outcomes.push({ case: index + 1, before, views, statusEmail, after: before, error: error instanceof Error ? error.message : 'Trial could not complete', scheduling: null, rules: [], scheduledRejectionEmails: 0 })
     }
   }
   let approval: Data | null = null

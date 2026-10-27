@@ -1,3 +1,5 @@
+import { businessZone } from '../core/time'
+import { configureStatusTiming, statusTiming, timingLabel } from '../communications/timing'
 import type { State } from '../core/state'
 import { requireAdmin, requireCan, requireManages, requireMember, isAdmin } from '../core/access'
 import { canonical, list, oneOf, requireThat, sha256, type Actor, type Data } from '../core/types'
@@ -9,7 +11,7 @@ import { fieldSchema, hiringViews } from '../fields/commands'
 
 /** Only configuration commands cross from a trial to production. Trial records never do. */
 export const CONFIG_COMMANDS: Record<string, (s: State, a: Actor, b: Data) => Data> = {
-  'field-schema': fieldSchema, 'hiring-view': hiringViews, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit,
+  'application-email-timing': configureStatusTiming, 'field-schema': fieldSchema, 'hiring-view': hiringViews, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit,
   'job-questions': jobQuestions, 'screening-rule': screeningRule, 'approval-routing': approvalRouting, 'workflow-connectors': workflowConnectors,
 }
 
@@ -37,7 +39,7 @@ function workflowConnectors(s: State, a: Actor, b: Data) {
 
 export function configuration(s: State, id: string) {
   const v = s.get('vacancy', id)
-  return structuredClone({ stages: v.stages, rubrics: v.rubrics, plan: v.plan, questions: v.questions ?? [], customSchema: v.customSchema ?? [], hiringViews: v.hiringViews ?? [], approvalRouting: v.approvalRouting ?? {}, workflowConnectors: v.workflowConnectors ?? [], rules: s.scan('screening-rule').filter(r => r.vacancy === id) })
+  return structuredClone({ applicationEmailTiming: v.applicationEmailTiming ?? null, applicationEmailTimingBy: v.applicationEmailTimingBy ?? null, stages: v.stages, rubrics: v.rubrics, plan: v.plan, questions: v.questions ?? [], customSchema: v.customSchema ?? [], hiringViews: v.hiringViews ?? [], approvalRouting: v.approvalRouting ?? {}, workflowConnectors: v.workflowConnectors ?? [], rules: s.scan('screening-rule').filter(r => r.vacancy === id) })
 }
 
 export function installConfiguration(s: State, id: string, config: Data) {
@@ -64,6 +66,7 @@ export function editConfiguration(s: State, a: Actor, id: string, edits: Data[])
 /** Revalidate the normalized saved result, including edits to rules created within the trial. */
 export function validateConfiguration(s: State, a: Actor, id: string, config: Data) {
   const isolated = s.clone(), live = configuration(s, id)
+  if (canonical(config.applicationEmailTiming) !== canonical(live.applicationEmailTiming)) configureStatusTiming(isolated, a, { vacancy: id, timing: config.applicationEmailTiming ?? { ...statusTiming({}), timeZone: businessZone(s.get('business', 'main')) } })
   const changedRules = canonical(config.rules) !== canonical(live.rules)
   if (changedRules) requireAdmin(a)
   // Preserve stable ids in the saved trial while using the ordinary validators.
@@ -89,7 +92,7 @@ export function validateConfiguration(s: State, a: Actor, id: string, config: Da
 /** Fenced dependencies include absence, permissions, selected history and scheduling facts.
  * Deliberately conservative: another hiring change can require a fresh preview. */
 export async function sourceStamp(s: State, content = false) {
-  const kinds = ['vacancy', 'screening-rule', 'question', 'member', 'business', 'permission-level', 'application', 'candidate', 'interview', 'rejection-reasons', 'rejection-template', 'fair-chance', 'department', 'office', 'provider-setup', 'document', 'resume-extraction', 'blind-identity']
+  const kinds = ['vacancy', 'screening-rule', 'question', 'member', 'business', 'permission-level', 'application', 'candidate', 'interview', 'rejection-reasons', 'rejection-template', 'fair-chance', 'department', 'office', 'provider-setup', 'document', 'resume-extraction', 'blind-identity', 'application-email-template', 'application-email-policy', 'application-email-transport']
   const revisions = kinds.flatMap(kind => s.scan(kind).map(r => ({ kind, id: r.id, ...(content ? { value: r } : { revision: s.revisionOf(kind, r.id) }) }))).sort((x, y) => (x.kind + x.id).localeCompare(y.kind + y.id))
   return sha256(canonical(revisions))
 }
@@ -102,6 +105,7 @@ export function configurationImpact(s: State, before: Data, after: Data, actor?:
   }
   const stage = (c: Data, id: string) => c.stages.find((st: Data) => st.id === id)?.name ?? id
   const describe: Record<string, (c: Data) => string> = {
+    statusTiming: c => timingLabel(statusTiming(c)),
     stages: c => c.stages.map((st: Data) => st.name).join(' → '),
     rubric: c => (c.rubrics.at(-1)?.criteria ?? []).map((k: Data) => k.name + ': ' + k.description).join('; ') || 'No rubric',
     interviews: c => c.plan.map((p: Data) => `${p.name}, ${p.durationMinutes} minutes at ${stage(c, p.stage)}; focus: ${p.criteria.map((id: string) => c.rubrics.at(-1)?.criteria.find((k: Data) => k.id === id)?.name ?? id).join(', ') || 'none'}; purpose: ${p.purpose || 'none'}; kit: ${(p.questions ?? []).map((q: Data) => q.text + ' (' + q.guidance + ')').join('; ') || 'none'}`).join('; ') || 'No interviews',

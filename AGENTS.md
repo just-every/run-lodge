@@ -82,4 +82,10 @@ the owner.
 
 ## Lander-Regenerate
 
-After changing a clause status, evidence or gap, regenerate its acceptance row and the derived claims and counts with `node scripts/contract-docs.mjs write HIRE-008`, then run `node scripts/contract-docs.mjs check HIRE-008`. Replace the clause argument when changing another row. The incremental command preserves unrelated legacy acceptance prose. Regenerate the edition source lock last with `node scripts/edition-authoring/cli.mjs lock`, then run the same command with `check`.
+After changing a selected legacy status row in CONTRACT.md, run
+`node scripts/contract-docs.mjs write COM-005` and
+`node scripts/contract-docs.mjs check COM-005` (substitute the touched clause ids).
+This incrementally generates those rows in ACCEPTANCE.md and docs/CLAIMS.md,
+preserving unrelated legacy records and existing policy quotations. Stage the
+intentional edits, then regenerate the edition source lock last with
+`node scripts/edition-authoring/cli.mjs lock` and run its `check` command.

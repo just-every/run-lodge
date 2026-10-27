@@ -1,3 +1,5 @@
+import { statusTiming, timingLabel, statusDue, dueLabel, TIMING_RULE } from '../communications/timing'
+import { now } from '../core/types'
 import { canSeeApplication, canSeeContact } from '../core/access'
 import { applicationEmailContent } from '../communications/content'
 import type { State } from '../core/state'
@@ -13,5 +15,5 @@ export function applicationEmailPreview(s: State, a: Actor, job: Data, draft: Da
   const content = app ? applicationEmailContent(s, app, draft, s.all('receipt').find(receipt => receipt.application === app.id)?.id ?? '', footer) : { to: '', subject: draft.subject, text: draft.body + '\n\n' + footer, missing: ['recipient application'] }
   if (!footer) content.missing.push('reviewed footer')
   const transport = s.find('application-email-transport', 'main')
-  return `${picker}<section aria-label="Exact template preview"><h3>Exact template preview</h3><dl><dt>Recipient</dt><dd>${esc(content.to || 'Choose an application')}</dd><dt>Sender</dt><dd>${esc(transport?.from || 'Sender review required')}</dd><dt>Reply to</dt><dd>${esc(transport?.replyTo || 'Reply route review required')}</dd><dt>Timing</dt><dd>${draft.kind === 'status' ? 'Immediately after the chosen stage is committed; canceled if the stage is no longer current' : 'Immediately after accepted intake'}</dd></dl>${content.missing.length ? `<p role="alert">Missing values: ${esc(content.missing.join(', '))}. Sending is blocked until these values exist.</p>` : ''}<p>Subject</p><div class="sign-doc">${esc(content.subject)}</div><p>Body and required footer</p><div class="sign-doc">${esc(content.text)}</div></section>`
+  return `${picker}<section aria-label="Exact template preview"><h3>Exact template preview</h3><dl><dt>Recipient</dt><dd>${esc(content.to || 'Choose an application')}</dd><dt>Sender</dt><dd>${esc(transport?.from || 'Sender review required')}</dd><dt>Reply to</dt><dd>${esc(transport?.replyTo || 'Reply route review required')}</dd><dt>Timing</dt><dd>${draft.kind === 'status' ? timingLabel(statusTiming(job)) + '. ' + TIMING_RULE + ' Example event now is due ' + dueLabel(statusDue(statusTiming(job), now()), statusTiming(job)) : 'Immediately after accepted intake'}</dd></dl>${content.missing.length ? `<p role="alert">Missing values: ${esc(content.missing.join(', '))}. Sending is blocked until these values exist.</p>` : ''}<p>Subject</p><div class="sign-doc">${esc(content.subject)}</div><p>Body and required footer</p><div class="sign-doc">${esc(content.text)}</div></section>`
 }
