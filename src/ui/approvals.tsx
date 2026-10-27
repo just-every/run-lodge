@@ -5,7 +5,7 @@ import { Empty, Field, Form, Status, type D } from './shared'
 
 function Terms({ x, w }: { x: D; w: D }) {
   const t = x.terms
-  if (x.subjectKind === 'vacancy') return <dl className="terms"><dt>Role</dt><dd>{t.title} · {t.department} · {t.location}</dd><dt>Pay</dt><dd>{pay(t.compensation)}</dd><dt>Headcount</dt><dd>{t.headcount}</dd><dt>Manager</dt><dd>{person(w, t.manager)}</dd>
+  if (x.subjectKind === 'vacancy') return <dl className="terms"><dt>Role</dt><dd>{t.title} · {t.department} · {t.location}</dd><dt>Pay</dt><dd>{pay(t.compensation)}</dd>{t.payRanges?.length > 0 && <><dt>Pay by location</dt><dd><ul>{t.payRanges.map((r: D) => <li key={r.officeId}>{w.offices?.find((o: D) => o.id === r.officeId)?.name ?? r.officeId}: {pay(r.compensation)}</li>)}</ul></dd></>}{t.benefits && <><dt>Benefits and bonus</dt><dd className="pre">{t.benefits}</dd></>}<dt>Headcount</dt><dd>{t.headcount}</dd><dt>Manager</dt><dd>{person(w, t.manager)}</dd>
     <dt>Stages</dt><dd>{t.stages.map((s: D) => s.name).join(' → ')}</dd><dt>Rubric v{t.rubric?.version}</dt><dd><ul>{t.rubric?.criteria.map((c: D) => <li key={c.id}>{c.name}: {c.description}</li>)}</ul></dd><dt>Interviews</dt><dd>{t.plan.map((p: D) => p.name).join(', ')}</dd></dl>
   if (x.subjectKind === 'offer') return <dl className="terms"><dt>Offer</dt><dd>{t.title} · {money(t.salary)} · starts {day(t.startDate)}</dd><dt>Terms</dt><dd className="pre">{t.terms || 'none'}</dd><dd><a href={`/api/lodge/download/packet/${x.subjectId}`}>Open approval packet</a></dd></dl>
   return <dl className="terms"><dt>To</dt><dd>{t.to}</dd><dt>Subject</dt><dd>{t.subject}</dd><dt>Message</dt><dd className="pre">{t.body}</dd></dl>

@@ -1,3 +1,4 @@
+import { PaySettings } from './pay-settings'
 import { CareersSettings } from './careers-settings'
 import { ConnectorSettings } from './connectors'
 import type { PageProps } from './app'
@@ -53,6 +54,7 @@ export function People({ w, mutate, setNotice }: PageProps) {
     {(w.actor.owner || w.actor.roles.includes('admin')) && <SourceSettings w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <JobBoardSettings w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <InternalSettings w={w} mutate={mutate} />}
+    {w.payRules && <PaySettings w={w} mutate={mutate} />}
     {w.fairChance && <FairChanceSettings w={w} mutate={mutate} />}
     {(w.actor.owner || w.actor.roles.includes('admin')) && <section className="card"><h2>Experience surveys</h2><p><a href="/surveys/settings">Configure surveys and view permitted aggregate results</a></p></section>}
     <ConnectorSettings w={w} mutate={mutate} />

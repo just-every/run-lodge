@@ -214,6 +214,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     // CRM-008: the source list every member may read, and the admin's attribution rule after merges.
     sources: s.all('source').sort((x, y) => x.type.localeCompare(y.type) || x.name.localeCompare(y.name)), sourceMergeRule: mergeRule(s),
     // ATTR-009: the public job board's token, allowed origins and keys (never a key's hash), for the people who administer it.
+    payRules: admin && !a.agent ? s.find('business', 'main')?.payRules ?? [] : null,
     jobBoard: admin && !a.agent ? publicSettings(boardSettings(s)) : null,
     // CRM-009: the events the reader sees, with their pools (people they may see) and reports.
     events: eventsView(s, a, c => canSeeCandidate(s, a, c)),

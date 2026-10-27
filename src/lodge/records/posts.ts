@@ -1,3 +1,4 @@
+import { payProblems, publicPay } from './pay-transparency'
 import { publishRecoveryUi } from '../careers/recovery-copy'
 import { requireTranslation, translationReady, translationSource, languageTag } from '../languages/posts'
 import { canonical } from '../core/types'
@@ -112,10 +113,10 @@ const goneLive = (v: Data) => (v.posts ?? []).some((p: Data) => p.status !== 'dr
 export function listings(s: State, destination: Destination): Listing[] {
   const out: Listing[] = []
   for (const v of s.all('vacancy')) {
-    if (v.status !== 'open' || v.imported) continue
+    if (v.status !== 'open' || v.imported || payProblems(s, v).length) continue
     const shown = publicPosting(v)
     if (!shown || (v.confidential && destination !== 'careers')) continue
-    const offices = [v.officeId, ...(v.openings ?? []).filter((o: Data) => o.status === 'open').map((o: Data) => o.officeId)].filter(Boolean) as string[]
+    const offices = [...approvedOffices(v), ...(v.openings ?? []).filter((o: Data) => o.status === 'open').map((o: Data) => o.officeId)].filter(Boolean) as string[]
     if (v.confidential || !goneLive(v)) { out.push({ v, post: null, id: v.id, slug: v.slug, title: shown.title, description: v.description || '', offices: [...new Set(offices)] }); continue }
     for (const p of v.posts) if (p.status === 'live' && p.destinations.includes(destination) && translationReady(s, v, p)) out.push({ v, post: p, id: p.id, slug: p.slug, title: p.title, description: p.description, offices: p.locations })
   }
@@ -127,7 +128,7 @@ export const listingById = (s: State, destination: Destination, id: string) => l
 
 /** The job as one listing shows it: the post's title, description and locations over the job's shared terms. */
 export function shownJob(s: State, l: Listing): Data {
-  const job = publicPosting(l.v)!
+  const job = { ...publicPosting(l.v)!, payTransparency: publicPay(s, l.v, l.post).text }
   if (!l.post) return job
   return { ...job, language: l.post.language, translation: l.post.translation, title: l.post.title, description: l.post.description, location: l.offices.map(id => s.find('office', id)?.name).filter(Boolean).join(' · ') }
 }

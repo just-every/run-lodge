@@ -16,7 +16,7 @@ export type QuestionType = typeof QUESTION_TYPES[number]
 export const OBJECTIVE: readonly QuestionType[] = ['yes-no', 'single-choice', 'multiple-choice', 'number', 'date']
 const CHOICES: readonly QuestionType[] = ['single-choice', 'multiple-choice']
 
-// Until ATTR-004 names the places that allow them, every salary-history question is refused.
+// ATTR-004 retains the existing refusal everywhere, including every configured ban jurisdiction.
 const SALARY_HISTORY = /\b((salary|pay|wage|compensation|earnings) history|(current|previous|prior|past|last) (salary|pay|wage|wages|compensation|earnings)|how much (do|did) you (make|earn|get paid))\b/i
 
 function allowed(value: string, label: string) {

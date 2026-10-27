@@ -23,6 +23,7 @@ export function business(s: State, a: Actor, b: Data) {
     // When a scorecard falls due after its interview ends; the interviewer activity report measures against it.
     scorecardDueHours: integer(b.scorecardDueHours ?? current?.scorecardDueHours ?? 24, 'Scorecard due (hours after the interview)', 1, 336),
     notices,
+    ...(current?.payRules ? { payRules: current.payRules } : {}),
   })
   // The owner always appears as a member so they can be chosen as manager, approver or interviewer.
   s.put('member', a.email, { email: a.email, name: a.name, roles: [...ROLES], active: true, owner: true })

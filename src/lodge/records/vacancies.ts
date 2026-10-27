@@ -1,3 +1,4 @@
+import { payProblems } from './pay-transparency'
 import type { State } from '../core/state'
 import { managesVacancy, requireAdmin, requireCan, requireManages, requireMember, requireRole } from '../core/access'
 import { currency, email, integer, list, money, now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
@@ -17,7 +18,7 @@ const shortId = () => uid().slice(0, 8)
 export function missingTerms(v: Data): string[] {
   const missing: string[] = []
   if (!v.location) missing.push('location')
-  if (!v.compensation) missing.push('compensation range')
+  if (!v.compensation && !v.payRanges?.length) missing.push('compensation range')
   if (!v.headcount) missing.push('headcount')
   if ((v.stages ?? []).length < 2) missing.push('at least two stages')
   if (!(v.rubrics ?? []).at(-1)?.criteria?.length) missing.push('a job-related rubric')
@@ -25,7 +26,7 @@ export function missingTerms(v: Data): string[] {
   return missing
 }
 
-function compensation(value: unknown) {
+export function compensation(value: unknown) {
   if (value === undefined || value === null || value === '') return null
   const c = value as Data
   const min = money(c.min, 'Minimum pay'), max = money(c.max, 'Maximum pay')
@@ -54,13 +55,24 @@ export function vacancy(s: State, a: Actor, b: Data) {
   requireRole(a, 'admin', 'manager')
   // REQ-004: a job may attach to a managed department and office; their names fill the text the job shows.
   const departmentId = departmentRef(s, b.departmentId), officeId = officeRef(s, b.officeId)
+  const locations = otherOffices(s, b.locations, officeId)
+  const payRanges = list(b.payRanges ?? [], 'Location pay ranges', 21, (x: any) => {
+    const id = officeRef(s, x?.officeId)
+    requireThat(id && [officeId, ...(locations ?? [])].includes(id), 'Pay range must name an approved office')
+    const range = compensation(x?.compensation)
+    requireThat(range, 'Provide the location pay range')
+    return { officeId: id, compensation: range }
+  })
+  requireThat(new Set(payRanges.map(r => r.officeId)).size === payRanges.length, 'Give each office one pay range')
   const fields = {
+    payRanges: payRanges.length ? payRanges : undefined,
+    benefits: optionalText(b.benefits, 'Benefits and bonus description', 8000) || undefined,
     title: text(b.title, 'Title', 160),
     department: departmentId ? departmentPath(s, departmentId) : optionalText(b.department, 'Department', 120),
     location: optionalText(b.location, 'Location', 160) || (officeId ? s.get('office', officeId).name : ''),
     departmentId, officeId,
     // ATTR-012: other offices the job is approved for; its posts draw their locations from these and its office.
-    locations: otherOffices(s, b.locations, officeId),
+    locations,
     workMode: oneOf(b.workMode ?? 'onsite', ['onsite', 'hybrid', 'remote'] as const, 'Work mode'),
     employmentType: oneOf(b.employmentType ?? 'full-time', ['full-time', 'part-time', 'contract', 'temporary'] as const, 'Employment type'),
     description: optionalText(b.description, 'Description', 20000),
@@ -183,6 +195,8 @@ export async function publish(s: State, a: Actor, b: Data) {
   const v = editable(s, a, b.id)
   const business = s.get('business', 'main', 'business settings')
   requireThat(await approvedNow(s, 'vacancy', v), 'Publishing needs a current approval of these exact terms', 409)
+  const problems = payProblems(s, v)
+  requireThat(!problems.length, problems.join('; '), 409)
   // PRIV-001: a California job publishes only once the owner has adopted the CPRA notice.
   if (inCalifornia(s, v)) requireCpraNotice(s)
   const slug = v.slug ?? `${v.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || 'role'}-${uid().slice(0, 6)}`

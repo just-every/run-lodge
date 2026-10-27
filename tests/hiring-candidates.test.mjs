@@ -768,7 +768,7 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
     const offices = (await state()).offices, denver = offices.find(o => o.name === 'Denver, CO'), aurora = offices.find(o => o.name === 'Aurora, CO')
     const boulder = await cmd('office', { name: 'Boulder, CO' })
     const lift = (await state()).questions.find(q => q.versions[0].text === 'Can you lift 50 pounds?')
-    const v = await cmd('vacancy', { title: 'Warehouse Associate', officeId: denver.id, locations: [aurora.id], headcount: 2, manager: 'morgan@example.test', compensation: RANGE, description: 'Pick and pack.' }, manager)
+    const v = await cmd('vacancy', { title: 'Warehouse Associate', officeId: denver.id, locations: [aurora.id], payRanges: [denver, aurora].map(o => ({ officeId: o.id, compensation: RANGE })), headcount: 2, manager: 'morgan@example.test', compensation: RANGE, description: 'Pick and pack.' }, manager)
     assert.deepEqual(v.locations, [aurora.id], 'approved for Denver (its office) and Aurora')
     await cmd('rubric', { id: v.id, criteria: RUBRIC }, manager)
     await cmd('interview-plan', { id: v.id, plan: [{ name: 'Floor walk', stageName: 'Interview', durationMinutes: 30 }] }, manager)
@@ -1347,3 +1347,5 @@ test('Approved chosen-stage emails record outcomes without resending failures', 
 test('Application sender authentication and current approval fence automatic mail', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailSender(t))
 test('Restored application mail remains inert with receipts and duplicate protection retained', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailRestore(t))
 test('Per-job application email reviews remain isolated when another job changes', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailIsolation(t))
+
+test('ATTR-004 approved location pay, reviewed rules and salary-history refusals reach public doors', async t => (await import('./pay-transparency-flow.mjs')).checkPayTransparency(t))

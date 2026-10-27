@@ -1,7 +1,7 @@
-import { uiCopy, translatedPay } from '../languages/copy'
+import { publicPay } from './pay-transparency'
+import { uiCopy } from '../languages/copy'
 import type { State } from '../core/state'
 import { requireAdmin } from '../core/access'
-import { pay } from '../core/labels'
 import { Fault, about, bytesToBase64, list, now, optionalText, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from './documents'
 import { MONITORING_OPTIONS } from './intake'
@@ -17,7 +17,7 @@ import { cpraNotice, inCalifornia } from './privacy'
 // public fields only, never an internal-only one (ATTR-005). A job whose
 // ATTR-012 posts have gone live lists each live post on the API as its own
 // entry (its id is the post's, `jobId` the job's). Per-location pay (ATTR-004)
-// joins it when that clause ships.
+// is shared with the hosted form.
 
 export const BOARD_SOURCE = 'Careers page (API)'
 export const SUBMITS_PER_HOUR = 10
@@ -118,14 +118,13 @@ function departmentChain(s: State, id: unknown) {
 export function boardJob(s: State, l: Listing, origin: string, token: string, content: boolean, detail = false): Data {
   const v = l.v, translated = !!l.post && l.post.language !== 'en', tr = l.post?.translation, copy = translated ? uiCopy(l.post!) : null
   const offices = l.offices.map(id => s.find('office', id)).filter(Boolean).map(o => ({ id: o!.id, name: o!.name }))
-  const c = v.compensation
-  // Today a job has one approved range for all its locations; ATTR-004 adds a range per location.
+  const locationPay = publicPay(s, v, l.post)
   const where = (l.post ? '' : v.location) || offices.map(o => o.name).join(', ')
   const job: Data = {
     language: l.post?.language ?? 'en', id: l.id, jobId: v.id, postId: l.post?.id ?? null, title: l.title, departments: departmentChain(s, v.departmentId), department: v.departmentId ? departmentPath(s, v.departmentId) : v.department || null,
     offices, location: (l.post ? where : v.location) || null, employmentType: v.employmentType, workMode: v.workMode, remote: v.workMode === 'remote',
-    pay: c ? [{ location: where || null, currency: c.currency, min: c.min, max: c.max, period: c.period, minorUnits: 2 }] : [],
-    payTransparency: c ? (translated ? copy!.salary.replace(/\{pay\}/g, () => translatedPay(c, copy!)) + (where ? ` (${where})` : '') : `Pay${where ? ' for ' + where : ''}: ${pay(c).replace(/ /g, ' ')}`) : null,
+    pay: locationPay.ranges,
+    payTransparency: locationPay.text || null,
     publishedAt: v.publishedAt, updatedAt: v.updatedAt && v.updatedAt > v.publishedAt ? v.updatedAt : v.publishedAt,
     url: `${origin}/jobs/${l.slug}`,
   }

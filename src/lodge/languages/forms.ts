@@ -36,7 +36,7 @@ export function translatedForm(v: Data, business: Data, error: string, values: D
   const period = c && ({ year: 'payYear', month: 'payMonth', hour: 'payHour' } as Record<string, string>)[c.period]
   requireThat(!c || period, 'Unsupported translated pay period', 409)
   // Currency formatting retains Lodge's existing amount representation; the period is always translated.
-  const pay = c ? `${amount(c.min, c.currency)}–${amount(c.max, c.currency)} ${copy[period]}` : ''
+  const pay = !v.payTransparency && c ? `${amount(c.min, c.currency)}–${amount(c.max, c.currency)} ${copy[period]}` : ''
   const mode = v.workMode ? m(v.workMode) : ''
   const employmentKey = ({ 'full-time': 'fullTime', 'part-time': 'partTime', contract: 'contract', temporary: 'temporary' } as Record<string, string>)[v.employmentType]
   requireThat(!v.employmentType || employmentKey, 'Unsupported translated employment type', 409)
@@ -52,7 +52,7 @@ export function translatedForm(v: Data, business: Data, error: string, values: D
     return `<label${f.restricted ? ' data-draft-private' : ''}>${label}${help}<input name="${esc(name)}" type="${f.type === 'text' ? 'text' : esc(f.type)}" value="${esc(values[name])}"${req}></label>`
   }).join('')
   const california = cpra ? `<details><summary>${m('californiaNotice', { version: cpra.version })}</summary>${paragraphs(tr.cpra.intro || '')}<dl>${tr.cpra.categories.map((category: Data) => `<dt>${esc(category.category)}</dt><dd>${esc(category.collected)} ${esc(category.purposes)} ${esc(category.retention)}</dd>`).join('')}</dl><p>${esc(tr.cpra.saleStatement)}</p><p>${m('californiaRequest')}</p></details><input type="hidden" name="cpraNoticeVersion" value="${esc(cpra.version)}">` : ''
-  return `<h1>${esc(v.title)}</h1><p class="meta">${facts}${pay ? `<br>${m('salary', { pay })}` : ''}</p>${paragraphs(v.description || '')}
+  return `<h1>${esc(v.title)}</h1><p class="meta">${facts}${pay ? `<br>${m('salary', { pay })}` : ''}</p>${v.payTransparency ? paragraphs(v.payTransparency) : ''}${paragraphs(v.description || '')}
 ${error ? `<p role="alert" class="error">${m('refusal')}</p>` : ''}
 <h2>${m('apply')}</h2><p>${esc(tr.accommodation)} ${esc(business.accommodationContact)}</p>
 <form method="post" enctype="multipart/form-data" action="${esc(action)}">

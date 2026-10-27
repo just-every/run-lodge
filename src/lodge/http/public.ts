@@ -131,9 +131,9 @@ export function form(v: Data, business: Data, error = '', values: Data = {}, que
   hidden = { ...hidden, submissionKey: values.submissionKey || crypto.randomUUID() }
   if (v.language && v.language !== 'en') return translatedForm(v, business, error, values, questions, action, hidden, cpra, questionFields)
   const notice = business.notices.at(-1)
-  const pay = v.compensation ? payRange(v.compensation) : ''
+  const pay = !v.payTransparency && v.compensation ? payRange(v.compensation) : ''
   const field = (name: string, label: string, type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
-  return `<h1>${esc(v.title)}</h1><p class="meta">${esc(vacancyFacts(v).join(' · '))}${pay ? `<br>Pay: ${esc(pay)}` : ''}</p>${paragraphs(v.description || '')}
+  return `<h1>${esc(v.title)}</h1><p class="meta">${esc(vacancyFacts(v).join(' · '))}${pay ? `<br>Pay: ${esc(pay)}` : ''}</p>${v.payTransparency ? paragraphs(v.payTransparency) : ''}${paragraphs(v.description || '')}
 ${error ? `<p role="alert" class="error">${esc(error)}</p>` : ''}
 <h2>Apply</h2>
 <p>Need an adjustment to apply or interview? Contact ${esc(business.accommodationContact)}, or describe it below. Only the hiring administrators see it.</p>

@@ -17,7 +17,7 @@ export function languageTag(value: unknown) {
 /** The source versions the employer reviews, including optional/restricted form text. */
 export function translationSource(s: State, v: Data, post: Data) {
   const business = s.get('business', 'main')
-  return canonical({ language: post.language, ...(post.language !== 'es' ? { interface: SOURCE_UI } : {}), notice: business.notices.at(-1), accommodation: business.accommodationContact,
+  return canonical({ ...(v.benefits ? { benefits: v.benefits } : {}), language: post.language, ...(post.language !== 'es' ? { interface: SOURCE_UI } : {}), notice: business.notices.at(-1), accommodation: business.accommodationContact,
     questions: jobForm(s, v, { ...post, language: 'en' }),
     fields: schemaOf(v).filter(f => f.record !== 'vacancy'),
     cpra: inCalifornia(s, v, post) ? cpraNotice(s) : null })
@@ -37,6 +37,7 @@ export function requireTranslation(s: State, v: Data, post?: Data | null) {
       requireThat(canonical(required) === canonical(given), `Keep the named values in the translation of: ${source}`, 409)
     }
   }
+  if (v.benefits) present(t.benefits, 'benefits and bonus description')
   present(t.notice, 'privacy notice'); present(t.accommodation, 'accommodation text'); present(t.monitoring, 'voluntary question')
   requireThat(Array.isArray(t.monitoringOptions) && t.monitoringOptions.length === 5, 'Translate every voluntary answer option', 409)
   t.monitoringOptions.forEach((x: unknown) => present(x, 'voluntary answer option'))

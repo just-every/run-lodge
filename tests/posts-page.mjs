@@ -8,7 +8,7 @@ import { current, session } from './browser-journey.mjs'
 
 /** A job approved for two offices; at each width a new post goes live through the app and opens from /jobs. Returns the job. */
 export async function postsPage(browser, { root, origin, run, offices, evidence }) {
-  const job = await run('vacancy', { title: 'Yard hand', officeId: offices[0].id, locations: [offices[1].id], headcount: 2, manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 4200000, max: 4800000, period: 'year' }, description: 'Load and stack.' })
+  const job = await run('vacancy', { title: 'Yard hand', officeId: offices[0].id, locations: [offices[1].id], payRanges: offices.map(o => ({ officeId: o.id, compensation: { currency: 'USD', min: 4200000, max: 4800000, period: 'year' } })), headcount: 2, manager: 'manager@dev.localhost', compensation: { currency: 'USD', min: 4200000, max: 4800000, period: 'year' }, description: 'Load and stack.' })
   await run('rubric', { id: job.id, criteria: [{ name: 'Safety', description: 'Works safely around loaders' }] })
   await run('interview-plan', { id: job.id, plan: [{ name: 'Walk', stageName: 'Interview', durationMinutes: 30 }] })
   const asked = await run('request-vacancy-approval', { id: job.id, approver: 'approver@dev.localhost' })

@@ -13,12 +13,13 @@ export function PostTranslation({ v, w, post, mutate }: { v: D; w: D; post: D; m
   return <details><summary>{language} translation for “{post.title}”</summary>
     <p>Translate the current source text below. A missing or outdated translation prevents publishing this language. Pause a live post before removing a translation. The post title and description above are its wording in this language.</p>
     <Form label="Save reviewed translation" onSubmit={x => mutate('post-translation', { vacancy: v.id, post: post.id, translation: {
-      notice: x.notice, accommodation: x.accommodationText, monitoring: x.monitoringText, ...(post.language !== 'es' ? { ui: Object.fromEntries(Object.keys(SOURCE_UI).map(k => [k, x['ui-' + k]])) } : {}),
+      ...(v.benefits ? { benefits: x.benefits } : {}), notice: x.notice, accommodation: x.accommodationText, monitoring: x.monitoringText, ...(post.language !== 'es' ? { ui: Object.fromEntries(Object.keys(SOURCE_UI).map(k => [k, x['ui-' + k]])) } : {}),
       monitoringOptions: [0, 1, 2, 3, 4].map(i => x['monitoring-' + i]), reviewed: x.reviewed,
       questions: Object.fromEntries(questions.map(q => [q.id, { text: x['text-' + q.id], help: x['help-' + q.id], options: q.versions.at(-1).options.map((_: string, i: number) => x['option-' + q.id + '-' + i]) }])),
       fields: Object.fromEntries(fields.map(f => [f.id, { name: x['field-' + f.id], choices: f.choices.map((_: string, i: number) => x['choice-' + f.id + '-' + i]) }])),
       ...(cpra ? { cpra: { intro: x.cpraIntro, saleStatement: x.cpraSale, categories: cpra.categories.map((_: D, i: number) => Object.fromEntries(['category', 'collected', 'purposes', 'retention'].map(k => [k, x['cpra-' + i + '-' + k]]))) } } : {}),
     } })}>
+      {v.benefits && <Field label={`${language} benefits and bonus description`} name="benefits" type="textarea" wide required={false} defaultValue={t.benefits} hint={v.benefits} />}
       <Field label={`${language} privacy notice (source version ${notice?.version})`} name="notice" type="textarea" wide required={false} defaultValue={t.notice} hint={notice?.text} />
       <Field label={`${language} accommodation text`} name="accommodationText" type="textarea" wide required={false} defaultValue={t.accommodation} hint={`Need an adjustment to apply or interview? Contact ${w.business?.accommodationContact}, or describe it below. Only hiring administrators see it.`} />
       <Field label={`${language} voluntary gender question`} name="monitoringText" type="textarea" wide required={false} defaultValue={t.monitoring} hint="How do you describe your gender?" />

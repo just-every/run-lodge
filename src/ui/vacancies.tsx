@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ReferralReview } from './referrals'
 import { EsignSettings } from './esign'
 import type { PageProps } from './app'
@@ -32,17 +33,20 @@ export function VacancyStatus({ v }: { v: D }) {
 
 function Terms({ v, w, mutate, onSaved }: { v?: D; w: D; mutate: PageProps['mutate']; onSaved?: (id: string) => void }) {
   const c = v?.compensation
+  const [payOffices, setPayOffices] = useState<string[]>([v?.officeId, ...(v?.locations ?? [])].filter(Boolean))
   return <Form label={v ? 'Save terms' : 'Create vacancy'} onSubmit={async x => {
     const compensation = x.min || x.max ? { currency: x.currency.toUpperCase(), min: cents(x.min), max: cents(x.max), period: x.period } : null
-    const saved = await mutate(x.template ? 'vacancy-from-template' : 'vacancy', { id: v?.id, template: x.template || undefined, title: x.title, department: x.department, departmentId: x.departmentId || undefined, officeId: x.officeId || undefined, locations: (w.offices ?? []).filter((o: D) => x['also-' + o.id]).map((o: D) => o.id), location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation })
+    const saved = await mutate(x.template ? 'vacancy-from-template' : 'vacancy', { id: v?.id, template: x.template || undefined, title: x.title, department: x.department, departmentId: x.departmentId || undefined, officeId: x.officeId || undefined, locations: (w.offices ?? []).filter((o: D) => x['also-' + o.id]).map((o: D) => o.id), location: x.location, workMode: x.workMode, employmentType: x.employmentType, description: x.description, headcount: x.headcount, manager: x.manager, compensation, benefits: x.benefits, payRanges: (w.offices ?? []).filter((o: D) => x['pay-min-' + o.id] || x['pay-max-' + o.id]).map((o: D) => ({ officeId: o.id, compensation: { currency: 'USD', min: cents(x['pay-min-' + o.id]), max: cents(x['pay-max-' + o.id]), period: x['pay-period-' + o.id] } })) })
     onSaved?.(saved.id)
   }}>
     {!v && w.jobTemplates?.length ? <Field label="Start from template" name="template" required={false} defaultValue="" options={w.jobTemplates.map((t: D) => ({ value: t.id, label: t.name }))} /> : null}
     <Field label="Job title" name="title" defaultValue={v?.title} />
     {w.departments?.length ? <Field label="Managed department" name="departmentId" required={false} defaultValue={v?.departmentId ?? ''} options={departmentOptions(w)} /> : null}
     <Field label="Department" name="department" required={false} defaultValue={v?.department} hint={w.departments?.length ? 'Filled from the managed department when one is chosen' : undefined} />
+    {w.offices?.length > 0 && <fieldset className="wide" onChange={event => { const data = new FormData(event.currentTarget.closest('form')!); setPayOffices([...new Set([String(data.get('officeId') || ''), ...(w.offices ?? []).filter((o: D) => data.has('also-' + o.id)).map((o: D) => o.id)].filter(Boolean))]) }}><legend>Approved locations</legend>
     {w.offices?.length ? <Field label="Office" name="officeId" required={false} defaultValue={v?.officeId ?? ''} options={officeOptions(w)} /> : null}
     {w.offices?.length > 1 ? <fieldset className="wide"><legend>Other approved offices (for job posts)</legend>{officeOptions(w).map((o: D) => <Check key={o.value} name={'also-' + o.value} label={o.label} defaultChecked={(v?.locations ?? []).includes(o.value)} />)}</fieldset> : null}
+    </fieldset>}
     <Field label="Location" name="location" required={false} defaultValue={v?.location} />
     <Field label="Work mode" name="workMode" defaultValue={v?.workMode ?? 'onsite'} options={[{ value: 'onsite', label: 'On site' }, { value: 'hybrid', label: 'Hybrid' }, { value: 'remote', label: 'Remote' }]} />
     <Field label="Employment type" name="employmentType" defaultValue={v?.employmentType ?? 'full-time'} options={Object.entries(EMPLOYMENT_TYPES).map(([value, label]) => ({ value, label }))} />
@@ -51,6 +55,12 @@ function Terms({ v, w, mutate, onSaved }: { v?: D; w: D; mutate: PageProps['muta
     <Field label="Pay period" name="period" defaultValue={c?.period ?? 'year'} options={[{ value: 'year', label: 'per year' }, { value: 'month', label: 'per month' }, { value: 'hour', label: 'per hour' }]} />
     <Field label="Minimum pay" name="min" type="number" required={false} defaultValue={c ? c.min / 100 : ''} />
     <Field label="Maximum pay" name="max" type="number" required={false} defaultValue={c ? c.max / 100 : ''} />
+    {payOffices.length > 0 && <fieldset className="wide"><legend>Pay by approved office</legend><p>For several locations, enter a good-faith USD range for each selected office. These terms require approval.</p>{w.offices.filter((o: D) => payOffices.includes(o.id)).map((o: D) => { const range = v?.payRanges?.find((r: D) => r.officeId === o.id)?.compensation; return <fieldset key={o.id}><legend>{o.name}</legend>
+      <Field label={`Minimum for ${o.name}`} name={'pay-min-' + o.id} type="number" required={false} defaultValue={range ? range.min / 100 : ''} />
+      <Field label={`Maximum for ${o.name}`} name={'pay-max-' + o.id} type="number" required={false} defaultValue={range ? range.max / 100 : ''} />
+      <Field label={`Period for ${o.name}`} name={'pay-period-' + o.id} defaultValue={range?.period ?? 'year'} options={[{ value: 'year', label: 'per year' }, { value: 'month', label: 'per month' }, { value: 'hour', label: 'per hour' }]} />
+    </fieldset> })}</fieldset>}
+    <Field label="Benefits and bonus description" name="benefits" type="textarea" wide required={false} defaultValue={v?.benefits} />
     <Field label="Hiring manager" name="manager" defaultValue={v?.manager ?? w.actor.email} options={memberOptions(w.members, 'manager')} />
     <Field label="Description applicants will read" name="description" type="textarea" wide required={false} defaultValue={v?.description} />
   </Form>
