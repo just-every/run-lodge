@@ -33,7 +33,7 @@ export async function cohortReportPage(browser, { root, origin, run, evidence, o
       await page.getByRole('button', { name: 'Recruiting cohort report', exact: true }).click()
       const results = page.getByRole('region', { name: 'Cohort results' })
       await results.waitFor()
-      await page.getByLabel('Job', { exact: true }).selectOption(job.id)
+      await page.locator('select[name="vacancy"]').selectOption(job.id)
       await page.getByRole('button', { name: 'Apply cohort filters', exact: true }).click()
       await results.getByText('2 applications · 1 measured hires', { exact: false }).waitFor()
       await page.getByText('Submission dates:', { exact: false }).filter({ hasText: 'Any to Any' }).waitFor()
@@ -58,6 +58,9 @@ export async function cohortReportPage(browser, { root, origin, run, evidence, o
       await iconTooltips(page)
       await page.screenshot({ path: evidence + '/cohort-drill-' + width + '.png', fullPage: true })
       assert.deepEqual(errors, [])
+    } catch (error) {
+      await page.screenshot({ path: evidence + '/cohort-failure-' + width + '.png', fullPage: true })
+      throw error
     } finally { await owner.context.close() }
   }
 }
