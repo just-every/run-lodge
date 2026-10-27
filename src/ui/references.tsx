@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { PageProps } from './app'
 import { Check, Field, Form, memberOptions, type D } from './shared'
 
@@ -6,21 +7,14 @@ export function References({ app, w, mutate }: { app: D; w: D; mutate: PageProps
   const view = w.references
   const editable = view?.editable.includes(app.id)
   const questionnaire = view?.questionnaires.find((q: D) => q.application === app.id)
-  const config = questionnaire ?? view?.configurations.find((q: D) => q.application === app.id)
-  const current = config?.versions.at(-1)
+  const current = questionnaire?.versions.at(-1)
   const tasks = (view?.tasks ?? []).filter((t: D) => t.application === app.id)
   if (!editable && !questionnaire) return null
   return <section aria-label="Phone references">
     <h3>Phone references</h3>
     <p>Manually recorded calls. Lodge does not contact referees or verify consent. References never change the application stage.</p>
     {editable && app.status === 'active' && <>
-      <details><summary>Questionnaire and readers</summary>
-        <Form key={current?.version ?? 0} label="Save reference questionnaire" onSubmit={x => mutate('reference-questionnaire', { application: app.id, version: current?.version ?? 0, questions: x.questions.split('\n').map((q: string) => q.trim()).filter(Boolean), roles: ['owner', 'admin', 'manager', 'interviewer'].filter(role => x[role]) })}>
-          <Field label="Reference questions, one per line" name="questions" type="textarea" defaultValue={current?.questions.map((q: D) => q.text).join('\n') ?? ''} />
-          <p>Readers also need current application access and contact permission.</p>
-          {['owner', 'admin', 'manager', 'interviewer'].map(role => <Check key={role} label={'Allow ' + role + ' readers'} name={role} defaultChecked={current ? current.roles.includes(role) : role !== 'interviewer'} />)}
-        </Form>
-      </details>
+      <p><a href={'/app?settings=references&application=' + app.id}>Reference settings</a></p>
       {questionnaire && <details><summary>New call task</summary><Form label="Create call-references task" reset onSubmit={x => mutate('task', { application: app.id, kind: 'task', purpose: 'call-references', note: x.note, due: x.due, owner: x.owner })}>
         <Field label="Call task note" name="note" />
         <Field label="Call due date" name="due" type="date" />
@@ -53,5 +47,29 @@ export function References({ app, w, mutate }: { app: D; w: D; mutate: PageProps
       <details><summary>Earlier questionnaires</summary>{questionnaire.versions.map((q: D) => <section key={q.version}><h4>Version {q.version}</h4><p>{q.by} · {q.at} · readers: {q.roles.join(', ')}</p><ul>{q.questions.map((question: D) => <li key={question.id}>{question.text}</li>)}</ul></section>)}</details>
       {w.vacancies.find((v: D) => v.id === app.vacancy)?.permissions.includes('export') && <p><a href={'/api/lodge/download/references/' + app.id}>Export authorized references</a></p>}
     </>}
+  </section>
+}
+
+/** Employer questionnaire versions and reader roles are configured under Settings. */
+export function ReferenceSettings({ w, mutate, nav }: PageProps) {
+  const apps = w.applications.filter((app: D) => app.status === 'active' && w.references?.editable.includes(app.id))
+  const [selected, setSelected] = useState(nav.app ?? apps[0]?.id ?? '')
+  const app = apps.find((a: D) => a.id === selected) ?? apps[0]
+  const config = w.references?.configurations.find((q: D) => q.application === app?.id)
+  const current = config?.versions.at(-1)
+  return <section className="card" aria-label="Reference settings">
+    <h1>Settings</h1><h2>Phone references</h2>
+    {app ? <>
+      <label>Application<select value={app.id} onChange={e => setSelected(e.target.value)}>{apps.map((a: D) => <option key={a.id} value={a.id}>{w.candidates.find((c: D) => c.id === a.candidate)?.name ?? a.candidateName} · {w.vacancies.find((v: D) => v.id === a.vacancy)?.title}</option>)}</select></label>
+      <h3>Questionnaire and readers</h3>
+        <Form key={app.id + ":" + (current?.version ?? 0)} label="Save reference questionnaire" onSubmit={x => mutate('reference-questionnaire', { application: app.id, version: current?.version ?? 0, questions: x.questions.split('\n').map((q: string) => q.trim()).filter(Boolean), roles: ['owner', 'admin', 'manager', 'interviewer'].filter(role => x[role]) })}>
+          <Field label="Reference questions, one per line" name="questions" type="textarea" defaultValue={current?.questions.map((q: D) => q.text).join('\n') ?? ''} />
+          <p>Readers also need current application access and contact permission.</p>
+          {['owner', 'admin', 'manager', 'interviewer'].map(role => <Check key={role} label={'Allow ' + role + ' readers'} name={role} defaultChecked={current ? current.roles.includes(role) : role !== 'interviewer'} />)}
+        </Form>
+
+      {current && <p>Questionnaire version {current.version}</p>}
+      <p><a href={'/app?application=' + app.id}>Back to application</a></p>
+    </> : <p>No active applications are available for reference configuration.</p>}
   </section>
 }

@@ -6,9 +6,9 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   const stageBefore = (await state()).applications.find(x => x.id === app.id)
   const historyBefore = structuredClone(stageBefore.history)
   const configure = body => send('/api/lodge/command/reference-questionnaire', { application: app.id, ...body }, manager)
-  for (const question of ['What is their age?', 'Describe their religion', 'Do they have a disability?']) {
+  for (const question of ['What is their age?', 'Is the candidate male or female?', 'What year were they born?', 'Do they have kids?', 'What is their date of birth?', 'What is their gender identity?', 'Are they married?', 'What is their family status?', 'Describe their religion', 'What is their race?', 'What is their ethnic background?', 'What is their national origin?', 'What is their citizenship?', 'Are they pregnant?', 'Do they have a disability?', 'Do they have genetic conditions?', 'Are they a veteran?']) {
     const denied = await configure({ version: 0, questions: [question], roles: ['owner', 'manager'] })
-    assert.equal(denied.status, 400)
+    assert.equal(denied.status, 400, question)
     assert.match(denied.value.error, /protected traits/)
   }
   assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version: 0, questions: ['Describe their work'], roles: ['owner'] }, ivy)).status, 404)
