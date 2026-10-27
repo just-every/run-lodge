@@ -543,7 +543,7 @@
       "executable": false
     },
     "public/lodge.css": {
-      "sha256": "9aeb130ac2865dc15c3ab2af2691ddb315e73f15308cb00c6fe0d575137975da",
+      "sha256": "924c3790f03aa79453e8cd2bfe4345aefb6f8cab0c99c6cd8651a31665d663d1",
       "executable": false
     },
     "public/rer-theme.css": {
@@ -3967,7 +3967,7 @@
       "executable": false
     },
     "src/ui/tasks.tsx": {
-      "sha256": "2635ad4fadbcf03a1452444f214e2f0e4613908119d63511eac079812eccefe6",
+      "sha256": "7c97d73fc1a8006d119dce34fa077de933b400d7dc8f7d15e1515dbee54eca3a",
       "executable": false
     },
     "src/ui/team.tsx": {
