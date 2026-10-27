@@ -1,3 +1,4 @@
+import { referenceExport } from '../references/views'
 import { bulkInvitationPreview, bulkInvitationSubmit } from '../operations/bulk-invitations'
 import { reminderView } from '../reminders/records'
 import { crmView } from '../crm/records'
@@ -406,6 +407,11 @@ api.get('/api/lodge/download/handoff/:id', async c => {
   const result = handoff(await workspace(state, actor), c.req.param('id'))
   state.audit(actor, 'handoff-exported', 'offer:' + c.req.param('id'))
   return recorded(c, state, actor, json(result, 'hr-handoff.json'))
+})
+
+api.get('/api/lodge/download/references/:id', async c => {
+  const { state, actor } = await context(c)
+  return recorded(c, state, actor, json(referenceExport(state, actor, c.req.param('id')), 'manual-references.json'))
 })
 
 api.get('/api/lodge/download/vacancy/:id', async c => {

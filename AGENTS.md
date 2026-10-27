@@ -79,3 +79,7 @@ Name clearance and public release; first jurisdiction (default: a US employer,
 with legal review before live intake); provider adapters for phase 2 (email,
 calendar, optional models). Do not deploy, publish or call providers without
 the owner.
+
+## Lander-Regenerate
+
+After changing a clause status, evidence or gap, regenerate its acceptance row and the derived claims and counts with `node scripts/contract-docs.mjs write HIRE-008`, then run `node scripts/contract-docs.mjs check HIRE-008`. Replace the clause argument when changing another row. The incremental command preserves unrelated legacy acceptance prose. Regenerate the edition source lock last with `node scripts/edition-authoring/cli.mjs lock`, then run the same command with `check`.

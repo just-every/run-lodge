@@ -1,3 +1,4 @@
+import { referenceView } from '../references/views'
 import { publicReceipt } from '../careers/receipt'
 import { careersDomainView } from '../careers/domain'
 import type { Bindings } from '../../auth.server'
@@ -194,6 +195,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
     teamNotes, activity: activity(s, { applications: projected, messages, interviews, offers, teamNotes }),
     tasks,
+    references: referenceView(s, a, appIds),
     // SCREEN-001: the question library, for admins who keep it and managers who attach it.
     questions: library(s, a),
     // REQ-002: job templates, for the admins who keep them and the managers who start jobs from them.
