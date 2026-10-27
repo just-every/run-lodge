@@ -21,7 +21,8 @@ for (const id of ids) {
   if (!old) throw Error('Missing acceptance row: ' + id)
   const oldCells = old.split('|').slice(1, -1).map(x => x.trim())
   const sourceJourney = clause.text.split('**Acceptance evidence:**')[1]?.trim()
-  const journey = sourceJourney ? `Required journey: ${sourceJourney} ` : ''
+  const nativePolicy = clause.text.match(/Native phone-reference default ADOPTED WITH RIDERS[\s\S]*?(?= \*\*Acceptance evidence:)/)?.[0]
+  const journey = sourceJourney ? `Required journey: ${sourceJourney} ${nativePolicy ? nativePolicy + ' ' : ''}` : ''
   const row = `| ${id} | ${oldCells[1]} | ${journey}${evidence}${gap ? ' Remaining: ' + gap : ''} | ${status} |`
   acceptance = acceptance.replace(pattern, row)
   const claim = `| ${id} | ${status} | ${evidence} | ${gap} |`
