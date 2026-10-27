@@ -1359,7 +1359,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "51ec5748e4abb5c4cbebfe44d6e0ec26b3bfa148b8e4b88748b67750311e2517",
+      "sha256": "c2015358de5a69760f131088cd7afb391f033befcb9578e8e16a922c9256be15",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -1768,6 +1768,10 @@
     },
     "src/lodge/views/board.ts": {
       "sha256": "82df90ea8323dc295bc5907375b7eb5e446dda5cdfd85690761039064b6702f2",
+      "executable": false
+    },
+    "src/lodge/views/cohort-report.ts": {
+      "sha256": "328bfc707a5a2a784bcd253160950079abcd46723a232e62af9cbbcba1a4b483",
       "executable": false
     },
     "src/lodge/views/exports.ts": {
@@ -3687,7 +3691,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "1e402c26f2628997a3e5512d653af4c204ee1fb71acbb1da6f9ad15ecadaff42",
+      "sha256": "2d9bf566af2538d67357517a56bb3314f5d998c534f7f2165269d6b0ac6bd91e",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -3716,6 +3720,10 @@
     },
     "src/ui/careers-settings.tsx": {
       "sha256": "ccb165d7c823f1f5be72e9957133632e861ead7c6f85c64474dd5326916af1a9",
+      "executable": false
+    },
+    "src/ui/cohort-report.tsx": {
+      "sha256": "c815b9237a9d4ce70b2018aead0c24c414222041b29a1bf16f411a702b736139",
       "executable": false
     },
     "src/ui/connectors.tsx": {
@@ -3835,7 +3843,7 @@
       "executable": false
     },
     "src/ui/overview.tsx": {
-      "sha256": "59e82154f2f456058138ac3a03058f0db932598389786e1a1b21e5c4fa0107ec",
+      "sha256": "a346d9ca3aa56f2e61af86605d9e83c4f39d926d2d6be149668ade93924d7606",
       "executable": false
     },
     "src/ui/pay-settings.tsx": {
