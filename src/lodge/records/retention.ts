@@ -69,6 +69,7 @@ export function candidateRecords(s: State, candidateId: string) {
     'survey-response': byApp('survey-response'), 'survey-invitation': byApp('survey-invitation'), 'survey-consent': byApp('survey-consent'), 'survey-stop': byApp('survey-stop'), 'survey-receipt': byApp('survey-receipt'),
     'crm-enrollment': byApp('crm-enrollment'), 'crm-reply': byApp('crm-reply'), 'crm-pool': s.scan('crm-pool').filter(p => p.candidates?.some((id: string) => candidateIds.has(id))), 'hiring-reminder': byApp('hiring-reminder'), 'capture-mail': byApp('capture-mail'), 'application-email': byApp('application-email'), 'application-submission': byApp('application-submission'),
     'candidate-email-change': byApp('candidate-email-change'),
+    'reference-questionnaire': byApp('reference-questionnaire'), 'reference-record': byApp('reference-record'),
     application: apps, 'stage-event': byApp('stage-event'), interview: byApp('interview'), scorecard: byApp('scorecard'),
     'interview-note': byApp('interview-note'), notification: byApp('notification'), alert: byApp('alert'), 'team-note': byApp('team-note'), task: byApp('task'), debrief: byApp('debrief'), 'rule-match': byApp('rule-match'), 'rejection-email': byApp('rejection-email'), review: byApp('review'), 'fair-chance-record': byApp('fair-chance-record'), 'event-capture': byApp('event-capture'), message: messages, offer: offers, receipt: byApp('receipt'), monitoring: byApp('monitoring'),
     approval: s.scan('approval').filter(x => subjects.has(x.subjectId)),
