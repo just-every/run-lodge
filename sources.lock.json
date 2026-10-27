@@ -1207,7 +1207,7 @@
       "executable": false
     },
     "src/lodge/core/protected.ts": {
-      "sha256": "13f6aeda8dddc6101a6fb2e147e856029a12259e7b88da51e408f25f288164a7",
+      "sha256": "b10f58d5661eefa2f79eff22c66d24e27807cbedac46cb49d4988cb7d7e9929c",
       "executable": false
     },
     "src/lodge/core/state.ts": {
@@ -4351,7 +4351,7 @@
       "executable": false
     },
     "tests/reference-flow.mjs": {
-      "sha256": "163444ba8a1f00ccc5796e87f36f171a5b9e7ca8bfeb422ace2200b7db60051e",
+      "sha256": "e665c367e6b3d091083c2eb7547673605bf0416cb28787e5fbdd31b6856e88a7",
       "executable": false
     },
     "tests/referrals-driver.mjs": {
