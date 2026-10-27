@@ -5,7 +5,8 @@ import { zip } from './zip.mjs'
 
 export const cohortApi = '/api/lodge/reports/cohort'
 export async function cohortFixture() {
-  const h = await businessHarness({ clock: '2026-10-27T14:00:00.000Z' })
+  // Native session expiry is fenced by D1's real clock; only recruiting events use the fixed fixture dates below.
+  const h = await businessHarness({ clock: new Date().toISOString() })
   try {
     const managerEmail = 'synthetic-lodge-manager@example.test'
     const manager = await h.member(managerEmail, ['manager'])
