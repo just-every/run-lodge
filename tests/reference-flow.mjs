@@ -28,6 +28,11 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
     await cmd('job-levels', { id: job.id, members: {} })
     const version = (await state()).references.questionnaires.find(q => q.application === app.id).versions.length
     assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version, questions: ['Describe their work', 'Would you work together again?'], roles: ['owner', 'manager', 'interviewer'] }, cookie)).status, 200, 'CT delegated configuration succeeds')
+    const saved = (await state()).references.questionnaires.find(q => q.application === app.id)
+    assert.deepEqual(saved.versions.map(q => q.version), cookie === recruiter ? [1, 2] : [1, 2, 3], 'CT delegated configuration persists each new version')
+    assert.equal(saved.versions.at(-1).by, email, 'CT delegated configuration records its human author')
+    assert.deepEqual(saved.versions.at(-1).questions.map(q => q.text), ['Describe their work', 'Would you work together again?'], 'CT delegated configuration stores its questions')
+    assert.deepEqual(saved.versions.at(-1).roles, ['owner', 'manager', 'interviewer'], 'CT delegated configuration stores selected readers')
   }
   const initialVersion = (await state()).references.questionnaires.find(q => q.application === app.id).versions.length
   const q1 = (await state(manager)).references.questionnaires.find(q => q.application === app.id).versions.at(-1)
@@ -73,6 +78,7 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   await readDoors(manager, true, 'CT selected human reader')
   await readDoors(ian, false, 'CT unrelated member')
   const agent = await h.member('synthetic-lodge-reference-agent@example.test', [], 'Synthetic reference agent', { agent: true, actsFor: 'morgan@example.test' })
+  assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version: initialVersion, questions: ['Describe safe work'], roles: ['owner'] }, agent)).status, 403, 'CT only humans configure references')
   await readDoors(agent, false, 'CT agent context')
   await cmd('blind-review', { id: job.id, enabled: true, stages: [app.stage], revealStage: job.stages[2].id }, manager)
   await readDoors(manager, false, 'CT blind context')
@@ -86,10 +92,11 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   // A selected and assigned interviewer still needs the current contact permission.
   await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test'] }, manager)
   assert.equal((await send(exportPath, undefined, ivy)).status, 404)
-  const level = await cmd('permission-level', { name: 'Reference reader', permissions: ['contact', 'export'] })
+  const level = await cmd('permission-level', { name: 'Reference reader', permissions: ['contact', 'export', 'settings'] })
   await cmd('hiring-team', { id: job.id, interviewers: ['ivy@example.test'] })
   await cmd('job-levels', { id: job.id, roles: { interviewers: level.id } })
   await readDoors(ivy, true, 'CT selected assigned contact reader')
+  assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version: initialVersion, questions: ['Describe safe work'], roles: ['owner'] }, ivy)).status, 403, 'CT configuration requires job management beyond task and permissions')
   const assignedTask = await cmd('task', { kind: 'task', purpose: 'call-references', application: app.id, note: 'Assigned reader is not a manager', owner: 'ivy@example.test', due: '2026-12-03' }, manager)
   assert.equal((await record({ ...input, task: assignedTask.id }, ivy)).status, 403, 'CT task assignment alone cannot record')
   await cmd('complete-task', { id: assignedTask.id }, manager)
