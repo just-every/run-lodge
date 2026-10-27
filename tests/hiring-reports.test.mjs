@@ -305,3 +305,7 @@ test('Weekly reports recompute private recipient scopes and claim each period on
   await (await import('./weekly-report-flow.mjs')).checkWeeklyReports(t)
   await (await import('./weekly-report-restore.mjs')).checkWeeklyRestore(t)
 })
+
+test('Submission cohorts preserve original timing, current close reasons and live read and export scope', async t => {
+  await (await import('./cohort-report-flow.mjs')).checkCohortReport(t)
+})

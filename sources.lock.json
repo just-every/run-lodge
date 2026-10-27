@@ -1771,7 +1771,7 @@
       "executable": false
     },
     "src/lodge/views/cohort-report.ts": {
-      "sha256": "328bfc707a5a2a784bcd253160950079abcd46723a232e62af9cbbcba1a4b483",
+      "sha256": "688764cee9b99684b3799a07ddabb99301a80e015b1852905387bde675257e94",
       "executable": false
     },
     "src/lodge/views/exports.ts": {
@@ -3691,7 +3691,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "2d9bf566af2538d67357517a56bb3314f5d998c534f7f2165269d6b0ac6bd91e",
+      "sha256": "f87bd2ca3543414c745d9d05ee363ae097fad442639cff20a2cd56ec07e4e9f2",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -3723,7 +3723,7 @@
       "executable": false
     },
     "src/ui/cohort-report.tsx": {
-      "sha256": "c815b9237a9d4ce70b2018aead0c24c414222041b29a1bf16f411a702b736139",
+      "sha256": "2a830e63902e31a410f9f40c29fa5600b27ebcb81119b42a437a19a966426de9",
       "executable": false
     },
     "src/ui/connectors.tsx": {
@@ -4091,7 +4091,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "8996980fd472a70e37ee4606ca97f78a85743777e88ba64617284ae6f4c8606a",
+      "sha256": "81a8fa8ed1492398b0cc8c3463d10faea30b42db8b0ff5c5b7e4017319f80a32",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
@@ -4135,7 +4135,15 @@
       "executable": false
     },
     "tests/clause-browser.mjs": {
-      "sha256": "2e8ad0e9782eb8ef2c1e5fdee3fd01d2803a9f1c3f2c93d02f6aa1e43842c48d",
+      "sha256": "020234ef1e7b521527b69021ef2da12c36f87823d37ea54025fc9e4a976fbeb4",
+      "executable": false
+    },
+    "tests/cohort-report-browser.mjs": {
+      "sha256": "0c36813e02173be258493876272b5c6bf7e3b08284246ab45c2ac4d7b974f174",
+      "executable": false
+    },
+    "tests/cohort-report-flow.mjs": {
+      "sha256": "0e62f75fbf62bd3398d09be6b16eae46dd1218a0c56817d950ebc8290e883bde",
       "executable": false
     },
     "tests/compliance-flow.mjs": {
@@ -4263,7 +4271,7 @@
       "executable": false
     },
     "tests/hiring-reports.test.mjs": {
-      "sha256": "18abaeb105b0acd1c36445d20eda2b821f1c0ca36f0fd75e24531ac5b728410f",
+      "sha256": "d84640faee042f02e8be65b45613ea95d8144522e77d8220d38c469b73ebc6b2",
       "executable": false
     },
     "tests/hiring-security.test.mjs": {

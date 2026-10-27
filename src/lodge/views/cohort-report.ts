@@ -7,7 +7,7 @@ import type { WorkspaceRecords } from './workspace'
 
 export type CohortFilter = { vacancy?: string; from?: string; to?: string; timeZone?: string; history?: string }
 const calendarDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value
-const timestamp = (value: unknown): value is string => typeof value === 'string' && (calendarDate(value) || /^\d{4}-\d{2}-\d{2}T/.test(value)) && Number.isFinite(Date.parse(value))
+const timestamp = (value: unknown): value is string => typeof value === 'string' && (calendarDate(value) || (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value) && calendarDate(value.slice(0, 10)))) && Number.isFinite(Date.parse(value))
 
 /** Scope before counting: report rows use the same field and blind projection as the workspace. */
 export function cohortReport(s: State, a: Actor, w: WorkspaceRecords, input: CohortFilter = {}, exporting = false) {
@@ -33,7 +33,7 @@ export function cohortReport(s: State, a: Actor, w: WorkspaceRecords, input: Coh
   const rows = apps.map(app => {
     const job = selected.find(v => v.id === app.vacancy)!
     const accepted = w.offers.filter(o => o.application === app.id && o.status === 'accepted')
-    const dated = accepted.filter(o => timestamp(o.outcomeAt)).sort((x, y) => x.outcomeAt.localeCompare(y.outcomeAt))
+    const dated = accepted.filter(o => timestamp(o.outcomeAt)).sort((x, y) => Date.parse(x.outcomeAt) - Date.parse(y.outcomeAt))
     const offer = dated[0], submittedAt = timestamp(app.submittedAt) ? app.submittedAt : null
     const acceptedAt = offer?.outcomeAt ?? null
     const elapsed = submittedAt && acceptedAt ? Math.round((Date.parse(day(acceptedAt)) - Date.parse(day(submittedAt))) / 86400000) : null
@@ -50,7 +50,7 @@ export function cohortReport(s: State, a: Actor, w: WorkspaceRecords, input: Coh
     }
   }).sort((x, y) => x.job.localeCompare(y.job) || x.application.localeCompare(y.application))
   const measured = rows.filter(r => r.daysToHire !== null)
-  const statuses = ['active', 'rejected', 'withdrawn', 'transferred', 'hired']
+  const statuses = ['active', 'rejected', 'withdrawn', 'transferred', 'hired', 'imported']
   const breakdown = ['rejected', 'withdrawn'].flatMap(status => {
     const closed = rows.filter(r => r.status === status)
     return [...new Set(closed.map(r => r.closeReason))].map(reason => ({ status, reason, label: closed.find(r => r.closeReason === reason)!.closeLabel, count: closed.filter(r => r.closeReason === reason).length }))

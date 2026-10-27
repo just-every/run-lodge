@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { PageProps } from './app'
 import { call, Field, Form, Table, type D } from './shared'
-import { businessZone } from '../lodge/core/time'
+import { businessZone, times } from '../lodge/core/time'
 
 export function CohortReport({ w, follow }: Pick<PageProps, 'w' | 'follow'>) {
   const [query, setQuery] = useState(''), [report, setReport] = useState<D>(), [error, setError] = useState('')
@@ -11,6 +11,7 @@ export function CohortReport({ w, follow }: Pick<PageProps, 'w' | 'follow'>) {
     call('reports/cohort' + query).then(r => { if (current) setReport(r) }).catch(e => { if (current) setError(e.message) })
     return () => { current = false }
   }, [w, query])
+  const dates = times(report?.filter.timeZone ?? businessZone(w.business))
   return <div className="page wide">
     <h1>Recruiting cohort report</h1>
     <p>Submission cohorts, accepted-offer timing and current close reasons. Open a record to inspect its history.</p>
@@ -34,7 +35,7 @@ export function CohortReport({ w, follow }: Pick<PageProps, 'w' | 'follow'>) {
       <Table heads={['Outcome', 'Reason', 'Applications']} empty="No current closes in this cohort.">{report.reasons.map((r: D) => <tr key={r.status + r.reason}><td>{r.status}</td><td>{r.label}</td><td>{r.count}</td></tr>)}</Table>
       <h3>Underlying applications</h3>
       <Table heads={['Application', 'Job', 'Status', 'Submitted', 'Accepted offer', 'Days to hire', 'Timing history', 'Current reason']} empty="No applications match these filters.">{report.rows.map((r: D) => <tr key={r.application}>
-        <td><button className="link" onClick={() => follow(r.link)}>{r.candidateName}</button>{r.imported && <small> · imported</small>}</td><td>{r.job}</td><td>{r.status}</td><td>{r.submittedAt ?? 'Unknown'}</td><td>{r.acceptedAt ?? 'Not recorded or unavailable'}</td><td>{r.daysToHire ?? 'Not measured'}</td><td>{r.timing}</td><td>{r.closeLabel ?? '—'}</td>
+        <td><button className="link" onClick={() => follow(r.link)}>{r.candidateName}</button>{r.imported && <small> · imported</small>}</td><td>{r.job}</td><td>{r.status}</td><td>{r.submittedAt ? dates.stamped(r.submittedAt) : 'Unknown'}</td><td>{r.acceptedAt ? dates.stamped(r.acceptedAt) : 'Not recorded or unavailable'}</td><td>{r.daysToHire ?? 'Not measured'}</td><td>{r.timing}</td><td>{r.closeLabel ?? '—'}</td>
       </tr>)}</Table>
       <h3>Definitions and limits</h3>
       {Object.values(report.definitions).map((definition: any, i) => <p key={i}>{definition}</p>)}

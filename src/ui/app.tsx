@@ -41,7 +41,7 @@ export function App() {
   function follow(href: string) {
     const q = new URLSearchParams(new URL(href, location.origin).search), at = (k: string) => q.get(k)
     setKit(at('kit')); setNotice(''); scrollTo({ top: 0 })
-    history.replaceState(null, '', at('kit') ? '/app?kit=' + encodeURIComponent(at('kit')!) : '/app')
+    history.replaceState(null, '', at('kit') ? '/app?kit=' + encodeURIComponent(at('kit')!) : at('report') === 'cohort' ? '/app?report=cohort' : '/app')
     if (at('report') === 'cohort') setNav(n => ({ ...n, tab: 'Cohort report' }))
     else if (at('application')) setNav(n => ({ ...n, tab: 'Applications', app: at('application'), job: null }))
     else if (at('job')) setNav(n => ({ ...n, tab: 'Applications', job: at('job'), app: '' }))
