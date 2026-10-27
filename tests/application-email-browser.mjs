@@ -11,7 +11,7 @@ export async function applicationEmailPage(browser, evidence, { live = false } =
  const results = []
  await mkdir(evidence, { recursive: true })
  for (const width of browserWidths) {
-   const h = await applicationEmailFixture({ bindings, liveMail: live, activate: false })
+   const h = await applicationEmailFixture({ bindings, liveMail: live, activate: false, ...(live ? {} : { clock: '2026-10-30T14:15:00.000Z' }) })
    const marker = 'Lodge acknowledgment ' + crypto.randomUUID(), started = Date.now()
    let received
    const context = await browser.newContext({ viewport: { width, height: 1000 } })
@@ -113,6 +113,60 @@ export async function applicationEmailPage(browser, evidence, { live = false } =
     const current = await h.state(), disabledApplication = current.receipts.find(r => r.id === disabledCode).application
     assert.equal(current.applicationEmails.filter(m => m.application === disabledApplication).length, 0)
     await screenshot('disabled-email-receipt')
+    if (!live) {
+      await h.command('unpublish', { id: h.job.id, reason: 'Review exact delayed status timing' })
+      const previewTiming = async () => {
+        await page.goto(h.origin + '/application-emails/settings?vacancy=' + h.job.id)
+        await page.getByText('Review status timing', { exact: true }).click()
+        await page.getByLabel('Delay in eligible local days', { exact: true }).fill('1')
+        await page.getByLabel('Trial stage event time (ISO instant)', { exact: true }).fill('2026-10-30T14:15:00.000Z')
+        await page.getByRole('button', { name: 'Preview status timing', exact: true }).click()
+        await page.getByRole('heading', { name: 'Status timing preview', exact: true }).waitFor()
+        if (width === 1440) {
+          const text = await page.getByRole('region', { name: 'Status timing preview' }).innerText()
+          assert.ok(text.includes('2026-11-02T15:15:00.000Z')); assert.ok(text.includes('EST'))
+          assert.ok(text.includes('Repeated daylight-saving times use the first occurrence'))
+          assert.ok(text.includes('Production contact: 0'))
+        }
+      }
+      await previewTiming()
+      await screenshot('application-email-timing-preview')
+      const activateTiming = async () => {
+        await page.getByLabel('I approve this exact reviewed timing for production', { exact: true }).check()
+        await page.getByRole('button', { name: 'Activate reviewed timing', exact: true }).click()
+        await page.getByRole('status').waitFor()
+      }
+      await activateTiming()
+      await page.getByText('Review status timing', { exact: true }).click()
+      await page.getByRole('button', { name: 'Rollback status timing', exact: true }).click()
+      await page.getByRole('status').waitFor()
+      if (width === 1440) assert.equal((await h.state()).vacancies.find(v => v.id === h.job.id).applicationEmailTiming, null)
+      await previewTiming(); await activateTiming()
+      await page.getByText('Review an email template', { exact: true }).click()
+      await page.locator('select[name="kind"]').selectOption('status')
+      const stage = h.job.stages[1].id
+      await page.locator('select[name="stage"]').selectOption(stage)
+      await page.getByLabel('Application language code').fill('en')
+      await page.getByLabel('Subject', { exact: true }).fill('Reviewed delayed update')
+      await page.getByLabel('Body', { exact: true }).fill('Thank you {{candidateName}}. We are reviewing your application.')
+      await page.getByLabel('Footer in this language', { exact: true }).fill('Example Builders, 10 Main Street, New York. Reply to recruiting@example.test to opt out.')
+      await page.getByLabel('Preview recipient', { exact: true }).selectOption(received.application)
+      await page.getByRole('button', { name: 'Preview template', exact: true }).click()
+      await page.getByRole('heading', { name: 'Exact template preview' }).waitFor()
+      await screenshot('application-email-delayed-template')
+      await page.getByLabel('I, Olive Owner, have reviewed', { exact: false }).check()
+      await page.getByRole('button', { name: 'Review and save template', exact: true }).click()
+      await page.getByRole('status').waitFor()
+      await h.policy(false, [stage]); await h.command('publish', { id: h.job.id })
+      await h.command('move', { application: received.application, to: stage, reason: 'Reviewed stage' })
+      await page.goto(h.origin + '/application-emails/application/' + received.application)
+      await page.getByText('Pending', { exact: true }).waitFor()
+      if (width === 1440) {
+        const text = await page.locator('main').innerText()
+        assert.ok(text.includes('2026-11-02T15:15:00.000Z')); assert.ok(text.includes('EST'))
+      }
+      await screenshot('application-email-delayed-outcome')
+    }
    } finally { await context.close(); await h.close() }
   }
  return results
@@ -120,7 +174,7 @@ export async function applicationEmailPage(browser, evidence, { live = false } =
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
  const { chromium } = await import(process.env.LODGE_PLAYWRIGHT_MODULE || '@playwright/test')
- const browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic'] })
+ const browser = await chromium.launch({ headless: true, ...(process.env.LODGE_CHROMIUM ? { executablePath: process.env.LODGE_CHROMIUM } : {}), args: ['--use-mock-keychain', '--password-store=basic', ...(process.env.LODGE_CHROMIUM ? ['--no-sandbox'] : [])] })
  try { console.log(JSON.stringify({ applicationEmailJourney: 'passed', live: process.env.LODGE_LIVE_MAIL === '1', outcomes: await applicationEmailPage(browser, process.env.LODGE_EVIDENCE || '.cache/application-email-proof', { live: process.env.LODGE_LIVE_MAIL === '1' }) })) }
  finally { await browser.close() }
 }

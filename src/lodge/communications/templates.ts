@@ -1,6 +1,8 @@
 import type { State } from '../core/state'
 import { can, canSeeApplication, canSeeContact, isAdmin, managesVacancy, requireCan, requireManages } from '../core/access'
 import { now, oneOf, requireThat, text, type Actor, type Data } from '../core/types'
+import { businessZone } from '../core/time'
+import { statusTiming, sameTiming } from './timing'
 import { activeApplicationTransport } from './transport'
 
 const fields = new Set(['candidateName', 'jobTitle', 'businessName', 'receiptCode', 'publicStatus'])
@@ -50,11 +52,13 @@ export function reviewApplicationEmailTemplate(s: State, a: Actor, b: Data) {
   requireThat(!/\{\{|\}\}/.test((subject + body).replace(/{{(candidateName|jobTitle|businessName|receiptCode|publicStatus)}}/g, '')), 'Use complete template fields')
   requireThat(kind !== 'acknowledgment' || body.includes('{{receiptCode}}'), 'Acknowledgments must include {{receiptCode}}')
   requireThat(b.reviewed === true, 'Review this exact text in the application language before approving it')
+  if (kind === 'status') requireThat(!statusTiming(v).delayDays || statusTiming(v).timeZone === businessZone(s.get('business', 'main')), 'Business time zone changed; review status timing again', 409)
+  if (kind === 'status') requireThat(sameTiming(b.timing ?? statusTiming({}), statusTiming(v)), 'Status timing changed; preview and review this exact timing again', 409)
   const id = templateId(v.id, kind, language, stage), previous = s.find('application-email-template', id)
   const footer = text(b.footer ?? (language === 'en' ? transport.footer : undefined), 'Reviewed footer in the application language', 4000)
   requireThat(!/\{\{|\}\}/.test(footer), 'Use complete reviewed footer text')
   const publicStatus = kind === 'status' && (subject + body).includes('{{publicStatus}}') ? text(b.publicStatus, 'Reviewed public status label', 200) : ''
-  const record = s.put('application-email-template', id, { vacancy: v.id, kind, stage, language, subject, body, footer, publicStatus, transportEpoch: transport.epoch, version: (previous?.version ?? 0) + 1, reviewedBy: a.email, reviewedAt: now() })
+  const record = s.put('application-email-template', id, { vacancy: v.id, kind, stage, language, subject, body, footer, publicStatus, timing: kind === 'status' ? statusTiming(v) : undefined, transportEpoch: transport.epoch, version: (previous?.version ?? 0) + 1, reviewedBy: a.email, reviewedAt: now() })
   s.audit(a, 'application-email-template-reviewed', 'vacancy:' + v.id, { template: id, version: record.version, language, kind, stage })
   return record
 }

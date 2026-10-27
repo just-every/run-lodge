@@ -27,7 +27,7 @@ export async function applicationEmailFixture(options = {}) {
   }
   if (options.activate !== false) await activate(options.sender ?? {})
   const policy = (enabled, stages = []) => cmd('application-email-policy', { vacancy: job.id, acknowledgment: enabled, stages })
-  const review = (language = 'en', extra = {}) => cmd('application-email-template', { vacancy: job.id, kind: 'acknowledgment', language, subject: language === 'es' ? 'Solicitud recibida: {{jobTitle}}' : 'Application received: {{jobTitle}}', body: language === 'es' ? 'Gracias {{candidateName}}. Su código es {{receiptCode}}.' : 'Thank you {{candidateName}}. Your receipt is {{receiptCode}}.', footer: language === 'es' ? 'Example Builders, 10 Main Street, Nueva York. Responda a recruiting@example.test para no recibir más correos.' : undefined, reviewed: true, ...extra })
+  const review = async (language = 'en', extra = {}) => cmd('application-email-template', { vacancy: job.id, kind: 'acknowledgment', language, subject: language === 'es' ? 'Solicitud recibida: {{jobTitle}}' : 'Application received: {{jobTitle}}', body: language === 'es' ? 'Gracias {{candidateName}}. Su código es {{receiptCode}}.' : 'Thank you {{candidateName}}. Your receipt is {{receiptCode}}.', footer: language === 'es' ? 'Example Builders, 10 Main Street, Nueva York. Responda a recruiting@example.test para no recibir más correos.' : undefined, reviewed: true, timing: (await h.state()).vacancies.find(v => v.id === job.id).applicationEmailTiming, ...extra })
   const prepareSubmission = async (post = en, extra = {}) => {
     const path = '/jobs/' + post.slug, shown = await h.send(path)
     const submissionKey = /name="submissionKey" value="([^"]+)"/.exec(shown.text)[1]
@@ -162,4 +162,98 @@ export async function checkApplicationEmailStages(t) {
   const missing = (await h.state()).applicationEmails.find(mail => mail.application === manual.id)
   assert.equal(missing.status, 'withheld'); assert.match(missing.reason, /Missing message values: recipient/)
   assert.equal((await h.mails()).length, 2)
+  await checkDelayedApplicationEmails(t)
+}
+
+async function checkDelayedApplicationEmails(t) {
+  const { reviewStatusTiming } = await import('./operations-driver.mjs')
+  // Independently specified UTC expectations cross both clock changes and a weekend.
+  const cases = [
+    ['2027-03-12T15:15:00.000Z', [1, 2, 3, 4, 5], '2027-03-15T14:15:00.000Z'],
+    ['2027-03-13T07:30:00.000Z', [0, 1, 2, 3, 4, 5, 6], '2027-03-14T07:00:00.000Z'],
+    ['2026-10-31T05:30:00.000Z', [0, 1, 2, 3, 4, 5, 6], '2026-11-01T05:30:00.000Z'],
+  ]
+  for (const [clock, weekdays, due] of cases) {
+    const h = await applicationEmailFixture({ clock })
+    const command = h.command, state = h.state
+    h.command = (op, body, cookie = h.owner, status = 200) => command(op, body, cookie, status)
+    h.state = (cookie = h.owner) => state(cookie)
+    try {
+      const mailCount = async () => (await h.mails()).filter(m => ['Reviewed delayed update', 'Revised status text'].includes(m.subject)).length
+      const received = await h.submit(), stage = h.job.stages[1].id
+      h.timingApplication = received.application
+      const timing = { delayDays: 1, weekdays, timeZone: 'America/New_York' }
+      await reviewStatusTiming(h, timing, clock, due)
+      await h.command('application-email-template', { vacancy: h.job.id, kind: 'status', stage, language: 'en', subject: 'Stale timing', body: 'Status', reviewed: true }, h.owner, 409)
+      await h.review('en', { kind: 'status', stage, subject: 'Reviewed delayed update', body: 'Thank you {{candidateName}}.' })
+      await h.policy(false, [stage])
+      await h.command('move', { application: received.application, to: stage, reason: 'Reviewed stage event' })
+      const queued = (await h.state()).applicationEmails.find(m => m.application === received.application)
+      assert.equal(queued.status, 'pending'); assert.equal(queued.eventAt, clock)
+      assert.equal(queued.dueAt, due); assert.deepEqual(queued.timing, timing)
+      assert.equal(await mailCount(), 0)
+      const tick = async () => (await h.mf.getWorker()).scheduled({ scheduledTime: Date.parse(due), cron: '0 * * * *' })
+      await h.setTime(new Date(Date.parse(due) - 1).toISOString()); await tick()
+      assert.equal(await mailCount(), 0, 'an early scheduler cannot send')
+      await h.restart(); await h.setTime(new Date(Date.parse(due) + 60000).toISOString())
+      await Promise.all([tick(), tick()])
+      assert.equal(await mailCount(), 1, 'concurrent late schedulers claim one message')
+      let sent = (await h.state()).applicationEmails.find(m => m.id === queued.id)
+      assert.equal(sent.status, 'handed'); assert.equal(sent.dueAt, due); assert.equal(sent.attempts, 1)
+      await h.restart(); await h.setTime(new Date(Date.parse(due) + 120000).toISOString()); await tick()
+      assert.equal(await mailCount(), 1, 'restart cannot duplicate a claimed event')
+      if (weekdays.length !== 5) continue
+      const nextStage = h.job.stages[2].id
+      await h.command('move', { application: received.application, to: nextStage, reason: 'Next review' })
+      await h.command('move', { application: received.application, to: stage, reason: 'New committed event' })
+      const pending = (await h.state()).applicationEmails.find(m => m.status === 'pending')
+      await h.command('move', { application: received.application, to: nextStage, reason: 'Cancel pending update' })
+      assert.equal((await h.state()).applicationEmails.find(m => m.id === pending.id).status, 'canceled')
+      await h.command('move', { application: received.application, to: stage, reason: 'Return is a distinct event' })
+      const changed = (await h.state()).applicationEmails.find(m => m.status === 'pending')
+      assert.notEqual(changed.id, pending.id)
+      await h.review('en', { kind: 'status', stage, subject: 'Revised status text', body: 'Updated {{candidateName}}.' })
+      const frozen = (await h.state()).applicationEmails.find(m => m.id === changed.id)
+      assert.equal(frozen.content.subject, 'Reviewed delayed update'); assert.equal(frozen.dueAt, changed.dueAt)
+      await h.setTime(changed.dueAt); await tick()
+      assert.equal((await h.state()).applicationEmails.find(m => m.id === changed.id).status, 'withheld')
+      assert.equal(await mailCount(), 1)
+      await h.command('move', { application: received.application, to: nextStage, reason: 'Next configuration event' })
+      await h.command('move', { application: received.application, to: stage, reason: 'Freeze the reviewed configuration' })
+      const configurationMail = (await h.state()).applicationEmails.find(m => m.status === 'pending')
+      await h.command('unpublish', { id: h.job.id, reason: 'Review a later timing version' })
+      const box = await h.command('sandbox-create', { name: 'Changed timing trial', vacancy: h.job.id, mode: 'historical', samples: [{ application: received.application, eventAt: clock }] })
+      await h.command('sandbox-edit', { id: box.id, edits: [{ op: 'application-email-timing', input: { timing: { ...timing, delayDays: 2 } } }] })
+      const preview = await h.command('sandbox-preview', { id: box.id })
+      await h.command('sandbox-deploy', { id: box.id, token: preview.token, confirmProduction: true })
+      assert.equal((await h.state()).applicationEmails.find(m => m.id === configurationMail.id).dueAt, configurationMail.dueAt)
+      await h.setTime(configurationMail.dueAt); await tick()
+      assert.equal((await h.state()).applicationEmails.find(m => m.id === configurationMail.id).status, 'withheld')
+      assert.equal(await mailCount(), 1)
+      await h.command('sandbox-rollback', { id: box.id }); await h.command('publish', { id: h.job.id })
+      await h.send('/auth/invite', { email: 'jordan@example.test', displayName: 'Candidate', role: 'member', returnTo: '/candidate' }, h.owner)
+      let candidateCookie = await h.signIn('jordan@example.test')
+      const admin = await h.member('delayed-reviewer@example.test', ['admin'])
+      await h.command('application-email-template', { vacancy: h.job.id, kind: 'status', stage, language: 'en', subject: 'Revised status text', body: 'Updated {{candidateName}}.', reviewed: true, timing }, admin)
+      for (const refusal of ['contact', 'authority', 'timing-authority', 'closure']) {
+        await h.command('move', { application: received.application, to: nextStage, reason: 'Next event' })
+        await h.command('move', { application: received.application, to: stage, reason: 'Review again' })
+        const mail = (await h.state()).applicationEmails.find(m => m.status === 'pending')
+        assert.ok(mail)
+        const snapshot = await h.state(), app = snapshot.applications.find(a => a.id === received.application)
+        if (refusal === 'contact') { candidateCookie = await h.signIn('jordan@example.test'); assert.equal((await h.send('/candidate/receipts/' + received.code + '/account/preferences', form({ preference: 'none' }), candidateCookie)).status, 303) }
+        if (refusal === 'authority') await h.command('member', { email: 'delayed-reviewer@example.test', name: 'Reviewer', roles: ['admin'], active: false })
+        if (refusal === 'timing-authority') await h.command('member', { email: 'status-timing-admin@example.test', name: 'Timing reviewer', roles: ['admin'], active: false })
+        if (refusal === 'closure') await h.command('move', { application: received.application, to: 'withdrawn', closeReason: 'other-offer', reason: 'Closed application' })
+        await h.setTime(mail.dueAt); await tick()
+        h.owner = await h.signIn('owner@example.test')
+        const outcome = (await h.state()).applicationEmails.find(m => m.id === mail.id)
+        assert.equal(outcome.status, refusal === 'contact' ? 'suppressed' : refusal === 'closure' ? 'canceled' : 'withheld', refusal)
+        assert.equal(await mailCount(), 1)
+        if (refusal === 'contact') { candidateCookie = await h.signIn('jordan@example.test'); assert.equal((await h.send('/candidate/receipts/' + received.code + '/account/preferences', form({ preference: 'email' }), candidateCookie)).status, 303) }
+        if (refusal === 'authority') await h.command('member', { email: 'delayed-reviewer@example.test', name: 'Reviewer', roles: ['admin'], active: true })
+        if (refusal === 'timing-authority') await h.command('member', { email: 'status-timing-admin@example.test', name: 'Timing reviewer', roles: ['admin'], active: true })
+      }
+    } finally { await h.close() }
+  }
 }

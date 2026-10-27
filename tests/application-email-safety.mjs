@@ -47,7 +47,17 @@ export async function checkApplicationEmailRestore(t) {
  const { reminderFixture, clock } = await import('./reminders-flow.mjs')
  const src = await reminderFixture(); t.after(() => src.close())
  const reminder = await src.command('hiring-reminder', { ...src.input, dueAt: '2026-10-26T15:00:00.000Z' })
- await src.review(); await src.policy(true)
+ const { reviewStatusTiming } = await import('./operations-driver.mjs')
+ src.timingApplication = src.application.id
+ const timing = { delayDays: 1, weekdays: [1, 2, 3, 4, 5], timeZone: 'America/New_York' }
+ await reviewStatusTiming(src, timing, clock, '2026-10-27T14:00:00.000Z')
+ const stage = src.job.stages[1].id
+ await src.review('en', { kind: 'status', stage, subject: 'Restored delayed status', body: 'Status for {{candidateName}}.' })
+ await src.policy(true, [stage])
+ await src.command('move', { application: src.application.id, to: stage, reason: 'Reviewed committed stage' })
+ const delayed = (await src.state()).applicationEmails.find(m => m.kind === 'status')
+ assert.equal(delayed.status, 'pending'); assert.equal(delayed.dueAt, '2026-10-27T14:00:00.000Z')
+ await src.review();
  let release, entered
  const paused = new Promise(resolve => { entered = resolve })
  const resume = new Promise(resolve => { release = resolve })
@@ -83,6 +93,12 @@ export async function checkApplicationEmailRestore(t) {
  await dst.setTime('2026-10-26T16:00:00.000Z')
  await dst.mf.getWorker().then(w => w.scheduled({ scheduledTime: Date.parse('2026-10-26T16:00:00.000Z'), cron: '0 * * * *' }))
  assert.equal((await dst.send('/api/lodge/reminders', undefined, owner)).value.reminders.find(r => r.id === reminder.id).outcomes.length, 0)
+ const delayedRestored = (await dst.state(owner)).applicationEmails.find(m => m.id === delayed.id)
+ assert.equal(delayedRestored.status, 'withheld'); assert.equal(delayedRestored.dueAt, delayed.dueAt)
+ assert.deepEqual(delayedRestored.timing, timing); assert.equal(delayedRestored.event, delayed.event)
+ await dst.setTime('2026-10-28T14:00:00.000Z')
+ await dst.mf.getWorker().then(w => w.scheduled({ scheduledTime: Date.parse('2026-10-28T14:00:00.000Z'), cron: '0 * * * *' }))
+ assert.equal((await dst.state(owner)).applicationEmails.find(m => m.id === delayed.id).status, 'withheld')
  const stored = (await dst.state(owner)).applicationEmails.find(mail => mail.application === received.application)
  assert.equal(stored.status, 'withheld')
  assert.equal(stored.id, 'ack:' + received.application)

@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "928930e82fb4bc88e1f90d1f9f445c9bce22d43c5ee5afb1dec768e84ce820d5",
+      "sha256": "536b50511a2eb9bb315d011052a2e44012fdc9d006854fe50bd747536b9a527d",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -151,7 +151,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "e98008f9d0ea04854e99eefd40cf9e60fd63f271ee169dac7d421f9c3c405bd7",
+      "sha256": "35e3993335b6c952b78e0831ca4245678c86244ccc259d6dae38bb1a40ed0ecf",
       "executable": false
     },
     "API.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f2b25bad8c08eb90a9dcf8c46862a2a54081eeaa900c35f4dd5fa1634582e946",
+      "sha256": "6cea681b0bbb1162f6adb958a83367f6432e94507e7c1746716b234bded04581",
       "executable": false
     },
     "DEMO.md": {
@@ -196,6 +196,10 @@
     },
     "docs/careers-page-example.html": {
       "sha256": "a0884f66506336461b211614d1e5b71f65e5b9f658ed35524839fe74e1f966f1",
+      "executable": false
+    },
+    "docs/CLAIMS.md": {
+      "sha256": "710030cf55a0d1c17592488a0d4baa11a5c8885bc32af4f593974bad544168d6",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -690,6 +694,10 @@
       "sha256": "32257491b3db6db1f68ec38d777ed91bda241c41be98c51769a0240dba9cbafd",
       "executable": true
     },
+    "scripts/contract-docs.mjs": {
+      "sha256": "e620db4b680a0443a0145891dc8a601ddebd9822f71584a4fd432d91c4e3d5a4",
+      "executable": false
+    },
     "scripts/delivery/base/artifact.mjs": {
       "sha256": "129f210f1556e816ba94ffe74359ac553cd26466aaf8c6c299765e9cea29aa07",
       "executable": false
@@ -1151,7 +1159,7 @@
       "executable": false
     },
     "src/lodge/communications/deliver.ts": {
-      "sha256": "32d2db967390d4fb14f052ccc332aec2e4c322e5b94075017d393805d0bc9f54",
+      "sha256": "1343f4b2f86d26d79041fc34549552d13d5e8c5c542d703f64fa2796eefeb0b0",
       "executable": false
     },
     "src/lodge/communications/events.ts": {
@@ -1159,11 +1167,15 @@
       "executable": false
     },
     "src/lodge/communications/queue.ts": {
-      "sha256": "645d6588b86636f04822d983a33261686a63a947176f61a433fcdc602f960073",
+      "sha256": "ff5d4944b5d4d37d132c0b54672f4f69fd8c7f66952d691062543147674815ed",
       "executable": false
     },
     "src/lodge/communications/templates.ts": {
-      "sha256": "85f22be8bfec3f5f57a569c58d4248b93cc34c1100f35f80e98f9ad0ea184728",
+      "sha256": "664420a150a701b454738253d53bfccdcdbd2383caae0d985c2a0c4cca5bd5ad",
+      "executable": false
+    },
+    "src/lodge/communications/timing.ts": {
+      "sha256": "248d857e6281829b453dc98c73b9423f5488f70e8ba6faa8e6da092adcba82a2",
       "executable": false
     },
     "src/lodge/communications/transport.ts": {
@@ -1351,11 +1363,11 @@
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
-      "sha256": "dea8389df3c2f746d74464407490f93fc617ecfa8419547780f0b3b94e53a016",
+      "sha256": "43ae69e2819f8abc01324336b911be37c568340b286b8c8bdc351f5ba7a730fc",
       "executable": false
     },
     "src/lodge/http/application-email-preview.ts": {
-      "sha256": "7b92db2a5782c393ccb05c6f6250b03da9b265480cd9e4427417cc804e8887f0",
+      "sha256": "2a8eb17b63c44bb8d1004c8a7ea43de9b65e74cc3c6638393edcf49d7a08f7ff",
       "executable": false
     },
     "src/lodge/http/application-email-sender-form.ts": {
@@ -1483,7 +1495,7 @@
       "executable": false
     },
     "src/lodge/operations/configuration.ts": {
-      "sha256": "c5e47549926d4568894af88c62d795f7f1ea78b744ca28f73ed7628fb05b0f64",
+      "sha256": "87b450158d45fc284e82a4e392813623eff3efa0a3d728ba772d9345e158e9e3",
       "executable": false
     },
     "src/lodge/operations/providers.ts": {
@@ -1491,11 +1503,11 @@
       "executable": false
     },
     "src/lodge/operations/sandbox.ts": {
-      "sha256": "cdf659d92bf80e34d724522364781c655da0a0434f28f8b2baf00bece577f1a4",
+      "sha256": "41a803f318cee84b4b8bb7d7ae9c94f1aee8c80d9fdd247c0ebb82485304f6e6",
       "executable": false
     },
     "src/lodge/operations/trial.ts": {
-      "sha256": "7d4a547f617a40e6c439b26bf99909166f00f712a450e1b4e329d700d8c541cd",
+      "sha256": "f78bba517aa3cb80482625a9962f0e5c5340074fad59ae0f48984f4332f61ce7",
       "executable": false
     },
     "src/lodge/records/approvals.ts": {
@@ -4027,11 +4039,11 @@
       "executable": false
     },
     "tests/application-email-browser.mjs": {
-      "sha256": "b539cbc15b5a46709d3bf80a8b8e93a18438adf50f4ca0f510c874bfd449b3b2",
+      "sha256": "a309d89e507cfd3363204c634201b9c6421a1d9abb9d9be72c5bb10de4aabd47",
       "executable": false
     },
     "tests/application-email-flow.mjs": {
-      "sha256": "770054387f91a2e369d118477db323a807f459059cf0cb37de3279e140f1cd90",
+      "sha256": "13adf201a981e09749aec0b48e6e71034e772aa4d0c8c7f75902513809347b20",
       "executable": false
     },
     "tests/application-email-live.mjs": {
@@ -4039,7 +4051,7 @@
       "executable": false
     },
     "tests/application-email-safety.mjs": {
-      "sha256": "5243740612a2e4b8d3a91a33a93167fa59baf512d906bbefefb575a8d8010198",
+      "sha256": "47c6f1307402e79162dc698ebaa4078e75452068ef35f8f8d050f562fda7590c",
       "executable": false
     },
     "tests/application-email-workspace.mjs": {
@@ -4295,7 +4307,7 @@
       "executable": false
     },
     "tests/operations-driver.mjs": {
-      "sha256": "d77ef2fbde2a127d01e2dd4a6f1c807c852749a5edc3298784fde10c0965ed64",
+      "sha256": "c43bb8bb268eb70965603e3ebfa70e9e76280f5e8147f62b2ca6264b8c88c43b",
       "executable": false
     },
     "tests/pay-transparency-browser.mjs": {

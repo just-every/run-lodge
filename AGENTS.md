@@ -79,3 +79,13 @@ Name clearance and public release; first jurisdiction (default: a US employer,
 with legal review before live intake); provider adapters for phase 2 (email,
 calendar, optional models). Do not deploy, publish or call providers without
 the owner.
+
+## Lander-Regenerate
+
+After changing a selected legacy status row in CONTRACT.md, run
+`node scripts/contract-docs.mjs write COM-005` and
+`node scripts/contract-docs.mjs check COM-005` (substitute the touched clause ids).
+This incrementally generates those rows in ACCEPTANCE.md and docs/CLAIMS.md,
+preserving unrelated legacy records and existing policy quotations. Stage the
+intentional edits, then regenerate the edition source lock last with
+`node scripts/edition-authoring/cli.mjs lock` and run its `check` command.

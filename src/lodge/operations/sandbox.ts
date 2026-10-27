@@ -64,6 +64,10 @@ export async function deploySandbox(s: State, a: Actor, b: Data) {
   validateConfiguration(s, a, v.id, box.config)
   const previous = configuration(s, v.id)
   installConfiguration(s, v.id, box.config)
+  if (canonical(previous.applicationEmailTiming) !== canonical(box.config.applicationEmailTiming)) {
+    const current = s.get('vacancy', v.id)
+    s.put('vacancy', v.id, { ...current, applicationEmailTimingBy: a.email })
+  }
   const record = s.put('workflow-sandbox', box.id, { ...box, status: 'deployed', previous, deployedBy: a.email, deployedAt: now(), rollbackStamp: await sourceStamp(s, true) })
   s.audit(a, 'sandbox-config-deployed', 'vacancy:' + v.id, { sandbox: box.id, token: b.token })
   return record
@@ -75,6 +79,10 @@ export async function rollbackSandbox(s: State, a: Actor, b: Data) {
   requireThat(v.status !== 'open', 'Unpublish the vacancy before rollback', 409)
   requireThat(await sourceStamp(s, true) === box.rollbackStamp, 'Hiring records changed after deployment; review a new sandbox instead of overwriting them', 409)
   // Rule authoring and rollback retain the same admin boundary.
+  if (canonical(configuration(s, v.id).applicationEmailTiming) !== canonical(box.previous.applicationEmailTiming)) {
+    requireAdmin(a); requireThat(!a.agent, 'A human must review status timing', 403)
+    validateConfiguration(s, a, v.id, box.previous)
+  }
   if (canonical(configuration(s, v.id).rules) !== canonical(box.previous.rules)) requireAdmin(a)
   if (canonical(v.workflowConnectors ?? []) !== canonical(box.previous.workflowConnectors)) requireAdmin(a)
   for (const connector of box.previous.workflowConnectors ?? []) requireProviderPlan(s, connector)
