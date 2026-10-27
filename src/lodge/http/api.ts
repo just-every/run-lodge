@@ -1,3 +1,4 @@
+import { cohortReport } from '../views/cohort-report'
 import { bulkInvitationPreview, bulkInvitationSubmit } from '../operations/bulk-invitations'
 import { reminderView } from '../reminders/records'
 import { crmView } from '../crm/records'
@@ -215,6 +216,26 @@ api.get('/api/lodge/reports/interviewers', async c => {
   const report = (await workspace(state, actor)).interviewerActivity
   requireThat(report, 'Only admins and hiring managers see interviewer activity', 403)
   return c.json(report)
+})
+
+const cohortInput = (c: C) => ({ vacancy: c.req.query('vacancy'), from: c.req.query('from'), to: c.req.query('to'), timeZone: c.req.query('timeZone'), history: c.req.query('history') })
+api.get('/api/lodge/reports/cohort', async c => {
+  const { state, actor } = await context(c)
+  return c.json(cohortReport(state, actor, await workspaceRecords(state, actor), cohortInput(c)))
+})
+api.get('/api/lodge/reports/cohort/:id', async c => {
+  const { state, actor } = await context(c)
+  const report = cohortReport(state, actor, await workspaceRecords(state, actor), cohortInput(c))
+  const row = report.rows.find(r => r.application === c.req.param('id'))
+  requireThat(row, 'Report application not found', 404)
+  return c.json({ ...row, definitions: report.definitions, filter: report.filter })
+})
+api.get('/api/lodge/download/cohort', async c => {
+  const { state, actor } = await context(c)
+  const report = cohortReport(state, actor, await workspaceRecords(state, actor), cohortInput(c), true)
+  state.audit(actor, 'cohort-report-exported', 'business:main', { filter: report.filter, applications: report.rows.length })
+  await save(c.env.DB, state, actor)
+  return json(report, 'lodge-cohort-report.json')
 })
 
 api.get('/api/lodge/reports/openings', async c => {

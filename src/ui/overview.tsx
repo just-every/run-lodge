@@ -41,6 +41,7 @@ export function Overview({ w, mutate, go, follow }: PageProps) {
   const retention = w.retention?.due.length ?? 0
   return <div className="page wide">
     <h1>{w.business.name}</h1>
+    {(actor.owner || actor.roles.some((r: string) => ['admin', 'manager'].includes(r))) && <p><button className="link" onClick={() => follow('/app?report=cohort')}>Recruiting cohort report</button></p>}
     {steps.some(s => !s.done) && (actor.owner || actor.roles.includes('admin')) && <section className="card"><h2>Getting started</h2><ol className="steps">{steps.map(s => <li key={s.label} className={s.done ? 'done' : ''}>{s.done && <span className="visually-hidden">Done: </span>}<button className="link" onClick={() => go(s.tab)}>{s.label}</button></li>)}</ol></section>}
     <section className="metrics">{tiles.map(([label, n, icon, note]) => <article key={label}><span className="metric-icon"><Icon name={icon} /></span><small>{label}</small><strong>{n}</strong><span className="metric-note">{note}</span></article>)}</section>
     {(mine.length > 0 || retention > 0) && <p className="actions">
