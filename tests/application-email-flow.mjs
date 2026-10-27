@@ -167,6 +167,8 @@ export async function checkApplicationEmailStages(t) {
 
 async function checkDelayedApplicationEmails(t) {
   const { reviewStatusTiming } = await import('./operations-driver.mjs')
+  const { generateKeyPairSync, sign } = await import('node:crypto')
+  const { publicKey, privateKey } = generateKeyPairSync('ec', { namedCurve: 'prime256v1' })
   // Independently specified UTC expectations cross both clock changes and a weekend.
   const cases = [
     ['2027-03-12T15:15:00.000Z', [1, 2, 3, 4, 5], '2027-03-15T14:15:00.000Z'],
@@ -174,7 +176,7 @@ async function checkDelayedApplicationEmails(t) {
     ['2026-10-31T05:30:00.000Z', [0, 1, 2, 3, 4, 5, 6], '2026-11-01T05:30:00.000Z'],
   ]
   for (const [clock, weekdays, due] of cases) {
-    const h = await applicationEmailFixture({ clock })
+    const h = await applicationEmailFixture({ clock, bindings: { APPLICATION_EMAIL_SENDGRID_PUBLIC_KEY: publicKey.export({ type: 'spki', format: 'der' }).toString('base64') } })
     const command = h.command, state = h.state
     h.command = (op, body, cookie = h.owner, status = 200) => command(op, body, cookie, status)
     h.state = (cookie = h.owner) => state(cookie)
@@ -202,7 +204,26 @@ async function checkDelayedApplicationEmails(t) {
       assert.equal(sent.status, 'handed'); assert.equal(sent.dueAt, due); assert.equal(sent.attempts, 1)
       await h.restart(); await h.setTime(new Date(Date.parse(due) + 120000).toISOString()); await tick()
       assert.equal(await mailCount(), 1, 'restart cannot duplicate a claimed event')
-      if (weekdays.length !== 5) continue
+      if (weekdays.length !== 5) {
+        await h.command('move', { application: received.application, to: h.job.stages[2].id, reason: 'Another review' })
+        await h.command('move', { application: received.application, to: stage, reason: 'Queue the next status event' })
+        const pending = (await h.state()).applicationEmails.find(m => m.status === 'pending')
+        assert.ok(pending)
+        if (clock.startsWith('2027')) {
+          const stamp = String((Date.parse(due) + 120000) / 1000)
+          const events = [{ event: 'bounce', sg_event_id: 'synthetic-lodge-delayed-bounce', sg_message_id: sent.providerMessageId, timestamp: Number(stamp) }]
+          const headers = { 'x-twilio-email-event-webhook-timestamp': stamp, 'x-twilio-email-event-webhook-signature': sign('sha256', Buffer.from(stamp + JSON.stringify(events)), privateKey).toString('base64') }
+          assert.equal((await h.send('/api/lodge/application-emails/events', events, '', headers)).status, 200)
+          assert.equal((await h.state()).applicationEmails.find(m => m.id === pending.id).status, 'pending')
+        } else {
+          await h.command('close-vacancy', { id: h.job.id, reason: 'Employer closed this hiring job' })
+          assert.equal((await h.state()).applicationEmails.find(m => m.id === pending.id).status, 'canceled')
+        }
+        await h.setTime(pending.dueAt); await tick()
+        assert.equal((await h.state()).applicationEmails.find(m => m.id === pending.id).status, clock.startsWith('2027') ? 'suppressed' : 'canceled')
+        assert.equal(await mailCount(), 1, 'suppression or job closure prevents a pending send')
+        continue
+      }
       const nextStage = h.job.stages[2].id
       await h.command('move', { application: received.application, to: nextStage, reason: 'Next review' })
       await h.command('move', { application: received.application, to: stage, reason: 'New committed event' })

@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "536b50511a2eb9bb315d011052a2e44012fdc9d006854fe50bd747536b9a527d",
+      "sha256": "db2ff596504c2bee5e355d4347b76007c8c0d438e7e3c0e734895d9dffd00417",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "6cea681b0bbb1162f6adb958a83367f6432e94507e7c1746716b234bded04581",
+      "sha256": "ea08d510354026b906b09d1b86c445b8c279c0c2fd5c3fe23e07dd045247ebb7",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "710030cf55a0d1c17592488a0d4baa11a5c8885bc32af4f593974bad544168d6",
+      "sha256": "7b67384b1b3a2c0442b36510339241b15b75447a4807c77e85c76f0c27500725",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -4043,7 +4043,7 @@
       "executable": false
     },
     "tests/application-email-flow.mjs": {
-      "sha256": "13adf201a981e09749aec0b48e6e71034e772aa4d0c8c7f75902513809347b20",
+      "sha256": "adb4cf990f4f20c497b36c5938b497f1dbf2cdab21d99ff07e83b810595ff98a",
       "executable": false
     },
     "tests/application-email-live.mjs": {
