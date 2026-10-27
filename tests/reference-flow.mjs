@@ -1,0 +1,87 @@
+import assert from 'node:assert/strict'
+
+export async function checkReferences({ h, cmd, state, send, owner, manager, ivy, ian, openJob }) {
+  const job = await openJob('Reference call supervisor')
+  const { application: app, candidate } = await cmd('candidate', { name: 'Synthetic Lodge Reference', email: 'synthetic-lodge-reference@example.test', source: 'Direct', consentBasis: 'manual', vacancy: job.id }, manager)
+  const stageBefore = (await state()).applications.find(x => x.id === app.id)
+  const historyBefore = structuredClone(stageBefore.history)
+  const configure = body => send('/api/lodge/command/reference-questionnaire', { application: app.id, ...body }, manager)
+  for (const question of ['What is their age?', 'Describe their religion', 'Do they have a disability?']) {
+    const denied = await configure({ version: 0, questions: [question], roles: ['owner', 'manager'] })
+    assert.equal(denied.status, 400)
+    assert.match(denied.value.error, /protected traits/)
+  }
+  assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version: 0, questions: ['Describe their work'], roles: ['owner'] }, ivy)).status, 404)
+  assert.equal((await configure({ version: 0, questions: ['Describe their work', 'Would you work together again?'], roles: ['owner', 'manager', 'interviewer'] })).status, 200)
+  const q1 = (await state(manager)).references.questionnaires.find(q => q.application === app.id).versions[0]
+  const task = await cmd('task', { kind: 'task', purpose: 'call-references', application: app.id, note: 'Call former supervisor', owner: 'morgan@example.test', due: '2026-12-03' }, manager)
+  assert.deepEqual([task.application, task.purpose, task.owner], [app.id, 'call-references', 'morgan@example.test'])
+  assert.equal((await send('/api/lodge/command/task', { kind: 'task', purpose: 'call-references', note: 'Unlinked', due: '2026-12-03' }, manager)).status, 400)
+  const input = { task: task.id, version: 0, questionnaireVersion: 1, refereeName: 'Synthetic Lodge Referee', relationship: 'Former supervisor', source: 'Phone call to employer-provided number; caller notes retained here', consent: 'Referee agreed verbally to record this work reference', consentConfirmed: true, answers: { [q1.questions[0].id]: 'Led the safety briefing every shift', [q1.questions[1].id]: 'Yes, on the same crew' } }
+  const record = (body = input, cookie = manager) => send('/api/lodge/command/reference-record', body, cookie)
+  assert.equal((await record({ ...input, consentConfirmed: false })).status, 400)
+  assert.equal((await record({ ...input, answers: {} })).status, 400)
+  assert.equal((await record(input, owner)).status, 403, 'even an authorized reader must be the assigned caller')
+  const first = await record()
+  assert.equal(first.status, 200, JSON.stringify(first.value))
+  assert.deepEqual(first.value.versions[0].answers.map(a => [a.text, a.answer]), [['Describe their work', 'Led the safety briefing every shift'], ['Would you work together again?', 'Yes, on the same crew']])
+  assert.deepEqual([first.value.versions[0].method, first.value.versions[0].referee.name, first.value.versions[0].consent, first.value.versions[0].source], ['manually-recorded', input.refereeName, input.consent, input.source])
+  assert.equal((await record()).status, 409, 'stale edits cannot overwrite answers')
+  const exportPath = '/api/lodge/download/references/' + app.id
+  for (const who of [ivy, ian]) {
+    assert.deepEqual((await state(who)).references.records, [])
+    assert.equal((await send(exportPath, undefined, who)).status, 404)
+    assert.equal((await record(input, who)).status, 404)
+  }
+  // A selected and assigned interviewer still needs the current contact permission.
+  await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test'] }, manager)
+  assert.equal((await send(exportPath, undefined, ivy)).status, 404)
+  const level = await cmd('permission-level', { name: 'Reference reader', permissions: ['contact', 'export'] })
+  await cmd('hiring-team', { id: job.id, interviewers: ['ivy@example.test'] })
+  await cmd('job-levels', { id: job.id, roles: { interviewers: level.id } })
+  assert.equal((await send(exportPath, undefined, ivy)).status, 200)
+  await cmd('assign-reviewers', { application: app.id, reviewers: [] }, manager)
+  assert.equal((await send(exportPath, undefined, ivy)).status, 404, 'revoked assignment is enforced immediately')
+  assert.equal((await configure({ version: 1, questions: ['Describe their work on a safety incident'], roles: ['owner', 'manager'] })).status, 200)
+  const q = (await state(manager)).references.questionnaires.find(q => q.application === app.id)
+  assert.deepEqual(q.versions[0], q1)
+  assert.equal(q.versions.length, 2)
+  assert.equal((await record({ ...input, version: 1 })).status, 409, 'stale questionnaire is refused')
+  const secondInput = { ...input, version: 1, questionnaireVersion: 2, answers: { [q.versions[1].questions[0].id]: 'Stopped the crew and corrected the hazard' } }
+  assert.equal((await record(secondInput)).status, 200)
+  const exported = (await send(exportPath, undefined, manager)).value
+  assert.equal(exported.records.length, 1)
+  assert.equal(exported.records[0].versions.length, 2)
+  assert.deepEqual(exported.records[0].versions[0], first.value.versions[0])
+  assert.equal(exported.records[0].versions[1].answers[0].answer, 'Stopped the crew and corrected the hazard')
+  const noExport = await cmd('permission-level', { name: 'Reference caller only', permissions: ['contact', 'settings'] })
+  await cmd('job-levels', { id: job.id, members: { 'morgan@example.test': noExport.id } })
+  assert.equal((await send(exportPath, undefined, manager)).status, 403)
+  await cmd('job-levels', { id: job.id, members: {} })
+  // Employer role selection narrows existing authority, including old versions.
+  assert.equal((await configure({ version: 2, questions: ['Describe their work'], roles: ['owner'] })).status, 200)
+  assert.deepEqual((await state(manager)).references.records, [])
+  assert.equal((await send(exportPath, undefined, manager)).status, 404)
+  assert.equal((await record({ ...secondInput, version: 2 }, manager)).status, 404)
+  const after = (await state()).applications.find(x => x.id === app.id)
+  assert.equal(after.stage, stageBefore.stage)
+  assert.deepEqual(after.history, historyBefore, 'reference operations never change stage history')
+  const candidateExport = await send('/api/lodge/download/candidate/' + candidate.id, undefined, owner)
+  assert.equal(candidateExport.status, 200)
+  assert.equal(candidateExport.value['reference-record'][0].versions.length, 2)
+  assert.equal(candidateExport.value['reference-questionnaire'][0].versions.length, 3)
+  await cmd('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Reference proof complete' }, manager)
+  await cmd('extend-retention', { candidate: candidate.id, until: '2000-01-01', reason: 'Employer retention review' })
+  const hold = await cmd('hold', { candidate: candidate.id, reason: 'Reference records held for review' })
+  assert.ok((await state()).retention.held.some(row => row.candidate === candidate.id))
+  const deletion = { candidate: candidate.id, confirm: candidate.name, reason: 'Applicant deletion request' }
+  assert.equal((await send('/api/lodge/delete-candidate', deletion, owner)).status, 409)
+  assert.equal((await send(exportPath, undefined, owner)).value.records[0].versions.length, 2)
+  await cmd('release-hold', { id: hold.id, reason: 'Review ended' })
+  const erased = await send('/api/lodge/delete-candidate', deletion, owner)
+  assert.equal(erased.status, 200, JSON.stringify(erased.value))
+  assert.deepEqual([erased.value.counts['reference-record'], erased.value.counts['reference-questionnaire']], [1, 1])
+  assert.equal((await send(exportPath, undefined, owner)).status, 404)
+  const rows = await h.db.prepare("SELECT kind,value FROM l_records WHERE kind IN ('reference-record','reference-questionnaire','audit','task')").all()
+  assert.ok(!JSON.stringify(rows.results).includes(input.refereeName), 'erasure removes referee identity and personal audit copies')
+}

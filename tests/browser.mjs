@@ -1,3 +1,4 @@
+import { referencePage } from './reference-browser.mjs'
 import { payWorkspace } from './pay-transparency-browser.mjs'
 import { weeklyReportPage } from './weekly-report-browser.mjs'
 import { enterprisePage } from './enterprise-browser.mjs'
@@ -87,6 +88,7 @@ try {
   for (const [as, roles, name] of PERSONAS) await api(owner.context, server.origin, 'member', { email: `${as}@dev.localhost`, name, roles })
 
   await applicationEmailWorkspace(browser, root, server.origin, resolve(evidence, 'application-emails'))
+  await referencePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'references'), ownerEmail: 'owner@example.test' })
 
   for (const width of browserWidths) result.journeys.push(await journey(browser, root, server.origin, width, evidence))
 
