@@ -1,4 +1,4 @@
-import { delayAnalysis } from '../views/delay-analysis'
+import { delayAnalysis, delayFeedback } from '../views/delay-analysis'
 import { integrationApi, integrationManagement } from './integrations'
 import { offlineScorecardContext } from '../records/scorecards'
 import { cohortReport } from '../views/cohort-report'
@@ -142,6 +142,10 @@ const delayInput = (c: C) => ({ vacancy: c.req.query('vacancy'), from: c.req.que
 api.get('/api/lodge/delay-analysis', async c => {
   const { state, actor } = await context(c)
   return c.json(delayAnalysis(state, actor, await workspaceRecords(state, actor), delayInput(c)))
+})
+api.get('/api/lodge/delay-feedback', async c => {
+  const { state, actor } = await context(c)
+  return c.json(delayFeedback(state, actor, await workspaceRecords(state, actor), delayInput(c)))
 })
 api.get('/api/lodge/delay-analysis/:id', async c => {
   const { state, actor } = await context(c)

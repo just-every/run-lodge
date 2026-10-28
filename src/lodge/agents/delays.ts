@@ -28,7 +28,7 @@ export async function proposeDelay(s: State, a: Actor, b: Data) {
     const kind = oneOf(f.kind, ['observation', 'hypothesis'] as const, 'Finding kind')
     requireThat(Array.isArray(f.citations) && f.citations.length > 0 && f.citations.length <= 30, 'Every finding needs exact event or offer citations')
     const citations = f.citations.map((c: Data) => {
-      const source = report.sources.find(x => ['stage-event', 'offer'].includes(x.kind) && x.kind === c?.kind && x.id === c.id && x.revision === c.revision)
+      const source = report.sources.find(x => ['stage-event', 'offer', 'interview'].includes(x.kind) && x.kind === c?.kind && x.id === c.id && x.revision === c.revision)
       requireThat(source, 'Citation is fabricated, stale or outside current evidence', 409)
       return source
     })
@@ -49,7 +49,7 @@ export async function proposeDelay(s: State, a: Actor, b: Data) {
   }
   requireThat(canSeeDelay(s, a, record) && canSeeDelay(s, reviewer, record), 'Diagnosis outside current authority', 403)
   // Fence absence as well as revisions: a newly captured event cannot silently change the reviewed cohort.
-  for (const kind of ['application', 'stage-event', 'offer']) s.scan(kind)
+  for (const kind of ['application', 'stage-event', 'offer', 'interview']) s.scan(kind)
   const result = s.put('proposal', uid(), record)
   s.audit(a, 'delay-diagnosis-proposed', 'proposal:' + result.id)
   return result
@@ -65,7 +65,7 @@ export async function decideDelay(s: State, a: Actor, p: Data, b: Data) {
   if (decision === 'accepted') {
     const current = delayAnalysis(s, a, await workspaceRecords(s, a), p.delay.cohort)
     requireThat(same(current.sources, p.sources), 'Evidence changed; request a fresh diagnosis before accepting', 409)
-    for (const kind of ['application', 'stage-event', 'offer']) s.scan(kind)
+    for (const kind of ['application', 'stage-event', 'offer', 'interview']) s.scan(kind)
   }
   const result = s.put('proposal', p.id, { ...p, status: decision, decidedBy: a.email, decidedAt: now(), reason })
   s.audit(a, 'delay-diagnosis-' + decision, 'proposal:' + p.id)

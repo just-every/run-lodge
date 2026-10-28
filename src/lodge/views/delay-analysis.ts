@@ -1,9 +1,11 @@
 import type { State } from '../core/state'
-import { can, canSeeApplication, managesVacancy } from '../core/access'
+import { can, canSeeApplication, managesVacancy, requireAdmin } from '../core/access'
 import { blindFor } from '../core/blind'
 import { grantsOf } from '../core/store'
 import { businessZone, isZone, times } from '../core/time'
 import { requireThat, ROLES, type Actor, type Data } from '../core/types'
+import { cohortReport } from './cohort-report'
+import { surveyReport } from '../surveys/records'
 import type { WorkspaceRecords } from './workspace'
 
 export type DelayFilter = { vacancy?: string; from?: string | null; to?: string | null; timeZone?: string }
@@ -11,7 +13,7 @@ const dated = (x: unknown): x is string => typeof x === 'string' && /^\d{4}-\d{2
 const day = (x: string) => /^\d{4}-\d{2}-\d{2}$/.test(x) && Number.isFinite(Date.parse(x)) && new Date(x).toISOString().slice(0, 10) === x
 export const DELAY_UNKNOWNS = [
   'Mailbox response times and threads: unknown; no connected mailbox evidence.',
-  'Scheduling attempts and provider failures: unknown; no joined scheduling evidence.',
+  'Provider scheduling attempts, external calendars and provider failures: unknown. Native records show recorded availability and scheduling only.',
   'Survey feedback: unknown; no survey answers are exposed to agents or joined here.',
   'Elapsed stage time does not identify candidate waits, recruiter queues or panel bottlenecks. Causes remain hypotheses.',
 ]
@@ -47,7 +49,14 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
       const complete = !app.imported && dated(o.createdAt) && dated(o.outcomeAt) && Date.parse(o.outcomeAt) >= Date.parse(o.createdAt)
       return { ...source('offer', o.id), status: o.status, createdAt: o.createdAt ?? null, outcomeAt: o.outcomeAt ?? null, hoursToOutcome: complete ? (Date.parse(o.outcomeAt) - Date.parse(o.createdAt)) / 3600000 : null }
     })
-    return { application: app.id, name: app.candidateName, status: app.status, imported: !!app.imported, source: source('application', app.id), events, intervals, offers, missing: [...new Set(missing)] }
+    const scheduling = w.interviews.filter(iv => iv.application === app.id).map(iv => {
+      const elapsed = (end: unknown) => !app.imported && dated(iv.createdAt) && dated(end) && Date.parse(end) >= Date.parse(iv.createdAt) ? (Date.parse(end) - Date.parse(iv.createdAt)) / 3600000 : null
+      return { ...source('interview', iv.id), status: iv.status, createdAt: iv.createdAt ?? null, scheduledAt: iv.scheduledAt ?? null, candidateRespondedAt: iv.candidateRespondedAt ?? null,
+        hoursToRecordedSchedule: elapsed(iv.scheduledAt), hoursToCandidateAvailability: elapsed(iv.candidateRespondedAt), proposedSlots: iv.slots?.length ?? 0,
+        panelSize: iv.participants.length, panelResponses: iv.participants.filter((who: string) => Object.hasOwn(iv.availability ?? {}, who)).length,
+        candidateResponded: Object.hasOwn(iv.availability ?? {}, 'candidate'), providerVerified: false }
+    })
+    return { application: app.id, name: app.candidateName, status: app.status, imported: !!app.imported, source: source('application', app.id), events, intervals, offers, scheduling, missing: [...new Set(missing)] }
   }).sort((x, y) => x.application.localeCompare(y.application))
   const intervals = cases.flatMap(c => c.intervals)
   const stages = job.stages.map((st: Data) => {
@@ -55,8 +64,11 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
     return { stage: st.id, label: st.name, intervals: rows.length, totalHours: total, meanHours: rows.length ? total / rows.length : null }
   })
   const offers = cases.flatMap(c => c.offers), measured = offers.filter(o => o.hoursToOutcome !== null)
-  const sources = [source('vacancy', job.id), ...cases.flatMap(c => [c.source, ...c.events.map(({ kind, id, revision }) => ({ kind, id, revision })), ...c.offers.map(({ kind, id, revision }) => ({ kind, id, revision }))])].sort((x, y) => (x.kind + x.id).localeCompare(y.kind + y.id))
+  const sources = [source('vacancy', job.id), ...cases.flatMap(c => [c.source, ...c.events.map(({ kind, id, revision }) => ({ kind, id, revision })), ...c.offers.map(({ kind, id, revision }) => ({ kind, id, revision })), ...c.scheduling.map(({ kind, id, revision }) => ({ kind, id, revision }))])].sort((x, y) => (x.kind + x.id).localeCompare(y.kind + y.id))
+  const selectedIds = new Set(cases.map(c => c.application))
+  const hiring = cohortReport(s, a, { ...w, applications: w.applications.filter(app => selectedIds.has(app.id)) }, { ...input, from: input.from || undefined, to: input.to || undefined, history: 'native' })
   return {
+    hiring: { totals: hiring.totals, disclosures: hiring.disclosures, definition: hiring.definitions.timeToHire },
     cohort: { vacancy: job.id, from: input.from || null, to: input.to || null, timeZone: zone }, job: job.title, cases, stages, sources,
     totals: { cases: cases.length, completedIntervals: intervals.length, offers: offers.length, measuredOutcomes: measured.length, meanOfferHours: measured.length ? measured.reduce((sum, o) => sum + o.hoursToOutcome!, 0) / measured.length : null, outcomes: Object.fromEntries(['draft', 'accepted', 'declined', 'withdrawn'].map(status => [status, offers.filter(o => o.status === status).length])) },
     disclosures: { missingSubmission, excludedUndated: input.from || input.to ? missingSubmission : 0, incompleteCases: cases.filter(c => c.missing.length).length },
@@ -64,6 +76,7 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
       cohort: 'Current authorized, non-spam, non-blind applications for the selected job, by original submission date inclusive in the selected time zone. Undated records are disclosed and excluded only when a date filter is applied. Reopening does not reset submission.',
       stages: 'Elapsed hours between consecutive, linked native stage events. Each completed visit counts once, including repeated visits after reopening. Unfinished stages, gaps and imported history are not assigned a duration. Means divide by measured completed visits, not applications.',
       offers: 'Recorded offer statuses, not verified delivery or candidate response time. Elapsed hours from native offer creation to its recorded outcome; means divide by offers with both valid timestamps. Drafts and incomplete history remain unmeasured.',
+      scheduling: 'Elapsed hours from native interview proposal to recorded scheduling or candidate availability. Panel response counts record declarations, not response timestamps. No native row verifies calendar availability, a delivered invitation, an external attempt or responsibility for a wait.',
       limits: 'A small observational cohort is not a causal comparison or a suitability ranking. Access is applied before aggregation. No mailbox, scheduling or survey evidence is inferred from missing data.',
     }, unknowns: DELAY_UNKNOWNS,
   }
@@ -84,10 +97,20 @@ export function canSeeDelay(s: State, a: Actor, p: Data) {
   if (!job) return false
   for (const actor of [a, principal, reviewer]) {
     if (!managesVacancy(actor, job) || !can(s, actor, job, 'offers')) return false
-    for (const row of p.delay.cases) {
+    for (const row of [...p.delay.cases, ...(p.delayTrial?.baseline?.cases ?? []), ...(p.delayTrial?.taskReport?.cases ?? []), ...(p.delayTrial?.comparison?.report?.cases ?? [])]) {
       const app = s.find('application', row.application), candidate = app && s.find('candidate', app.candidate)
       if (!app || !candidate || candidate.deleted || candidate.mergedInto || !canSeeApplication(s, actor, app) || blindFor(s, actor, app)) return false
     }
   }
   return true
+}
+
+/** Human-only survey view. Reuse REPORT-004 suppression and expiry; never copy answers into agent evidence. */
+export function delayFeedback(s: State, a: Actor, w: WorkspaceRecords, input: DelayFilter) {
+  requireAdmin(a)
+  requireThat(!a.agent, 'Survey feedback is for authorized human administrators only', 403)
+  const report = delayAnalysis(s, a, w, input), ids = new Set(report.cases.map(c => c.application))
+  const feedback = surveyReport(s, a)
+  return { definition: feedback.definition, limit: 'Survey aggregates cover the full retained survey version, not the selected submission cohort. Only separately consented identified responses are joined to selected cases. No causation is established; agents cannot read this view.',
+    surveys: feedback.surveys.filter(row => s.get('survey', row.id).vacancy === report.cohort.vacancy).map(row => ({ id: row.id, title: row.title, version: row.version, questions: row.questions, responses: row.responses, invitations: row.invitations, responseRate: row.responseRate, suppressed: row.suppressed, averages: row.averages, identified: row.identified.filter(x => ids.has(x.application)) })) }
 }
