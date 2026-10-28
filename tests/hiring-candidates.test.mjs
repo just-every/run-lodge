@@ -1353,3 +1353,7 @@ test('Per-job application email reviews remain isolated when another job changes
 test('ATTR-004 approved location pay, reviewed rules and salary-history refusals reach public doors', async t => (await import('./pay-transparency-flow.mjs')).checkPayTransparency(t))
 
 test('CAL-002 native interview-day drafts explain constraints and fence human substitute review', async t => (await import('./interview-day-flow.mjs')).checkInterviewDay(t))
+
+test('Native take-home custody, candidate identity, deadlines and independent grading survive replay and erasure', async () => {
+  await (await import('./take-home-flow.mjs')).checkTakeHome()
+})
