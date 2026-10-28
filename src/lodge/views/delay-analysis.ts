@@ -32,7 +32,7 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
   const apps = visible.filter(app => !dated(app.submittedAt) ? !input.from && !input.to : (!input.from || dateOf(app.submittedAt) >= input.from) && (!input.to || dateOf(app.submittedAt) <= input.to))
   const source = (kind: string, id: string) => { s.get(kind, id); return { kind, id, revision: s.revisionOf(kind, id) } }
   const cases = apps.map(app => {
-    const events = (app.history as Data[]).map(e => ({ ...source('stage-event', e.id), from: e.from ?? null, to: e.to, at: e.at }))
+    const events = (app.history as Data[]).map(e => ({ ...source('stage-event', e.id), from: e.from ?? null, to: e.to, fromLabel: job.stages.find((st: Data) => st.id === e.from)?.name ?? e.from ?? 'Intake', toLabel: job.stages.find((st: Data) => st.id === e.to)?.name ?? e.to, at: e.at }))
     const intervals: Data[] = [], missing: string[] = []
     if (app.imported) missing.push('Imported history is not native timing evidence.')
     if (!dated(app.submittedAt)) missing.push('Original submission time is missing.')

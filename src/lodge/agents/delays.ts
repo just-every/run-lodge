@@ -34,9 +34,15 @@ export async function proposeDelay(s: State, a: Actor, b: Data) {
     })
     return { kind, text: narrative(f.text, 'Finding'), citations }
   })
+  const requested = b.measurement ?? {}, stage = report.stages.find((st: Data) => st.stage === requested.stage && st.intervals > 0)
+  requireThat(requested.metric === 'mean-completed-stage-hours' && stage && stage.meanHours !== null, 'Choose a measured stage metric')
+  requireThat(typeof requested.targetHours === 'number' && Number.isFinite(requested.targetHours) && requested.targetHours >= 0 && requested.targetHours < stage.meanHours, 'Set a lower nonnegative target in elapsed hours')
+  requireThat(Number.isInteger(requested.minimumIntervals) && requested.minimumIntervals > 0 && Number.isInteger(requested.windowDays) && requested.windowDays > 0 && requested.windowDays <= 366, 'Name a positive minimum sample and a comparison window up to 366 days')
+  const measurement = { metric: requested.metric, stage: stage.stage, label: stage.label, baselineHours: stage.meanHours, baselineIntervals: stage.intervals, targetHours: requested.targetHours, minimumIntervals: requested.minimumIntervals, windowDays: requested.windowDays }
   const record = {
     workflow: 'delay-diagnosis', summary: narrative(b.summary, 'Summary'), rationale: '', missing: [], changes: [], citations: [],
     sources: report.sources, delay: report, findings,
+    measurement,
     uncertainty: narrative(b.uncertainty, 'Uncertainty'), sampleLimits: narrative(b.sampleLimits, 'Sample limits'),
     proposedChange: narrative(b.proposedChange, 'Proposed workflow change'), successCriterion: narrative(b.successCriterion, 'Measurable success criterion'),
     approver, proposedBy: a.email, proposedFor: scope(a), proposedByAgent: true, proposedAt: now(), status: 'proposed', model: null,

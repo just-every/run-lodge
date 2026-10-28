@@ -3,6 +3,8 @@ import type { PageProps } from './app'
 import { call, Field, Form, Table, type D } from './shared'
 import { businessZone } from '../lodge/core/time'
 
+const hours = (value: number) => new Intl.NumberFormat('en-US', { maximumSignificantDigits: 4 }).format(value)
+
 function DelayCases({ report, follow }: { report: D; follow: PageProps['follow'] }) {
   return <>{report.cases.map((row: D) => <details key={row.application}>
     <summary>Source case: {row.name}</summary>
@@ -10,11 +12,11 @@ function DelayCases({ report, follow }: { report: D; follow: PageProps['follow']
     <p>Application revision: <code>{row.source.revision}</code></p>
     {row.missing.map((limit: string) => <p key={limit}>{limit}</p>)}
     <h4>Native stage events</h4>
-    <ul>{row.events.map((e: D) => <li key={e.id}>{e.at ?? 'Unknown time'} · {e.from ?? 'Intake'} → {e.to}<details><summary>Exact event citation</summary><p>Record <code>{e.id}</code></p><p>Revision <code>{e.revision}</code></p></details></li>)}</ul>
-    <ul>{row.intervals.map((i: D) => <li key={i.start + i.end}>{i.label}: {i.hours.toFixed(1)} elapsed hours · {i.from} to {i.to}</li>)}</ul>
+    <ul>{row.events.map((e: D) => <li key={e.id}>{e.at ?? 'Unknown time'} · {e.fromLabel} → {e.toLabel}<details><summary>Exact event citation</summary><p>Record <code>{e.id}</code></p><p>Revision <code>{e.revision}</code></p></details></li>)}</ul>
+    <ul>{row.intervals.map((i: D) => <li key={i.start + i.end}>{i.label}: {hours(i.hours)} elapsed hours · {i.from} to {i.to}</li>)}</ul>
     <h4>Recorded offer outcomes</h4>
     {!row.offers.length && <p>No recorded offers.</p>}
-    {row.offers.map((o: D) => <p key={o.id}>{o.status} · {o.hoursToOutcome === null ? 'Duration unknown' : o.hoursToOutcome.toFixed(1) + ' hours to recorded outcome'} · Record <code>{o.id}</code> · Revision <code>{o.revision}</code></p>)}
+    {row.offers.map((o: D) => <p key={o.id}>{o.status} · {o.hoursToOutcome === null ? 'Duration unknown' : hours(o.hoursToOutcome) + ' hours to recorded outcome'} · Record <code>{o.id}</code> · Revision <code>{o.revision}</code></p>)}
   </details>)}</>
 }
 
@@ -24,9 +26,9 @@ function Evidence({ report, follow }: { report: D; follow: PageProps['follow'] }
     <p>Original submission cohort: {report.cohort.from ?? 'Any date'} to {report.cohort.to ?? 'Any date'} · {report.cohort.timeZone}</p>
     <p>{report.disclosures.incompleteCases} cases with incomplete or unfinished history; {report.disclosures.excludedUndated} undated cases excluded by date filters.</p>
     <Table heads={['Stage', 'Completed visits', 'Mean elapsed hours']}>
-      {report.stages.map((st: D) => <tr key={st.stage}><td>{st.label}</td><td>{st.intervals}</td><td>{st.meanHours === null ? 'Unknown' : st.meanHours.toFixed(1)}</td></tr>)}
+      {report.stages.map((st: D) => <tr key={st.stage}><td>{st.label}</td><td>{st.intervals}</td><td>{st.meanHours === null ? 'Unknown' : hours(st.meanHours)}</td></tr>)}
     </Table>
-    <p>Mean time from offer creation to recorded outcome: {report.totals.meanOfferHours === null ? 'Unknown' : report.totals.meanOfferHours.toFixed(1) + ' hours'}.</p>
+    <p>Mean time from offer creation to recorded outcome: {report.totals.meanOfferHours === null ? 'Unknown' : hours(report.totals.meanOfferHours) + ' hours'}.</p>
     <h3>Missing observations and limits</h3>
     {report.unknowns.map((x: string) => <p key={x}>{x}</p>)}
     <details><summary>Cohort and metric definitions</summary>{Object.values(report.definitions).map((x: any, i) => <p key={i}>{x}</p>)}</details>
@@ -69,6 +71,7 @@ export function DelayDraft({ p, w, mutate, follow }: Pick<PageProps, 'w' | 'muta
     <h3>Sample limits</h3><p>{p.sampleLimits}</p>
     <h3>Proposed workflow change</h3><p>{p.proposedChange}</p>
     <h3>Measurable success criterion</h3><p>{p.successCriterion}</p>
+    <p>{p.measurement.label}: mean completed stage hours from {hours(p.measurement.baselineHours)} ({p.measurement.baselineIntervals} visits) to below {hours(p.measurement.targetHours)}, with at least {p.measurement.minimumIntervals} completed visits in a future {p.measurement.windowDays}-day submission cohort using the same definition. No trial has run.</p>
     <details><summary>Evidence read for this draft</summary><Evidence report={p.delay} follow={follow} /></details>
     {p.status === 'proposed' && !w.actor.agent && p.approver === w.actor.email && <Form label="Record draft review" onSubmit={values => mutate('decide-proposal', { id: p.id, ...values })}>
       <Field label="Draft decision" name="decision" options={[{ value: 'accepted', label: 'Accept draft only' }, { value: 'rejected', label: 'Reject draft' }]} />

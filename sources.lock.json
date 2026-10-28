@@ -155,7 +155,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "68ad00fd9ebf2e585571b6ad78d0469009f452191d7936ed5010a7b2eb0bb992",
+      "sha256": "f270fe0a839ed77d8ba64953bf067d4afd1bd957af1323b0d15f37d7b338f61f",
       "executable": false
     },
     "base-copies.json": {
@@ -1135,7 +1135,7 @@
       "executable": false
     },
     "src/lodge/agents/delays.ts": {
-      "sha256": "4abe016e40a3148949f551a1fc7a6b9e5ef5d04096694f66cb0ab83f7f2fba69",
+      "sha256": "97f6981ca76b863f41ce5cb51808e23ed07aee14961ff6e114be57e38a9950c1",
       "executable": false
     },
     "src/lodge/agents/proposals.ts": {
@@ -1879,7 +1879,7 @@
       "executable": false
     },
     "src/lodge/views/delay-analysis.ts": {
-      "sha256": "ade8dda7eb2082b467ba82d60e2367b24216a37fba295ef45f1cd9a4b37dd7fa",
+      "sha256": "c261087858de8aeb6fc32151736e0597be8df6e07d6fe6c2dcb3662e1d5b6de2",
       "executable": false
     },
     "src/lodge/views/exports.ts": {
@@ -3851,7 +3851,7 @@
       "executable": false
     },
     "src/ui/delay-analysis.tsx": {
-      "sha256": "b55acb525334365ce67adb91f44699784b7a55224f2e6a07dfb4bb3c8d35a952",
+      "sha256": "78a85e2316ee1f9a78668c622eb139e376ef9c90144cabe01e94258317a5589b",
       "executable": false
     },
     "src/ui/document-rendering.ts": {
@@ -3995,7 +3995,7 @@
       "executable": false
     },
     "src/ui/pipeline/facts.ts": {
-      "sha256": "dd5a163d23e0df6b712519ddb9f3a29a0c98dd63685fc74cca08463158d81310",
+      "sha256": "5e585b898caee041b08cb97ef72e71ab1e792c99dde1604811e17a7b81462574",
       "executable": false
     },
     "src/ui/pipeline/job-header.tsx": {
@@ -4019,7 +4019,7 @@
       "executable": false
     },
     "src/ui/proposals.tsx": {
-      "sha256": "b6b9020fd414ce53b983d744f1f4db5bdd21fde430fe611684b3d02b78f339e4",
+      "sha256": "f320fd5d06647ed5c77f47e5d1510a4d7db7e57fe603e10684202bedd5a14f85",
       "executable": false
     },
     "src/ui/provider-setup.tsx": {
@@ -4311,11 +4311,11 @@
       "executable": false
     },
     "tests/delay-analysis-browser.mjs": {
-      "sha256": "77629ddd86509427db9bc24b29c9e18263d1d8d0520f15d5062fc7cf420be2dc",
+      "sha256": "ddc527d6ab7de7c429a2fe675a5603ee786030f72dc6eb91a9a9ef2c6ddbd4a9",
       "executable": false
     },
     "tests/delay-analysis-flow.mjs": {
-      "sha256": "64ca304cadad52859c0364e0b0dd9c7d6c86bb6e04ff38e1b18f5d13a6340f3e",
+      "sha256": "5d5f0b57adbfcbad77bb229d0f9bdb0174180b902548bcc10d47e81094f42ac3",
       "executable": false
     },
     "tests/document-fixtures.mjs": {

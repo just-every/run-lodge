@@ -30,6 +30,7 @@ export async function delayFixture() {
     const offer = await h.command('offer', { application: first.id, opening: (await h.state()).vacancies.find(v => v.id === job.id).openings[0].id, title: job.title, startDate: '2026-12-01', salary: { currency: 'USD', amount: 9000000, period: 'year' } })
     await approve(await h.command('request-offer-approval', { id: offer.id, approver: ownerEmail }))
     await at('2026-10-07T12:00:00.000Z', 'offer-outcome', { id: offer.id, outcome: 'declined', reason: 'Recorded candidate choice' })
+    await h.command('offer', { application: incomplete.id, opening: (await h.state()).vacancies.find(v => v.id === job.id).openings[1].id, startDate: '2026-12-01', salary: { currency: 'USD', amount: 9500000, period: 'year' } })
     // A retained legacy case lacks its intake event. This tests honest missing history, not invented timestamps.
     await h.db.prepare("DELETE FROM l_records WHERE kind='stage-event' AND json_extract(value,'$.application')=?").bind(incomplete.id).run()
     return Object.assign(h, { ownerEmail, managerEmail, manager, agentEmail, agent, reviewerEmail, reviewer, outsider, job, first, second, incomplete, offer })
@@ -37,6 +38,7 @@ export async function delayFixture() {
 }
 
 export function delayDraft(report, approver) {
+  const stage = report.stages.find(s => s.intervals > 0)
   return {
     workflow: 'delay-diagnosis', approver, cohort: report.cohort, sources: report.sources,
     summary: 'Review the observed recruiting queue',
@@ -44,7 +46,8 @@ export function delayDraft(report, approver) {
     uncertainty: 'Mailbox, scheduling and survey observations are unknown. These durations do not establish responsibility.',
     sampleLimits: 'Three observed cases are too few for a general conclusion; unfinished and missing histories are excluded from means.',
     proposedChange: 'Draft a daily queue review for a separately approved sandbox trial.',
-    successCriterion: 'In a future 14-day matched submission cohort, reduce mean completed first-stage hours below 30 with at least 10 completed visits; retain the same definition and disclose missing history.',
+    successCriterion: 'Use a future matched submission cohort, retain the same completed-stage definition and disclose missing history.',
+    measurement: { metric: 'mean-completed-stage-hours', stage: stage?.stage, targetHours: stage?.meanHours * 0.8, minimumIntervals: 10, windowDays: 14 },
   }
 }
 
@@ -57,7 +60,7 @@ export async function checkDelayAnalysis(t) {
   let report = await read()
   // Expected intervals are calculated independently from the fixed public command times.
   assert.deepEqual(report.stages.slice(0, 2).map(s => [s.intervals, s.totalHours, s.meanHours]), [[2, 72, 36], [2, 96, 48]])
-  assert.deepEqual([report.totals.cases, report.totals.completedIntervals, report.totals.offers, report.totals.measuredOutcomes, report.totals.meanOfferHours, report.totals.outcomes.declined], [3, 4, 1, 1, 48, 1])
+  assert.deepEqual([report.totals.cases, report.totals.completedIntervals, report.totals.offers, report.totals.measuredOutcomes, report.totals.meanOfferHours, report.totals.outcomes.declined, report.totals.outcomes.draft], [3, 4, 2, 1, 48, 1, 1])
   assert.ok(report.cases.find(c => c.application === h.incomplete.id).missing.some(x => x.includes('Initial stage entry')))
   assert.ok(report.unknowns.some(x => x.includes('Mailbox')) && report.unknowns.some(x => x.includes('Survey')))
   assert.equal(JSON.stringify(report).includes(h.managerEmail), false, 'evidence omits event actors and decision reasons')
@@ -73,6 +76,7 @@ export async function checkDelayAnalysis(t) {
   for (const summary of ['Rank the best candidate', 'Age determines the queue', 'Mailbox failure caused the wait']) assert.equal((await h.send('/api/lodge/command/propose', { ...draft, summary }, h.agent)).status, 400)
   assert.equal((await h.send('/api/lodge/command/propose', draft, h.manager)).status, 403, 'people do not impersonate an agent author')
   assert.equal((await h.send('/api/lodge/command/propose', { ...draft, approver: h.agentEmail }, h.agent)).status, 403)
+  assert.equal((await h.send('/api/lodge/command/propose', { ...draft, measurement: { ...draft.measurement, targetHours: 1000 } }, h.agent)).status, 400, 'a success target must improve the actual observed metric')
   const before = await h.state(), packet = await h.command('propose', draft, h.agent)
   assert.equal(packet.model, null)
   assert.ok((await h.state(h.reviewer)).proposals.some(p => p.id === packet.id))
@@ -85,6 +89,12 @@ export async function checkDelayAnalysis(t) {
   const after = await h.state()
   for (const field of ['applications', 'offers', 'vacancies', 'sandboxes']) assert.deepEqual(after[field], before[field], 'draft decisions change no hiring or production configuration: ' + field)
   assert.equal((await h.send('/api/lodge/command/decide-proposal', { id: accepted.id, decision: 'accepted', reason: 'Replay' }, h.reviewer)).status, 409)
+  await h.command('candidate-privacy', { id: h.first.candidate, private: true })
+  const privateReport = await read()
+  assert.deepEqual([privateReport.totals.cases, privateReport.totals.offers], [2, 1], 'private cases and their offers are excluded before aggregation')
+  assert.equal((await h.send(delayPath + '/' + h.first.id + query, undefined, h.agent)).status, 404)
+  assert.equal((await h.state(h.reviewer)).proposals.length, 0, 'private-case revocation hides the entire multi-case narrative')
+  await h.command('candidate-privacy', { id: h.first.candidate, private: false })
   const stale = await h.command('propose', draft, h.agent)
   await h.setTime('2026-10-08T12:00:00.000Z')
   await h.command('move', { application: h.second.id, to: h.job.stages[3].id, reason: 'New committed observation' })

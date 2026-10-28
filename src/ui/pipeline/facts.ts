@@ -30,7 +30,7 @@ export function planPlace(v: D | undefined, iv: D) {
 
 /** The application a proposal acts on, from its changes or its sources. */
 export const proposalApplication = (p: D): string | undefined =>
-  p.changes.find((c: D) => typeof c.input?.application === 'string')?.input.application ?? p.sources.find((s: D) => s.kind === 'application')?.id
+  p.workflow === 'delay-diagnosis' ? undefined : p.changes.find((c: D) => typeof c.input?.application === 'string')?.input.application ?? p.sources.find((s: D) => s.kind === 'application')?.id
 
 /** Proposals still open that the signed-in person may decide. */
 export const openProposals = (w: D) => w.proposals.filter((p: D) => p.status === 'proposed' && (p.approver === w.actor.email || (w.actor.owner && p.proposedBy !== w.actor.email)))
