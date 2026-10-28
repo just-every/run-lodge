@@ -34,6 +34,7 @@ export async function referencePage(browser, { root, origin, evidence, ownerEmai
       const settings = page.getByRole('region', { name: 'Reference settings', exact: true })
       await settings.getByRole('heading', { name: 'Settings', exact: true }).waitFor()
       await settings.getByLabel('Reference questions, one per line', { exact: true }).fill('Describe their work on the crew')
+      await settings.getByLabel('Allow interviewer readers', { exact: true }).check()
       await settings.getByRole('button', { name: 'Save reference questionnaire', exact: true }).click()
       await settings.getByText('Questionnaire version 1', { exact: true }).waitFor()
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'reference settings fit')
@@ -65,6 +66,31 @@ export async function referencePage(browser, { root, origin, evidence, ownerEmai
       await iconTooltips(page)
       await capture('reference-history')
       assert.equal((await current(context, origin)).applications.find(a => a.id === app.id).stage, app.stage)
+      const email = 'interviewer@dev.localhost'
+      await run('member', { email, name: 'Ivy Chen', roles: ['interviewer'] })
+      const level = await run('permission-level', { name: 'Reference reader ' + app.id, permissions: ['contact', 'export'] })
+      await run('hiring-team', { id: job.id, interviewers: [email] })
+      await run('job-levels', { id: job.id, roles: { interviewers: level.id } })
+      await run('assign-reviewers', { application: app.id, reviewers: [email] })
+      await run('task', { application: app.id, kind: 'task', purpose: 'call-references', note: 'Assigned reader call', due: '2026-12-03', owner: email })
+      const reader = await session(browser, root, origin, 'interviewer', width)
+      try {
+        await reader.page.goto(origin + '/app?application=' + app.id)
+        await reader.page.getByRole('tab', { name: 'References', exact: true }).click()
+        const references = reader.page.getByRole('region', { name: 'Phone references', exact: true })
+        await references.getByText('Led the safety briefing every shift', { exact: true }).waitFor()
+        assert.equal(await references.getByText('Record call answers', { exact: true }).count(), 0, 'assignment and read permission do not grant recording authority')
+        assert.equal(await references.getByRole('link', { name: 'Reference settings', exact: true }).count(), 0, 'reader cannot configure the questionnaire')
+        for (const proofWidth of [1440, 390]) {
+          await reader.page.setViewportSize({ width: proofWidth, height: 900 })
+          await reader.page.screenshot({ path: evidence + '/reference-reader-' + proofWidth + '.png', fullPage: true })
+        }
+        await reader.page.setViewportSize({ width, height: 900 })
+        await run('job-levels', { id: job.id, roles: { interviewers: 'lodge-interviewer' } })
+        await reader.page.goto(origin + '/app?application=' + app.id)
+        await reader.page.getByRole('tab', { name: 'Overview', exact: true }).waitFor()
+        assert.equal(await reader.page.getByRole('tab', { name: 'References', exact: true }).count(), 0, 'revoking contact permission removes reference access')
+      } finally { await reader.context.close() }
     } catch (error) {
       await page.screenshot({ path: evidence + '/reference-error-' + width + '.png', fullPage: true })
       console.error('Reference screen failed at width ' + width + ': ' + await page.title())
@@ -90,6 +116,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       }
     } finally { await owner.context.close() }
     await referencePage(browser, { root, origin: server.origin, evidence: process.env.LODGE_EVIDENCE, ownerEmail: email })
-    console.log('HIRE-008 phone-reference screens passed at 1440 and 390')
+    console.log('HIRE-008 phone-reference journey passed at 1440; screen proof captured at 1440 and 390')
   } finally { await browser.close(); await server.close() }
 }
