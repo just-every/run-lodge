@@ -7,7 +7,15 @@ import { eligible, poolJobs, schedulingAuthority, windows, words } from './pools
 const minutes = (value: string) => Number(value.slice(0, 2)) * 60 + Number(value.slice(3))
 const interval = (x: Data) => ({ start: Date.parse(x.start), end: Date.parse(x.end) })
 const overlaps = (a: Data, b: Data, gap = 0) => a.start < b.end + gap * 60000 && b.start < a.end + gap * 60000
-const covered = (ranges: Data[], at: Data) => ranges.some(r => { const w = interval(r); return w.start <= at.start && w.end >= at.end })
+const covered = (ranges: Data[], at: Data) => {
+  let through = at.start
+  for (const w of ranges.map(interval).sort((x, y) => x.start - y.start)) {
+    if (w.start > through) return false
+    if (w.end > through) through = w.end
+    if (through >= at.end) return true
+  }
+  return false
+}
 const localDay = (at: number, zone: string) => new Date(toWall(at, zone)).toISOString().slice(0, 10)
 const sameDay = (x: Data, y: Data, zone: string) => localDay(x.start, zone) === localDay(y.start, zone)
 
@@ -44,7 +52,17 @@ function solve(s: State, app: Data, config: Data, request: Data) {
   }
   const search = (selected: Data[]) => {
     if (alternatives.length >= 5 || limited) return
-    if (selected.length === request.sessions.length) { alternatives.push(selected); return }
+    if (selected.length === request.sessions.length) {
+      // Required attendance across the entire day takes precedence over optional attendance.
+      const day: Data[] = selected.map(item => ({ ...item, participants: [...item.participants], omitted: [] as string[] }))
+      for (const [i, item] of day.entries()) for (const who of item.optional) {
+        const member = members.get(who)
+        if (!request.excluded.includes(who) && member && item.qualifications.every((q: string) => member.qualifications.includes(q)) && fitsMember(who, item, day.filter((_, j) => i !== j), item.title)) item.participants.push(who)
+        else item.omitted.push(who)
+      }
+      alternatives.push(day)
+      return
+    }
     const session = request.sessions[selected.length], title = session.title
     if (session.required.some((p: string) => request.excluded.includes(p))) { fail(title + ': required participant was excluded; revise the required panel'); return }
     const qualified = config.members.filter((m: Data) => eligible(s.find('member', m.email)) && session.qualifications.every((q: string) => m.qualifications.includes(q))).map((m: Data) => m.email)
@@ -62,12 +80,7 @@ function solve(s: State, app: Data, config: Data, request: Data) {
       for (const panel of panels) {
         if (++attempts > 20000) { limited = true; return }
         if (panel.some(who => request.excluded.includes(who) || !fitsMember(who, at, selected, title))) continue
-        const participants = [...panel], omitted: string[] = []
-        for (const who of session.optional) {
-          if (!request.excluded.includes(who) && qualified.includes(who) && fitsMember(who, at, selected, title)) participants.push(who)
-          else omitted.push(who)
-        }
-        search([...selected, { ...at, planItem: session.planItem, title, startISO: start, endISO: new Date(at.end).toISOString(), participants, required: session.required, optional: session.optional, omitted, room: session.room }])
+        search([...selected, { ...at, planItem: session.planItem, title, startISO: start, endISO: new Date(at.end).toISOString(), participants: [...panel], required: session.required, optional: session.optional, qualifications: session.qualifications, omitted: [], room: session.room }])
         if (alternatives.length >= 5 || limited) return
       }
     }

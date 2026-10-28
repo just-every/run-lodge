@@ -10,6 +10,7 @@ const snapshot = async h => ({ records: (await h.db.prepare('SELECT * FROM l_rec
 
 /** Native management and the versioned API, real Worker and D1, seeded nonempty reads. */
 export async function checkIntegrationApi(t) {
+  await checkDevIntegrationAdmission(t)
   const h = await businessHarness(); t.after(() => h.close())
   const adminEmail = address(1), managerEmail = address(2)
   const admin = await h.member(adminEmail, ['admin']), manager = await h.member(managerEmail, ['manager'])
@@ -136,4 +137,38 @@ export async function checkEnterpriseIntegration(t) {
   assert.ok([401, 403].includes((await read()).status))
   assert.equal((await h.scim('PATCH', '/synthetic-lodge-5', { Operations: [{ op: 'replace', path: 'active', value: true }] })).status, 200)
   assert.equal((await read()).status, 401, 'reactivation cannot resurrect revoked authorizing sessions')
+}
+
+/** Dev-issued authority stays behind the local gate and cannot enter preview. */
+async function checkDevIntegrationAdmission(t) {
+  const key = 'synthetic-lodge-' + '1'.repeat(43)
+  const h = await businessHarness({ devIdentity: true, bindings: { RER_DEV_KEY: key } }); t.after(() => h.close())
+  const job = await enterpriseJob(h, 'Synthetic dev integration job')
+  const person = await h.command('candidate', { name: 'Synthetic dev candidate', email: address(6), source: 'Direct', consentBasis: 'application', vacancy: job.id })
+  const entered = await h.send('/auth/dev/enter?as=owner', undefined, '', { 'x-rer-dev-key': key })
+  assert.equal(entered.status, 303, entered.text)
+  const gate = { 'x-rer-dev-key': key }
+  const created = await h.send(integrationsPath, { name: 'Synthetic dev reader', jobs: [job.id], fields: ['identity', 'contact'] }, entered.cookie, gate)
+  assert.equal(created.status, 200, created.text)
+  const auth = { authorization: 'Bearer ' + created.value.token }
+  const read = (path = applicationsPath, extra = {}) => h.send(path, undefined, '', { ...auth, ...extra })
+  const allowed = await read(applicationsPath, gate)
+  assert.equal(allowed.status, 200, allowed.text)
+  assert.equal(allowed.value.applications[0].email, person.candidate.email)
+  const before = await snapshot(h)
+  const sessionOnly = entered.cookie.split('; ').filter(part => !part.startsWith('rer_dev_gate_')).join('; ')
+  assert.equal((await h.send('/api/lodge/state', undefined, sessionOnly)).status, 401)
+  const ungated = await read()
+  const wrongKey = await read(applicationsPath + '/' + person.application.id, { 'x-rer-dev-key': key + '2' })
+  assert.deepEqual(await snapshot(h), before, 'refused dev reads change nothing')
+  await h.restart({ devIdentity: false, bindings: { RER_DEV_KEY: '', AUTH_LOCAL: 'true' } })
+  assert.equal((await h.send('/api/lodge/state', undefined, entered.cookie, gate)).status, 401)
+  for (const path of [applicationsPath, applicationsPath + '/' + person.application.id]) {
+    const denied = await read(path, gate)
+    assert.equal(denied.status, 401, 'production preview refuses dev-issued app credentials even with the old key')
+    assert.equal(denied.text.includes(person.candidate.email), false)
+  }
+  assert.deepEqual(await snapshot(h), before, 'production refusal exposes no data and changes nothing')
+  assert.equal(ungated.status, 401, 'dev app credential requires the local gate on every read')
+  assert.equal(wrongKey.status, 401)
 }

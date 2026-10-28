@@ -34,7 +34,7 @@ integrationApi.use('*', async (c, next) => {
   c.header('cache-control', 'no-store'); c.header('x-content-type-options', 'nosniff'); c.header('referrer-policy', 'no-referrer')
 })
 const applications = async (c: C, id?: string) => {
-  const { state, actor, jobs, fields } = await integrationContext(c.env.DB, c.req.header('authorization'))
+  const { state, actor, jobs, fields } = await integrationContext(c.env.DB, c.req.raw)
   const requested = c.req.query('fields')?.split(',') ?? fields
   requireThat(requested.every((f: string) => fields.includes(f)), 'Field scope refused', 403)
   const jobFilter = c.req.query('job')
