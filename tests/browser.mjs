@@ -1,6 +1,7 @@
 import { delayAnalysisPage } from './delay-analysis-browser.mjs'
 import { integrationsPage } from './integrations-browser.mjs'
 import { messageTemplatePage } from './message-template-browser.mjs'
+import { workflowChainPage } from './workflow-chain-browser.mjs'
 import { cohortReportPage } from './cohort-report-browser.mjs'
 import { referencePage } from './reference-browser.mjs'
 import { payWorkspace } from './pay-transparency-browser.mjs'
@@ -153,6 +154,7 @@ try {
     await fieldsImportPage(browser, { root, origin: server.origin, evidence })
     await blindPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await connectorsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+    await workflowChainPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await operationsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   } finally {
     await site.close(); await unlisted.close()
