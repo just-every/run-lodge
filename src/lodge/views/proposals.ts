@@ -1,3 +1,4 @@
+import { canSeeDelay } from './delay-analysis'
 import { blindSourceStamp } from '../core/blind'
 import type { State } from '../core/state'
 import { assignedTo, canSeeContact, isAdmin, managesVacancy } from '../core/access'
@@ -21,6 +22,7 @@ export const sourceFields = (record: Data) => Object.keys(record).filter(key => 
  * to be prepared again.
  */
 export function canSeeProposal(s: State, a: Actor, p: Data, view: WorkspaceRecords) {
+  if (p.workflow === 'delay-diagnosis') return canSeeDelay(s, a, p)
   if (p.workflow === 'feedback-packet' ? p.approver !== scope(a) : !isAdmin(a) && p.proposedFor !== scope(a) && p.proposedBy !== scope(a) && p.approver !== scope(a)) return false
   if (!(p.sources ?? []).every((source: Data) => {
     const record = sourceRecord(view, source.kind, source.viewId ?? source.id)

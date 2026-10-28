@@ -1,3 +1,4 @@
+import { delayAnalysis } from '../views/delay-analysis'
 import { integrationApi, integrationManagement } from './integrations'
 import { offlineScorecardContext } from '../records/scorecards'
 import { cohortReport } from '../views/cohort-report'
@@ -135,6 +136,19 @@ api.post('/api/lodge/capture/:id/resolve', async c => {
   const result = resolveCapture(state, actor, { ...await body(c), id: c.req.param('id') })
   await save(c.env.DB, state, actor)
   return c.json(result)
+})
+
+const delayInput = (c: C) => ({ vacancy: c.req.query('vacancy'), from: c.req.query('from'), to: c.req.query('to'), timeZone: c.req.query('timeZone') })
+api.get('/api/lodge/delay-analysis', async c => {
+  const { state, actor } = await context(c)
+  return c.json(delayAnalysis(state, actor, await workspaceRecords(state, actor), delayInput(c)))
+})
+api.get('/api/lodge/delay-analysis/:id', async c => {
+  const { state, actor } = await context(c)
+  const report = delayAnalysis(state, actor, await workspaceRecords(state, actor), delayInput(c))
+  const row = report.cases.find(x => x.application === c.req.param('id'))
+  requireThat(row, 'Delay case not found', 404)
+  return c.json({ cohort: report.cohort, definitions: report.definitions, unknowns: report.unknowns, ...row })
 })
 
 api.get('/api/lodge/state', async c => {

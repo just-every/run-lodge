@@ -1,0 +1,93 @@
+import type { State } from '../core/state'
+import { can, canSeeApplication, managesVacancy } from '../core/access'
+import { blindFor } from '../core/blind'
+import { grantsOf } from '../core/store'
+import { businessZone, isZone, times } from '../core/time'
+import { requireThat, ROLES, type Actor, type Data } from '../core/types'
+import type { WorkspaceRecords } from './workspace'
+
+export type DelayFilter = { vacancy?: string; from?: string | null; to?: string | null; timeZone?: string }
+const dated = (x: unknown): x is string => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(x) && Number.isFinite(Date.parse(x))
+const day = (x: string) => /^\d{4}-\d{2}-\d{2}$/.test(x) && Number.isFinite(Date.parse(x)) && new Date(x).toISOString().slice(0, 10) === x
+export const DELAY_UNKNOWNS = [
+  'Mailbox response times and threads: unknown; no connected mailbox evidence.',
+  'Scheduling attempts and provider failures: unknown; no joined scheduling evidence.',
+  'Survey feedback: unknown; no survey answers are exposed to agents or joined here.',
+  'Elapsed stage time does not identify candidate waits, recruiter queues or panel bottlenecks. Causes remain hypotheses.',
+]
+
+/** Minimal native evidence; never project decision reasons, contact fields or survey answers. */
+export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: DelayFilter) {
+  const job = w.vacancies.find(v => v.id === input.vacancy && v.manages)
+  requireThat(job, 'Delay analysis job not found', 404)
+  const storedJob = s.get('vacancy', job.id)
+  requireThat(can(s, a, storedJob, 'offers'), 'Delay analysis requires current offer access', 403)
+  const zone = input.timeZone || businessZone(s.find('business', 'main'))
+  requireThat(isZone(zone), 'Choose a valid cohort time zone')
+  for (const value of [input.from, input.to]) requireThat(!value || day(value), 'Use a valid cohort date')
+  requireThat(!input.from || !input.to || input.from <= input.to, 'The end date must follow the start date')
+  const dateOf = times(zone).dateOf
+  const visible = w.applications.filter(app => app.vacancy === job.id && app.manages && app.status !== 'spam' && !app.blind)
+  const missingSubmission = visible.filter(app => !dated(app.submittedAt)).length
+  const apps = visible.filter(app => !dated(app.submittedAt) ? !input.from && !input.to : (!input.from || dateOf(app.submittedAt) >= input.from) && (!input.to || dateOf(app.submittedAt) <= input.to))
+  const source = (kind: string, id: string) => { s.get(kind, id); return { kind, id, revision: s.revisionOf(kind, id) } }
+  const cases = apps.map(app => {
+    const events = (app.history as Data[]).map(e => ({ ...source('stage-event', e.id), from: e.from ?? null, to: e.to, at: e.at }))
+    const intervals: Data[] = [], missing: string[] = []
+    if (app.imported) missing.push('Imported history is not native timing evidence.')
+    if (!dated(app.submittedAt)) missing.push('Original submission time is missing.')
+    if (!events.length || events[0].from !== null || !dated(events[0].at)) missing.push('Initial stage entry is missing or undated.')
+    for (let i = 1; i < events.length; i++) {
+      const start = events[i - 1], end = events[i]
+      if (!dated(start.at) || !dated(end.at) || Date.parse(end.at) < Date.parse(start.at) || end.from !== start.to) { missing.push('A stage interval has incomplete or inconsistent event history.'); continue }
+      if (!app.imported && job.stages.some((st: Data) => st.id === start.to)) intervals.push({ stage: start.to, label: job.stages.find((st: Data) => st.id === start.to).name, start: start.id, end: end.id, from: start.at, to: end.at, hours: (Date.parse(end.at) - Date.parse(start.at)) / 3600000 })
+    }
+    if (app.status === 'active') missing.push('Current open stage is unfinished and excluded from completed intervals.')
+    const offers = w.offers.filter(o => o.application === app.id).map(o => {
+      const complete = !app.imported && dated(o.createdAt) && dated(o.outcomeAt) && Date.parse(o.outcomeAt) >= Date.parse(o.createdAt)
+      return { ...source('offer', o.id), status: o.status, createdAt: o.createdAt ?? null, outcomeAt: o.outcomeAt ?? null, hoursToOutcome: complete ? (Date.parse(o.outcomeAt) - Date.parse(o.createdAt)) / 3600000 : null }
+    })
+    return { application: app.id, name: app.candidateName, status: app.status, imported: !!app.imported, source: source('application', app.id), events, intervals, offers, missing: [...new Set(missing)] }
+  }).sort((x, y) => x.application.localeCompare(y.application))
+  const intervals = cases.flatMap(c => c.intervals)
+  const stages = job.stages.map((st: Data) => {
+    const rows = intervals.filter(i => i.stage === st.id), total = rows.reduce((sum, i) => sum + i.hours, 0)
+    return { stage: st.id, label: st.name, intervals: rows.length, totalHours: total, meanHours: rows.length ? total / rows.length : null }
+  })
+  const offers = cases.flatMap(c => c.offers), measured = offers.filter(o => o.hoursToOutcome !== null)
+  const sources = [source('vacancy', job.id), ...cases.flatMap(c => [c.source, ...c.events.map(({ kind, id, revision }) => ({ kind, id, revision })), ...c.offers.map(({ kind, id, revision }) => ({ kind, id, revision }))])].sort((x, y) => (x.kind + x.id).localeCompare(y.kind + y.id))
+  return {
+    cohort: { vacancy: job.id, from: input.from || null, to: input.to || null, timeZone: zone }, job: job.title, cases, stages, sources,
+    totals: { cases: cases.length, completedIntervals: intervals.length, offers: offers.length, measuredOutcomes: measured.length, meanOfferHours: measured.length ? measured.reduce((sum, o) => sum + o.hoursToOutcome!, 0) / measured.length : null, outcomes: Object.fromEntries(['draft', 'accepted', 'declined', 'withdrawn'].map(status => [status, offers.filter(o => o.status === status).length])) },
+    disclosures: { missingSubmission, excludedUndated: input.from || input.to ? missingSubmission : 0, incompleteCases: cases.filter(c => c.missing.length).length },
+    definitions: {
+      cohort: 'Current authorized, non-spam, non-blind applications for the selected job, by original submission date inclusive in the selected time zone. Undated records are disclosed and excluded only when a date filter is applied. Reopening does not reset submission.',
+      stages: 'Elapsed hours between consecutive, linked native stage events. Each completed visit counts once, including repeated visits after reopening. Unfinished stages, gaps and imported history are not assigned a duration. Means divide by measured completed visits, not applications.',
+      offers: 'Recorded offer statuses, not verified delivery or candidate response time. Elapsed hours from native offer creation to its recorded outcome; means divide by offers with both valid timestamps. Drafts and incomplete history remain unmeasured.',
+      limits: 'A small observational cohort is not a causal comparison or a suitability ranking. Access is applied before aggregation. No mailbox, scheduling or survey evidence is inferred from missing data.',
+    }, unknowns: DELAY_UNKNOWNS,
+  }
+}
+
+/** Reconstruct only current saved human authority, never a historical role snapshot. */
+export function delayHuman(s: State, who: string): Actor | undefined {
+  const m = s.find('member', who)
+  if (!m?.active || m.agent) return
+  return { id: 'delay-review', email: m.email, name: m.name, owner: m.owner === true, roles: m.owner ? [...ROLES] : m.roles, agent: false, session: '', version: 0, seePrivate: m.seePrivate === true, grants: grantsOf(s, m) }
+}
+
+export function canSeeDelay(s: State, a: Actor, p: Data) {
+  const agent = s.find('member', p.proposedBy), principal = delayHuman(s, p.proposedFor), reviewer = delayHuman(s, p.approver)
+  if (!agent?.active || !agent.agent || agent.actsFor !== p.proposedFor || !principal || !reviewer) return false
+  if (![p.proposedBy, p.proposedFor, p.approver].includes(a.email) && !a.owner) return false
+  const job = s.find('vacancy', p.delay.cohort.vacancy)
+  if (!job) return false
+  for (const actor of [a, principal, reviewer]) {
+    if (!managesVacancy(actor, job) || !can(s, actor, job, 'offers')) return false
+    for (const row of p.delay.cases) {
+      const app = s.find('application', row.application), candidate = app && s.find('candidate', app.candidate)
+      if (!app || !candidate || candidate.deleted || candidate.mergedInto || !canSeeApplication(s, actor, app) || blindFor(s, actor, app)) return false
+    }
+  }
+  return true
+}

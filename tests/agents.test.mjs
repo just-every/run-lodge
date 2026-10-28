@@ -219,3 +219,5 @@ test('Nurture pools preserve consent, exact review, replies, opt-out, owned task
 test('Nurture stops on expired consent, withdrawal, hire, revoked authority and uncertain delivery; imported pools never grant consent', async t => (await import('./crm-stops.mjs')).checkNurtureStops(t))
 
 test('Restored nurture archives keep sending, native reply activation and queued steps inert', async t => (await import('./crm-restore.mjs')).checkNurtureRestore(t))
+
+test('Native delay evidence and agent diagnosis preserve exact citations, uncertainty, live authority and inert review', async t => (await import('./delay-analysis-flow.mjs')).checkDelayAnalysis(t))
