@@ -216,6 +216,42 @@ async function checkNativeSchedulingWaits() {
     const scoped = await read()
     assert.deepEqual(scoped.scheduling.map(row => [row.interviews, row.measured]), [[2, 2], [2, 2], [2, 1]])
     assert.ok(!(await h.state(h.reviewer)).proposals.some(p => p.id === packet.id), 'revocation hides narrative and its detailed observation citations together')
+    await h.command('candidate-privacy', { id: h.second.candidate, private: false })
+    const baseline = await read('&from=2030-10-01&to=2030-10-05')
+    for (const [metric, expected, sampleLabel] of [
+      ['mean-candidate-availability-hours', 10, 'interviews'],
+      ['mean-panel-declaration-hours', 3, 'interviews'],
+      ['mean-recorded-offer-outcome-hours', 48, 'recorded offers'],
+    ]) {
+      const body = delayDraft(baseline, h.ownerEmail)
+      body.measurement = { ...body.measurement, metric, targetHours: expected / 2 }
+      const proposed = await h.command('propose', body, h.agent)
+      assert.deepEqual([proposed.measurement.baselineHours, proposed.measurement.sampleLabel], [expected, sampleLabel])
+      assert.ok(proposed.measurement.definition, 'the exact metric and denominator definition is frozen with human review')
+      await h.command('decide-proposal', { id: proposed.id, decision: 'rejected', reason: 'Do not activate this alternative' })
+    }
+    const body = delayDraft(baseline, h.ownerEmail)
+    body.measurement = { ...body.measurement, metric: 'mean-ready-to-schedule-hours', targetHours: 9, minimumIntervals: 1, windowDays: 2 }
+    const trialPacket = await h.command('propose', body, h.agent)
+    await h.command('decide-proposal', { id: trialPacket.id, decision: 'accepted', reason: 'Review an internal task trial with observed scheduling timing' })
+    const preview = await h.command('delay-trial-preview', { id: trialPacket.id, afterHours: 12 })
+    const active = await h.command('delay-trial-activate', { id: trialPacket.id, token: preview.token, confirm: true })
+    assert.deepEqual([active.comparisonCohort.from, active.comparisonCohort.to], ['2030-10-15', '2030-10-16'])
+    await h.setTime('2030-10-15T12:00:00.000Z')
+    const future = (await h.command('candidate', { name: 'Synthetic scheduling comparison', email: address('synthetic-lodge-scheduling-comparison'), vacancy: h.job.id, source: 'Direct', consentBasis: 'manual' })).application
+    const next = await h.command('interview', { application: future.id, planItem: (await h.state()).vacancies.find(v => v.id === h.job.id).plan[0].id, participants: [h.managerEmail], slots: ['2030-10-20T12:00:00.000Z'] })
+    await h.setTime('2030-10-15T14:00:00.000Z')
+    await h.command('availability', { interview: next.id, slots: [0] }, h.manager)
+    await h.setTime('2030-10-15T16:00:00.000Z')
+    assert.equal((await h.send('/availability/' + next.candidateToken, form)).status, 200)
+    await h.setTime('2030-10-15T22:00:00.000Z')
+    await h.command('schedule', { interview: next.id, slot: 0 })
+    await h.setTime('2030-10-17T12:00:00.000Z')
+    const comparison = await h.command('delay-trial-compare', { id: trialPacket.id })
+    assert.deepEqual([comparison.baselineHours, comparison.meanHours, comparison.intervals, comparison.sampleLabel, comparison.conclusion], [12, 6, 1, 'interviews', 'Declared target observed'], 'the comparison measures the reviewed scheduling metric rather than a completed stage')
+    assert.equal(comparison.definition, trialPacket.measurement.definition)
+    assert.deepEqual(comparison.report.cohort, active.comparisonCohort)
+    await h.command('delay-trial-rollback', { id: trialPacket.id })
   } finally { await h.close() }
 }
 

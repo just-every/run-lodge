@@ -3,6 +3,7 @@ import { protectedTerm } from '../core/protected'
 import { now, oneOf, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { canSeeDelay, delayAnalysis, delayHuman } from '../views/delay-analysis'
 import { workspaceRecords } from '../views/workspace'
+import { delayMetric } from '../views/delay-waits'
 
 function narrative(value: unknown, label: string) {
   const result = text(value, label, 4000)
@@ -40,11 +41,12 @@ export async function proposeDelay(s: State, a: Actor, b: Data) {
     })
     return { kind, text: narrative(f.text, 'Finding'), citations }
   })
-  const requested = b.measurement ?? {}, stage = report.stages.find((st: Data) => st.stage === requested.stage && st.intervals > 0)
-  requireThat(requested.metric === 'mean-completed-stage-hours' && stage && stage.meanHours !== null, 'Choose a measured stage metric')
-  requireThat(typeof requested.targetHours === 'number' && Number.isFinite(requested.targetHours) && requested.targetHours >= 0 && requested.targetHours < stage.meanHours, 'Set a lower nonnegative target in elapsed hours')
+  const requested = b.measurement ?? {}, stage = report.stages.find((st: Data) => st.stage === requested.stage)
+  const metric = delayMetric(report, requested.metric, requested.stage)
+  requireThat(stage && metric && metric.samples > 0 && metric.meanHours !== null, 'Choose a currently measured native metric and a task stage')
+  requireThat(typeof requested.targetHours === 'number' && Number.isFinite(requested.targetHours) && requested.targetHours >= 0 && requested.targetHours < metric.meanHours, 'Set a lower nonnegative target in elapsed hours')
   requireThat(Number.isInteger(requested.minimumIntervals) && requested.minimumIntervals > 0 && Number.isInteger(requested.windowDays) && requested.windowDays > 0 && requested.windowDays <= 366, 'Name a positive minimum sample and a comparison window up to 366 days')
-  const measurement = { metric: requested.metric, stage: stage.stage, label: stage.label, baselineHours: stage.meanHours, baselineIntervals: stage.intervals, targetHours: requested.targetHours, minimumIntervals: requested.minimumIntervals, windowDays: requested.windowDays }
+  const measurement = { metric: requested.metric, stage: stage.stage, triggerLabel: stage.label, label: metric.label, sampleLabel: metric.sampleLabel, definition: metric.definition, baselineHours: metric.meanHours, baselineIntervals: metric.samples, targetHours: requested.targetHours, minimumIntervals: requested.minimumIntervals, windowDays: requested.windowDays }
   const record = {
     workflow: 'delay-diagnosis', summary: narrative(b.summary, 'Summary'), rationale: '', missing: [], changes: [], citations: [],
     sources: report.sources, delay: report, findings,
