@@ -8,6 +8,7 @@ const b64 = text => Buffer.from(text).toString('base64')
 import { checkMerge } from './merge-flow.mjs'
 import { checkResumeIntake } from './resume-driver.mjs'
 import { checkErasure } from './retention-flow.mjs'
+import { checkMessageTemplates } from './message-template-flow.mjs'
 
 test('Lodge hiring flows through native sessions and real D1', async t => {
   const h = await harness()
@@ -1025,6 +1026,7 @@ test('Candidate intake, job setup and reviewed bulk flows through real HTTP and 
     assert.equal(messages.filter(m => m.application === r3.id).length, 0, 'no unauthorized change')
     assert.deepEqual(messages.filter(m => m.application === w3.id).map(m => [m.to, m.body, m.downloads.length, m.approval.status, m.approval.approver]),
       [['tova.lund@bulk.example.test', 'Hi Tova Lund, can you talk this week? — Example Builders', 0, 'pending', 'mona@example.test']], 'one draft awaiting exact approval, never sent, even after resubmission')
+    await checkMessageTemplates()
   })
 
   await t.test('SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply', async () => {

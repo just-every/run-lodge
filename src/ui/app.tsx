@@ -1,4 +1,5 @@
 import { Integrations } from './integrations'
+import { MessageTemplates } from './message-templates'
 import { CohortReport } from './cohort-report'
 import { ReferenceSettings } from './references'
 import { ReferralPortal } from './referrals'
@@ -45,7 +46,7 @@ export function App() {
     setKit(at('kit')); setNotice(''); scrollTo({ top: 0 })
     history.replaceState(null, '', at('kit') ? '/app?kit=' + encodeURIComponent(at('kit')!) : at('report') === 'cohort' ? '/app?report=cohort' : '/app')
     if (at('report') === 'cohort') setNav(n => ({ ...n, tab: 'Cohort report' }))
-    if (at('settings') === 'references') setNav(n => ({ ...n, tab: 'Settings', app: at('application'), job: null }))
+    if (at('settings')) setNav(n => ({ ...n, tab: 'Settings', app: at('application'), job: null }))
     else if (at('application')) setNav(n => ({ ...n, tab: 'Applications', app: at('application'), job: null }))
     else if (at('job')) setNav(n => ({ ...n, tab: 'Applications', job: at('job'), app: '' }))
     else if (at('approval')) { setNav(n => ({ ...n, tab: 'Approvals' })); setFocus('approval-' + at('approval')) }
@@ -79,7 +80,7 @@ export function App() {
     ...(manager ? [{ name: 'Workflow sandbox', icon: 'proposals' } as Tab] : []),
     ...(admin ? [{ name: 'Retention', icon: 'retention', count: w.retention?.due.length } as Tab] : []),
     ...(actor.owner ? [{ name: 'Move in', icon: 'movein' } as Tab] : []),
-    ...((!actor.agent && admin) || w.references?.editable.length ? [{ name: 'Settings', icon: 'people' } as Tab] : []),
+    ...((!actor.agent && (admin || w.vacancies.some((v: D) => v.manages && v.permissions.includes('contact') && v.permissions.includes('settings')))) || w.references?.editable.length ? [{ name: 'Settings', icon: 'people' } as Tab] : []),
     ...(admin ? [{ name: 'People', icon: 'people' } as Tab, { name: 'Audit', icon: 'audit' } as Tab] : []),
   ]
   const go = (tab: string, target: Target = {}) => { setKit(null); setNav(n => ({ ...n, ...target, tab })); setNotice(''); scrollTo({ top: 0 }) }
@@ -104,7 +105,7 @@ export function App() {
         {!kit && tab === 'Proposals' && <Proposals {...props} />}
         {!kit && tab === 'Retention' && <Retention {...props} />}
         {!kit && tab === 'Move in' && <MoveIn {...props} />}
-        {!kit && tab === 'Settings' && <div className="page wide"><ReferenceSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
+        {!kit && tab === 'Settings' && <div className="page wide"><MessageTemplates {...props} /><ReferenceSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
         {!kit && tab === 'People' && <People {...props} />}
         {!kit && tab === 'Audit' && <Audit {...props} />}
         {!kit && tab === 'Workflow sandbox' && <WorkflowSandbox {...props} />}

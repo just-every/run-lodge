@@ -275,6 +275,10 @@ export function canSeeTeamNote(s: State, a: Actor, note: Data) {
 
 /** Approval terms have their own assigned reviewer grant, independent of application visibility. */
 export function canSeeApproval(s: State, a: Actor, approval: Data) {
+  if (approval.subjectKind === 'message') {
+    const m = s.find('message', approval.subjectId), app = m?.templateDraft && s.find('application', m.application), job = app && s.find('vacancy', app.vacancy)
+    if (m?.templateDraft && (!app || !job || !canSeeApplication(s, a, app) || !managesVacancy(a, job) || !can(s, a, job, 'contact'))) return false
+  }
   if (isAdmin(a)) {
     const subject = s.find(approval.subjectKind, approval.subjectId)
     if (!subject) return true
