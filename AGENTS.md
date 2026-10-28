@@ -43,10 +43,16 @@ must keep working and [ACCEPTANCE.md](ACCEPTANCE.md) for what is proven.
   defined once; `public/lodge.css` (the app) and the site read those tokens.
 - `migrations/core`: Base auth, outbox and portability (0001–0005), Base import-kit
   (0006, 0016), Lodge records (0007), current Base auth, dependency, owner-claim
-  and erasure schemas (0008–0015). Never edit an applied migration; add the next one.
+  and erasure schemas (0008–0015), owner sign-in and sealed dependency keys
+  (0017–0018), application-mail activation and enterprise SAML transactions
+  (0019–0020). Business settings, stable Business people and the shared agent
+  door add schemas 0021–0023. Never edit an applied migration; add the next one.
 - `src/modules/*`, `src/base`: byte copies of Base at the revision in
   `base-copies.json` (see SOURCE.md). Refresh them with Base's `refresh-base`;
-  do not edit them in place.
+  do not edit them in place. The agent-door and Business-settings prerequisites
+  at Base `d555e789cffb744a9f83d76ebe42a2e3bdd7a055` are recorded independently
+  of the CLI package pin. Their source and schemas alone do not enable a door;
+  a native integration and complete specialist conformance are still required.
 
 ## Rules that keep Lodge correct
 

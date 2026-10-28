@@ -61,3 +61,12 @@ locally owned product source. Refresh `sources.lock.json` with Base's supported
 `edition-authoring/cli.mjs lock` at the revision recorded in `base-copies.json`,
 after staging intentional edits. It inventories all tracked edition files;
 Base's byte copies remain recorded separately in `base-copies.json`.
+
+**Agent-door runtime source (28 October 2026).** `src/modules/agent-door`,
+`src/modules/business-settings` and their theme-frame/icon-head dependencies
+are byte copies at Base `d555e789cffb744a9f83d76ebe42a2e3bdd7a055`.
+Their schemas are additive migrations 0021–0023; all earlier migrations retain
+their original bytes. These source copies do not yet mount the shared door or
+replace Lodge's current source-bound proposal authority. Runtime integration
+and its complete specialist conformance remain required before adoption can
+be claimed. The CLI dependency remains the exact package pin in package.json.
