@@ -73,7 +73,7 @@ export function App() {
     ...(w.applications.length || manager ? [{ name: 'Applications', icon: 'applications', count: w.applications.filter((a: D) => a.status === 'active').length } as Tab] : []),
     ...(manager ? [{ name: 'Candidates', icon: 'candidates' } as Tab] : []),
     ...(manager || w.events.length ? [{ name: 'Events', icon: 'pin', count: w.events.length } as Tab] : []),
-    ...(w.approvals.length || actor.roles.includes('approver') ? [{ name: 'Approvals', icon: 'approvals', count: pending.length, urgent: pending.some((x: D) => x.approver === me) } as Tab] : []),
+    ...(w.approvals.length || actor.roles.includes('approver') ? [{ name: 'Approvals', icon: 'approvals', count: pending.length, urgent: pending.some((x: D) => x.waitingApprovers.includes(me)) } as Tab] : []),
     { name: 'Proposals', icon: 'proposals', count: openProposals(w).length, urgent: openProposals(w).length > 0 },
     ...(manager ? [{ name: 'Workflow sandbox', icon: 'proposals' } as Tab] : []),
     ...(admin ? [{ name: 'Retention', icon: 'retention', count: w.retention?.due.length } as Tab] : []),
