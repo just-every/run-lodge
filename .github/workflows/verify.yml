@@ -124,6 +124,15 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile && pnpm exec rer install
       - run: node scripts/ci-chromium.mjs
+      - name: Install current Chromium for the installed extension journey
+        if: matrix.width == 1440
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ runner.temp }}/lodge-extension-chromium
+        run: |
+          pnpm dlx playwright@1.64.1 install chromium --no-shell
+          binary=$(find "$PLAYWRIGHT_BROWSERS_PATH" -type f -path '*/chrome-linux*/chrome' -print -quit)
+          test -n "$binary"
+          echo "LODGE_EXTENSION_CHROMIUM=$binary" >> "$GITHUB_ENV"
       - run: node tests/browser.mjs
         env:
           LODGE_EVIDENCE: ${{ runner.temp }}/lodge-proof

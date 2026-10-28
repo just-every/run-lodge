@@ -1,3 +1,4 @@
+import { previewProspect, confirmProspect } from '../records/prospect-capture'
 import { integrationApi, integrationManagement } from './integrations'
 import { offlineScorecardContext } from '../records/scorecards'
 import { cohortReport } from '../views/cohort-report'
@@ -136,6 +137,15 @@ api.post('/api/lodge/capture/:id/resolve', async c => {
   await save(c.env.DB, state, actor)
   return c.json(result)
 })
+
+for (const [door, action] of [['preview', previewProspect], ['confirm', confirmProspect]] as const) {
+  api.post('/api/lodge/prospect-capture/' + door, async c => {
+    const { state, actor } = await context(c); person(actor)
+    const result = await action(state, actor, await body(c, 20000), runtimeBindings(c.env).SESSION_SECRET)
+    if (door === 'confirm') await save(c.env.DB, state, actor)
+    return c.json(result)
+  })
+}
 
 api.get('/api/lodge/state', async c => {
   const { state, actor } = await context(c, true, true)

@@ -1,3 +1,4 @@
+import { captureDestinations } from '../records/prospect-capture'
 import { referenceView } from '../references/views'
 import { publicReceipt } from '../careers/receipt'
 import { careersDomainView } from '../careers/domain'
@@ -149,7 +150,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     const manages = !!vacancy && managesVacancy(a, vacancy)
     const cards = s.all('scorecard').filter(c => c.application === app.id)
     return {
-      ...app, manages, candidateName: s.all('candidate').find(c => c.id === app.candidate)?.name ?? 'Unknown', history: history(s, app.id),
+      ...app, ...(!canSeeContact(s, a, s.get('candidate', app.candidate)) ? { sourceURL: undefined } : {}), manages, candidateName: s.all('candidate').find(c => c.id === app.candidate)?.name ?? 'Unknown', history: history(s, app.id),
       // The source applications' stage histories travel with a transfer; their scorecards stay with their own job's panel.
       earlier: transferredFrom(s, app).map(x => ({ application: x.id, vacancy: x.vacancy, title: s.find('vacancy', x.vacancy)?.title ?? '', history: history(s, x.id) })),
       panel: manages ? panel(s, app).map(p => ({ email: p, submitted: cards.some(c => c.author === p && c.status === 'submitted') })) : undefined,
@@ -172,6 +173,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
   const teamNotes = s.all('team-note').filter(n => visibleCandidates.has(n.candidate) && canSeeTeamNote(s, a, n)).sort((x, y) => x.at.localeCompare(y.at))
   const view = blindProjection(s, a, fieldProjection(s, a, {
     actor: { email: a.email, name: a.name, owner: a.owner, roles: a.roles, agent: a.agent, actsFor: a.scopeAs ?? null },
+    prospectCapture: captureDestinations(s, a),
     business: s.all('business')[0] ?? null,
     careers: admin && !a.agent && s.find('business', 'main') ? { brand: s.find('careers-brand', 'main') ?? null, ...careersDomainView(s, a, env ?? { AUTH_ORIGIN: 'https://unconfigured.invalid' }) } : null,
     connectors: connectorSummary(s, a),

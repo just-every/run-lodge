@@ -131,7 +131,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "4f3bca4d0111f5b499419869c1fea71de3821738cb8995febf1d2a04bbc3f85c",
+      "sha256": "5c2af045fba4d493ed19acbb9e40d5c197da6f27689ba15e47c285d014adeb96",
       "executable": false
     },
     ".gitignore": {
@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "8ca2078098f069c57d89c829a0e7149f5306827115b1b43f14fc88fcb5892285",
+      "sha256": "3452436a0579635fce28f1a3269366c897e18c51f94b453ee9121d0486139717",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "c1ca8f2cdb2ca9c7bdfc2c3b1ccb522cba3ffc4a603be82eb7fa59b681a06cdf",
+      "sha256": "d9a11f1f53df7b8ccd3eda56b82a604b797ad636a37fc4dd149def1299801617",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "e5f2f3e8c1d30946fe5c77bc91e111a55e70144d56c7423740ee020e33ba29ff",
+      "sha256": "82182ba2599e0bc389fab01f38c637cbcff9524fd259ad95e3a672b51b5ce553",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -244,6 +244,26 @@
     },
     "edition.json": {
       "sha256": "70500de68cc17f7a8b504a447e96d8c2265722ea471c30b9956d8349321569ef",
+      "executable": false
+    },
+    "extensions/chromium/manifest.json": {
+      "sha256": "f175ecd14d48386b8ce98b1d76078a5044822d0bb2d32339a25b409b83035c17",
+      "executable": false
+    },
+    "extensions/chromium/popup.css": {
+      "sha256": "3bd3a3f0b4aa9c913355a7cdf3a7b57d70cbd92a65223026687a09ed7eebb9a7",
+      "executable": false
+    },
+    "extensions/chromium/popup.html": {
+      "sha256": "f026258a006a0e8ca966c1022f2b4876c735404a9a8f7c3a4f19e41d4f27e5cf",
+      "executable": false
+    },
+    "extensions/chromium/popup.js": {
+      "sha256": "9cccac0fee78c381834f6eefb4a19a55bebcc562eec73b9fc49f62e3022f7273",
+      "executable": false
+    },
+    "extensions/chromium/README.md": {
+      "sha256": "6dcb8d19a3f34cc88e2102e83c69b99b05e735aca7d87c1708fba0597c62c1a6",
       "executable": false
     },
     "fixtures/workable-full-export/7001/5001-dana-whitfield/dana-resume.txt": {
@@ -771,7 +791,7 @@
       "executable": true
     },
     "scripts/contract-docs.mjs": {
-      "sha256": "61eb214d8c29c409b26281e159242c7a22a1af83d21df7d969a3ff432e91d509",
+      "sha256": "127a8a11a7025c848992c34edae9fc29ae0d0c898245a6b79489d204c5da8019",
       "executable": false
     },
     "scripts/delivery/base/artifact.mjs": {
@@ -1435,7 +1455,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "28318487634ab74c5141df2372808bea50c75a9d7782a5daf183285c2b85442c",
+      "sha256": "a8212cc4872e114c31fa7c1a1bb21453d71b9904daa0c60bbc08775d857566bc",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -1714,6 +1734,10 @@
       "sha256": "057c35d505db3298e8886b58def194900ca882311af0320586587f69693bb3e8",
       "executable": false
     },
+    "src/lodge/records/prospect-capture.ts": {
+      "sha256": "fcfab922b29bf3c18f5ba7fcd1852c60e07c1473c4de560fab4400d9a3550844",
+      "executable": false
+    },
     "src/lodge/records/questions.ts": {
       "sha256": "9157d644aac28428651fcd60d934da1af78b7db15bb47e660b9e8e194e8f62ef",
       "executable": false
@@ -1923,7 +1947,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "9eb18a6b7031782b52525aa9d7fb480b2656e9a1e8b8b5fff3aaec58db5ca72a",
+      "sha256": "178b9892d2a3ecba6837ad026c7a97ecad105114fe0591f9148424a4ca9c1a6d",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -3787,7 +3811,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "8afb0bdf700fa898b28f3c89150e18c372ca971cdaffa520764007bc923c84da",
+      "sha256": "57900beb4c70f9f1a1b50b839f1ced806e29e5a011c672a11fc85e321853d6c9",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -4002,6 +4026,10 @@
       "sha256": "6c4ce04e4655771c1835179ec89fb319cecfac68fcbee5d1a6c3c1f6b02fb2df",
       "executable": false
     },
+    "src/ui/prospect-capture.tsx": {
+      "sha256": "a68fae15c1783aa5e6179a2b68a71784b127547de0c344af78c14e20414216f5",
+      "executable": false
+    },
     "src/ui/provider-setup.tsx": {
       "sha256": "a4f7f3873c311bf26b0aae46f84f68d74a63b8aaf77a6510c34a53d265ce2b83",
       "executable": false
@@ -4067,7 +4095,7 @@
       "executable": false
     },
     "src/ui/sources.tsx": {
-      "sha256": "82bb8425fca1d07ade45c77b399404d47304b47da3188241dc8c01ddd140a46b",
+      "sha256": "c1efa71dac77522c7824f0c3c9c4f8543ca5eb74941265182559af4cb56ff85b",
       "executable": false
     },
     "src/ui/tasks.tsx": {
@@ -4195,7 +4223,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "b2b645ea6c7e445dd1fd669c88206b84536829d7f8fed4d4b4f53a3854f01767",
+      "sha256": "a579fbf83f07d9e8465f0e192fd5d32938635bdb6fc4d074999927cde7219555",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
@@ -4342,6 +4370,10 @@
       "sha256": "521470c3c84309fe9a01b97970139f6afdfa3c1305e9ef9c6be704350ebaba76",
       "executable": false
     },
+    "tests/extension-capture-browser.mjs": {
+      "sha256": "630441ea257b6c36629fb37a5908f96fca543d65727707db1633542e56c09dfd",
+      "executable": false
+    },
     "tests/fields-driver.mjs": {
       "sha256": "9f2e7f14861dbd32de6af281d3140441453dcede8c0bb838e6f08358aa0ea9a6",
       "executable": false
@@ -4363,7 +4395,7 @@
       "executable": false
     },
     "tests/hiring-candidates.test.mjs": {
-      "sha256": "fa4baff83654b69c0b53533a072d6ffca1b11ff918c5e64d7ea8f83f03ab2211",
+      "sha256": "36dc86a2b26dcf428d349f6e6740fbf3a4f1482127ad9554e47eb60606e959b2",
       "executable": false
     },
     "tests/hiring-fixture.mjs": {
@@ -4464,6 +4496,14 @@
     },
     "tests/posts-page.mjs": {
       "sha256": "ae5a77d48a6507e57ede2f4d37f8c898d85c2bf97390f3a82da5827da44713b6",
+      "executable": false
+    },
+    "tests/prospect-capture-browser.mjs": {
+      "sha256": "8c41bc2a6ba9de444155b0b6b52660d624e13a0474f3fe1999c386e16bc17529",
+      "executable": false
+    },
+    "tests/prospect-capture-flow.mjs": {
+      "sha256": "2cf9df3b1df097f8c041bc0cc3078d19207b6d0de364d3eb9d63315221db79a6",
       "executable": false
     },
     "tests/README.md": {
