@@ -1,3 +1,4 @@
+import { offlineScorecardContext } from '../records/scorecards'
 import { cohortReport } from '../views/cohort-report'
 import { referenceExport } from '../references/views'
 import { bulkInvitationPreview, bulkInvitationSubmit } from '../operations/bulk-invitations'
@@ -193,7 +194,8 @@ api.get('/api/lodge/views/:vacancy/:viewId', async c => {
 
 api.get('/api/lodge/kit/:id', async c => {
   const { state, actor } = await context(c)
-  return c.json(kitView(await workspace(state, actor), c.req.param('id')))
+  const kit = kitView(await workspace(state, actor), c.req.param('id'))
+  return c.json({ ...kit, ...(!actor.agent && kit.interview.participants.includes(actor.email) ? { offlineContext: await offlineScorecardContext(state, actor, kit.application, kit.interview.id) } : {}) })
 })
 
 api.get('/api/lodge/reports/surveys', async c => { const { state, actor } = await context(c); person(actor); return c.json(surveyReport(state, actor)) })

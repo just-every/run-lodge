@@ -1,6 +1,6 @@
 import type { State } from '../core/state'
 import { assignedTo, canSeeScorecard, hiringManagers, managesVacancy, requireApplication, requireCan, requireManages } from '../core/access'
-import { now, oneOf, optionalText, requireThat, text, uid, type Actor, type Data } from '../core/types'
+import { now, oneOf, optionalText, requireThat, text, uid, sha256, canonical, type Actor, type Data } from '../core/types'
 import { notifyFeedback, notifyScorecard } from '../notify/emit'
 
 // Flow 9: each interviewer writes their own scorecard against the rubric
@@ -42,7 +42,19 @@ function rate(rubric: Data, b: Data) {
   return { ratings, evidence }
 }
 
-export function scorecard(s: State, a: Actor, b: Data) {
+/** A native draft binds to its original session and every record its kit depends on. */
+export async function offlineScorecardContext(s: State, a: Actor, application: string, interview: string) {
+  const app = requireApplication(s, a, application), iv = s.get('interview', interview)
+  requireThat(iv.application === app.id && iv.status !== 'cancelled' && iv.participants.includes(a.email), 'Interview not found', 404)
+  const vacancy = s.get('vacancy', app.vacancy)
+  return sha256(canonical({
+    session: a.session, operatorVersion: a.version, memberships: a.memberships,
+    records: [['application', app.id], ['candidate', app.candidate], ['interview', iv.id], ['vacancy', vacancy.id], ['scorecard', `${app.id}:${iv.id}:${a.email}`]]
+      .map(([kind, id]) => { s.find(kind, id); return [kind, id, s.revisionOf(kind, id)] }),
+  }))
+}
+
+export async function scorecard(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, b.application)
   requireThat(assignedTo(s, a, app) || managesVacancy(a, s.get('vacancy', app.vacancy)), 'Only the panel writes scorecards', 403)
   requireThat(app.status === 'active', 'This application is closed', 409)
@@ -50,8 +62,23 @@ export function scorecard(s: State, a: Actor, b: Data) {
   if (interviewId) requireThat(s.get('interview', interviewId).application === app.id, 'That interview belongs to another application')
   const id = `${app.id}:${interviewId ?? 'review'}:${a.email}`
   const existing = s.find('scorecard', id)
+  const offline = b.offlineContext !== undefined
+  let submissionHash: string | undefined
+  if (offline) {
+    requireThat(typeof b.offlineContext === 'string' && /^[a-f0-9]{64}$/.test(b.offlineContext) && interviewId, 'Open the interview kit before drafting offline', 409)
+    requireThat(typeof b.submissionId === 'string' && /^[a-zA-Z0-9-]{16,80}$/.test(b.submissionId), 'A durable submission id is required')
+    submissionHash = await sha256(canonical({ application: app.id, interview: interviewId, offlineContext: b.offlineContext, rubricVersion: b.rubricVersion, ratings: b.ratings, evidence: b.evidence, recommendation: b.recommendation, takeaways: b.takeaways, notes: b.notes, submit: b.submit }))
+    // A lost response may be reconciled by exactly the same request, without another mutation.
+    if (existing?.status === 'submitted' && existing.offlineSubmission?.id === b.submissionId) {
+      requireThat(existing.offlineSubmission.hash === submissionHash, 'This submission id already names different feedback', 409)
+      requireThat(s.get('interview', interviewId).participants.includes(a.email), 'Interview not found', 404)
+      return existing
+    }
+    requireThat(b.offlineContext === await offlineScorecardContext(s, a, app.id, interviewId), 'The interview, rubric, assignment or draft changed; review the kit online. Feedback remains unsubmitted', 409)
+  }
   requireThat(!existing || existing.status === 'draft', 'You already submitted this scorecard', 409)
   const rubric = rubricFor(s, app)
+  if (b.rubricVersion !== undefined) requireThat(b.rubricVersion === rubric.version, 'The captured rubric changed; review the kit online', 409)
   const { ratings, evidence } = rate(focusOf(rubric, s.get('vacancy', app.vacancy), interviewId ? s.get('interview', interviewId) : null), b)
   const submit = b.submit === true
   const recommendation = b.recommendation ? oneOf(b.recommendation, RECOMMENDATIONS, 'Recommendation') : null
@@ -60,6 +87,7 @@ export function scorecard(s: State, a: Actor, b: Data) {
   if (submit) requireThat(takeaways, 'Write your key take-aways before submitting')
   const record = s.put('scorecard', id, {
     application: app.id, interview: interviewId, author: a.email, rubricVersion: rubric.version, ratings, evidence, recommendation, takeaways,
+    ...(offline && b.submit === true ? { offlineSubmission: { id: b.submissionId, hash: submissionHash } } : {}),
     notes: optionalText(b.notes, 'Notes', 8000), status: submit ? 'submitted' : 'draft', updatedAt: now(), ...(submit ? { submittedAt: now() } : {}),
   })
   s.audit(a, submit ? 'scorecard-submitted' : 'scorecard-saved', 'application:' + app.id)

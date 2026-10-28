@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e836aca9233fd5f79e87f4aefad321435592aadb58b1244b697da1c009c3d444",
+      "sha256": "dcd7266b3cb1ba0bdfdfd095504da188be3d7463afb3a53e16062ed272a208e8",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "ca688e6849d9530367dbe54a774864d4e46b4df51cc46f7215ef00e01dfad553",
+      "sha256": "99359365d2fd31d3e76e0f2042daab025f50bcc9f63d235baf4073f1bd3bba63",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "823116125d3690b7e762c80dccce5d0c80fe9e3c4317169b1250a816a55f523e",
+      "sha256": "f7949cae7895d1566558c9dab45db12f49099be9eebb696e7887ba394202cd7d",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -396,6 +396,74 @@
     },
     "migrations/core/0020_enterprise_saml_transactions.sql": {
       "sha256": "09e2c48aee5d1627b32bb4e46c35f1452d51d30212d39fdee3a44b83c2447529",
+      "executable": false
+    },
+    "native/android/.gitignore": {
+      "sha256": "838655f2e91bf2cc39b78e25f41b3706543530eeaca3c710e323d9c7fa5619ca",
+      "executable": false
+    },
+    "native/android/app/build.gradle": {
+      "sha256": "0a3f8e342bf39fac3bf9211d45e37f560c814553c2dfdfd7b493967f6c7aa508",
+      "executable": false
+    },
+    "native/android/app/src/androidTest/java/com/runeditrun/lodge/JourneyRunner.java": {
+      "sha256": "dbf5b40b6a66f9fa340b30b01fe89384e0de7b311eaf0055d182eaa434bb54e6",
+      "executable": false
+    },
+    "native/android/app/src/androidTest/java/com/runeditrun/lodge/OfflineJourney.java": {
+      "sha256": "18e770a8b15b3712d9b53f4c6e093e97c70881808cd1e83538dafb26357a7b56",
+      "executable": false
+    },
+    "native/android/app/src/debug/AndroidManifest.xml": {
+      "sha256": "15035f7ac07c6f660a41e40e53a73385c109b53def008724a1bb0cc61cd80cd9",
+      "executable": false
+    },
+    "native/android/app/src/main/AndroidManifest.xml": {
+      "sha256": "370fe9d78903e2844b3915c835886011c4a4cd42a76fd5b1ecda21ef253dbccd",
+      "executable": false
+    },
+    "native/android/app/src/main/java/com/runeditrun/lodge/DraftVault.java": {
+      "sha256": "bf406f6fd0ac7bd74227b2bcba7dbb9c515c13f31a951f4318230b3adcb8de24",
+      "executable": false
+    },
+    "native/android/app/src/main/java/com/runeditrun/lodge/LodgeApi.java": {
+      "sha256": "55c738ec5d4e05dff9723af43ce8d4cfcc37b64d949e4502f6929f8d68815b3c",
+      "executable": false
+    },
+    "native/android/app/src/main/java/com/runeditrun/lodge/MainActivity.java": {
+      "sha256": "f243b2d8d445d625fe1b787e07344dd56320674249d16e0c49ab123b479cb3f8",
+      "executable": false
+    },
+    "native/android/build.gradle": {
+      "sha256": "4b08d3c261d317db5e5a5f7fa8ade50f361690e3b03fa86ee69a678f2a4b3a37",
+      "executable": false
+    },
+    "native/android/gradle.properties": {
+      "sha256": "8aaae35f8b1e166955d192936521c644b1a62ac122bc5555c25fbb1ceab1dba9",
+      "executable": false
+    },
+    "native/android/gradle/wrapper/gradle-wrapper.jar": {
+      "sha256": "81a82aaea5abcc8ff68b3dfcb58b3c3c429378efd98e7433460610fecd7ae45f",
+      "executable": false
+    },
+    "native/android/gradle/wrapper/gradle-wrapper.properties": {
+      "sha256": "1bb6d43ff8af30abb0eaf03fe58f636ed9b37f758a748bf30a9cebd809639c9d",
+      "executable": false
+    },
+    "native/android/gradlew": {
+      "sha256": "734b3879d3501dce471cf0522d3bcbafe76873d9fc5129345b67fb43bd15e933",
+      "executable": true
+    },
+    "native/android/gradlew.bat": {
+      "sha256": "57931b17dd228e5c24dac90e815d0bf82477e831a4618dfab4136f5446b42a9f",
+      "executable": false
+    },
+    "native/android/README.md": {
+      "sha256": "012680ab65f16f309bd760d8023d2088290dafba7fa40d9b590621ef97573124",
+      "executable": false
+    },
+    "native/android/settings.gradle": {
+      "sha256": "075c3fc8cf76018416a3f4103739c0a039104dcf659d3ceda9981fc12ead7756",
       "executable": false
     },
     "ONBOARDING.md": {
@@ -1359,7 +1427,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "303aeb55a643349dfa618cfbaa1c931ee2e40c8480fa99a59f27ad8e6244d98e",
+      "sha256": "5f634989fa23f21cc898d5568ee91742cb5b25e6231d691a1335df6d177b53d0",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -1647,7 +1715,7 @@
       "executable": false
     },
     "src/lodge/records/scorecards.ts": {
-      "sha256": "8d7e237c003e30a27c5b5b76e69bc0e8cf7e18b8354096b4d94497a1fc026b9e",
+      "sha256": "5dbdcff09d7063029cba23a9cd9c46faa9bb89d005f3f9c0c6dd2414000bcf85",
       "executable": false
     },
     "src/lodge/records/sources.ts": {
@@ -4287,7 +4355,7 @@
       "executable": false
     },
     "tests/hiring-security.test.mjs": {
-      "sha256": "549837811fcfcbef2354cd7426765b9f1dd95376bdd54f859bef54bcc47af727",
+      "sha256": "be904f3460c9aa8490e41913f1376b981d00cad35c7579800507c655f6b33d58",
       "executable": false
     },
     "tests/icon-tooltips.mjs": {
@@ -4320,6 +4388,14 @@
     },
     "tests/merge-flow.mjs": {
       "sha256": "532c793a587ba747f87c0eb2ab17d650838d327d52eed6937708273928dc6efb",
+      "executable": false
+    },
+    "tests/mobile-native-journey.mjs": {
+      "sha256": "e57b710babc2b69d80a4b172aeaeaba2555182af203cb189721e7b8c96125458",
+      "executable": false
+    },
+    "tests/mobile-offline-flow.mjs": {
+      "sha256": "abf5ddb5b90642c30b3b961d77131aa765dc4968fffeb5fecdf5294ddd3a8083",
       "executable": false
     },
     "tests/move-in.test.mjs": {

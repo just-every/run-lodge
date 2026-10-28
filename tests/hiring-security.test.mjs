@@ -311,3 +311,8 @@ test('REVIEW-002 name-blind review across reads, reveals and return', async t =>
 })
 
 // Typed hiring records are exercised through the real HTTP and hosted intake doors.
+
+test('MOB-001 offline feedback refuses stale kits and reconciles confirmed submission once', async t => {
+  const { checkMobileOffline } = await import('./mobile-offline-flow.mjs')
+  await checkMobileOffline(t)
+})
