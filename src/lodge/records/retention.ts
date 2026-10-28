@@ -101,6 +101,7 @@ export function candidateRecords(s: State, candidateId: string) {
     : !!value && typeof value === 'object' && Object.values(value).some(refers)
   records.proposal = s.scan('proposal').filter(refers)
   records['workflow-sandbox'] = s.scan('workflow-sandbox').filter(refers)
+  records['message-draft-review'] = s.scan('message-draft-review').filter(refers)
   records.audit = linkedAudits(s, candidateId, records)
   return records
 }

@@ -20,6 +20,8 @@ function download(file: D) {
 export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w: D; reload: () => Promise<void>; selection: string[]; setSelection: (ids: string[]) => void }) {
   const b = board(w, v.id)
   const [kind, setKind] = useState('move'), [preview, setPreview] = useState<D | null>(null), [result, setResult] = useState<D | null>(null), [error, setError] = useState(''), [batch, setBatch] = useState('')
+  const [templateId, setTemplateId] = useState('')
+  const templates = (w.messageTemplates ?? []).filter((t: D) => t.vacancy === v.id)
   if (!b || !v.manages) return null
   const inView = b.columns.filter((c: D) => c.id !== 'closed').flatMap((c: D) => c.cards).map((c: D) => w.applications.find((a: D) => a.id === c.application)).filter(Boolean)
   const name = (id: string) => w.applications.find((a: D) => a.id === id)?.candidateName ?? id
@@ -32,7 +34,7 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
       : kind === 'tag' ? { kind, tag: get('tag') }
         : kind === 'archive' ? { kind, closeReason: get('closeReason'), note: get('note') }
           : kind === 'export' ? { kind }
-            : kind === 'message' ? { kind, subject: get('subject'), body: get('body'), approver: get('approver') || undefined }
+            : kind === 'message' ? { kind, ...(templateId ? { template: { id: templateId, revision: templates.find((t: D) => t.id === templateId)?.revision } } : { subject: get('subject'), body: get('body') }), approver: get('approver') || undefined }
               : { kind, closeReason: get('closeReason'), note: get('note'), send: get('send'), template: get('template') || undefined, businessDays: get('businessDays') || undefined }
     setError(''); setResult(null)
     try { setPreview({ action, ...await call('command/bulk-preview', { items: selection, action }) }); setBatch(crypto.randomUUID()) } catch (e) { setError((e as Error).message) }
@@ -40,7 +42,7 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
   async function apply() {
     const ok = preview!.items.filter((i: D) => i.ok)
     try {
-      const done = await call('command/bulk-apply', { batch, items: ok.map((i: D) => i.application), action: preview!.action, previewed: Object.fromEntries(ok.map((i: D) => [i.application, i.seen])) })
+      const done = await call('command/bulk-apply', { batch, review: preview!.review, items: ok.map((i: D) => i.application), action: preview!.action, previewed: Object.fromEntries(ok.map((i: D) => [i.application, i.seen])) })
       if (done.file) download(done.file)
       setResult(done)
       setPreview(null); setSelection([]); await reload()
@@ -54,7 +56,7 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
     {selection.length > 0 && <>
       <p>Selected: {selection.map(id => `${name(id)} (${title(id)})`).join(', ')} · <button className="link" onClick={() => { setSelection([]); setPreview(null) }}>Clear selection</button></p>
       <form onSubmit={e => { e.preventDefault(); previewIt(e.currentTarget) }}>
-        <label>Bulk action<select value={kind} onChange={e => { setKind(e.target.value); setPreview(null) }}>{KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
+        <label>Bulk action<select aria-label="Bulk action" value={kind} onChange={e => { setKind(e.target.value); setPreview(null) }}>{KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
         {kind === 'move' && <><label>To stage<select name="stage" required><option value="">Choose…</option>{stages.map(s => <option key={s}>{s}</option>)}</select></label><label>Why<input name="reason" required /></label></>}
         {kind === 'tag' && <label>Tag to add<input name="tag" required /></label>}
         {kind === 'reject' && <>
@@ -67,9 +69,12 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
           <label>Reason<select name="closeReason" required><option value="">Choose…</option>{w.rejectionReasons.filter((r: D) => !r.retired).map((r: D) => <option key={r.id} value={r.id}>{r.group === 'withdrew' ? 'They withdrew: ' : 'We rejected them: '}{r.label}</option>)}</select></label>
           <label>Note (optional)<input name="note" /></label></>}
         {kind === 'message' && <>
+          <label>Reusable message template<select aria-label="Reusable message template" value={templateId} onChange={e => { setTemplateId(e.target.value); setPreview(null) }}><option value="">Write an ad hoc draft</option>{templates.map((t: D) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+          <p><a href="/app?settings=message-templates">Manage message templates in Settings</a></p>
+          {templateId ? <p>The latest reviewed version in each application’s recorded language will be filled below. Other jobs and missing language reviews are refused.</p> : <>
           <p className="muted">Merge fields: {'{candidate_name}'}, {'{job_title}'}, {'{business_name}'}. Each candidate gets a draft to approve and download; Lodge sends nothing.</p>
           <label>Subject<input name="subject" required /></label>
-          <label>Message<textarea name="body" required rows={4} /></label>
+          <label>Message<textarea name="body" required rows={4} /></label></>}
           <label>Approver (a hiring manager’s email, optional)<input name="approver" type="email" /></label></>}
         <button>Preview</button>
       </form></>}
@@ -78,7 +83,7 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
       <p>{preview.ready} ready · {preview.refused} refused</p>
       <Table heads={['Candidate', 'Job', 'Outcome']}>{preview.items.map((i: D) => <tr key={i.application}>
         <td>{i.candidateName ?? name(i.application)}</td><td>{i.job ?? title(i.application)}</td>
-        <td>{i.ok ? <Status tone="good">Ready</Status> : <Status tone="alert">{i.refusal}</Status>}{i.email && <small>{i.email.sent === false ? 'Draft for' : 'Email to'} {i.email.to}: “{i.email.subject}” — {i.email.body}</small>}</td>
+        <td className="note"><div className="bulk-outcome">{i.ok ? <Status tone="good">Ready</Status> : <Status tone="alert">{i.refusal}</Status>}{i.email && <><p>{i.email.sent === false ? 'Draft for' : 'Email to'} {i.email.to}: “{i.email.subject}” — {i.email.body}</p>{i.email.template && <p>{i.email.template} · {i.email.language} · version {i.email.version}</p>}</>}</div></td>
       </tr>)}</Table>
       {preview.ready > 0 && <button className="primary" onClick={apply}>Apply to {preview.ready}</button>}
     </section>}

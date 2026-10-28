@@ -1,5 +1,8 @@
 import type { State } from '../core/state'
-import { requireCan, requireMember, requireRole } from '../core/access'
+import { requireApplication, requireCan, requireMember, requireRole } from '../core/access'
+import { blindFor } from '../core/blind'
+import { requireMessageContact } from './messages'
+import { requireCurrentTemplateRecipient } from './message-templates'
 import { canonical, now, oneOf, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { kickoffTerms } from './kickoffs'
 import { settleOpenings } from './openings'
@@ -18,7 +21,7 @@ export function terms(s: State, kind: Subject, record: Data): Data {
     return { title: record.title, department: record.department, departmentId: record.departmentId, officeId: record.officeId, locations: record.locations?.length ? record.locations : undefined, location: record.location, workMode: record.workMode, employmentType: record.employmentType, description: record.description, compensation: record.compensation, payRanges: record.payRanges?.length ? record.payRanges : undefined, benefits: record.benefits || undefined, headcount: record.headcount, manager: record.manager, stages: record.stages, rubric: rubric && { version: rubric.version, criteria: rubric.criteria }, plan: record.plan, approvalRouting: Object.keys(record.approvalRouting ?? {}).length ? record.approvalRouting : undefined, kickoff: record.kickoff ? kickoffTerms(s.find('kickoff', record.kickoff)) : undefined }
   }
   if (kind === 'offer') return { application: record.application, title: record.title, salary: record.salary, startDate: record.startDate, terms: record.terms, opening: record.opening, ...(record.conditional ? { conditional: true } : {}), ...(record.document ? { document: record.document, location: record.location, employmentType: record.employmentType, bonus: record.bonus, equity: record.equity, contingencies: record.contingencies } : {}) }
-  return { to: record.to, subject: record.subject, body: record.body, application: record.application ?? null }
+  return { to: record.to, subject: record.subject, body: record.body, application: record.application ?? null, ...(record.templateDraft ? { template: { id: record.templateDraft.template, version: record.templateDraft.version, language: record.templateDraft.language, selectionReview: record.templateDraft.selectionReview } } : {}) }
 }
 
 export const versionOf = async (s: State, kind: Subject, record: Data) => sha256(canonical(terms(s, kind, record)))
@@ -63,6 +66,12 @@ export async function decide(s: State, a: Actor, b: Data) {
   const decision = oneOf(b.decision, ['approved', 'rejected'] as const, 'Decision')
   const reason = text(b.reason, 'Reason', 2000)
   const subject = s.get(approval.subjectKind, approval.subjectId)
+  if (approval.subjectKind === 'message' && subject.templateDraft) {
+    const app = requireApplication(s, a, subject.application)
+    requireMessageContact(s, a, app)
+    requireThat(!blindFor(s, a, app), 'Reveal this application before reviewing a contact draft', 409)
+    requireCurrentTemplateRecipient(s, subject, app)
+  }
   // OPS-004: deciding a job's terms or an offer needs "approve" on that job.
   const job = approval.subjectKind === 'vacancy' ? subject : approval.subjectKind === 'offer' ? s.get('vacancy', s.get('application', subject.application).vacancy) : null
   if (job) requireCan(s, a, job, 'approve')

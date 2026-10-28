@@ -17,7 +17,7 @@ import { current, session } from "./browser-journey.mjs"
 const FIXTURE = 'fixtures/workable-full-export'
 
 export async function checkCutover() {
- const h = await harness()
+ const h = await harness({ clock: '2027-03-01T12:00:00Z' })
  try {
   const { command: cmd, send, state, owner } = h
   await cmd('business', BUSINESS)
@@ -98,11 +98,39 @@ export async function checkCutover() {
   const second = { importedJob: estimator.id, target: fresh.id, stages: { 'Phone screen': stageId(fresh, 'Screen'), Applied: stageId(fresh, 'Applied') }, approval: 'fresh', contactBasis: 'none' }
   const plan2 = await cmd('cutover-preview', second)
   assert.deepEqual(plan2.moving.map(m => m.name).sort(), ['Kai Ito', 'Lee Moreno'])
-  await cmd('cutover', { ...second, fingerprint: plan2.fingerprint })
+  const secondCutover = await cmd('cutover', { ...second, fingerprint: plan2.fingerprint })
   assert.equal((await send('/api/lodge/command/publish', { id: fresh.id }, owner)).status, 409, 'the job refuses publishing until LDG-001 approval')
   const kai = (await state()).applications.find(a => a.vacancy === fresh.id && a.stage === stageId(fresh, 'Applied'))
   await cmd('move', { application: kai.id, to: stageId(fresh, 'Interview'), reason: 'Phone screen passed' }, owner)
   assert.equal((await state()).applications.find(a => a.id === kai.id).stage, stageId(fresh, 'Interview'), 'applicants still move')
+
+  // A reviewed planning draft is work even though it changes no production interview or application.
+  const planningApp = (await state()).applications.find(a => a.vacancy === fresh.id && a.id !== kai.id)
+  const panellist = (await state()).actor.email
+  const availability = [{ start: '2027-03-15T09:00:00Z', end: '2027-03-15T17:00:00Z' }]
+  const pool = await cmd('interviewer-pool', {
+   vacancy: fresh.id, version: 0, name: 'Cutover planning pool',
+   members: [{ email: panellist, qualifications: ['safety'], timezone: 'UTC', dailyCap: 3, breakMinutes: 15,
+    weekdays: [1, 2, 3, 4, 5], workStart: '09:00', workEnd: '17:00', availability,
+    evidence: 'Employer recorded availability and qualification' }], rooms: [],
+  })
+  const draftInput = { application: planningApp.id, poolVersion: pool.version, candidateTimezone: 'UTC', candidateAvailability: availability,
+   sessions: [{ planItem: fresh.plan[0].id, starts: ['2027-03-15T10:00:00Z'], qualifications: ['safety'], required: [panellist], optional: [], size: 1 }] }
+  const unreviewed = await cmd('interview-day', draftInput)
+  const drafted = await cmd('interview-day', draftInput)
+  const reviewed = await cmd('interview-day-review', { id: drafted.id, fingerprint: drafted.fingerprint, alternative: 0 })
+  assert.equal(reviewed.status, 'reviewed')
+  const planningBeforeUndo = (await state()).scheduling.drafts.filter(d => d.application === planningApp.id)
+  const planningUndo = await cmd('cutover-undo', { id: secondCutover.id })
+  assert.ok(planningUndo.undone.kept.includes(planningApp.id), 'undo retains an application with an interview-day draft')
+  assert.ok(!planningUndo.undone.removed.includes(planningApp.id))
+  s = await state()
+  assert.ok(s.applications.some(a => a.id === planningApp.id), 'the planned live application remains visible')
+  assert.deepEqual(s.scheduling.drafts.filter(d => d.application === planningApp.id).map(({ stale, ...d }) => d),
+   planningBeforeUndo.map(({ stale, ...d }) => d), 'undo preserves both the unreviewed draft and the reviewed draft')
+  assert.ok(s.scheduling.drafts.some(d => d.id === unreviewed.id && d.status === 'draft'))
+  assert.ok(s.scheduling.drafts.some(d => d.id === reviewed.id && d.status === 'reviewed'))
+  assert.match(s.applications.find(a => a.id === planningApp.id).activated.retained.reason, /Changed after the cutover/)
 
   // Undo removes only what nobody touched; the moved person stays live with the reason.
   const undone = await cmd('cutover-undo', { id: done.id })
@@ -114,6 +142,34 @@ export async function checkCutover() {
   assert.deepEqual([kept.status, kept.stage, typeof kept.activated.retained.reason], ['active', stageId(live, 'Decision'), 'string'])
   assert.equal((await send('/jobs/legacy/workable/7001')).status, 302, 'the legacy link stays while a moved person is live')
   assert.equal((await send('/api/lodge/command/cutover-undo', { id: done.id }, owner)).status, 409)
+
+  // An unmodified archive after undo must still restore, including the retained application and planning work.
+  const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
+  const { loadPolicy } = await import('@runeditrun/rer/internal/cli/portability-policy.mjs')
+  const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs')
+  const service = await createPortability({ db: h.db, policy }), exportId = await service.exports.create(), archive = []
+  try {
+   while ((await service.exports.advance(exportId, { maxParts: 16 })).phase === 'building') {}
+   for await (const record of readArchive(await service.exports.download(exportId))) archive.push(record)
+  } finally { await service.exports.abort(exportId) }
+  const dst = await harness({ claim: false, clock: '2027-03-01T12:00:00Z' })
+  try {
+   const target = await createPortability({ db: dst.db, policy }), closing = archive.at(-1)
+   const importedArchive = await target.imports.create(archive[0])
+   for (const part of archive.filter(r => r.kind === 'part')) await target.imports.uploadPart(importedArchive, part.index, part)
+   await target.imports.finalize(importedArchive, { contentHash: closing.contentHash, archiveHash: closing.archiveHash })
+   const restoredOwner = await dst.signIn(panellist), restored = await dst.state(restoredOwner)
+   assert.ok(restored.applications.some(a => a.id === planningApp.id), 'archive restores the application retained for planning')
+   for (const original of [unreviewed, reviewed]) {
+    const draft = restored.scheduling.drafts.find(d => d.id === original.id)
+    assert.ok(draft, 'archive restores each interview-day draft after undo')
+    assert.deepEqual(draft.request, original.request)
+    assert.deepEqual(draft.alternatives, original.alternatives)
+    assert.equal(draft.status, 'draft')
+    assert.equal(draft.review, null, 'restored planning remains inert until renewed review')
+   }
+  } finally { await dst.close() }
+
  } finally { await h.close() }
 }
 

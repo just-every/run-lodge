@@ -21,6 +21,7 @@ export function Messages({ app, w, mutate }: { app: D; w: D; mutate: PageProps['
     <p><a href={`/capture/candidate/${app.candidate}`}>Captured outside email</a> · <a href="/capture">Your capture queue</a></p>
     <p className="hint">Lodge sends nothing. An approved message downloads as an email file to send from your own mailbox.</p>
     {list.map((m: D) => <article key={m.id} className="card"><h4>{m.subject} {approvalState(m, w)}</h4><p>To {m.to} · {purpose(m.purpose)}</p><p className="pre">{m.body}</p>
+      {m.templateDraft && <p>Template {m.templateDraft.name} · {m.templateDraft.language} · version {m.templateDraft.version} · language reviewed by {m.templateDraft.reviewedBy}. Frozen when this draft was created.</p>}
       {m.approvedNow ? <a href={`/api/lodge/download/message/${m.id}`}>Download approved message (.eml)</a>
         : <Form label="Request approval" compact onSubmit={x => mutate('request-message-approval', { id: m.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'manager')} /></Form>}
       <details><summary>Edit (needs approval again)</summary><Form label="Save message" onSubmit={x => mutate('message', { id: m.id, application: app.id, purpose: m.purpose, to: x.to, subject: x.subject, body: x.body })}>
