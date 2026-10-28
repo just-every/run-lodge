@@ -1,3 +1,4 @@
+import { schedulingView } from '../scheduling/planner'
 import { referenceView } from '../references/views'
 import { publicReceipt } from '../careers/receipt'
 import { careersDomainView } from '../careers/domain'
@@ -191,6 +192,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     duplicateReviews: admin ? s.all('duplicate-review').filter(r => !hiddenCandidate(r.first) && !hiddenCandidate(r.second)) : [],
     documents: s.all('document').filter(d => canSeeDocument(s, a, s.get('document', d.id))),
     interviews,
+    scheduling: await schedulingView(s, a, appIds),
     scorecards: visibleCards,
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
     teamNotes, activity: activity(s, { applications: projected, messages, interviews, offers, teamNotes }),

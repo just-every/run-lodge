@@ -52,7 +52,8 @@ export async function validateStaged({ read }) {
   if (row.kind === 'weekly-report-attempt') reference('weekly-report', value.schedule);
   if (row.kind === 'analysis-schedule') reference('analysis-chart', value.chart);
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
-  if (['crm-reply', 'crm-enrollment', 'hiring-reminder', 'interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
+  if (['interview-day', 'crm-reply', 'crm-enrollment', 'hiring-reminder', 'interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
+  if (row.kind === 'interviewer-pool') reference('vacancy', value.vacancy);
   if (row.kind === 'application-email') {
    const app = reference('application', value.application);
    refuse(value.candidate === app.candidate && value.vacancy === app.vacancy);
@@ -95,6 +96,10 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'interview-day') {
+   const value = JSON.parse(row.value);
+   return { ...row, value: JSON.stringify({ ...value, status: 'draft', review: null, fingerprint: 'restored-review-required' }) };
+  }
   if (table === 'l_records' && row.kind === 'weekly-report') {
    const value = JSON.parse(row.value);
    return { ...row, value: JSON.stringify({ ...value, enabled: false, status: 'withheld' }) };
