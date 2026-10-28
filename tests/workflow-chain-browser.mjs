@@ -57,8 +57,13 @@ export async function workflowChainPage(browser, { root, origin, run, evidence, 
         // Request through the actual vacancy form, which uses the saved chain.
         await page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Vacancies', exact: true }).click()
         await page.getByRole('button', { name: 'Open ' + job.title, exact: true }).click()
-        await page.getByRole('button', { name: 'Request approval', exact: true }).click()
+        const [requested] = await Promise.all([
+          page.waitForResponse(response => response.url().endsWith('/api/lodge/command/request-vacancy-approval') && response.request().method() === 'POST'),
+          page.getByRole('button', { name: 'Request approval', exact: true }).click(),
+        ])
+        assert.equal(requested.status(), 200, 'the native approval request completes before reading its saved chain')
         const asked = (await current(owner.context, origin)).approvals.find(x => x.subjectId === job.id)
+        assert.ok(asked, 'the requested headcount chain is present in the current approval list')
         const open = async actor => {
           await actor.page.reload()
           await actor.page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Approvals', exact: true }).click()
