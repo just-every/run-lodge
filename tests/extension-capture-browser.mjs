@@ -14,7 +14,7 @@ import { iconTooltips } from './icon-tooltips.mjs'
 const address = n => ['synthetic-lodge-' + n, 'example.test'].join('@')
 const delay = ms => new Promise(r => setTimeout(r, ms))
 async function executable() {
-  for (const path of [process.env.LODGE_EXTENSION_CHROMIUM, '/usr/bin/chromium', '/usr/bin/google-chrome-stable', '/usr/bin/google-chrome', chromium.executablePath()].filter(Boolean)) {
+  for (const path of [process.env.LODGE_EXTENSION_CHROMIUM, '/usr/bin/chromium', chromium.executablePath()].filter(Boolean)) {
     try { await access(path); return path } catch {}
   }
   throw new Error('An installed Chromium with extension action debugging is required')
@@ -55,24 +55,28 @@ export async function extensionCapturePage(_browser, { root, origin, evidence })
     await run('decide-approval', { id: approval.id, decision: 'approved', version: approval.version, reason: 'Approved target' })
     await run('publish', { id: job.id })
     const known = await run('candidate', { name: 'Synthetic Lodge Selected', email: address(40), source: 'Prior native entry', consentBasis: 'manual', talentPool: true })
+    const requests = [], confirmations = []
+    context.on('request', request => { requests.push(request.url()); if (new URL(request.url()).pathname === '/api/lodge/prospect-capture/confirm') confirmations.push(request.postDataJSON()) })
     const source = await context.newPage(); await source.goto(sourceURL)
     const sourceSession = await context.newCDPSession(source)
     const { targetInfo } = await sourceSession.send('Target.getTargetInfo')
-    const action = async () => {
+    const action = async (name = 'Synthetic Lodge Selected', email = address(40)) => {
       await source.bringToFront()
       await source.locator('#visible').evaluate(node => { const range = document.createRange(); range.selectNodeContents(node); const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range) })
       const opened = context.waitForEvent('page')
       await cdp.send('Extensions.triggerAction', { id: installed.id, targetId: targetInfo.targetId })
       const popup = await opened; await popup.waitForLoadState('domcontentloaded')
+      await popup.waitForFunction(() => document.querySelector('[name=sourceURL]').value)
       await popup.getByRole('button', { name: 'Use selected text as name', exact: true }).click()
       assert.equal(await popup.getByLabel('Name', { exact: true }).inputValue(), 'Synthetic Lodge Selected')
       assert.equal(await popup.getByLabel('Email', { exact: true }).inputValue(), '', 'no page contact fields were scraped')
+      await popup.getByLabel('Name', { exact: true }).fill(name)
       await popup.getByLabel('Lodge installation URL', { exact: true }).fill(origin)
-      await popup.getByLabel('Email', { exact: true }).fill(address(40))
+      await popup.getByLabel('Email', { exact: true }).fill(email)
       return popup
     }
-    const handoff = async () => {
-      const popup = await action(), next = context.waitForEvent('page')
+    const handoff = async (name, email) => {
+      const popup = await action(name, email), next = context.waitForEvent('page')
       await popup.getByRole('button', { name: 'Review in Lodge', exact: true }).click()
       const page = await next
       await page.setViewportSize({ width: 1440, height: 1000 })
@@ -87,6 +91,9 @@ export async function extensionCapturePage(_browser, { root, origin, evidence })
       return page
     }
     const before = (await current(context, origin)).candidates.length
+    const canceledPopup = await action()
+    await canceledPopup.getByRole('button', { name: 'Cancel capture', exact: true }).click()
+    assert.equal((await current(context, origin)).candidates.length, before, 'canceling the installed popup never writes')
     const canceled = await handoff()
     await canceled.getByRole('button', { name: 'Cancel capture', exact: true }).click()
     assert.equal((await current(context, origin)).candidates.length, before, 'cancel never adds a person')
@@ -118,9 +125,69 @@ export async function extensionCapturePage(_browser, { root, origin, evidence })
     await page.getByRole('region', { name: 'Source and credit', exact: true }).waitFor()
     await page.getByText('Source page: ' + sourceURL.split('?')[0], { exact: true }).waitFor()
     await proof('extension-source-credit')
+    await iconTooltips(page)
+    // A second installed capture links an authorized existing person without overwriting them.
+    const second = await handoff()
+    await second.locator('select[name="duplicate-' + known.candidate.id + '"]').selectOption('existing')
+    await second.locator('select[name="duplicate-' + added.id + '"]').selectOption('distinct')
+    const applicationsBefore = (await current(context, origin)).applications.length
+    await second.getByLabel('I reviewed the details, consent basis and every visible duplicate', { exact: true }).check()
+    await second.getByRole('button', { name: 'Confirm prospect', exact: true }).click()
+    await second.getByRole('heading', { name: 'Prospect saved', exact: true }).waitFor()
+    const linked = await current(context, origin)
+    assert.equal(linked.applications.length, applicationsBefore + 1)
+    assert.equal(linked.candidates.length, w.candidates.length)
+    assert.equal(linked.candidates.find(c => c.id === known.candidate.id).source, 'Prior native entry')
+    await second.close()
+    const replay = await context.request.post(origin + '/api/lodge/prospect-capture/confirm', { headers: { origin }, data: confirmations[0] })
+    assert.equal(replay.status(), 409, 'the actual installed capture confirmation cannot be replayed')
+    assert.equal((await current(context, origin)).candidates.length, linked.candidates.length)
+    for (const value of requests) {
+      const query = new URL(value).search
+      assert.equal(query.includes(encodeURIComponent(address(40))) || query.includes(encodeURIComponent('Synthetic Lodge Selected')), false, 'personal fields never enter request queries')
+    }
     const storage = await cdp.send('Extensions.getStorageItems', { id: installed.id, storageArea: 'local' })
     assert.deepEqual(storage.data, {}, 'the installed extension persisted no capture fields')
-    console.log('CRM-007 installed extension action, explicit selection, canceled review, duplicate decision, source and credit passed at 1440; review and application proof captured at 1440 and 390')
+    // Native session and membership revocation are exercised after real installed handoffs.
+    const ownerControl = await browser.newContext()
+    let reviewerBefore
+    try {
+      const ownerLogin = await signInAs({ origin, key: await readDevKey(root), as: 'owner', returnTo: '/app' })
+      await ownerControl.addCookies(ownerLogin.cookies.map(c => ({ ...c, url: origin })))
+      const reviewerEmail = ['manager', 'dev.localhost'].join('@')
+      reviewerBefore = (await current(ownerControl, origin)).members.find(m => m.email === reviewerEmail)
+      await api(ownerControl, origin, 'member', { email: reviewerEmail, name: 'Synthetic extension reviewer', roles: ['manager'] })
+      await api(ownerControl, origin, 'hiring-team', { id: job.id, recruiters: [reviewerEmail] })
+      const loginReviewer = async () => {
+        const reviewer = await signInAs({ origin, key: await readDevKey(root), as: 'manager', returnTo: '/app' })
+        await context.clearCookies()
+        await context.addCookies(reviewer.cookies.map(c => ({ ...c, url: origin })))
+      }
+      const hidden = await api(ownerControl, origin, 'candidate', { name: 'Synthetic confidential capture', email: address(42), source: 'Native private entry', consentBasis: 'manual' })
+      await api(ownerControl, origin, 'candidate-privacy', { id: hidden.candidate.id, private: true, namedPeople: [] })
+      await loginReviewer()
+      const sessionReview = await handoff('Synthetic revoked session prospect', address(42))
+      assert.equal((await sessionReview.locator('body').textContent()).includes('Synthetic confidential capture'), false, 'an installed handoff never discloses a confidential match')
+      assert.equal(await sessionReview.locator('select[name^="duplicate-"]').count(), 0)
+      await sessionReview.getByLabel('I reviewed the details, consent basis and every visible duplicate', { exact: true }).check()
+      assert.equal((await context.request.post(origin + '/auth/signout', { headers: { origin }, data: {} })).status(), 204)
+      await sessionReview.getByRole('button', { name: 'Confirm prospect', exact: true }).click()
+      await sessionReview.getByRole('alert').waitFor()
+      assert.equal((await current(ownerControl, origin)).candidates.some(c => c.name === 'Synthetic revoked session prospect'), false)
+      await sessionReview.close()
+      await loginReviewer()
+      const memberReview = await handoff('Synthetic deprovisioned prospect', address(43))
+      await memberReview.getByLabel('I reviewed the details, consent basis and every visible duplicate', { exact: true }).check()
+      await api(ownerControl, origin, 'member', { email: reviewerEmail, name: 'Synthetic removed reviewer', roles: ['manager'], active: false })
+      await memberReview.getByRole('button', { name: 'Confirm prospect', exact: true }).click()
+      await memberReview.getByRole('alert').waitFor()
+      assert.equal((await current(ownerControl, origin)).candidates.some(c => c.email === address(43)), false)
+      await memberReview.close()
+    } finally {
+      await api(ownerControl, origin, 'member', { email: ['manager', 'dev.localhost'].join('@'), name: reviewerBefore?.name ?? 'Morgan Lee', roles: reviewerBefore?.roles ?? ['manager'], active: true })
+      await ownerControl.close()
+    }
+    console.log('CRM-007 installed action, explicit selection, cancel, duplicate choices, source and credit, replay and revoked-session and member refusals passed at 1440; review and application proof captured at 1440 and 390')
   } finally {
     if (browser) await browser.close()
     if (child.exitCode === null) { child.kill('SIGTERM'); await new Promise(r => child.once('close', r)) }
