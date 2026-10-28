@@ -14,6 +14,7 @@ export async function workflowChainPage(browser, { root, origin, run, evidence, 
       const approver = await session(browser, root, origin, 'approver', width)
       const final = await session(browser, root, origin, 'interviewer', width)
       try {
+        const approverName = (await current(owner.context, origin)).members.find(member => member.email === approverEmail).name
         const job = await run('vacancy', { title: 'Headcount chain ' + width, location: 'Denver', headcount: 1, manager: address('manager'), compensation: { currency: 'USD', min: 6000000, max: 8000000, period: 'year' } })
         await run('rubric', { id: job.id, criteria: [{ name: 'Safe work', description: 'Explains safe operating steps' }] })
         await run('interview-plan', { id: job.id, plan: [{ name: 'Work review', stageName: 'Interview' }] })
@@ -76,12 +77,13 @@ export async function workflowChainPage(browser, { root, origin, run, evidence, 
         await decide(owner, 'Reviewed sequential budget')
         await decide(approver, 'Reviewed finance terms')
         card = await open(final)
-        await card.getByText(/Parker Jones: approved/).waitFor()
+        await card.getByText(approverName + ': approved').waitFor()
         if (width === 1440) {
           const state = await current(owner.context, origin), jobState = state.vacancies.find(x => x.id === job.id)
           assert.equal(jobState.approvedNow, false)
           assert.equal((jobState.openings ?? []).length, 0)
           assert.equal(state.approvals.find(x => x.id === asked.id).status, 'pending')
+          assert.equal(state.approvals.find(x => x.id === asked.id).decisions.find(d => d.approver === approverEmail)?.decision, 'approved')
         }
         await final.page.screenshot({ path: join(evidence, `headcount-chain-parallel-${width}.png`), fullPage: true })
         await decide(final, 'Reviewed department terms')
