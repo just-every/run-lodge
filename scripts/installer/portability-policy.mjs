@@ -134,7 +134,7 @@ export const policy = {
  // Base's operator identities travel with the archive so restored memberships keep their people;
  // sessions, tokens, dependency keys and pending links stay behind (Base's default exclusions).
  includeTables: ['oa_operators', 'oa_bootstrap', 'oa_external_identities', 'oa_invitation_cancellations', 'oa_tokens', 'oa_auth_settings', 'oa_auth_audit', 'oa_domain_rules', 'oa_logout_events', 'oc_owner_claims', 'oc_idp_grants'],
- excludeTables: ['l_application_email_activation'],
+ excludeTables: ['l_application_email_activation', 'l_app_credentials'],
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'SETUP_TOKEN', 'AUTH_ORIGIN', 'MAIL_PROVIDER', 'MAIL_FROM'],
  validateStaged,
 };

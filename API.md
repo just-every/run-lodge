@@ -819,3 +819,63 @@ The authenticated interview-kit route returns an opaque offlineContext for a cur
 The context binds the original session and saved membership to the application, candidate, interview, job and existing scorecard revisions. A changed context refuses with 409; a lost role, session or application access is refused through the ordinary current-authority checks. The client keeps refused feedback visibly unsubmitted and does not silently replace its captured context.
 
 A confirmed native submission stores its request fingerprint on its own scorecard. An identical retry returns that scorecard without another mutation; reusing the same id with different feedback refuses. This adds no release authority and no provider sending. Candidate erasure removes the scorecard and its reconciliation marker together. The client documentation is in `native/android/README.md`.
+
+## Scoped application integrations (INT-001 increment)
+
+A current human owner or hiring admin opens **Settings → Application integrations**
+in the native workspace. They authorize their own application view for explicitly
+selected jobs. Creation and rotation show a new credential once; copy it directly
+into the consuming application's private configuration. Revocation is immediate.
+Management uses the native session and exact same-origin checks:
+
+- `GET /api/lodge/integrations` lists the current person's credential metadata and
+  currently permitted jobs, without any token or hash.
+- `POST /api/lodge/integrations` accepts a name, a nonempty jobs array of job IDs
+  and a fields array containing identity, contact or neither. Application summary
+  fields are always included. No arbitrary member or principal can be supplied.
+- `POST /api/lodge/integrations/:id/rotate` and
+  `POST /api/lodge/integrations/:id/revoke` require the metadata's current revision.
+  Rotation preserves the exact job and field selection and immediately invalidates
+  the old token. A revoked credential cannot be rotated back into service.
+
+The additive versioned application API accepts the credential only in the
+Authorization header, with the Bearer scheme. Native cookies, board keys and
+query parameters cannot substitute for it:
+
+- `GET /api/integrations/v1/applications` returns an applications array. An optional
+  job query parameter narrows it to one of the authorized jobs.
+- `GET /api/integrations/v1/applications/:id` returns one permitted application.
+  Unknown and out-of-scope IDs both return 404.
+- An optional fields query parameter selects comma-separated credential field
+  groups. Asking for an ungranted field group returns 403. Omitting it selects
+  all granted groups. Current human permissions can still redact a granted field.
+
+Each application contains id, job, stage, status and submittedAt (null when the
+original submission time is unavailable). Identity adds candidateName. Contact
+adds email and phone only where the author currently has contact permission on
+that same job. Blind review omits both identity and contact. Every list and detail
+first intersects the credential's selected jobs with current membership, team,
+custom permission levels, confidential-job and private-candidate visibility.
+Nothing returns answers, monitoring, accommodation, documents, notes, independent
+feedback, approval material, offers or identity administration. No write or other
+resource operation is delegated. Native session doors refuse bearer requests,
+even when a native cookie accompanies them. Public careers-board reads remain
+independent; an application credential cannot submit through a board key door.
+
+Credentials are installation-local, stored as SHA-256 hashes in a separate table,
+excluded from archives and never included in audit payloads. They are bounded by
+the native session that authorized their latest version, including its expiry,
+revocation, provider connection pin and saved enterprise identity. Rotation with
+a fresh native sign-in renews that boundary. Deactivated or removed membership
+permanently revokes its credentials; reactivation requires fresh authorization.
+Candidate erasure removes that person's applications from subsequent API reads.
+Restore grants no app credentials, including when the same human signs in again.
+Responses use no-store caching. Consumers must protect their own retained copies;
+Lodge cannot retract records already downloaded into another system.
+
+This is a read-only application increment. The original INT-001 target remains
+partial: mutating integrations and the remaining versioned resource APIs, signed
+stable-ID webhooks, delivery history, replay controls, downstream deduplication,
+inert imported notifications and an actual authorized Zapier workflow remain
+unproved. Broader delegation and provider boundaries require their own scope and
+proof. This increment sends no notifications and makes no hiring decision.

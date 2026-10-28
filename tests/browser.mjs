@@ -1,4 +1,5 @@
 import { workflowChainPage } from './workflow-chain-browser.mjs'
+import { integrationsPage } from './integrations-browser.mjs'
 import { cohortReportPage } from './cohort-report-browser.mjs'
 import { referencePage } from './reference-browser.mjs'
 import { payWorkspace } from './pay-transparency-browser.mjs'
@@ -91,6 +92,7 @@ try {
 
   await applicationEmailWorkspace(browser, root, server.origin, resolve(evidence, 'application-emails'))
   await cohortReportPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await integrationsPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await referencePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'references'), ownerEmail: 'owner@example.test' })
 
   for (const width of browserWidths) result.journeys.push(await journey(browser, root, server.origin, width, evidence))

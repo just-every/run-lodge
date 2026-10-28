@@ -60,6 +60,10 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   await src.command('review-duplicate',{keep:b.id,other:c.id,decision:'merge',reason:'Same person'})
   await src.command('review-duplicate',{keep:a.id,other:b.id,decision:'merge',reason:'Same person'})
   assert.equal((await src.send('/api/lodge/delete-candidate',{candidate:deleted.id,confirm:deleted.name,reason:'Erase'},src.owner)).status,200)
+  const appCredential = await src.send('/api/lodge/integrations', { name: 'Synthetic archive app', jobs: [vacancy.id], fields: ['identity'] }, src.owner)
+  assert.equal(appCredential.status, 200, appCredential.text)
+  const appToken = appCredential.value.token
+  const appHash = createHash('sha256').update(appToken).digest('hex')
   // OPS-001: the complete audit round-trips through the archive unchanged, with no erased person's text in it.
   const audit = (await src.send('/api/lodge/audit', undefined, src.owner)).value
   assert.ok(audit.total > 20 && audit.events.some(e => e.action === 'candidate-deleted' && e.record === 'candidate:' + deleted.id) && !JSON.stringify(audit).includes('Deleted person'))
@@ -69,6 +73,9 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   const records = []
   for await (const record of readArchive(await service.exports.download(exportId))) records.push(record)
   const originalItems = records.filter(r => r.kind === 'part').flatMap(p => p.items)
+  assert.equal(records[0].tables.some(t => t.name === 'l_app_credentials'), false)
+  assert.equal(JSON.stringify(records).includes(appToken), false)
+  assert.equal(JSON.stringify(records).includes(appHash), false)
   for (const item of originalItems.filter(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'receipt')) {
    const receipt = JSON.parse(item.row.value)
    assert.equal(receipt.recoveryHash, undefined, 'receipt recovery credentials never travel in an installation archive')
@@ -169,6 +176,9 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   assert.equal((await target.imports.status(id)).phase, 'complete')
   // The restored owner is the same person and signs in with an ordinary emailed link.
   const owner = await dst.signIn('owner@example.test')
+  assert.equal((await dst.db.prepare('SELECT COUNT(*) AS n FROM l_app_credentials').first()).n, 0)
+  assert.equal((await dst.send('/api/integrations/v1/applications', undefined, '', { authorization: 'Bearer ' + appToken })).status, 401)
+  assert.deepEqual((await dst.send('/api/lodge/integrations', undefined, owner)).value.credentials, [])
   assert.deepEqual((await dst.send('/api/lodge/audit', undefined, owner)).value.events, audit.events)
   const download = await dst.send('/api/lodge/download/document/' + doc.id, undefined, owner)
   assert.equal(download.status, 200)
