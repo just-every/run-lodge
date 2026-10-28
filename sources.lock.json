@@ -1547,7 +1547,7 @@
       "executable": false
     },
     "src/lodge/notify/describe.ts": {
-      "sha256": "cee7d0ed0b557029847369a95586719df1475c1227ea2f3000d701468d89b3b1",
+      "sha256": "3fc5764551c8c32d26c3f23a29c5170fe3db14a643012e7a37100d78eec15e4f",
       "executable": false
     },
     "src/lodge/notify/emit.ts": {
@@ -1931,7 +1931,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "32db354339c09516b2dd1b636c2ba7dd8c03b9303b9f093a026f8d271c533d34",
+      "sha256": "e236e56bebd2d8d8132fec8064088e05b7e0dcc8b9c8eb3d3955878fd9bddd6e",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -3795,7 +3795,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "6fa916cb8cba05216816382cd07ae021e70acbe21b3e6e4a5dbd92f69faf3add",
+      "sha256": "e191296370653e913a50f6ec247051626a0323479797c3a01b28c739b96d2f93",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -3803,7 +3803,7 @@
       "executable": false
     },
     "src/ui/approvals.tsx": {
-      "sha256": "b5c0922440c99ac9496b7b2c46d66c883ed6c353899c52ca13a3cd993c88e965",
+      "sha256": "4f778f7da94e09e148525ef4740e35e762d4d3e6e96b41e6a0db8f0aa615e6bc",
       "executable": false
     },
     "src/ui/audit.tsx": {
@@ -4091,7 +4091,7 @@
       "executable": false
     },
     "src/ui/templates.tsx": {
-      "sha256": "cf74c3109e9191321be914ea3cd5144cf8fddd74c78e644478722384f9874a91",
+      "sha256": "fb8654b76b4bfbd7d63a42b6beeddc32702f62c8665f5a5c8a1d81d16cc30311",
       "executable": false
     },
     "src/ui/tooltip.tsx": {
@@ -4207,7 +4207,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "6a0cbb9b3644c94c580eb46b11bb53cedb2196c09718e4acc0e3f364fc5e78e8",
+      "sha256": "fdca0f20908b4f59a97f3517570ee67aa30889e0d6e6259c318525733f339452",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
@@ -4251,7 +4251,7 @@
       "executable": false
     },
     "tests/clause-browser.mjs": {
-      "sha256": "ac89cedc1d40cca1b547115bfbb20edb939ad9a14f8e681a15d5340e423f57b2",
+      "sha256": "7c4e4d26886600d7fdd311dd21961aae7c68ec2bd6c2ed80306f8d2d1d136f55",
       "executable": false
     },
     "tests/cohort-report-browser.mjs": {
@@ -4606,8 +4606,12 @@
       "sha256": "c996d9ed2720d03e69da2d0b30f3495f1f1731b2ded10cfa96319a142e74747d",
       "executable": false
     },
+    "tests/workflow-chain-browser.mjs": {
+      "sha256": "1510d58fb341cf5191b756526fcfe59b6931be6f96a47f0b038ed6e73b219a78",
+      "executable": false
+    },
     "tests/workflow-chain-flow.mjs": {
-      "sha256": "2f8227b985cd8303b336c8a3697061a1e9fadea0be49ee11fb64ef57935e91a9",
+      "sha256": "d0865183b567fecbd169bc8dee6845fb488c91b9b230a89ca0125449f6bdaf34",
       "executable": false
     },
     "tests/zip.mjs": {
