@@ -1,5 +1,6 @@
 import type { State } from '../core/state'
 import { requireApplication, requireCan, requireManages } from '../core/access'
+import { blindFor } from '../core/blind'
 import { email, now, oneOf, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { approvedNow, requestApproval } from './approvals'
 import { requireCurrentTemplateRecipient } from './message-templates'
@@ -54,6 +55,7 @@ export async function requestMessageApproval(s: State, a: Actor, b: Data) {
   emailAllowed(s, app)
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   requireCurrentTemplateRecipient(s, m, app)
+  if (m.templateDraft) requireThat(!blindFor(s, a, app), 'Reveal this application before reviewing a contact draft', 409)
   return requestApproval(s, a, 'message', m, b.approver)
 }
 

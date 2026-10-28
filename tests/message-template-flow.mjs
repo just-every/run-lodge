@@ -8,9 +8,9 @@ const address = n => ['synthetic-lodge-' + n, 'example.test'].join('@')
 const form = values => { const f = new FormData(); for (const [k, v] of Object.entries(values)) f.set(k, v); return f }
 
 /** Native job and reviewed Spanish intake, shared with the workspace journey. */
-export async function messageTemplateJob(run, ownerEmail, manager = ownerEmail) {
-  const office = await run('office', { name: 'Synthetic Lodge template office' })
-  let job = await run('vacancy', { title: 'Synthetic Lodge template job', officeId: office.id, location: 'Denver, CO', manager, headcount: 1, compensation: { currency: 'USD', min: 6000000, max: 8000000, period: 'year' } })
+export async function messageTemplateJob(run, ownerEmail, manager = ownerEmail, suffix = '') {
+  const office = await run('office', { name: 'Synthetic Lodge template office' + suffix })
+  let job = await run('vacancy', { title: 'Synthetic Lodge template job' + suffix, officeId: office.id, location: 'Denver, CO', manager, headcount: 1, compensation: { currency: 'USD', min: 6000000, max: 8000000, period: 'year' } })
   await run('rubric', { id: job.id, criteria: [{ name: 'Safety', description: 'Describes safe work' }] })
   await run('interview-plan', { id: job.id, plan: [{ name: 'Work review', stageName: 'Interview' }] })
   const asked = await run('request-vacancy-approval', { id: job.id, approver: ownerEmail })
@@ -55,12 +55,21 @@ export async function checkMessageTemplates() {
     assert.equal((await send('/api/lodge/command/message-template', { ...templateInput, body: 'Private {score}' }, manager)).status, 400)
     assert.equal((await send('/api/lodge/command/message-template', { ...templateInput, body: 'Incomplete {candidate_name' }, manager)).status, 400)
     let template = await run('message-template', templateInput, manager)
+    let other = await run('vacancy', { title: 'Synthetic Lodge other job', location: 'Denver, CO', manager: managerEmail, headcount: 1, compensation: { currency: 'USD', min: 6000000, max: 8000000, period: 'year' } })
+    await run('rubric', { id: other.id, criteria: [{ name: 'Safety', description: 'Safe work' }] })
+    await run('interview-plan', { id: other.id, plan: [{ name: 'Work review', stageName: 'Interview' }] })
+    const otherRequest = await run('request-vacancy-approval', { id: other.id, approver: ownerEmail })
+    await run('decide-approval', { id: otherRequest.id, version: otherRequest.version, decision: 'approved', reason: 'Reviewed' })
+    other = await run('publish', { id: other.id })
+    const wrongJob = (await run('candidate', { name: 'Synthetic Lodge other applicant', email: address('other'), phone: '+1 555 0109', source: 'Direct', consentBasis: 'manual', vacancy: other.id })).application
     const reference = async () => { const t = (await state(manager)).messageTemplates.find(t => t.id === template.id); return { id: t.id, revision: t.revision } }
     const preview = async (ids, cookie = manager, referenceValue) => {
       const action = { kind: 'message', template: referenceValue ?? await reference(), approver: ownerEmail }
       return run('bulk-preview', { items: ids, action }, cookie)
     }
     let p = await preview([en.app.id, es.app.id, missing.app.id, excluded.app.id, noEmail.id])
+    assert.match((await preview([wrongJob.id])).items[0].refusal, /template belongs to another job/)
+    assert.equal((await send('/api/lodge/command/message-template', { ...templateInput, vacancy: other.id, id: template.id, version: 1 }, manager)).status, 409)
     assert.deepEqual([p.ready, p.refused], [1, 4])
     assert.match(p.items[1].refusal, /application language es/)
     assert.match(p.items[2].refusal, /Missing merge value: candidate_phone/)
@@ -70,6 +79,7 @@ export async function checkMessageTemplates() {
     const applyBody = (p, batch) => ({ batch, review: p.review, action: p.action, items: p.items.filter(i => i.ok).map(i => i.application), previewed: Object.fromEntries(p.items.filter(i => i.ok).map(i => [i.application, i.seen])) })
     const old = applyBody(p, 'synthetic-lodge-stale-language')
     template = await run('message-template', { ...templateInput, id: template.id, version: 1, language: 'es', subject: 'Próximo paso: {job_title}', body: 'Hola {candidate_name}, teléfono {candidate_phone}. — {business_name}' }, manager)
+    assert.equal((await send('/api/lodge/command/message-template', { ...templateInput, id: template.id, version: 1 }, manager)).status, 409, 'an old editor cannot overwrite a newer reviewed version')
     const stale = await run('bulk-apply', old, manager)
     assert.deepEqual([stale.applied, stale.refused], [0, 1], 'an edited language review invalidates the selection preview')
     p = await preview([en.app.id, es.app.id, missing.app.id, excluded.app.id])
@@ -106,11 +116,13 @@ export async function checkMessageTemplates() {
     const request = await run('request-message-approval', { id: draft.id, approver: ownerEmail }, manager)
     await run('decide-approval', { id: request.id, version: request.version, decision: 'approved', reason: 'Reviewed edited text' })
     assert.equal((await send('/api/lodge/download/message/' + draft.id, undefined, manager)).status, 200)
+    const pendingRecipientApproval = await run('request-message-approval', { id: draft.id, approver: ownerEmail }, manager)
     const currentPerson = (await state()).candidates.find(c => c.id === en.app.candidate)
     const staleRecipient = await preview([en.app.id])
     await run('correct-candidate', { ...currentPerson, email: address('changed'), reason: 'Candidate corrected contact' })
     assert.equal((await run('bulk-apply', applyBody(staleRecipient, 'synthetic-lodge-stale-recipient'), manager)).applied, 0)
     assert.equal((await send('/api/lodge/command/request-message-approval', { id: draft.id, approver: ownerEmail }, manager)).status, 409)
+    assert.equal((await send('/api/lodge/command/decide-approval', { id: pendingRecipientApproval.id, version: pendingRecipientApproval.version, decision: 'approved', reason: 'Stale recipient' }, h.owner)).status, 409)
     assert.equal((await send('/api/lodge/download/message/' + draft.id, undefined, manager)).status, 409)
     // A job-level contact revocation hides all frozen recipient data as well as refusing creation and download.
     p = await preview([es.app.id])
@@ -132,6 +144,17 @@ export async function checkMessageTemplates() {
     assert.equal((await state()).messages.some(m => m.application === es.app.id), false)
     assert.equal(await mailCount(), mailBefore, 'template review, previews, drafts and unsent downloads enqueue no mail')
     assert.equal(outbound, callsBefore, 'no outbound provider calls')
+    await run('job-levels', { id: job.id, members: {} })
+    await run('blind-review', { id: job.id, enabled: true, stages: [job.stages[0].id], revealStage: job.stages[2].id })
+    assert.match((await preview([en.app.id])).items[0].refusal, /Reveal this application/)
+    const ownerPreview = await run('bulk-preview', { items: [en.app.id], action: { kind: 'message', template: await reference(), approver: managerEmail } })
+    await run('bulk-apply', applyBody(ownerPreview, 'synthetic-lodge-blind-owner'))
+    const ownerDraft = (await state()).messages.find(m => m.templateDraft?.selectionReview === ownerPreview.review)
+    const hiddenDraft = ownerDraft.approval
+    assert.equal((await send('/api/lodge/command/decide-approval', { id: hiddenDraft.id, version: hiddenDraft.version, decision: 'approved', reason: 'Cannot review masked recipient' }, manager)).status, 409)
+    assert.equal((await send('/api/lodge/command/request-message-approval', { id: ownerDraft.id, approver: ownerEmail }, manager)).status, 409)
+    await run('member', { email: managerEmail, name: 'Synthetic Lodge manager', roles: ['manager'], active: false })
+    assert.equal((await send('/api/lodge/command/bulk-apply', body, manager)).status, 403, 'revoked saved membership refuses even a previously successful batch')
     void english
   } finally { await h.close() }
 }

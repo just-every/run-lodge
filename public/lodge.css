@@ -261,6 +261,8 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
 
 /* DATA-003: the bulk-actions panel under a job's board. */
 .bulk { margin: 1rem 0; }
+.bulk-outcome { min-width: 0; overflow-wrap: anywhere; }
+.bulk-outcome .status { white-space: normal; }
 .bulk fieldset { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
 .bulk form { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: end; margin: 0.5rem 0; }
 
