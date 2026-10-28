@@ -4627,7 +4627,7 @@
       "executable": false
     },
     "tests/workflow-chain-browser.mjs": {
-      "sha256": "6c48fcfc5d61684a1a14c17e15771506ff882c13c5faebc8cf61430989c26a01",
+      "sha256": "ea5326d6fa212d875901ad7c853f4ea241c2eeaf891ff850cc4222b4d7419e85",
       "executable": false
     },
     "tests/workflow-chain-flow.mjs": {
