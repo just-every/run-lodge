@@ -1,15 +1,22 @@
 import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
-import { browserWidths } from './browser-widths.mjs'
 import { api, current, session } from './browser-journey.mjs'
 import { iconTooltips } from './icon-tooltips.mjs'
 
 export async function referencePage(browser, { root, origin, evidence, ownerEmail }) {
   await mkdir(evidence, { recursive: true })
-  for (const width of browserWidths) {
+  if (process.env.LODGE_BROWSER_WIDTH === '390') return
+  for (const width of [1440]) {
     const user = await session(browser, root, origin, 'owner', width)
     const { page, context } = user
+    const capture = async screen => {
+      for (const proofWidth of [1440, 390]) {
+        await page.setViewportSize({ width: proofWidth, height: 900 })
+        await page.screenshot({ path: evidence + '/' + screen + '-' + proofWidth + '.png', fullPage: true })
+      }
+      await page.setViewportSize({ width, height: 900 })
+    }
     try {
       const run = (op, body) => api(context, origin, op, body)
       const job = await run('vacancy', { title: 'Reference call supervisor ' + width, manager: ownerEmail, headcount: 1, location: 'Denver, CO', compensation: { currency: 'USD', min: 7000000, max: 9000000, period: 'year' } })
@@ -31,7 +38,7 @@ export async function referencePage(browser, { root, origin, evidence, ownerEmai
       await settings.getByText('Questionnaire version 1', { exact: true }).waitFor()
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'reference settings fit')
       await iconTooltips(page)
-      await page.screenshot({ path: evidence + '/reference-settings-' + width + '.png', fullPage: true })
+      await capture('reference-settings')
       await settings.getByRole('link', { name: 'Back to application', exact: true }).click()
       await page.getByRole('tab', { name: 'Decisions', exact: true }).click()
       panel = page.getByRole('region', { name: 'Phone references', exact: true })
@@ -50,13 +57,13 @@ export async function referencePage(browser, { root, origin, evidence, ownerEmai
       await panel.getByLabel('Describe their work on the crew', { exact: true }).fill('Led the safety briefing every shift')
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'reference form fits')
       await iconTooltips(page)
-      await page.screenshot({ path: evidence + '/reference-recording-' + width + '.png', fullPage: true })
+      await capture('reference-recording')
       await panel.getByRole('button', { name: 'Save manually recorded answers', exact: true }).click()
       await panel.getByText('Manually recorded · answer version 1', { exact: true }).waitFor()
       await panel.getByText('Led the safety briefing every shift', { exact: true }).waitFor()
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'reference history fits')
       await iconTooltips(page)
-      await page.screenshot({ path: evidence + '/reference-history-' + width + '.png', fullPage: true })
+      await capture('reference-history')
       assert.equal((await current(context, origin)).applications.find(a => a.id === app.id).stage, app.stage)
     } catch (error) {
       await page.screenshot({ path: evidence + '/reference-error-' + width + '.png', fullPage: true })

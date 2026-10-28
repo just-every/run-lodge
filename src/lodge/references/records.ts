@@ -43,6 +43,7 @@ export function recordReference(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, task.application)
   const questionnaire = s.get('reference-questionnaire', app.id)
   requireThat(canReadReference(s, a, app, questionnaire), 'Reference record not found', 404)
+  requireManages(a, s.get('vacancy', app.vacancy))
   requireThat(task.owner === a.email, 'Only the assigned caller records answers', 403)
   requireThat(task.status !== 'cancelled' && app.status === 'active', 'This reference task is closed', 409)
   const form = questionnaire.versions.at(-1)!

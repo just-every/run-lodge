@@ -13,21 +13,77 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   }
   assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version: 0, questions: ['Describe their work'], roles: ['owner'] }, ivy)).status, 404)
   assert.equal((await configure({ version: 0, questions: ['Describe their work', 'Would you work together again?'], roles: ['owner', 'manager', 'interviewer'] })).status, 200)
-  const q1 = (await state(manager)).references.questionnaires.find(q => q.application === app.id).versions[0]
+  // CT authority: both delegated job roles configure through the command door.
+  const recruiter = await h.member('synthetic-lodge-recruiter@example.test', ['manager'])
+  const coordinator = await h.member('synthetic-lodge-coordinator@example.test', ['manager'])
+  await cmd('hiring-team', { id: job.id, recruiters: ['synthetic-lodge-recruiter@example.test'], coordinators: ['synthetic-lodge-coordinator@example.test'] })
+  for (const [cookie, email] of [[recruiter, 'synthetic-lodge-recruiter@example.test'], [coordinator, 'synthetic-lodge-coordinator@example.test']]) {
+    for (const [permissions, message] of [[['contact'], 'CT configuration requires settings'], [['settings'], 'CT configuration requires contact']]) {
+      const level = await cmd('permission-level', { name: message + email, permissions })
+      await cmd('job-levels', { id: job.id, members: { [email]: level.id } })
+      const before = (await state()).references.questionnaires
+      assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version: 1, questions: ['Describe safe work'], roles: ['owner', 'manager', 'interviewer'] }, cookie)).status, 403, message)
+      assert.deepEqual((await state()).references.questionnaires, before, 'CT configuration refusal preserves records')
+    }
+    await cmd('job-levels', { id: job.id, members: {} })
+    const version = (await state()).references.questionnaires.find(q => q.application === app.id).versions.length
+    assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version, questions: ['Describe their work', 'Would you work together again?'], roles: ['owner', 'manager', 'interviewer'] }, cookie)).status, 200, 'CT delegated configuration succeeds')
+    const saved = (await state()).references.questionnaires.find(q => q.application === app.id)
+    assert.deepEqual(saved.versions.map(q => q.version), cookie === recruiter ? [1, 2] : [1, 2, 3], 'CT delegated configuration persists each new version')
+    assert.equal(saved.versions.at(-1).by, email, 'CT delegated configuration records its human author')
+    assert.deepEqual(saved.versions.at(-1).questions.map(q => q.text), ['Describe their work', 'Would you work together again?'], 'CT delegated configuration stores its questions')
+    assert.deepEqual(saved.versions.at(-1).roles, ['owner', 'manager', 'interviewer'], 'CT delegated configuration stores selected readers')
+  }
+  const initialVersion = (await state()).references.questionnaires.find(q => q.application === app.id).versions.length
+  const q1 = (await state(manager)).references.questionnaires.find(q => q.application === app.id).versions.at(-1)
   const task = await cmd('task', { kind: 'task', purpose: 'call-references', application: app.id, note: 'Call former supervisor', owner: 'morgan@example.test', due: '2026-12-03' }, manager)
   assert.deepEqual([task.application, task.purpose, task.owner], [app.id, 'call-references', 'morgan@example.test'])
   assert.equal((await send('/api/lodge/command/task', { kind: 'task', purpose: 'call-references', note: 'Unlinked', due: '2026-12-03' }, manager)).status, 400)
-  const input = { task: task.id, version: 0, questionnaireVersion: 1, refereeName: 'Synthetic Lodge Referee', relationship: 'Former supervisor', source: 'Phone call to employer-provided number; caller notes retained here', consent: 'Referee agreed verbally to record this work reference', consentConfirmed: true, answers: { [q1.questions[0].id]: 'Led the safety briefing every shift', [q1.questions[1].id]: 'Yes, on the same crew' } }
+  const input = { task: task.id, version: 0, questionnaireVersion: initialVersion, refereeName: 'Synthetic Lodge Referee', relationship: 'Former supervisor', source: 'Phone call to employer-provided number; caller notes retained here', consent: 'Referee agreed verbally to record this work reference', consentConfirmed: true, answers: { [q1.questions[0].id]: 'Led the safety briefing every shift', [q1.questions[1].id]: 'Yes, on the same crew' } }
   const record = (body = input, cookie = manager) => send('/api/lodge/command/reference-record', body, cookie)
-  assert.equal((await record({ ...input, consentConfirmed: false })).status, 400)
+  assert.equal((await record({ ...input, consentConfirmed: false })).status, 400, 'CT required consent confirmation')
+  assert.equal((await record({ ...input, consent: '' })).status, 400, 'CT required consent evidence')
+  assert.equal((await record({ ...input, source: '' })).status, 400, 'CT required call source')
+  assert.deepEqual((await state()).references.records, [], 'CT missing evidence creates no record')
   assert.equal((await record({ ...input, answers: {} })).status, 400)
   assert.equal((await record(input, owner)).status, 403, 'even an authorized reader must be the assigned caller')
   const first = await record()
   assert.equal(first.status, 200, JSON.stringify(first.value))
+  assert.equal((await state()).applications.find(a => a.id === app.id).stage, stageBefore.stage, 'CT recording never changes stage')
   assert.deepEqual(first.value.versions[0].answers.map(a => [a.text, a.answer]), [['Describe their work', 'Led the safety briefing every shift'], ['Would you work together again?', 'Yes, on the same crew']])
   assert.deepEqual([first.value.versions[0].method, first.value.versions[0].referee.name, first.value.versions[0].consent, first.value.versions[0].source], ['manually-recorded', input.refereeName, input.consent, input.source])
-  assert.equal((await record()).status, 409, 'stale edits cannot overwrite answers')
+  assert.deepEqual([first.value.versions[0].by, first.value.versions[0].questionnaireVersion], ['morgan@example.test', initialVersion], 'CT recorder and questionnaire provenance')
+  const secret = input.refereeName
+  let exportSequence = 0
+  const readDoors = async (cookie, allowed, message) => {
+    const view = await state(cookie)
+    assert.deepEqual(view.references.records.filter(r => r.application === app.id).map(r => r.id), allowed ? [task.id] : [], message + ' state')
+    const download = await send(exportPath, undefined, cookie)
+    assert.equal(download.status, allowed ? 200 : 404, message + ' download')
+    if (allowed) assert.equal(download.value.records[0].versions[0].referee.name, secret, message + ' exact answer')
+    const history = await send('/api/lodge/download/vacancy/' + job.id, undefined, cookie)
+    assert.equal(history.text.includes(secret), allowed && history.status === 200, message + ' vacancy export')
+    const access = await send('/api/lodge/download/candidate/' + candidate.id, undefined, cookie)
+    assert.equal(access.text.includes(secret), allowed && access.status === 200, message + ' candidate export')
+    const action = { kind: 'export' }
+    const preview = await send('/api/lodge/command/bulk-preview', { items: [app.id], action }, cookie)
+    if (preview.status === 200) {
+      const bulk = await send('/api/lodge/command/bulk-apply', { batch: 'synthetic-lodge-reference-' + (++exportSequence), items: [app.id], action, previewed: { [app.id]: preview.value.items[0].seen } }, cookie)
+      assert.equal(bulk.text.includes(secret), allowed && bulk.status === 200 && bulk.value.applied === 1, message + ' bulk export')
+    } else assert.equal(preview.status, 403, message + ' agent mutation refusal')
+    const search = await send('/api/lodge/search?q=' + encodeURIComponent(secret), undefined, cookie)
+    assert.equal(search.text.includes(secret), false, message + ' search never indexes reference answers')
+  }
   const exportPath = '/api/lodge/download/references/' + app.id
+  await readDoors(manager, true, 'CT selected human reader')
+  await readDoors(ian, false, 'CT unrelated member')
+  const agent = await h.member('synthetic-lodge-reference-agent@example.test', [], 'Synthetic reference agent', { agent: true, actsFor: 'morgan@example.test' })
+  assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version: initialVersion, questions: ['Describe safe work'], roles: ['owner'] }, agent)).status, 403, 'CT only humans configure references')
+  await readDoors(agent, false, 'CT agent context')
+  await cmd('blind-review', { id: job.id, enabled: true, stages: [app.stage], revealStage: job.stages[2].id }, manager)
+  await readDoors(manager, false, 'CT blind context')
+  await cmd('blind-review', { id: job.id, enabled: false }, manager)
+  assert.equal((await record()).status, 409, 'stale edits cannot overwrite answers')
   for (const who of [ivy, ian]) {
     assert.deepEqual((await state(who)).references.records, [])
     assert.equal((await send(exportPath, undefined, who)).status, 404)
@@ -36,22 +92,29 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   // A selected and assigned interviewer still needs the current contact permission.
   await cmd('assign-reviewers', { application: app.id, reviewers: ['ivy@example.test'] }, manager)
   assert.equal((await send(exportPath, undefined, ivy)).status, 404)
-  const level = await cmd('permission-level', { name: 'Reference reader', permissions: ['contact', 'export'] })
+  const level = await cmd('permission-level', { name: 'Reference reader', permissions: ['contact', 'export', 'settings'] })
   await cmd('hiring-team', { id: job.id, interviewers: ['ivy@example.test'] })
   await cmd('job-levels', { id: job.id, roles: { interviewers: level.id } })
-  assert.equal((await send(exportPath, undefined, ivy)).status, 200)
+  await readDoors(ivy, true, 'CT selected assigned contact reader')
+  assert.equal((await send('/api/lodge/command/reference-questionnaire', { application: app.id, version: initialVersion, questions: ['Describe safe work'], roles: ['owner'] }, ivy)).status, 403, 'CT configuration requires job management beyond task and permissions')
+  const assignedTask = await cmd('task', { kind: 'task', purpose: 'call-references', application: app.id, note: 'Assigned reader is not a manager', owner: 'ivy@example.test', due: '2026-12-03' }, manager)
+  assert.equal((await record({ ...input, task: assignedTask.id }, ivy)).status, 403, 'CT task assignment alone cannot record')
+  await cmd('complete-task', { id: assignedTask.id }, manager)
+  await cmd('job-levels', { id: job.id, roles: { interviewers: 'lodge-interviewer' } })
+  await readDoors(ivy, false, 'CT current contact permission revoked')
+  await cmd('job-levels', { id: job.id, roles: { interviewers: level.id } })
   await cmd('assign-reviewers', { application: app.id, reviewers: [] }, manager)
-  assert.equal((await send(exportPath, undefined, ivy)).status, 404, 'revoked assignment is enforced immediately')
-  assert.equal((await configure({ version: 1, questions: ['Describe their work on a safety incident'], roles: ['owner', 'manager'] })).status, 200)
+  await readDoors(ivy, false, 'CT current application authority revoked')
+  assert.equal((await configure({ version: initialVersion, questions: ['Describe their work on a safety incident'], roles: ['owner', 'manager'] })).status, 200)
   const q = (await state(manager)).references.questionnaires.find(q => q.application === app.id)
-  assert.deepEqual(q.versions[0], q1)
-  assert.equal(q.versions.length, 2)
+  assert.deepEqual(q.versions[initialVersion - 1], q1, 'CT questionnaire history preserves provenance')
+  assert.equal(q.versions.length, initialVersion + 1)
   assert.equal((await record({ ...input, version: 1 })).status, 409, 'stale questionnaire is refused')
-  const secondInput = { ...input, version: 1, questionnaireVersion: 2, answers: { [q.versions[1].questions[0].id]: 'Stopped the crew and corrected the hazard' } }
+  const secondInput = { ...input, version: 1, questionnaireVersion: initialVersion + 1, answers: { [q.versions.at(-1).questions[0].id]: 'Stopped the crew and corrected the hazard' } }
   assert.equal((await record(secondInput)).status, 200)
   const exported = (await send(exportPath, undefined, manager)).value
   assert.equal(exported.records.length, 1)
-  assert.equal(exported.records[0].versions.length, 2)
+  assert.equal(exported.records[0].versions.length, 2, 'CT correction preserves earlier versions')
   assert.deepEqual(exported.records[0].versions[0], first.value.versions[0])
   assert.equal(exported.records[0].versions[1].answers[0].answer, 'Stopped the crew and corrected the hazard')
   const noExport = await cmd('permission-level', { name: 'Reference caller only', permissions: ['contact', 'settings'] })
@@ -59,9 +122,8 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   assert.equal((await send(exportPath, undefined, manager)).status, 403)
   await cmd('job-levels', { id: job.id, members: {} })
   // Employer role selection narrows existing authority, including old versions.
-  assert.equal((await configure({ version: 2, questions: ['Describe their work'], roles: ['owner'] })).status, 200)
-  assert.deepEqual((await state(manager)).references.records, [])
-  assert.equal((await send(exportPath, undefined, manager)).status, 404)
+  assert.equal((await configure({ version: initialVersion + 1, questions: ['Describe their work'], roles: ['owner'] })).status, 200)
+  await readDoors(manager, false, 'CT selected reader role revoked')
   assert.equal((await record({ ...secondInput, version: 2 }, manager)).status, 404)
   const after = (await state()).applications.find(x => x.id === app.id)
   assert.equal(after.stage, stageBefore.stage)
@@ -69,9 +131,10 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   const candidateExport = await send('/api/lodge/download/candidate/' + candidate.id, undefined, owner)
   assert.equal(candidateExport.status, 200)
   assert.equal(candidateExport.value['reference-record'][0].versions.length, 2)
-  assert.equal(candidateExport.value['reference-questionnaire'][0].versions.length, 3)
+  assert.equal(candidateExport.value['reference-questionnaire'][0].versions.length, initialVersion + 2)
   await cmd('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Reference proof complete' }, manager)
   await cmd('extend-retention', { candidate: candidate.id, until: '2000-01-01', reason: 'Employer retention review' })
+  assert.ok((await state()).retention.due.some(row => row.candidate === candidate.id), 'CT expired reference candidate enters retention review')
   const hold = await cmd('hold', { candidate: candidate.id, reason: 'Reference records held for review' })
   assert.ok((await state()).retention.held.some(row => row.candidate === candidate.id))
   const deletion = { candidate: candidate.id, confirm: candidate.name, reason: 'Applicant deletion request' }
@@ -80,7 +143,7 @@ export async function checkReferences({ h, cmd, state, send, owner, manager, ivy
   await cmd('release-hold', { id: hold.id, reason: 'Review ended' })
   const erased = await send('/api/lodge/delete-candidate', deletion, owner)
   assert.equal(erased.status, 200, JSON.stringify(erased.value))
-  assert.deepEqual([erased.value.counts['reference-record'], erased.value.counts['reference-questionnaire']], [1, 1])
+  assert.deepEqual([erased.value.counts['reference-record'], erased.value.counts['reference-questionnaire']], [1, 1], 'CT erasure removes both reference record kinds')
   assert.equal((await send(exportPath, undefined, owner)).status, 404)
   const rows = await h.db.prepare("SELECT kind,value FROM l_records WHERE kind IN ('reference-record','reference-questionnaire','audit','task')").all()
   assert.ok(!JSON.stringify(rows.results).includes(input.refereeName), 'erasure removes referee identity and personal audit copies')
