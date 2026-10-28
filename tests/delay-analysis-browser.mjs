@@ -29,7 +29,7 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     await run('offer-outcome', { id: offer.id, outcome: 'declined', reason: 'Recorded response' })
     const iv = await run('interview', { application: first.id, planItem: published.plan[0].id, participants: [ownerEmail], slots: ['2030-10-10T12:00:00.000Z'] })
     await run('availability', { interview: iv.id, slots: [0] })
-    assert.equal((await context.request.post(origin + '/availability/' + iv.candidateToken, { form: { slot: '0' } })).status(), 200)
+    assert.equal((await context.request.post(origin + '/availability/' + iv.candidateToken, { headers: { origin }, form: { slot: '0' } })).status(), 200)
     await run('schedule', { interview: iv.id, slot: 0 })
     agentEmail = ['synthetic-lodge-delay-agent-' + job.id.slice(0, 8), 'dev.localhost'].join('@')
     await run('member', { email: agentEmail, name: 'Synthetic delay browser agent', roles: [], agent: true, actsFor: ownerEmail })
@@ -97,6 +97,8 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     const date = at => new Intl.DateTimeFormat('sv-SE', { timeZone: report.cohort.timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(at))
     const bounded = await (await agent.context.request.get(origin + '/api/lodge/delay-analysis?vacancy=' + job.id + '&from=' + date(first.submittedAt) + '&to=' + date(second.submittedAt))).json()
     const trialBody = delayDraft(bounded, ownerEmail); trialBody.summary = 'Synthetic native queue trial ' + job.id.slice(0, 8)
+    trialBody.measurement.metric = 'mean-ready-to-schedule-hours'
+    trialBody.measurement.targetHours = bounded.scheduling.find(row => row.metric === 'readyToSchedule').meanHours * 0.8
     const trialPacket = await api(agent.context, origin, 'propose', trialBody)
     await page.reload()
     await page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: /^Proposals/ }).click()
@@ -110,6 +112,7 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     await settings.getByLabel('Hours before an internal review task').fill('12')
     await settings.getByRole('button', { name: 'Preview internal task trial', exact: true }).click()
     await settings.getByText('Trial status: review', { exact: true }).waitFor()
+    assert.ok((await settings.innerText()).includes('10 interviews'), 'trial settings retain the reviewed measurement denominator')
     await capture('delay-native-trial-preview')
     await settings.getByLabel('Approve this exact internal task policy', { exact: true }).check()
     await settings.getByRole('button', { name: 'Activate reviewed native trial', exact: true }).click()
