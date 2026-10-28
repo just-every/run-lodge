@@ -1,3 +1,4 @@
+import { waitingApprovers } from '../records/approval-chains'
 import { referenceView } from '../references/views'
 import { publicReceipt } from '../careers/receipt'
 import { careersDomainView } from '../careers/domain'
@@ -140,7 +141,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
   const approvals: Data[] = []
   for (const x of myApprovals) {
     const subject = s.all(x.subjectKind).find(r => r.id === x.subjectId)
-    approvals.push({ ...addressed(x), currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
+    approvals.push({ ...addressed(x), waitingApprovers: waitingApprovers(x), currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
   }
 
   const visibleCards = versioned(s.all('scorecard').filter(c => canSeeScorecard(s, a, c)))

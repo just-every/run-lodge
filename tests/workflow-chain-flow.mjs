@@ -34,6 +34,8 @@ export async function checkWorkflowChains({ h, cmd, send, state, owner, manager,
   await refused(request, 1, 403, 'approved')
   await refused(request, 0, 403, 'approved', ivy)
   await refused(request, 0, 403, 'approved', owner)
+  const noCapability = await cmd('sandbox-create', { name: 'Invalid chain', vacancy: job.id, mode: 'synthetic', confirmSynthetic: true, samples: [{ label: 'synthetic-lodge-2' }] })
+  await cmd('sandbox-edit', { id: noCapability.id, edits: [{ op: 'approval-routing', input: { chain: [{ approvers: [(await state(ivy)).actor.email] }] } }] }, owner, 400)
   await unpublished()
   assert.equal((await decide(request, 0)).status, 200)
   assert.equal((await decide(request, 2)).status, 200)
@@ -94,6 +96,31 @@ export async function checkWorkflowChains({ h, cmd, send, state, owner, manager,
     assert.equal((await decide(request, i)).status, 200)
     assert.equal((await approval(request)).status, i === 2 ? 'approved' : 'pending')
   }
+  // Additional openings remain requested until the same entire chain completes.
+  await cmd('request-opening', { id: job.id }, manager)
+  request = (await currentJob()).approval
+  const openBefore = (await currentJob()).openings.filter(x => x.status === 'open').length
+  for (const i of [0, 2]) assert.equal((await decide(request, i)).status, 200)
+  assert.equal((await currentJob()).openings.filter(x => x.status === 'open').length, openBefore)
+  assert.equal((await currentJob()).openings.filter(x => x.status === 'requested').length, 1)
+  assert.equal((await decide(request, 1)).status, 200)
+  assert.equal((await currentJob()).openings.filter(x => x.status === 'open').length, openBefore + 1)
+  await cmd('request-opening', { id: job.id }, manager)
+  request = (await currentJob()).approval
+  assert.equal((await decide(request, 0)).status, 200)
+  assert.equal((await decide(request, 1, 'rejected')).status, 200)
+  assert.equal((await currentJob()).openings.filter(x => x.status === 'open').length, openBefore + 1)
+  assert.equal((await currentJob()).openings.filter(x => x.status === 'requested').length, 0)
+  assert.equal((await currentJob()).approvedNow, true, 'refused extra headcount preserves the earlier fully approved terms')
+
+  // A requester with approver capability still cannot independently decide their request.
+  const ownJob = await cmd('vacancy', { title: 'Independent headcount request', location: 'Denver', compensation: RANGE, headcount: 1, manager: emails[0] }, cookies[0])
+  await cmd('rubric', { id: ownJob.id, criteria: RUBRIC }, cookies[0])
+  const ownReady = await cmd('interview-plan', { id: ownJob.id, plan: [{ name: 'Work review', stage: ownJob.stages[2].id }] }, cookies[0])
+  await reviewHeadcountChain(h, ownReady, [{ approvers: [emails[0], emails[1]] }])
+  const self = await cmd('request-vacancy-approval', { id: ownJob.id }, cookies[0])
+  await refused(self, 0, 403)
+
   const template = await cmd('job-template', { fromVacancy: job.id, name: 'Headcount chain template' })
   const child = await cmd('vacancy-from-template', { template: template.id, title: 'Template headcount', location: 'Denver', compensation: RANGE, headcount: 1, manager: managerEmail }, manager)
   const clone = await cmd('clone-vacancy', { id: job.id, title: 'Cloned headcount' }, manager)

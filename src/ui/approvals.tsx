@@ -32,7 +32,7 @@ export function Approvals({ w, mutate }: PageProps) {
       const yours = waiting.includes(me)
       return <article key={x.id} id={'approval-' + x.id} className="card approval-card">
         <header className="approval-head"><h2>{KINDS[x.subjectKind]}: {x.terms.title ?? x.terms.subject}</h2><Status tone={yours ? 'alert' : 'warn'}>{yours ? 'waiting on you' : `waiting on ${waiting.map((email: string) => person(w, email)).join(' and ')}`}</Status></header>
-        <p className="muted">Requested by {person(w, x.requestedBy)} · {when(x.requestedAt)} · approver {person(w, x.approver)}</p>
+        <p className="muted">Requested by {person(w, x.requestedBy)} · {when(x.requestedAt)} · {x.chain ? 'configured headcount chain' : 'approver ' + person(w, x.approver)}</p>
         {x.chain && <section aria-label="Headcount approval chain"><h3>Headcount approval chain</h3><ol>{x.chain.steps.map((item: D, index: number) => <li key={index}>Step {index + 1}: {item.approvers.map((email: string) => { const d = x.decisions.find((d: D) => d.step === index && d.approver === email); return person(w, email) + ': ' + (d ? d.decision + ' (' + d.reason + ')' : index === step ? 'waiting' : 'not started') }).join('; ')}</li>)}</ol><p>Every named person must approve these exact terms. One rejection stops the chain.</p></section>}
         <Terms x={x} w={w} />
         {x.currentVersion !== x.version ? <p className="warn">This changed after approval was requested. It needs a new request.</p>
