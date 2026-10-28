@@ -144,6 +144,7 @@ export async function checkDelayAnalysis(t) {
   assert.equal((await h.send('/api/lodge/command/propose', draft, h.agent)).status, 409, 'replayed capture cannot resurrect erased evidence')
   await h.command('member', { email: h.agentEmail, name: 'Synthetic revoked agent', roles: [], agent: true, actsFor: h.managerEmail, active: false })
   assert.equal((await h.send(delayPath + query, undefined, h.agent)).status, 403)
+  await checkDelayHireMetric()
 }
 
 async function checkHumanDelayFeedback(h) {
@@ -276,4 +277,22 @@ async function checkDelayTrialRestore(h, proposal) {
     for (const op of ['delay-trial-run', 'delay-trial-activate']) assert.equal((await dst.send('/api/lodge/command/' + op, { id: proposal, confirm: true, token: 'synthetic-lodge-replay' }, owner)).status, 409)
     assert.deepEqual((await dst.state(owner)).tasks, before.tasks, 'a restored archive confers no active native task policy')
   } finally { await dst.close() }
+}
+
+async function checkDelayHireMetric() {
+  const h = await delayFixture()
+  try {
+    const job = (await h.state()).vacancies.find(v => v.id === h.job.id)
+    const offer = await h.command('offer', { application: h.second.id, opening: job.openings[2].id, startDate: '2030-12-01', salary: { currency: 'USD', amount: 9000000, period: 'year' } })
+    const approval = await h.command('request-offer-approval', { id: offer.id, approver: h.ownerEmail })
+    await h.command('decide-approval', { id: approval.id, version: approval.version, decision: 'approved', reason: 'Reviewed exact native terms' })
+    await h.setTime('2030-10-09T12:00:00.000Z')
+    await h.command('offer-outcome', { id: offer.id, outcome: 'accepted', reason: 'Human recorded accepted terms' })
+    const path = delayPath + '?vacancy=' + job.id
+    const report = (await h.send(path, undefined, h.agent)).value
+    assert.deepEqual([report.hiring.totals.measuredHires, report.hiring.totals.meanDaysToHire, report.totals.outcomes.accepted], [1, 8, 1], 'native time to hire uses original submission and recorded acceptance in the same scoped cohort')
+    await h.command('candidate-privacy', { id: h.second.candidate, private: true })
+    const privateView = (await h.send(path, undefined, h.agent)).value
+    assert.deepEqual([privateView.hiring.totals.measuredHires, privateView.hiring.totals.meanDaysToHire, privateView.totals.outcomes.accepted], [0, null, 0], 'private cases are excluded before both report aggregates')
+  } finally { await h.close() }
 }
