@@ -53,6 +53,10 @@ export async function validateStaged({ read }) {
   if (row.kind === 'analysis-schedule') reference('analysis-chart', value.chart);
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
   if (['interview-day', 'crm-reply', 'crm-enrollment', 'hiring-reminder', 'interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
+  if (row.kind === 'coordination-case') {
+   const app = reference('application', value.application), interview = reference('interview', value.interview);
+   refuse(interview.application === app.id && value.vacancy === app.vacancy && typeof value.panellist === 'string' && Array.isArray(value.history));
+  }
   if (row.kind === 'interviewer-pool') reference('vacancy', value.vacancy);
   if (row.kind === 'application-email') {
    const app = reference('application', value.application);
@@ -98,7 +102,12 @@ export const policy = {
  exportRow(table, row) {
   if (table === 'l_records' && row.kind === 'proposal') {
    const value = JSON.parse(row.value);
+   if (value.workflow === 'feedback-coordination') return { ...row, value: JSON.stringify({ ...value, status: 'withheld' }) };
    if (value.delayTrial) return { ...row, value: JSON.stringify({ ...value, delayTrial: { ...value.delayTrial, status: 'withheld', token: null } }) };
+  }
+  if (table === 'l_records' && row.kind === 'coordination-case') {
+   const value = JSON.parse(row.value);
+   return { ...row, value: JSON.stringify({ ...value, owner: null, status: 'review-required', reason: 'Restored case requires fresh human ownership', confirmation: null }) };
   }
   if (table === 'l_records' && row.kind === 'interview-day') {
    const value = JSON.parse(row.value);

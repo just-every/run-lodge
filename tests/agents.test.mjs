@@ -221,3 +221,5 @@ test('Nurture stops on expired consent, withdrawal, hire, revoked authority and 
 test('Restored nurture archives keep sending, native reply activation and queued steps inert', async t => (await import('./crm-restore.mjs')).checkNurtureRestore(t))
 
 test('Native delay evidence and agent diagnosis preserve exact citations, uncertainty, live authority and inert review', async t => (await import('./delay-analysis-flow.mjs')).checkDelayAnalysis(t))
+
+test('Native feedback cases preserve human ownership, truthful submission readback, revocation and erasure', async () => (await import('./coordination-case-flow.mjs')).checkCoordinationCases())
