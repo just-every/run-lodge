@@ -1126,6 +1126,10 @@
       "sha256": "9bd7735e4149016ffd662b6306b913065466e22783b15ab7170f3f9b7e168cf9",
       "executable": false
     },
+    "src/lodge/agents/candidate-updates.ts": {
+      "sha256": "b9407aefd8e3a334cec2878fd0c889de40ead93422e57c48c8f4d5cfa052eeda",
+      "executable": false
+    },
     "src/lodge/agents/coordination.ts": {
       "sha256": "5b7b1bb85bf8e275cd973c0b39434acae3d2a8e13f8524f2a4e7ca697ffcd5df",
       "executable": false
@@ -1143,7 +1147,7 @@
       "executable": false
     },
     "src/lodge/agents/proposals.ts": {
-      "sha256": "d55e9bdf3c429a2b14f0bd6a35bcf28095edd63a64a1bf7452c84d6264f29e96",
+      "sha256": "e75a71153a7addaf094b5cbd39b68aa3cf5d5c65b7b72995f9a2477815810810",
       "executable": false
     },
     "src/lodge/analysis/execute.ts": {
@@ -1235,7 +1239,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "2e2cd9d4e4fa94769715a4ff5940a3507bd7bcabc8a444043a2862ae51897ad6",
+      "sha256": "ac7fc87bc5f1f0a0c1bf320ddd6083ab4323f37c29944c68b5597c4575802bbe",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -1443,7 +1447,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "bd473030e7dfde51592a092dab8eab92a63e3c5f0c9b0f170bee4d96735c6fdc",
+      "sha256": "a6480bd67c3fe3c852ebc6a5d3b9d8790b3139ba83d91b2836ed8605e333d3cc",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -1611,7 +1615,7 @@
       "executable": false
     },
     "src/lodge/records/approvals.ts": {
-      "sha256": "504fa39bd7175b3627221eed658fd4f85903284b79d5aca683019043d01d9709",
+      "sha256": "df01f59912929dfd8afbe3d93ba665aab8e751d61717dff5c46ecbd1d30c2d49",
       "executable": false
     },
     "src/lodge/records/blind-review.ts": {
@@ -1687,7 +1691,7 @@
       "executable": false
     },
     "src/lodge/records/messages.ts": {
-      "sha256": "b353ff295f08dc988f616d3839bbb1511d51aeb82dbe1cc4890fa837ba07683d",
+      "sha256": "b97898755aebd16ece858c642f328769c4d9b9351917d8bae9216c56ce46fa5e",
       "executable": false
     },
     "src/lodge/records/notes.ts": {
@@ -1935,7 +1939,7 @@
       "executable": false
     },
     "src/lodge/views/proposals.ts": {
-      "sha256": "aeb6a9846f56e47ce0d8eca848d12ffb1c2cd8013399d40e659565f59416a387",
+      "sha256": "2cee46bf48f020b204324edd1e928e2bb95fe3a411c17fa354ba2ee58f3068b1",
       "executable": false
     },
     "src/lodge/views/rejections-report.ts": {
@@ -1955,7 +1959,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "52af73fd5ad2c8e1707802bb5b5bd9ecf292d240c694f398b8ba2682472daf8d",
+      "sha256": "66f51f8167ba5b8541f8e41c4bcaf76fce99bcfc8e93c32aefd8728f29fd11e9",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -3819,7 +3823,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "c0e08a9de537866287891bf84556a816520ccf33eaad44508d657a063b580ae0",
+      "sha256": "d9bc49f6c5572e6a8447bd54c9ddfc76f2cef7de4d076176e05720fb690df7b7",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -3836,6 +3840,10 @@
     },
     "src/ui/blind-review.tsx": {
       "sha256": "0bceb5e18de98fd21c61b4146f15477850553cf839ee95c1cf7232fd5d9cedbb",
+      "executable": false
+    },
+    "src/ui/candidate-updates.tsx": {
+      "sha256": "c7a76d13f08e6c5885f1c3da622ffece32b2f07cd37c658f235e976a1bb18729",
       "executable": false
     },
     "src/ui/candidates.tsx": {
@@ -4043,7 +4051,7 @@
       "executable": false
     },
     "src/ui/proposals.tsx": {
-      "sha256": "f320fd5d06647ed5c77f47e5d1510a4d7db7e57fe603e10684202bedd5a14f85",
+      "sha256": "0eca8e01e930ac6798b8a127630aac4595ab2a49277435ebd9f08d4bd922845e",
       "executable": false
     },
     "src/ui/provider-setup.tsx": {
@@ -4155,7 +4163,7 @@
       "executable": false
     },
     "tests/agents.test.mjs": {
-      "sha256": "f5ab30d282176e2bd42754bea2dd456a6f563bbbdbfc17fb4f60dcb356b589ef",
+      "sha256": "d7d7e03e11ce1dc572251b0104fb2cf51a6a4c3d8071f739933f8b7d943997f1",
       "executable": false
     },
     "tests/analysis-browser.mjs": {
@@ -4256,6 +4264,10 @@
     },
     "tests/candidate-driver.mjs": {
       "sha256": "79f09f23048c9466019ecee99472db3d2f8bd91fe613509d26c71dc1d028e51b",
+      "executable": false
+    },
+    "tests/candidate-update-flow.mjs": {
+      "sha256": "df56509623c62755a2b1f8194ad772e60c51c4e100f7c01006678f3e31b87dd7",
       "executable": false
     },
     "tests/capture-browser.mjs": {

@@ -221,3 +221,7 @@ test('Nurture stops on expired consent, withdrawal, hire, revoked authority and 
 test('Restored nurture archives keep sending, native reply activation and queued steps inert', async t => (await import('./crm-restore.mjs')).checkNurtureRestore(t))
 
 test('Native delay evidence and agent diagnosis preserve exact citations, uncertainty, live authority and inert review', async t => (await import('./delay-analysis-flow.mjs')).checkDelayAnalysis(t))
+
+// Native response promises and externally authored drafts never imply connected delivery.
+import { checkCandidateUpdates } from './candidate-update-flow.mjs'
+test('COORD-005 native response windows and human-reviewed unsent updates preserve authority and lifecycle', checkCandidateUpdates)

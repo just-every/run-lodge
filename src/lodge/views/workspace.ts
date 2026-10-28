@@ -1,3 +1,4 @@
+import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { waitingApprovers } from '../records/approval-chains'
 import { schedulingView } from '../scheduling/planner'
 import { referenceView } from '../references/views'
@@ -137,12 +138,15 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
     if (!vacancy || !managesVacancy(a, vacancy)) continue
     if (m.templateDraft && !contactOn(m.application)) continue
+    if (m.candidateUpdate && !canSeeCandidateUpdate(s, a, m.candidateUpdate)) continue
     const approval = latestApproval(s, 'message', m.id), version = await versionOf(s, 'message', m)
     messages.push({ ...m, ...(contactOn(m.application) ? {} : { to: undefined }), version, approval: approval ? addressed(approval) : null, approvedNow: approval?.status === 'approved' && approval.version === version })
   }
 
   const approvals: Data[] = []
   for (const x of myApprovals) {
+    const message = x.subjectKind === 'message' ? s.find('message', x.subjectId) : undefined
+    if (message?.candidateUpdate && !canSeeCandidateUpdate(s, a, message.candidateUpdate)) continue
     const subject = s.all(x.subjectKind).find(r => r.id === x.subjectId)
     approvals.push({ ...addressed(x), waitingApprovers: waitingApprovers(x), currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
   }
@@ -238,6 +242,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     // MIG-008: the owner's cutovers of imported jobs into live ones.
     cutovers: a.owner && !a.agent ? s.all('cutover').sort((x, y) => y.at.localeCompare(x.at)) : [],
     applicationEmails: s.all('application-email').filter(m => applications.some(app => app.id === m.application && canSeeContact(s, a, s.get('candidate', app.candidate)))),
+    candidateUpdates: candidateUpdatesView(s, a),
     messages, messageTemplates: messageTemplatesView(s, a), offers, approvals,
     restricted: isCompliance(a) ? s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) }) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.

@@ -1,3 +1,4 @@
+import { requireCurrentCandidateUpdate } from '../agents/candidate-updates'
 import type { State } from '../core/state'
 import { requireApplication, requireCan, requireManages } from '../core/access'
 import { blindFor } from '../core/blind'
@@ -38,6 +39,7 @@ export function message(s: State, a: Actor, b: Data) {
   }
   if (b.id) {
     const current = s.get('message', b.id)
+    requireCurrentCandidateUpdate(s, a, current)
     requireThat(current.application === app.id, 'That message belongs to another application')
     const record = s.put('message', current.id, { ...current, ...fields, editedBy: a.email, editedAt: now() })
     s.audit(a, 'message-edited', 'message:' + current.id)
@@ -55,6 +57,7 @@ export async function requestMessageApproval(s: State, a: Actor, b: Data) {
   emailAllowed(s, app)
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   requireCurrentTemplateRecipient(s, m, app)
+  requireCurrentCandidateUpdate(s, a, m)
   if (m.templateDraft) requireThat(!blindFor(s, a, app), 'Reveal this application before reviewing a contact draft', 409)
   return requestApproval(s, a, 'message', m, b.approver)
 }
@@ -70,6 +73,7 @@ export async function emlFile(s: State, a: Actor, m: Data, from: string) {
   requireThat(!app.candidateWithdrawnAt, 'This candidate withdrew; no further messages or sequence', 409)
   requireThat(!m.cancelled, 'This message was canceled: ' + m.cancelledReason, 409)
   requireCurrentTemplateRecipient(s, m, app)
+  requireCurrentCandidateUpdate(s, a, m)
   requireThat(await approvedNow(s, 'message', m), 'Only the exact approved text can be downloaded; request approval again after edits', 409)
   s.put('message', m.id, { ...m, downloads: [...(m.downloads ?? []), { by: a.email, at: now() }] })
   s.audit(a, 'message-downloaded', 'message:' + m.id, { note: 'Prepared for sending from your own mailbox; Lodge did not send it' })

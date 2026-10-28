@@ -1,3 +1,4 @@
+import { requireCurrentCandidateUpdate } from '../agents/candidate-updates'
 import { activeStep, chainSteps, waitingApprovers } from './approval-chains'
 import type { State } from '../core/state'
 import { requireApplication, requireCan, requireMember, requireRole } from '../core/access'
@@ -80,6 +81,7 @@ export async function decide(s: State, a: Actor, b: Data) {
     requireMessageContact(s, a, app)
     requireThat(!blindFor(s, a, app), 'Reveal this application before reviewing a contact draft', 409)
     requireCurrentTemplateRecipient(s, subject, app)
+    requireCurrentCandidateUpdate(s, a, subject)
   }
   // OPS-004: deciding a job's terms or an offer needs "approve" on that job.
   const job = approval.subjectKind === 'vacancy' ? subject : approval.subjectKind === 'offer' ? s.get('vacancy', s.get('application', subject.application).vacancy) : null

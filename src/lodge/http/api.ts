@@ -1,3 +1,4 @@
+import { candidateUpdatesView } from '../agents/candidate-updates'
 import { delayAnalysis, delayFeedback } from '../views/delay-analysis'
 import { integrationApi, integrationManagement } from './integrations'
 import { offlineScorecardContext } from '../records/scorecards'
@@ -139,6 +140,10 @@ api.post('/api/lodge/capture/:id/resolve', async c => {
 })
 
 const delayInput = (c: C) => ({ vacancy: c.req.query('vacancy'), from: c.req.query('from'), to: c.req.query('to'), timeZone: c.req.query('timeZone') })
+api.get('/api/lodge/candidate-updates', async c => {
+  const { state, actor } = await context(c)
+  return c.json(candidateUpdatesView(state, actor))
+})
 api.get('/api/lodge/delay-analysis', async c => {
   const { state, actor } = await context(c)
   return c.json(delayAnalysis(state, actor, await workspaceRecords(state, actor), delayInput(c)))
