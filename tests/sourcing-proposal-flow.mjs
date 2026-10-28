@@ -19,7 +19,7 @@ export async function sourcingCase(run, ownerEmail, suffix = '') {
     resume: { name: 'synthetic-lodge-resume.txt', mediaType: 'text/plain', base64: Buffer.from(resumePassage).toString('base64') } })
   await run('move', { application: person.application.id, to: 'rejected', closeReason: 'skills', reason: 'Previous human decision retained' })
   const template = await run('message-template', templateInput(job.id))
-  const brief = await run('sourcing-brief', { vacancy: job.id, template: template.id, language: 'en', criteria: [job.rubrics.at(-1).criteria[0].id], reviewed: true })
+  const brief = await run('sourcing-brief', { vacancy: job.id, template: template.id, templateVersion: template.versions.at(-1).version, language: 'en', criteria: [job.rubrics.at(-1).criteria[0].id], reviewed: true })
   return { job, ...person, template, brief }
 }
 export function sourcingPacket(report, approver) {
@@ -49,7 +49,12 @@ export async function checkSourcingProposals() {
     const visible = async packet => (await h.state()).proposals.some(p => p.id === packet.id)
     await evidence(manager, 403)
     assert.equal((await h.send('/api/lodge/command/sourcing-brief', { vacancy: f.job.id, criteria: [], reviewed: true }, agent)).status, 403)
+    const restricted = await h.command('document', { candidate: f.candidate.id, kind: 'resume', name: 'synthetic-lodge-restricted.txt', mediaType: 'text/plain', base64: Buffer.from('Synthetic restricted source detail').toString('base64'), restricted: true })
     const report = await read()
+    assert.equal(report.passages.some(p => p.id === restricted.id), false, 'restricted resume fields never enter the agent context')
+    assert.equal(report.sources.some(p => p.id === restricted.id), false)
+    assert.equal(JSON.stringify(report).includes('Synthetic restricted source detail'), false)
+    assert.equal((await h.send('/api/lodge/command/sourcing-brief', { vacancy: f.job.id, template: f.template.id, language: 'es', criteria: [f.job.rubrics.at(-1).criteria[0].id], reviewed: true }, h.owner)).status, 409, 'another language is refused without a reviewed version')
     assert.deepEqual(report.permission, { basis: 'talent-pool', talentPool: true, recordedBy: ownerEmail, at: '2030-10-07T12:00:00.000Z', note: 'Explicit permission for other roles', retainUntil: '2031-10-07', contactPreference: 'email' })
     assert.deepEqual(report.criteria.map(c => c.name), ['Takeoffs'])
     assert.equal(report.passages.find(p => p.kind === 'document').text, resumePassage)
@@ -62,9 +67,16 @@ export async function checkSourcingProposals() {
     await bad(b => { b.claims[0].source.field = 'customValues' }, 409)
     await bad(b => { b.claims[0].source.quote = 'Their nationality meets the criteria' }, 400)
     await bad(b => { b.claims[0].source.quote = 'Best candidate by suitability score' }, 400)
+    await bad(b => { b.claims[0].source.id = restricted.id }, 409)
     await bad(b => { b.score = 99 }, 400)
     await bad(b => { b.outreach.body += ' Has twenty years of experience.' }, 400)
     await bad(b => { b.approver = address('manager') }, 403)
+    const candidateBody = await draft(), skills = report.passages.find(p => p.kind === 'candidate' && p.field === 'skills')
+    candidateBody.claims = [{ criterion: report.criteria[0].id, text: 'Concrete takeoffs and Bluebeam', source: { kind: 'candidate', id: skills.id, revision: skills.revision, field: 'skills', quote: 'Concrete takeoffs and Bluebeam' } }]
+    candidateBody.outreach.body = report.template.body + '\n\n“Concrete takeoffs and Bluebeam”'
+    const candidatePacket = await propose(candidateBody)
+    assert.equal(candidatePacket.claims[0].source.field, 'skills', 'candidate facts carry the exact native field and revision')
+    await decide(candidatePacket)
     const packet = await propose(await draft())
     assert.equal(packet.model, null)
     assert.deepEqual(packet.changes, [])
@@ -74,10 +86,14 @@ export async function checkSourcingProposals() {
     await decide(packet, 'kept', agent, 403)
     await decide(packet, 'kept', h.owner, 403)
     await decide(packet)
+    const exported = await h.send('/api/lodge/download/candidate/' + f.candidate.id, undefined, h.owner)
+    assert.equal(exported.status, 200, exported.text)
+    assert.ok(exported.value.sourcingPackets.some(p => p.id === packet.id && p.claims[0].text === resumePassage), 'authorized export includes the retained research narrative')
     await decide(packet, 'kept', reviewer, 409)
     const rejected = await propose(await draft()); await decide(rejected, 'rejected')
     for (const key of ['applications', 'vacancies', 'interviews', 'scorecards', 'messages', 'offers', 'sandboxes']) assert.deepEqual((await h.state())[key], before[key], key + ' is unchanged by keep and reject')
     assert.deepEqual((await h.state(manager)).proposals, [])
+    assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM rer_mail_development_outbox').first()).n, mailBefore, 'keep and reject create no mail handoff')
 
     // A candidate edit invalidates keeping, while authorized history stays visibly stale.
     const stale = await propose(await draft())
@@ -94,7 +110,7 @@ export async function checkSourcingProposals() {
     await evidence(agent, 404)
     await h.command('vacancy-privacy', { id: f.job.id, confidential: false })
     // Existing source grants are still insufficient for a field outside the native allowlist.
-    const freshBrief = async () => h.command('sourcing-brief', { vacancy: f.job.id, template: f.template.id, language: 'en', criteria: [f.job.rubrics.at(-1).criteria[0].id], reviewed: true })
+    const freshBrief = async () => h.command('sourcing-brief', { vacancy: f.job.id, template: f.template.id, templateVersion: f.template.versions.at(-1).version, language: 'en', criteria: [f.job.rubrics.at(-1).criteria[0].id], reviewed: true })
     // Privacy edits revise the role; select its current criteria again.
     f.brief = await freshBrief()
     const nextPath = () => '/api/lodge/sourcing-evidence?brief=' + f.brief.id + '&candidate=' + f.candidate.id
@@ -103,6 +119,7 @@ export async function checkSourcingProposals() {
     let person = (await h.state()).candidates.find(c => c.id === f.candidate.id)
     await h.command('correct-candidate', { ...person, talentPool: false, reason: 'Withdrawn pool consent' })
     assert.equal(await visible(consentPacket), false)
+    assert.deepEqual((await h.send('/api/lodge/download/candidate/' + person.id, undefined, h.owner)).value.sourcingPackets, [], 'export also hides the complete narrative after consent withdrawal')
     await decide(consentPacket, 'kept', reviewer, 404)
     await h.command('correct-candidate', { ...person, talentPool: true, reason: 'Fresh recorded pool permission' })
     await h.command('extend-retention', { candidate: person.id, until: '2030-10-06', reason: 'Retention expired' })
@@ -119,6 +136,11 @@ export async function checkSourcingProposals() {
     assert.equal(await visible(revokedPacket), false)
     assert.equal((await h.send(nextPath(), undefined, agent)).status, 403)
     await h.command('member', { email: principalEmail, name: 'Synthetic pool principal', roles: ['admin'] })
+    const credentialPacket = await propose(await freshDraft())
+    await h.command('member', { email: agentEmail, name: 'Synthetic external sourcing agent', roles: [], agent: true, actsFor: principalEmail, active: false })
+    assert.equal(await visible(credentialPacket), false, 'revoking the preparing agent hides its retained narrative')
+    assert.equal((await h.send(nextPath(), undefined, agent)).status, 403)
+    await h.command('member', { email: agentEmail, name: 'Synthetic external sourcing agent', roles: [], agent: true, actsFor: principalEmail, active: true })
     const templatePacket = await propose(await freshDraft())
     await h.command('message-template', { ...templateInput(f.job.id), id: f.template.id, version: 1, body: 'Hello {candidate_name}, may we discuss the recorded role?' })
     await decide(templatePacket, 'kept', reviewer, 409)
@@ -132,7 +154,7 @@ export async function checkSourcingProposals() {
     const rows = (await h.db.prepare('SELECT value FROM l_records').all()).results
     assert.equal(rows.some(row => row.value.includes(resumePassage)), false, 'retained quotations and source bytes are erased')
     assert.equal((await h.send('/api/lodge/command/propose', await sourcingPacket(report, reviewerEmail), agent)).status, 404, 'replayed capture cannot resurrect an erased person')
-    assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM rer_mail_development_outbox').first()).n >= mailBefore, true)
+
     assert.equal(outbound, 0, 'research and reviews make zero provider calls')
   } finally { await h.close() }
 }

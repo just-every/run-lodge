@@ -26,6 +26,7 @@ export function vacancyHistory(w: Workspace, id: string) {
     format: 'lodge-vacancy-history-1', exportedAt: now(), exportedBy: w.actor.email,
     vacancy, approvals: w.approvals.filter(x => x.subjectId === id || forApp(w.offers).some(o => o.id === x.subjectId) || forApp(w.messages).some(m => m.id === x.subjectId)),
     applications, candidates: w.candidates.filter(c => candidateIds.has(c.id)),
+    sourcingPackets: w.proposals.filter(p => p.workflow === 'sourcing-research' && p.vacancy === id),
     resumeExtractions: w.resumeExtractions.filter(r => candidateIds.has(r.candidate)),
     documents: w.documents.filter(d => appIds.has(d.application) || (candidateIds.has(d.candidate) && !d.application)),
     references: { questionnaires: forApp(w.references.questionnaires), records: forApp(w.references.records) },
@@ -91,6 +92,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
   }
   const body = {
     captures, agencySubmissions, referrals,
+    sourcingPackets: view.proposals.filter(p => p.workflow === 'sourcing-research' && p.candidate === id),
     nurtureSequences: s.all('crm-enrollment').filter(e => e.candidate === id), nurtureReplies: s.all('crm-reply').filter(reply => reply.candidate === id),
     hiringReminders: s.all('hiring-reminder').filter(reminder => appIds.has(reminder.application)),
     surveyResponses: surveyReport(s, a).surveys.flatMap(survey => survey.identified.filter(answer => appIds.has(answer.application)).map(answer => ({ ...answer, survey: survey.id, version: survey.version }))),

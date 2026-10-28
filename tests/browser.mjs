@@ -1,3 +1,4 @@
+import { sourcingProposalPage } from './sourcing-proposal-browser.mjs'
 import { delayAnalysisPage } from './delay-analysis-browser.mjs'
 import { interviewDayPage } from './interview-day-browser.mjs'
 import { integrationsPage } from './integrations-browser.mjs'
@@ -98,6 +99,7 @@ try {
   await cohortReportPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await integrationsPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await messageTemplatePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'message-templates'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await sourcingProposalPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'sourcing'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await delayAnalysisPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'delays'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await referencePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'references'), ownerEmail: 'owner@example.test' })
 

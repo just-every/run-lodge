@@ -126,6 +126,12 @@
       "name": "0020_enterprise_saml_transactions.sql",
       "sha256": "09e2c48aee5d1627b32bb4e46c35f1452d51d30212d39fdee3a44b83c2447529",
       "sql": "-- One-use SP requests and assertion replay protection. Only hashes of browser\n-- bindings and verified assertion identifiers are retained.\nCREATE TABLE l_enterprise_saml_transactions (\n request_id TEXT PRIMARY KEY,\n browser_hash TEXT NOT NULL,\n config_hash TEXT NOT NULL,\n generation INTEGER NOT NULL,\n created_at INTEGER NOT NULL,\n expires_at INTEGER NOT NULL,\n consumed_at INTEGER,\n assertion_key TEXT UNIQUE,\n response_key TEXT UNIQUE\n);\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0021_app_credentials.sql",
+      "sha256": "92a9dca5a228fdf98be2956c2579a279a51e775c4d9aa583439bbd64ea23048c",
+      "sql": "-- Installation-local capabilities never travel with recruiting archives.\nCREATE TABLE l_app_credentials (\n id TEXT PRIMARY KEY,\n revision TEXT NOT NULL,\n token_hash TEXT NOT NULL UNIQUE,\n author_session TEXT NOT NULL,\n author_id TEXT NOT NULL,\n name TEXT NOT NULL,\n jobs TEXT NOT NULL,\n fields TEXT NOT NULL,\n created_at TEXT NOT NULL,\n revoked_at TEXT\n);\n\n-- Restoring membership never resurrects a capability issued before suspension.\nCREATE TRIGGER l_app_credentials_member_suspended AFTER UPDATE ON l_records\n WHEN NEW.kind='member' AND (json_extract(NEW.value,'$.active') IS NOT 1 OR json_extract(NEW.value,'$.agent')=1)\n BEGIN\n  UPDATE l_app_credentials SET revoked_at=COALESCE(revoked_at,strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n   revision=lower(hex(randomblob(16)))\n   WHERE author_id IN (SELECT id FROM oa_operators WHERE email=NEW.id);\n END;\nCREATE TRIGGER l_app_credentials_member_removed AFTER DELETE ON l_records\n WHEN OLD.kind='member'\n BEGIN\n  UPDATE l_app_credentials SET revoked_at=COALESCE(revoked_at,strftime('%Y-%m-%dT%H:%M:%fZ','now')),\n   revision=lower(hex(randomblob(16)))\n   WHERE author_id IN (SELECT id FROM oa_operators WHERE email=OLD.id);\n END;\n"
     }
   ],
   "compatibilityDate": "2026-09-08",
@@ -141,8 +147,7 @@
     "MAIL_PROVIDER": "",
     "MAIL_FROM": "",
     "MAIL_RELAY_URL": "",
-    "MAIL_ACCOUNT_ID": "",
-    "OWNER_EMAIL": ""
+    "MAIL_ACCOUNT_ID": ""
   },
   "secretNames": [
     "SESSION_SECRET",

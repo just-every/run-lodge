@@ -5,7 +5,18 @@ import { parseContract } from '../src/base/seed-contract.mjs'
 
 const [mode, ...ids] = process.argv.slice(2)
 if (!['write', 'check'].includes(mode) || !ids.length) throw Error('Usage: node scripts/contract-docs.mjs write|check CLAUSE [CLAUSE ...]')
-const source = readFileSync('CONTRACT.md', 'utf8'), lines = source.split('\n')
+let source = readFileSync('CONTRACT.md', 'utf8')
+// Status rows are the source; refresh summary counts before the strict parser validates them.
+const statusRows = source.split('\n').map(line => line.split('|').slice(1, -1).map(cell => cell.trim()))
+  .filter(cells => cells.length === 6 && /^`?[A-Z]+-\d+`?$/.test(cells[0]) && ['done', 'partial', 'missing'].includes(cells[3]))
+const summarized = source.replace(/^\| (Published|Target and push further|All) \|.*$/gm, (_line, label) => {
+  const selected = statusRows.filter(cells => label === 'All' || (label === 'Published' ? cells[2] === 'published' : ['target', 'push-further'].includes(cells[2])))
+  const count = status => selected.filter(cells => cells[3] === status).length
+  return `| ${label} | ${count('done')} | ${count('partial')} | ${count('missing')} | ${selected.length} |`
+})
+if (mode === 'write') { if (summarized !== source) writeFileSync('CONTRACT.md', summarized); source = summarized }
+else if (summarized !== source) throw Error('Stale generated contract summary counts')
+const lines = source.split('\n')
 const contract = parseContract(source)
 let acceptance = readFileSync('ACCEPTANCE.md', 'utf8')
 let claims

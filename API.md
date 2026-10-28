@@ -971,3 +971,37 @@ and discards its activation token; it cannot resume from a replayed archive.
 Principal, reviewer or case revocation hides the complete narrative and trial,
 and authorized erasure removes the related packet. Connected reminder delivery,
 provider failures and diagnosis across every promised cause remain separate gaps.
+
+
+### Prior-pool research drafts
+
+A human pool administrator selects a published, currently approved role, a subset
+of its rubric criteria and a reviewed message template and language in Settings.
+The `sourcing-brief` command accepts `vacancy`, `criteria` (criterion ids),
+`template`, `templateVersion`, `language` and explicit `reviewed: true`; its record appears in
+`sourcingBriefs` in the authorized workspace.
+
+Read `/api/lodge/sourcing-evidence?brief=<id>&candidate=<id>` as an authenticated
+agent acting for a current pool administrator. This native-only view requires
+current pool consent, retention and contact access and returns authorized
+candidate fields and resume passages with exact record revisions, human-selected
+criteria, consent evidence and reviewed template provenance. Restricted originals
+and arbitrary custom fields are excluded.
+
+Submit `propose` with workflow `sourcing-research`, the `brief`, `candidate`, named
+human `approver`, exact returned `sources`, and `claims`. Each claim supplies a
+selected `criterion`, `text` equal to an exact source passage, and a `source`
+containing `kind`, `id`, `revision`, `field` and the exact `quote`. Quotes contain at
+least eight characters. Supply `outreach` with the returned template subject and
+its filled body followed by two newlines and each cited passage in curly double
+quotation marks on its own line. Unsupported factual paraphrases, protected
+traits, scores, rankings, fabricated citations and unreviewed message changes are
+refused. Lodge does not run a model or verify the truth of a recorded claim.
+
+The named current human reviewer uses `decide-proposal` with `decision: kept` or
+`decision: rejected` and a reason. Keeping rechecks every source revision; any
+lost principal or reviewer grant, pool consent, contact permission or retention
+hides the whole narrative. Candidate erasure removes packets and quotations.
+Review creates no application, campaign, booking, message record or outbound
+contact. Licensed research, connected replies, Slack campaign approval and
+calendar authority remain unavailable through this native draft door.

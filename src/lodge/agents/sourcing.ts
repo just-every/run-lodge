@@ -36,6 +36,7 @@ export async function sourcingBrief(s: State, a: Actor, b: Data) {
   requireThat(template.vacancy === job.id, 'Choose a reviewed template for this role')
   const language = text(b.language, 'Reviewed language', 40), version = template.versions.filter((v: Data) => v.language === language).at(-1)
   requireThat(version?.reviewedBy, 'Review a template in the selected language first', 409)
+  requireThat(b.templateVersion === version.version, 'Template language version changed; review the current text again', 409)
   safe(version.subject, 'Reviewed subject'); safe(version.body, 'Reviewed message', 20000)
   requireThat(b.reviewed === true, 'Confirm the selected criteria, language and template')
   const record = s.put('sourcing-brief', uid(), { vacancy: job.id, criteria, language, template: source(s, 'message-template', template.id), job: source(s, 'vacancy', job.id), selectedBy: a.email, selectedAt: now() })
