@@ -1,4 +1,6 @@
 import { previewDelayTrial, activateDelayTrial, runDelayTrial, compareDelayTrial, rollbackDelayTrial } from './agents/delay-trials'
+import { savePool } from './scheduling/pools'
+import { planDay, reviewDay } from './scheduling/planner'
 import { referenceQuestionnaire, recordReference } from './references/records'
 import { payRules } from './records/pay-transparency'
 import { vacancyCompliance } from './enterprise/grants'
@@ -108,6 +110,7 @@ export const commands: Record<string, Command> = {
   'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate, 'review-decision': reviewDecision, 'review-recommendation': reviewRecommendation,
   'assign-reviewers': assignReviewers, 'board-view': boardView, source, 'source-settings': sourceSettings, 'job-board': jobBoard, 'board-key': boardKey, 'revoke-board-key': revokeBoardKey, 'rotate-board-key': rotateBoardKey, 'vacancy-internal': vacancyInternal, 'internal-policy': internalPolicy, 'reports-to': reportsTo, 'apply-internal': applyInternal, 'source-credit': sourceCredit, 'fair-chance-places': fairChancePlaces, 'fair-chance-step': fairChanceStep, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
   'interview-self-scheduling': selfScheduling,
+  'interviewer-pool': savePool, 'interview-day': planDay, 'interview-day-review': reviewDay,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
   message, 'request-message-approval': requestMessageApproval, 'message-template': messageTemplate,

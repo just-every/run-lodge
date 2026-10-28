@@ -1351,3 +1351,5 @@ test('Restored application mail remains inert with receipts and duplicate protec
 test('Per-job application email reviews remain isolated when another job changes', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailIsolation(t))
 
 test('ATTR-004 approved location pay, reviewed rules and salary-history refusals reach public doors', async t => (await import('./pay-transparency-flow.mjs')).checkPayTransparency(t))
+
+test('CAL-002 native interview-day drafts explain constraints and fence human substitute review', async t => (await import('./interview-day-flow.mjs')).checkInterviewDay(t))
