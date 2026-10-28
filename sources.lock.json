@@ -4371,7 +4371,7 @@
       "executable": false
     },
     "tests/extension-capture-browser.mjs": {
-      "sha256": "630441ea257b6c36629fb37a5908f96fca543d65727707db1633542e56c09dfd",
+      "sha256": "7e3b3e7e56048b0c6b29ecef4c1964c7a037849be1de8e425e156049ebed435c",
       "executable": false
     },
     "tests/fields-driver.mjs": {

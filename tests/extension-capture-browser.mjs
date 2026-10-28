@@ -30,6 +30,9 @@ export async function extensionCapturePage(_browser, { root, origin, evidence })
   const sourceURL = 'http://127.0.0.1:' + generic.address().port + '/biography?tracking=synthetic-lodge-1#ignored'
   const child = spawn(await executable(), ['--headless=new', '--no-sandbox', '--use-mock-keychain', '--password-store=basic', '--enable-unsafe-extension-debugging', '--remote-debugging-port=' + port, '--user-data-dir=' + profile, '--no-first-run', '--no-default-browser-check', 'about:blank'], { stdio: 'ignore' })
   let browser
+  // Toolbar popups are Chromium other targets; keep the real popup attached.
+  const previousAttach = process.env.PW_CHROMIUM_ATTACH_TO_OTHER
+  process.env.PW_CHROMIUM_ATTACH_TO_OTHER = '1'
   try {
     let endpoint
     for (let i = 0; i < 100; i++) {
@@ -58,15 +61,19 @@ export async function extensionCapturePage(_browser, { root, origin, evidence })
     const requests = [], confirmations = []
     context.on('request', request => { requests.push(request.url()); if (new URL(request.url()).pathname === '/api/lodge/prospect-capture/confirm') confirmations.push(request.postDataJSON()) })
     const source = await context.newPage(); await source.goto(sourceURL)
-    const sourceSession = await context.newCDPSession(source)
-    const { targetInfo } = await sourceSession.send('Target.getTargetInfo')
     const action = async (name = 'Synthetic Lodge Selected', email = address(40)) => {
       await source.bringToFront()
       await source.locator('#visible').evaluate(node => { const range = document.createRange(); range.selectNodeContents(node); const selection = getSelection(); selection.removeAllRanges(); selection.addRange(range) })
-      const opened = context.waitForEvent('page')
-      await cdp.send('Extensions.triggerAction', { id: installed.id, targetId: targetInfo.targetId })
-      const popup = await opened; await popup.waitForLoadState('domcontentloaded')
-      await popup.waitForFunction(() => document.querySelector('[name=sourceURL]').value)
+      // The action API expects the enclosing tab, rather than its page target.
+      const { targetInfos } = await cdp.send('Target.getTargets', { filter: [{ type: 'tab' }] })
+      const tab = targetInfos.find(t => t.url === source.url())
+      assert.ok(tab, 'the source page has an installed browser tab')
+      const [popup] = await Promise.all([
+        context.waitForEvent('page', { timeout: 15000 }),
+        cdp.send('Extensions.triggerAction', { id: installed.id, targetId: tab.targetId }),
+      ])
+      await popup.waitForURL('chrome-extension://' + installed.id + '/popup.html')
+      await popup.waitForFunction(() => document.querySelector('[name=sourceURL]')?.value)
       await popup.getByRole('button', { name: 'Use selected text as name', exact: true }).click()
       assert.equal(await popup.getByLabel('Name', { exact: true }).inputValue(), 'Synthetic Lodge Selected')
       assert.equal(await popup.getByLabel('Email', { exact: true }).inputValue(), '', 'no page contact fields were scraped')
@@ -146,8 +153,19 @@ export async function extensionCapturePage(_browser, { root, origin, evidence })
       const query = new URL(value).search
       assert.equal(query.includes(encodeURIComponent(address(40))) || query.includes(encodeURIComponent('Synthetic Lodge Selected')), false, 'personal fields never enter request queries')
     }
-    const storage = await cdp.send('Extensions.getStorageItems', { id: installed.id, storageArea: 'local' })
-    assert.deepEqual(storage.data, {}, 'the installed extension persisted no capture fields')
+    // Inspect the installed popup's real stores after completed handoffs.
+    // Without the storage permission, Chromium exposes no extension storage API.
+    const persistence = await action()
+    const storage = await persistence.evaluate(async () => ({
+      extensionAPI: typeof chrome.storage,
+      local: { ...localStorage }, session: { ...sessionStorage },
+      databases: await indexedDB.databases(),
+    }))
+    assert.equal(storage.extensionAPI, 'undefined', 'the installed extension has no persistent extension storage access')
+    assert.deepEqual(storage.local, {}, 'the installed extension persisted no capture fields')
+    assert.deepEqual(storage.session, {}, 'the popup retained no capture fields in session storage')
+    assert.deepEqual(storage.databases, [], 'the installed extension created no persistent capture database')
+    await persistence.getByRole('button', { name: 'Cancel capture', exact: true }).click()
     // Native session and membership revocation are exercised after real installed handoffs.
     const ownerControl = await browser.newContext()
     let reviewerBefore
@@ -189,9 +207,11 @@ export async function extensionCapturePage(_browser, { root, origin, evidence })
     }
     console.log('CRM-007 installed action, explicit selection, cancel, duplicate choices, source and credit, replay and revoked-session and member refusals passed at 1440; review and application proof captured at 1440 and 390')
   } finally {
+    if (previousAttach === undefined) delete process.env.PW_CHROMIUM_ATTACH_TO_OTHER
+    else process.env.PW_CHROMIUM_ATTACH_TO_OTHER = previousAttach
     if (browser) await browser.close()
     if (child.exitCode === null) { child.kill('SIGTERM'); await new Promise(r => child.once('close', r)) }
-    await new Promise(r => generic.close(r)); await rm(profile, { recursive: true, force: true })
+    await new Promise(r => generic.close(r)); await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 })
   }
 }
 
