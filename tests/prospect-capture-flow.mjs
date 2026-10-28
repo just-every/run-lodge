@@ -54,6 +54,18 @@ export async function checkProspectCapture(t) {
   assert.equal(retained.prospectCaptures[0].existing, true)
   assert.equal((await unchanged(() => confirm(offered, [{ id: known.candidate.id, decision: 'existing' }], recruiter))).status, 409)
 
+  // The capture's source and sourcer credit reach the existing hire report.
+  const opening = (await h.state()).vacancies.find(v => v.id === job.id).openings[0]
+  const offer = await h.command('offer', { application: app.id, title: job.title, startDate: '2027-04-01', salary: { currency: 'USD', amount: 9000000, period: 'year' }, opening: opening.id })
+  const approval = await h.command('request-offer-approval', { id: offer.id, approver: (await h.state()).actor.email })
+  await h.command('decide-approval', { id: approval.id, decision: 'approved', version: approval.version, reason: 'Employer reviewed exact terms' })
+  await h.command('offer-outcome', { id: offer.id, outcome: 'accepted', reason: 'Employer recorded acceptance' })
+  const report = await h.send('/api/lodge/reports/sources', undefined, recruiter)
+  assert.equal(report.status, 200, report.text)
+  assert.equal(report.value.bySource.find(row => row.name === 'Sourced: extension').hires, 1)
+  assert.deepEqual(report.value.byCredit, [{ kind: 'sourcer', who: recruiterEmail, hires: 1 }])
+  assert.deepEqual(report.value.hires.map(hire => [hire.application, hire.name, hire.credit.who]), [[app.id, 'Sourced: extension', recruiterEmail]])
+
   // Every shown duplicate needs a human choice; a distinct choice creates a separate person.
   const distinct = await preview({ ...existingInput, captureId: randomUUID() }, recruiter)
   const separate = await confirm(distinct, [{ id: known.candidate.id, decision: 'distinct' }], recruiter)
@@ -76,6 +88,9 @@ export async function checkProspectCapture(t) {
   const stale = await preview(prospect(23, job.id), recruiter)
   await h.command('hiring-team', { id: job.id, recruiters: [], sourcers: [sourcerEmail] })
   assert.equal((await unchanged(() => confirm(stale, [], recruiter))).status, 403)
+  const revokedReport = await h.send('/api/lodge/reports/sources', undefined, recruiter)
+  assert.equal(revokedReport.status, 200, revokedReport.text)
+  assert.equal(JSON.stringify(revokedReport.value).includes(app.id), false, 'revoked job authority removes the captured hire from reports')
   await h.command('hiring-team', { id: job.id, recruiters: [recruiterEmail], sourcers: [sourcerEmail] })
   const noContact = await h.command('permission-level', { name: 'Synthetic no contact', permissions: ['settings'] })
   const permissionReview = await preview(prospect(24, job.id), recruiter)
