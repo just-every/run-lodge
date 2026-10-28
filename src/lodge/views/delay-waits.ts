@@ -54,3 +54,15 @@ export function schedulingSummary(cases: Data[]) {
       meanHours: rows.length ? rows.reduce((sum, iv) => sum + iv.waits[metric].hours, 0) / rows.length : null }
   })
 }
+
+/** A trial compares the same named observation and denominator as its reviewed baseline. */
+export function delayMetric(report: Data, metric: string, stage: string): Data | undefined {
+  if (metric === 'mean-completed-stage-hours') {
+    const row = report.stages.find((x: Data) => x.stage === stage)
+    return row && { label: row.label, meanHours: row.meanHours, samples: row.intervals, sampleLabel: 'completed visits', definition: report.definitions.stages }
+  }
+  if (metric === 'mean-recorded-offer-outcome-hours') return { label: 'Recorded offer outcomes', meanHours: report.totals.meanOfferHours, samples: report.totals.measuredOutcomes, sampleLabel: 'recorded offers', definition: report.definitions.offers }
+  const key = ({ 'mean-candidate-availability-hours': 'candidate', 'mean-panel-declaration-hours': 'panel', 'mean-ready-to-schedule-hours': 'readyToSchedule' } as Record<string, string>)[metric]
+  const row = key && report.scheduling?.find((x: Data) => x.metric === key)
+  return row ? { label: ({ candidate: 'Candidate availability', panel: 'Complete panel declarations', readyToSchedule: 'Ready to recorded schedule' } as Record<string, string>)[key], meanHours: row.meanHours, samples: row.measured, sampleLabel: 'interviews', definition: report.definitions.waits } : undefined
+}

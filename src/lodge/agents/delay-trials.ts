@@ -5,6 +5,7 @@ import { canonical, integer, now, requireThat, sha256, type Actor, type Data } f
 import { businessToday, task } from '../records/tasks'
 import { canSeeDelay, delayAnalysis, delayHuman } from '../views/delay-analysis'
 import { workspaceRecords } from '../views/workspace'
+import { delayMetric } from '../views/delay-waits'
 
 const DAY = 86400000
 const dateAfter = (day: string, count: number) => new Date(Date.parse(day) + count * DAY).toISOString().slice(0, 10)
@@ -101,10 +102,11 @@ export async function compareDelayTrial(s: State, a: Actor, b: Data) {
   const p = open(s, a, b.id), trial = p.delayTrial
   requireThat(trial && ['active', 'rolled-back'].includes(trial.status), 'Activate a reviewed trial before comparing observations', 409)
   const report = await evidence(s, a, p, trial.comparisonCohort)
-  const measured = report.stages.find((row: Data) => row.stage === p.measurement.stage)
+  const measured = delayMetric(report, p.measurement.metric, p.measurement.stage)
+  requireThat(measured && (!p.measurement.definition || measured.definition === p.measurement.definition), 'The metric definition changed; review a fresh diagnosis before comparing', 409)
   const complete = times(report.cohort.timeZone).dateOf(now()) > report.cohort.to!
-  const enough = complete && measured?.intervals >= p.measurement.minimumIntervals
-  const comparison = { report, measuredAt: now(), baselineHours: p.measurement.baselineHours, targetHours: p.measurement.targetHours, intervals: measured?.intervals ?? 0, meanHours: measured?.meanHours ?? null,
+  const enough = complete && measured.samples >= p.measurement.minimumIntervals
+  const comparison = { report, measuredAt: now(), baselineHours: p.measurement.baselineHours, targetHours: p.measurement.targetHours, intervals: measured.samples, meanHours: measured.meanHours, sampleLabel: measured.sampleLabel, definition: measured.definition,
     conclusion: !enough ? 'Insufficient sample or comparison window still open' : measured.meanHours < p.measurement.targetHours ? 'Declared target observed' : 'Declared target not observed',
     limitation: 'Observed submission cohorts are not randomized. Missing histories and changed case mix can affect this comparison; no causal improvement is established.' }
   s.put('proposal', p.id, { ...p, delayTrial: { ...trial, comparison } })

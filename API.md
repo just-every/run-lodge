@@ -894,10 +894,17 @@ The agent sends `propose` with `workflow: "delay-diagnosis"`, a human `approver`
 the returned `cohort` and complete unchanged `sources`, plus `summary`, `findings`,
 `uncertainty`, `sampleLimits`, `proposedChange` and `successCriterion`. Each finding
 has an `observation` or `hypothesis` kind, text and exact stage-event, interview or offer citations
-from that evidence. A required `measurement` names `metric: "mean-completed-stage-hours"`,
-the observed `stage`, a lower nonnegative `targetHours`, positive
-`minimumIntervals` and future `windowDays`. Lodge binds its baseline to the
-observed completed visits; this is a proposed criterion, not a trial receipt. A citation contains `kind`, `id` and `revision`. The principal
+from that evidence. A required `measurement` names a native metric:
+`mean-completed-stage-hours`, `mean-candidate-availability-hours`,
+`mean-panel-declaration-hours`, `mean-ready-to-schedule-hours` or
+`mean-recorded-offer-outcome-hours`. Supply the internal task `stage`, a lower
+nonnegative `targetHours`, positive `minimumIntervals` and future `windowDays`.
+The minimum counts measured visits, interviews or recorded offers according to
+the chosen metric. Lodge freezes the actual baseline, sample unit and metric
+definition from its current report; it never accepts a client-supplied baseline.
+Comparisons retain that metric and definition, refuse a changed definition and
+count only measured observations from the declared future submission cohort.
+A citation contains `kind`, `id` and `revision`. The principal
 and reviewer must have the same current cohort evidence. Lodge runs no model.
 
 The named human uses `decide-proposal` with `accepted` or `rejected` and a reason.

@@ -91,9 +91,10 @@ export function DelayDraft({ p, w, mutate, follow }: Pick<PageProps, 'w' | 'muta
     <h3>Sample limits</h3><p>{p.sampleLimits}</p>
     <h3>Proposed workflow change</h3><p>{p.proposedChange}</p>
     <h3>Measurable success criterion</h3><p>{p.successCriterion}</p>
-    <p>{p.measurement.label}: mean completed stage hours from {hours(p.measurement.baselineHours)} ({p.measurement.baselineIntervals} visits) to below {hours(p.measurement.targetHours)}, with at least {p.measurement.minimumIntervals} completed visits in a future {p.measurement.windowDays}-day submission cohort using the same definition. {p.delayTrial ? 'Trial status: ' + p.delayTrial.status + '.' : 'No trial has run.'}</p>
+    <p>{p.measurement.label}: mean elapsed hours from {hours(p.measurement.baselineHours)} ({p.measurement.baselineIntervals} {p.measurement.sampleLabel ?? 'completed visits'}) to below {hours(p.measurement.targetHours)}, with at least {p.measurement.minimumIntervals} {p.measurement.sampleLabel ?? 'completed visits'} in a future {p.measurement.windowDays}-day submission cohort using the same definition. {p.delayTrial ? 'Trial status: ' + p.delayTrial.status + '.' : 'No trial has run.'}</p>
+    {p.measurement.definition && <details><summary>Reviewed metric definition</summary><p>{p.measurement.definition}</p></details>}
     {p.status === 'accepted' && w.actor.owner && !w.actor.agent && <p><button className="link" onClick={() => follow('/app?settings=delay-trials')}>Open native trial settings</button></p>}
-    {p.delayTrial?.comparison && <p>{p.delayTrial.comparison.conclusion}: {p.delayTrial.comparison.meanHours === null ? 'Unknown duration' : hours(p.delayTrial.comparison.meanHours) + ' mean elapsed hours'} from {p.delayTrial.comparison.intervals} completed visits. {p.delayTrial.comparison.limitation}</p>}
+    {p.delayTrial?.comparison && <p>{p.delayTrial.comparison.conclusion}: {p.delayTrial.comparison.meanHours === null ? 'Unknown duration' : hours(p.delayTrial.comparison.meanHours) + ' mean elapsed hours'} from {p.delayTrial.comparison.intervals} {p.delayTrial.comparison.sampleLabel ?? 'completed visits'}. {p.delayTrial.comparison.limitation}</p>}
     <details><summary>Evidence read for this draft</summary><Evidence report={p.delay} follow={follow} /></details>
     {p.status === 'proposed' && !w.actor.agent && p.approver === w.actor.email && <Form label="Record draft review" onSubmit={values => mutate('decide-proposal', { id: p.id, ...values })}>
       <Field label="Draft decision" name="decision" options={[{ value: 'accepted', label: 'Accept draft only' }, { value: 'rejected', label: 'Reject draft' }]} />
@@ -111,16 +112,16 @@ export function DelayTrialSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'
     <p>The owner can review an internal queue task policy. It sends no mail, changes no hiring decision and grants no candidate-contact authority. A sandbox replay freezes observed baseline submissions; future comparisons retain the same definitions and disclose uncertainty.</p>
     {!accepted.length && <p>Accept a source-bound diagnosis draft before reviewing a trial.</p>}
     {accepted.map((p: D) => <details key={p.id}><summary>Trial for {p.summary}</summary>
-      <p>{p.measurement.label} · target below {hours(p.measurement.targetHours)} elapsed hours · at least {p.measurement.minimumIntervals} completed visits over {p.measurement.windowDays} submission days.</p>
+      <p>{p.measurement.label} · target below {hours(p.measurement.targetHours)} elapsed hours · at least {p.measurement.minimumIntervals} {p.measurement.sampleLabel ?? 'completed visits'} over {p.measurement.windowDays} submission days. Internal task stage: {p.measurement.triggerLabel ?? p.measurement.label}.</p>
       {p.delayTrial?.status !== 'active' && <Form label="Preview internal task trial" onSubmit={values => mutate('delay-trial-preview', { id: p.id, ...values })}>
         <Field label="Hours before an internal review task" name="afterHours" type="number" defaultValue={p.delayTrial?.policy.afterHours ?? 24} />
       </Form>}
       {p.delayTrial && <><p>Trial status: {p.delayTrial.status}</p><p>Baseline snapshot: {p.delayTrial.baselineObservedAt}. Later baseline submissions or events are not added to its frozen comparison. One internal task per native stage entry, assigned to the owner after {p.delayTrial.policy.afterHours} elapsed hours. Imported histories are excluded; no automatic sends.</p>
         {p.delayTrial.status === 'review' && <><p>Isolated replay: {p.delayTrial.impact.length} eligible cases. Production tasks created: 0. Outbound contacts: 0. This does not predict a delay reduction.</p><Form label="Activate reviewed native trial" onSubmit={values => mutate('delay-trial-activate', { id: p.id, token: p.delayTrial.token, ...values })}><Check label="Approve this exact internal task policy" name="confirm" /></Form></>}
-        {p.delayTrial.comparisonCohort && <p>Future submission cohort: {p.delayTrial.comparisonCohort.from} to {p.delayTrial.comparisonCohort.to} · {p.delayTrial.comparisonCohort.timeZone}. Current incomplete history remains excluded from completed visit means.</p>}
+        {p.delayTrial.comparisonCohort && <p>Future submission cohort: {p.delayTrial.comparisonCohort.from} to {p.delayTrial.comparisonCohort.to} · {p.delayTrial.comparisonCohort.timeZone}. Unknown observations remain excluded from the reviewed metric's measured denominator.</p>}
         {p.delayTrial.status === 'active' && <><Form label="Run reviewed internal tasks" onSubmit={() => mutate('delay-trial-run', { id: p.id })} /><Form label="Roll back native trial" onSubmit={() => mutate('delay-trial-rollback', { id: p.id })} /></>}
         {['active', 'rolled-back'].includes(p.delayTrial.status) && <Form label="Measure observed comparison" onSubmit={() => mutate('delay-trial-compare', { id: p.id })} />}
-        {p.delayTrial.comparison && <p>{p.delayTrial.comparison.conclusion} · {p.delayTrial.comparison.intervals} completed visits · mean {p.delayTrial.comparison.meanHours === null ? 'unknown' : hours(p.delayTrial.comparison.meanHours) + ' elapsed hours'}. {p.delayTrial.comparison.limitation}</p>}
+        {p.delayTrial.comparison && <p>{p.delayTrial.comparison.conclusion} · {p.delayTrial.comparison.intervals} {p.delayTrial.comparison.sampleLabel ?? 'completed visits'} · mean {p.delayTrial.comparison.meanHours === null ? 'unknown' : hours(p.delayTrial.comparison.meanHours) + ' elapsed hours'}. {p.delayTrial.comparison.limitation}</p>}
       </>}
     </details>)}
   </section>
