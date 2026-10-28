@@ -1,3 +1,4 @@
+import { checkWorkflowChains } from './workflow-chain-flow.mjs'
 import { checkReferences } from './reference-flow.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -12,6 +13,7 @@ test('Lodge offers through native sessions and real D1', async t => {
   await h.member('una@example.test', ['interviewer'], 'Una Diaz')
   await h.member('ivy-agent@example.test', [], 'Ivy’s coding agent', { agent: true, actsFor: 'ivy@example.test' })
   await t.test('HIRE-008 native task-linked phone references preserve versions, authority, stage and lifecycle', () => checkReferences({ h, cmd, send, state, owner, manager, ivy, ian, openJob }))
+  await t.test('Headcount chains require every exact-term decision and preserve isolated configuration and new-job independence', () => checkWorkflowChains({ h, cmd, send, state, owner, manager, ivy }))
   let declineTemplate
   // Fair-chance journeys need an employer-adopted California notice. PRIV-001
   // independently proves the adoption and stale-version refusals.

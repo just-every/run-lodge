@@ -16,7 +16,7 @@ export function Templates({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
     <p className="hint">A new job copies its template as it reads then; editing a template never changes jobs already started from it.</p>
     <ul>{w.jobTemplates.map((t: D) => {
       const rubric = t.rubrics.at(-1)
-      return <li key={t.id}><strong>{t.name}</strong> · {t.stages.map((st: D) => st.name).join(' → ')} · rubric version {rubric.version} · {t.plan.length} interviews · {t.questions.length} questions · {t.rules.length} rules
+      return <li key={t.id}><strong>{t.name}</strong> · {t.stages.map((st: D) => st.name).join(' → ')} · rubric version {rubric.version} · {t.plan.length} interviews · {t.questions.length} questions · {t.rules.length} rules{t.approvalChain && <p>Headcount approval: {t.approvalChain.steps.map((step: D) => step.approvers.join(' and ')).join(' → ')}. New jobs need their own decisions.</p>}
         <details><summary>Edit {t.name}</summary><Form label="Save template" onSubmit={x => mutate('job-template', { id: t.id, name: x.name, offerTemplate: offerReference(x.offerTemplate) ?? null, criteria: parseCriteria(x.criteria, rubric.criteria) })}>
           <Field label="Reviewed offer template in this setup" name="offerTemplate" required={false} defaultValue={offerReferenceValue(t.offerTemplate)} options={offerTemplateOptions(w)} />
           <Field label="Template name" name="name" defaultValue={t.name} />

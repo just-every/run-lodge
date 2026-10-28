@@ -101,6 +101,7 @@ export function candidateRecords(s: State, candidateId: string) {
   // Delay diagnoses retain multi-case evidence and prose: erase the entire packet when any cited person is erased.
   records.proposal = s.scan('proposal').filter(refers)
   records['workflow-sandbox'] = s.scan('workflow-sandbox').filter(refers)
+  records['message-draft-review'] = s.scan('message-draft-review').filter(refers)
   records.audit = linkedAudits(s, candidateId, records)
   return records
 }

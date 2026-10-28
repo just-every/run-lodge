@@ -1,4 +1,6 @@
+import { waitingApprovers } from '../records/approval-chains'
 import { referenceView } from '../references/views'
+import { messageTemplatesView } from '../records/message-templates'
 import { publicReceipt } from '../careers/receipt'
 import { careersDomainView } from '../careers/domain'
 import type { Bindings } from '../../auth.server'
@@ -133,6 +135,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     const app = applications.find(x => x.id === m.application)!
     const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
     if (!vacancy || !managesVacancy(a, vacancy)) continue
+    if (m.templateDraft && !contactOn(m.application)) continue
     const approval = latestApproval(s, 'message', m.id), version = await versionOf(s, 'message', m)
     messages.push({ ...m, ...(contactOn(m.application) ? {} : { to: undefined }), version, approval: approval ? addressed(approval) : null, approvedNow: approval?.status === 'approved' && approval.version === version })
   }
@@ -140,7 +143,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
   const approvals: Data[] = []
   for (const x of myApprovals) {
     const subject = s.all(x.subjectKind).find(r => r.id === x.subjectId)
-    approvals.push({ ...addressed(x), currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
+    approvals.push({ ...addressed(x), waitingApprovers: waitingApprovers(x), currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
   }
 
   const visibleCards = versioned(s.all('scorecard').filter(c => canSeeScorecard(s, a, c)))
@@ -233,7 +236,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     // MIG-008: the owner's cutovers of imported jobs into live ones.
     cutovers: a.owner && !a.agent ? s.all('cutover').sort((x, y) => y.at.localeCompare(x.at)) : [],
     applicationEmails: s.all('application-email').filter(m => applications.some(app => app.id === m.application && canSeeContact(s, a, s.get('candidate', app.candidate)))),
-    messages, offers, approvals,
+    messages, messageTemplates: messageTemplatesView(s, a), offers, approvals,
     restricted: isCompliance(a) ? s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) }) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.
     fairChance: admin ? fairChanceView(s, a, appIds) : null,

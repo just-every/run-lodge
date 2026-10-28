@@ -46,6 +46,7 @@ import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } fr
 import { availability, cancel, interview, reply, schedule } from './records/interviews'
 import { correct, note, releaseFeedback, scorecard } from './records/scorecards'
 import { message, requestMessageApproval } from './records/messages'
+import { messageTemplate } from './records/message-templates'
 import { teamNote } from './records/notes'
 import { completeTask, task } from './records/tasks'
 import { team } from './records/team'
@@ -109,7 +110,7 @@ export const commands: Record<string, Command> = {
   'interview-self-scheduling': selfScheduling,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
-  message, 'request-message-approval': requestMessageApproval,
+  message, 'request-message-approval': requestMessageApproval, 'message-template': messageTemplate,
   'offer-template': offerTemplate, 'job-offer-template': jobOfferTemplate, offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome, 'offer-signed-outside': signedOutside,
   'esign-disclosure': esignDisclosure, 'esign-signer': esignSigner, 'esign-void': esignVoid, 'esign-move-signer': (s, a, b) => esignMoveSigner(s, a, b, m => grantsOf(s, m)),
   hold, 'release-hold': releaseHold, 'extend-retention': extendRetention, 'data-request': dataRequest, 'complete-data-request': completeRequest, 'extend-data-request': extendRequest, 'refuse-data-request': refuseRequest, 'cpra-notice': saveCpraNotice, 'permission-level': permissionLevel, 'delete-permission-level': deletePermissionLevel, 'job-levels': jobLevels,

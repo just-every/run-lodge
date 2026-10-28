@@ -27,16 +27,19 @@ export function Approvals({ w, mutate }: PageProps) {
     <h1>Approvals</h1>
     {!pending.length && <Empty icon="approvals" title="Nothing is waiting for you.">Vacancies, offers and messages sent for approval appear here with their exact terms.</Empty>}
     {pending.map((x: D) => {
-      const yours = x.approver === me
+      const step = x.chain?.steps.findIndex((step: D, index: number) => !step.approvers.every((email: string) => x.decisions.some((d: D) => d.step === index && d.approver === email && d.decision === 'approved')))
+      const waiting = x.chain ? x.chain.steps[step]?.approvers.filter((email: string) => !x.decisions.some((d: D) => d.step === step && d.approver === email)) ?? [] : [x.approver]
+      const yours = waiting.includes(me)
       return <article key={x.id} id={'approval-' + x.id} className="card approval-card">
-        <header className="approval-head"><h2>{KINDS[x.subjectKind]}: {x.terms.title ?? x.terms.subject}</h2><Status tone={yours ? 'alert' : 'warn'}>{yours ? 'waiting on you' : `waiting on ${person(w, x.approver)}`}</Status></header>
-        <p className="muted">Requested by {person(w, x.requestedBy)} · {when(x.requestedAt)} · approver {person(w, x.approver)}</p>
+        <header className="approval-head"><h2>{KINDS[x.subjectKind]}: {x.terms.title ?? x.terms.subject}</h2><Status tone={yours ? 'alert' : 'warn'}>{yours ? 'waiting on you' : `waiting on ${waiting.map((email: string) => person(w, email)).join(' and ')}`}</Status></header>
+        <p className="muted">Requested by {person(w, x.requestedBy)} · {when(x.requestedAt)} · {x.chain ? 'configured headcount chain' : 'approver ' + person(w, x.approver)}</p>
+        {x.chain && <section aria-label="Headcount approval chain"><h3>Headcount approval chain</h3><p>Chain version {x.chain.version.slice(0, 8)}</p><ol>{x.chain.steps.map((item: D, index: number) => <li key={index}>Step {index + 1}: {item.approvers.map((email: string) => { const d = x.decisions.find((d: D) => d.step === index && d.approver === email); return person(w, email) + ': ' + (d ? d.decision + ' (' + d.reason + ')' : index === step ? 'waiting' : 'not started') }).join('; ')}</li>)}</ol><p>Every named person must approve these exact terms. One rejection stops the chain.</p></section>}
         <Terms x={x} w={w} />
         {x.currentVersion !== x.version ? <p className="warn">This changed after approval was requested. It needs a new request.</p>
           : yours ? <Decision x={x} mutate={mutate} label="Record decision" />
-            : w.actor.owner && <details><summary>Decide as the owner instead of {person(w, x.approver)}</summary><p className="hint">An owner’s decision overrides the named approver and is recorded as yours.</p><Decision x={x} mutate={mutate} label="Record owner’s decision" /></details>}
+            : w.actor.owner && !x.chain && <details><summary>Decide as the owner instead of {person(w, x.approver)}</summary><p className="hint">An owner’s decision overrides the named approver and is recorded as yours.</p><Decision x={x} mutate={mutate} label="Record owner’s decision" /></details>}
       </article>
     })}
-    {rest.length > 0 && <><h2>History</h2><ul>{rest.map((x: D) => <li key={x.id}>{KINDS[x.subjectKind]} · {x.terms.title ?? x.terms.subject} · <Status tone={tone(x.status)}>{x.status}</Status> · {person(w, x.decidedBy ?? x.approver)} {x.reason ? `· “${x.reason}”` : ''}</li>)}</ul></>}
+    {rest.length > 0 && <><h2>History</h2><ul>{rest.map((x: D) => <li key={x.id}>{KINDS[x.subjectKind]} · {x.terms.title ?? x.terms.subject} · <Status tone={tone(x.status)}>{x.status}</Status> · {person(w, x.decidedBy ?? x.approver)} {x.chain && <ol>{x.decisions.map((d: D, index: number) => <li key={index}>Step {d.step + 1}: {person(w, d.approver)} · {d.decision} · {d.reason}</li>)}</ol>}{x.reason ? `· “${x.reason}”` : ''}</li>)}</ul></>}
   </div>
 }
