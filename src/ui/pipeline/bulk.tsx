@@ -56,7 +56,7 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
     {selection.length > 0 && <>
       <p>Selected: {selection.map(id => `${name(id)} (${title(id)})`).join(', ')} · <button className="link" onClick={() => { setSelection([]); setPreview(null) }}>Clear selection</button></p>
       <form onSubmit={e => { e.preventDefault(); previewIt(e.currentTarget) }}>
-        <label>Bulk action<select value={kind} onChange={e => { setKind(e.target.value); setPreview(null) }}>{KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
+        <label>Bulk action<select aria-label="Bulk action" value={kind} onChange={e => { setKind(e.target.value); setPreview(null) }}>{KINDS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
         {kind === 'move' && <><label>To stage<select name="stage" required><option value="">Choose…</option>{stages.map(s => <option key={s}>{s}</option>)}</select></label><label>Why<input name="reason" required /></label></>}
         {kind === 'tag' && <label>Tag to add<input name="tag" required /></label>}
         {kind === 'reject' && <>
@@ -69,7 +69,7 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
           <label>Reason<select name="closeReason" required><option value="">Choose…</option>{w.rejectionReasons.filter((r: D) => !r.retired).map((r: D) => <option key={r.id} value={r.id}>{r.group === 'withdrew' ? 'They withdrew: ' : 'We rejected them: '}{r.label}</option>)}</select></label>
           <label>Note (optional)<input name="note" /></label></>}
         {kind === 'message' && <>
-          <label>Reusable message template<select value={templateId} onChange={e => { setTemplateId(e.target.value); setPreview(null) }}><option value="">Write an ad hoc draft</option>{templates.map((t: D) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+          <label>Reusable message template<select aria-label="Reusable message template" value={templateId} onChange={e => { setTemplateId(e.target.value); setPreview(null) }}><option value="">Write an ad hoc draft</option>{templates.map((t: D) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
           <p><a href="/app?settings=message-templates">Manage message templates in Settings</a></p>
           {templateId ? <p>The latest reviewed version in each application’s recorded language will be filled below. Other jobs and missing language reviews are refused.</p> : <>
           <p className="muted">Merge fields: {'{candidate_name}'}, {'{job_title}'}, {'{business_name}'}. Each candidate gets a draft to approve and download; Lodge sends nothing.</p>
@@ -83,7 +83,7 @@ export function BulkActions({ v, w, reload, selection, setSelection }: { v: D; w
       <p>{preview.ready} ready · {preview.refused} refused</p>
       <Table heads={['Candidate', 'Job', 'Outcome']}>{preview.items.map((i: D) => <tr key={i.application}>
         <td>{i.candidateName ?? name(i.application)}</td><td>{i.job ?? title(i.application)}</td>
-        <td>{i.ok ? <Status tone="good">Ready</Status> : <Status tone="alert">{i.refusal}</Status>}{i.email && <><p>{i.email.sent === false ? 'Draft for' : 'Email to'} {i.email.to}: “{i.email.subject}” — {i.email.body}</p>{i.email.template && <p>{i.email.template} · {i.email.language} · version {i.email.version}</p>}</>}</td>
+        <td className="note"><div className="bulk-outcome">{i.ok ? <Status tone="good">Ready</Status> : <Status tone="alert">{i.refusal}</Status>}{i.email && <><p>{i.email.sent === false ? 'Draft for' : 'Email to'} {i.email.to}: “{i.email.subject}” — {i.email.body}</p>{i.email.template && <p>{i.email.template} · {i.email.language} · version {i.email.version}</p>}</>}</div></td>
       </tr>)}</Table>
       {preview.ready > 0 && <button className="primary" onClick={apply}>Apply to {preview.ready}</button>}
     </section>}

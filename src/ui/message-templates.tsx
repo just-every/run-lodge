@@ -14,8 +14,8 @@ export function MessageTemplates({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>)
   return <section className="card" aria-label="Message template settings">
     <h2>Message templates</h2>
     <p>Review reusable drafts in each application language. Creating drafts requires a filled recipient preview; each exact message still needs approval. Nothing is sent.</p>
-    <label>Template job<select value={job.id} onChange={e => { setJobId(e.target.value); setTemplateId('') }}>{jobs.map((v: D) => <option key={v.id} value={v.id}>{v.title}</option>)}</select></label>
-    <label>Template to review<select value={templateId} onChange={e => setTemplateId(e.target.value)}><option value="">New template</option>{templates.map((t: D) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+    <label>Template job<select aria-label="Template job" value={job.id} onChange={e => { setJobId(e.target.value); setTemplateId('') }}>{jobs.map((v: D) => <option key={v.id} value={v.id}>{v.title}</option>)}</select></label>
+    <label>Template to review<select aria-label="Template to review" value={templateId} onChange={e => setTemplateId(e.target.value)}><option value="">New template</option>{templates.map((t: D) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
     <label>Application language<input value={language} onChange={e => setLanguage(e.target.value)} placeholder="en or es" /></label>
     <Form key={job.id + ':' + templateId + ':' + language + ':' + (template?.versions.at(-1)?.version ?? 0)} label="Save reviewed template" onSubmit={async x => {
       const saved = await mutate('message-template', { ...x, vacancy: job.id, id: template?.id, version: template?.versions.at(-1)?.version, language })

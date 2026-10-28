@@ -22,7 +22,7 @@ export async function messageTemplatePage(browser, { root, origin, evidence, own
     await page.setViewportSize({ width: 1440, height: 1000 })
   }
   try {
-    const { job, spanish } = await messageTemplateJob(run, ownerEmail)
+    const { job, spanish } = await messageTemplateJob(run, ownerEmail, ownerEmail, ' ' + crypto.randomUUID().slice(0, 8))
     const address = n => ['synthetic-lodge-browser-' + n, 'example.test'].join('@')
     const en = await run('candidate', { name: 'Synthetic Lodge English', email: address(1), phone: '+1 555 0101', source: 'Direct', consentBasis: 'manual', vacancy: job.id })
     await run('candidate', { name: 'Synthetic Lodge missing phone', email: address(3), source: 'Direct', consentBasis: 'manual', vacancy: job.id })

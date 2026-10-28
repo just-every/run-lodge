@@ -1,5 +1,6 @@
 import type { State } from '../core/state'
 import { requireApplication, requireCan, requireMember, requireRole } from '../core/access'
+import { blindFor } from '../core/blind'
 import { requireMessageContact } from './messages'
 import { requireCurrentTemplateRecipient } from './message-templates'
 import { canonical, now, oneOf, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
@@ -68,6 +69,7 @@ export async function decide(s: State, a: Actor, b: Data) {
   if (approval.subjectKind === 'message' && subject.templateDraft) {
     const app = requireApplication(s, a, subject.application)
     requireMessageContact(s, a, app)
+    requireThat(!blindFor(s, a, app), 'Reveal this application before reviewing a contact draft', 409)
     requireCurrentTemplateRecipient(s, subject, app)
   }
   // OPS-004: deciding a job's terms or an offer needs "approve" on that job.

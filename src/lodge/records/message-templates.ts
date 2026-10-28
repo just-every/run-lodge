@@ -1,5 +1,6 @@
 import type { State } from '../core/state'
 import { can, managesVacancy, requireApplication, requireCan, requireManages } from '../core/access'
+import { blindFor } from '../core/blind'
 import { canonical, now, oneOf, requireThat, text, uid, type Actor, type Data } from '../core/types'
 import { languageTag } from '../languages/posts'
 import { MERGE_FIELDS } from './rejections'
@@ -53,6 +54,7 @@ export function messageTemplatesView(s: State, a: Actor) {
 export function templateMessage(s: State, a: Actor, reference: Data, application: string) {
   const app = requireApplication(s, a, application), job = s.get('vacancy', app.vacancy)
   requireManages(a, job); requireCan(s, a, job, 'contact')
+  requireThat(!blindFor(s, a, app), 'Reveal this application before reviewing a contact draft', 409)
   const template = s.get('message-template', reference.id)
   requireThat(template.vacancy === job.id, 'This template belongs to another job', 409)
   requireThat(reference.revision === s.revisionOf('message-template', template.id), 'This template changed; select and preview its current version', 409)
