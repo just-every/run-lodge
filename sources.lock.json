@@ -4391,7 +4391,7 @@
       "executable": false
     },
     "tests/integrations-browser.mjs": {
-      "sha256": "6d9b88d4d131d18d7f4718f9dfab9485029d6d79b3c212ae151ae9cde6143810",
+      "sha256": "f0db6ef02d3cce901a8ceff26395f38ff3b038575d064bad36145aa6bd52003a",
       "executable": false
     },
     "tests/language-fixtures.mjs": {
@@ -4459,7 +4459,7 @@
       "executable": false
     },
     "tests/portability.test.mjs": {
-      "sha256": "de8e43ec3a6981a5cd41b55455542e0015ff27ce54387da732ed99a52cf17080",
+      "sha256": "b4d80572b09ea154b75457786e5c8d0e45d7ada81414bcff8096b3be4de55dde",
       "executable": false
     },
     "tests/posts-page.mjs": {

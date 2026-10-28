@@ -60,13 +60,13 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   await src.command('review-duplicate',{keep:b.id,other:c.id,decision:'merge',reason:'Same person'})
   await src.command('review-duplicate',{keep:a.id,other:b.id,decision:'merge',reason:'Same person'})
   assert.equal((await src.send('/api/lodge/delete-candidate',{candidate:deleted.id,confirm:deleted.name,reason:'Erase'},src.owner)).status,200)
-  // OPS-001: the complete audit round-trips through the archive unchanged, with no erased person's text in it.
-  const audit = (await src.send('/api/lodge/audit', undefined, src.owner)).value
-  assert.ok(audit.total > 20 && audit.events.some(e => e.action === 'candidate-deleted' && e.record === 'candidate:' + deleted.id) && !JSON.stringify(audit).includes('Deleted person'))
   const appCredential = await src.send('/api/lodge/integrations', { name: 'Synthetic archive app', jobs: [vacancy.id], fields: ['identity'] }, src.owner)
   assert.equal(appCredential.status, 200, appCredential.text)
   const appToken = appCredential.value.token
   const appHash = createHash('sha256').update(appToken).digest('hex')
+  // OPS-001: the complete audit round-trips through the archive unchanged, with no erased person's text in it.
+  const audit = (await src.send('/api/lodge/audit', undefined, src.owner)).value
+  assert.ok(audit.total > 20 && audit.events.some(e => e.action === 'candidate-deleted' && e.record === 'candidate:' + deleted.id) && !JSON.stringify(audit).includes('Deleted person'))
   const service = await createPortability({ db: src.db, policy })
   const exportId = await service.exports.create()
   while ((await service.exports.advance(exportId, { maxParts: 16 })).phase === 'building') {}

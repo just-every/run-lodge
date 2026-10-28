@@ -12,7 +12,10 @@ export async function integrationsPage(browser, { root, origin, run, evidence, o
     await page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Settings', exact: true }).click()
     const panel = page.getByRole('region', { name: 'Application integrations', exact: true })
     await panel.getByRole('heading', { name: 'Application integrations', exact: true }).waitFor()
-    await panel.getByLabel('Integration job', { exact: true }).selectOption(job.id)
+    const metadata = await owner.context.request.get(origin + '/api/lodge/integrations')
+    assert.equal(metadata.status(), 200, await metadata.text())
+    assert.ok((await metadata.json()).jobs.some(j => j.id === job.id), 'the settings list contains the authorized job')
+    await panel.locator('select[name="job"]').selectOption(job.id)
     await panel.getByLabel('Integration name', { exact: true }).fill('Synthetic browser reader')
     await panel.getByLabel('Allow candidate names', { exact: true }).check()
     async function capture(state) {
@@ -53,5 +56,8 @@ export async function integrationsPage(browser, { root, origin, run, evidence, o
     await entry.getByText('Revoked', { exact: false }).waitFor()
     assert.equal(await tokenControl.count(), 0, 'native reads never reveal the token again')
     assert.deepEqual(errors, [])
+  } catch (error) {
+    await page.screenshot({ path: evidence + '/integrations-failure.png', fullPage: true })
+    throw error
   } finally { await owner.context.close() }
 }
