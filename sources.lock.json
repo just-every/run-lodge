@@ -1527,7 +1527,7 @@
       "executable": false
     },
     "src/lodge/move-in/cutover.ts": {
-      "sha256": "5380c8a5a8c63c499365003c593aed2a225b787243dbfe46713296ab4e0f068b",
+      "sha256": "830a81b9809d5ca02a5818a0e223d771453b77cdac9903096214dadd00e31e8b",
       "executable": false
     },
     "src/lodge/move-in/imports.ts": {
@@ -4327,7 +4327,7 @@
       "executable": false
     },
     "tests/cutover-driver.mjs": {
-      "sha256": "40bcb3600c2f5d1008f861cb6e8ef45468beb5ddf58c01e8e78041ffdd0cdcd6",
+      "sha256": "b2595c1655b14565246be03de32aeacd48298e3df15c963a4342d61a8b3f16cc",
       "executable": false
     },
     "tests/delay-analysis-browser.mjs": {
