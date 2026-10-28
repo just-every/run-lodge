@@ -11,9 +11,10 @@ export const takeHomePages = new Hono<{ Bindings: Bindings }>()
 type C = Context<{ Bindings: Bindings }>
 const path = (receipt: string, assignment: string) => `/candidate/receipts/${encodeURIComponent(receipt)}/take-home/${encodeURIComponent(assignment)}`
 
+// Native form posts retain their origin while private receipt paths stay out of referrers.
 takeHomePages.use('*', async (c, next) => {
   await next()
-  c.header('cache-control', 'no-store'); c.header('referrer-policy', 'no-referrer'); c.header('x-content-type-options', 'nosniff')
+  c.header('cache-control', 'no-store'); c.header('referrer-policy', 'strict-origin'); c.header('x-content-type-options', 'nosniff')
 })
 takeHomePages.onError((error, c) => {
   if (error instanceof Fault) return page('Take-home unavailable', `<h1>Take-home unavailable</h1><p role="alert">${esc(error.message)}</p>${error.status === 401 ? '<p><a href="/signin?returnTo=%2Fcandidate">Sign in to your candidate account</a></p>' : ''}`, error.status)

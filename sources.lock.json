@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "26366536f6df8e42c2646e3da76c3fcafb4198d213c9081253b03638dc1e16ce",
+      "sha256": "c93eaf63e8076f21a21fd9dfa7a002e9b0f87878d2d05fe8548c999e957bca88",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "7a17a3d2cfc6097a89ebe04697e7ca518f5c6bd8d0939fcae549c2c70578985e",
+      "sha256": "e549f7d049e6d76f8ac51e86b0ed4297d2b9647b6269de3c6fc4386bcdf7db25",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "02a46e4f8cdcaddd345680ac80cd4c38d87bacc80ed50e0c79d604bf74b80957",
+      "sha256": "99a217c28b1343141b409ba9da61de61234a3bd5109b7df74aaa0bde22b79f55",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -1195,11 +1195,11 @@
       "executable": false
     },
     "src/lodge/assessments/http.ts": {
-      "sha256": "01f8d9c61c26b9e7ee3ca4a402d1a10f310549e2c24c944ec71c9732fbd91d97",
+      "sha256": "dac157d8241e4c28a449ff421b16f5b2901bec3f68c11589d5f03a7f74f4d249",
       "executable": false
     },
     "src/lodge/assessments/records.ts": {
-      "sha256": "b79e4da69edbefef09f947f4b6cdff3c4a9115d566be9c27b9ede05075e08171",
+      "sha256": "fc35c72faef243953ddc04a04aacc60b3ba6e82970349037f8f31b522e1f7dc8",
       "executable": false
     },
     "src/lodge/candidate/access.ts": {
@@ -4127,7 +4127,7 @@
       "executable": false
     },
     "src/ui/take-home.tsx": {
-      "sha256": "799cb07246407deaaa2b8e8f9887452e578979e1810e1bc312bdaebd18ce242d",
+      "sha256": "ed31450594e03ea812f192c0334e793febc49522ab144f4ef6fb5b10444b6fdb",
       "executable": false
     },
     "src/ui/tasks.tsx": {
@@ -4655,7 +4655,7 @@
       "executable": false
     },
     "tests/take-home-browser.mjs": {
-      "sha256": "bb41a03abb8ed600ce50a4cc49a9a73b25481667b858b0b6923e762d43db2fea",
+      "sha256": "af6150b16e9ab2dac17022ce1f27e7a714752ad6208f4459c660daeb71afe94a",
       "executable": false
     },
     "tests/take-home-flow.mjs": {
