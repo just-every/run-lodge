@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "4919b8d06b4dce443a94f1c0d6ba44bb3a26d0ab81aaf26c111e042526874cda",
+      "sha256": "05b667281666836dc5331380ef64f92674e85f17e1690b220407ef07a83c8d00",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "0702182a0e0d578921ac9783f99b5d51835ee753fe642b4a2764457c791a0c66",
+      "sha256": "d9ec23fcefe5254b7dfaf6501580c578ef0d7ca04d3f6386727b493c9db51d35",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "e0169fd388c09444924d354c9e3de48f2f08c0c90d1c5ea396572899178f6a2f",
+      "sha256": "3e38ae792fac52e2a3957a4a017252945f00f38c3e20f95f39d1a205d2e6a250",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -1619,7 +1619,7 @@
       "executable": false
     },
     "src/lodge/records/bulk.ts": {
-      "sha256": "fc5e0768837981b9516d240f61b60959007a04446cce14908d7bce47bc63aa58",
+      "sha256": "f8bdded5dcd92d84bc06bb697c084a053f34c259861305904b7977030f4a1d62",
       "executable": false
     },
     "src/lodge/records/candidate-lineage.ts": {
@@ -4459,7 +4459,7 @@
       "executable": false
     },
     "tests/message-template-flow.mjs": {
-      "sha256": "2a924b50dff72972a8f7ecdeddc7625c86dc4b108c09740e2bd8924204f21951",
+      "sha256": "06b93ebe034a466926b628428f9eeebf12d560d486746f193d224e03d9d6ce55",
       "executable": false
     },
     "tests/mobile-native-journey.mjs": {
