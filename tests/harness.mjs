@@ -17,9 +17,15 @@ const SETUP_TOKEN = 'synthetic-local-test-setup-token-0123456789abcdef'
 // Only the compiled source is shared. Bindings, sessions, migrations and D1
 // remain private to each fixture. A new test process recompiles the candidate.
 const bundles = new Map()
-function workerBundle(liveMail = false) {
-  const root = process.cwd(), cacheKey = root + (liveMail ? ':live-mail' : ':edge-mail')
-  if (!bundles.has(cacheKey)) bundles.set(cacheKey, build({ entryPoints: ['tests/lodge-worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', mainFields: ['module', 'main'], banner: { js: 'import { createRequire } from "node:module"; const require = createRequire("/");' }, conditions: ['workerd', 'worker', 'browser'], plugins: liveMail ? [] : [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }], external: ['node:*', ...builtinModules], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
+function workerBundle(liveMail = false, devIdentity = false) {
+  const root = process.cwd(), cacheKey = root + (liveMail ? ':live-mail' : ':edge-mail') + (devIdentity ? ':dev' : ':production')
+  const entry = devIdentity ? { stdin: { contents: `
+    import worker from './tests/lodge-worker.ts'
+    import { authConfig } from './src/auth.server.ts'
+    import { withDevIdentity } from './src/modules/operator-auth/dev/index.mjs'
+    export default withDevIdentity(worker, { config: authConfig })
+  `, resolveDir: root, loader: 'ts' } } : { entryPoints: ['tests/lodge-worker.ts'] }
+  if (!bundles.has(cacheKey)) bundles.set(cacheKey, build({ ...entry, bundle: true, write: false, format: 'esm', platform: 'neutral', mainFields: ['module', 'main'], banner: { js: 'import { createRequire } from "node:module"; const require = createRequire("/");' }, conditions: ['workerd', 'worker', 'browser'], plugins: liveMail ? [] : [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }], external: ['node:*', ...builtinModules], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
   return bundles.get(cacheKey)
 }
 
@@ -32,21 +38,18 @@ async function freePort() {
 }
 
 /** A Worker with every migration; `claim: false` leaves it empty, as a restore destination. */
-export async function harness({ claim = true, bindings = {}, outboundService, clock, inbound = false, liveMail = false } = {}) {
+export async function harness({ claim = true, bindings = {}, outboundService, clock, inbound = false, liveMail = false, devIdentity = false } = {}) {
   const port = await freePort(), origin = `http://127.0.0.1:${port}`
   const dir = await mkdtemp(join(tmpdir(), 'lodge-test-'))
-  const bundle = await workerBundle(liveMail)
-  const runtimeOptions = {
-    ...convertV4MiniflareOptions({
-      host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat', 'global_fetch_strictly_public'],
-      d1Databases: { DB: 'lodge' },
-      ...(outboundService ? { outboundService } : {}),
-      bindings: { AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: 'local-test-secret-not-production-0123456789', SETUP_TOKEN, TEST_CLOCK: clock ?? '', MAIL_PROVIDER: 'development', MAIL_FROM: 'Lodge <lodge@example.test>', ...bindings },
-    }),
-    unsafeTriggerHandlers: inbound,
-    resourcePersistencePath: dir,
+  const bundle = await workerBundle(liveMail, devIdentity)
+  const workerOptions = {
+    host: '127.0.0.1', port, modules: true, script: bundle.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat', 'global_fetch_strictly_public'],
+    d1Databases: { DB: 'lodge' },
+    ...(outboundService ? { outboundService } : {}),
+    bindings: { AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: 'local-test-secret-not-production-0123456789', SETUP_TOKEN, TEST_CLOCK: clock ?? '', MAIL_PROVIDER: 'development', MAIL_FROM: 'Lodge <lodge@example.test>', ...bindings },
   }
-  let mf = new Miniflare(runtimeOptions)
+  const runtimeOptions = () => ({ ...convertV4MiniflareOptions(workerOptions), unsafeTriggerHandlers: inbound, resourcePersistencePath: dir })
+  let mf = new Miniflare(runtimeOptions())
   try {
     let db = await mf.getD1Database('DB')
     for (const file of (await readdir('migrations/core')).filter(f => f.endsWith('.sql')).sort())
@@ -101,7 +104,12 @@ export async function harness({ claim = true, bindings = {}, outboundService, cl
       assert.equal(confirmed.status, 303, JSON.stringify(confirmed.value))
       return confirmed.cookie
     }
-    return { get db() { return db }, get mf() { return mf }, origin, owner, async restart() { await mf.dispose(); mf = new Miniflare(runtimeOptions); db = await mf.getD1Database('DB') }, async setTime(at) { assert.ok(clock, 'enable the test clock explicitly'); assert.equal((await send('/__test/clock', { at })).status, 200) }, send, command, state, member, signIn, async close() { await mf.dispose(); await rm(dir, { recursive: true, force: true }) } }
+    return { get db() { return db }, get mf() { return mf }, origin, owner, async restart(options = {}) {
+      await mf.dispose()
+      if (options.devIdentity !== undefined) workerOptions.script = (await workerBundle(liveMail, options.devIdentity)).outputFiles[0].text
+      Object.assign(workerOptions.bindings, options.bindings ?? {})
+      mf = new Miniflare(runtimeOptions()); db = await mf.getD1Database('DB')
+    }, async setTime(at) { assert.ok(clock, 'enable the test clock explicitly'); assert.equal((await send('/__test/clock', { at })).status, 200) }, send, command, state, member, signIn, async close() { await mf.dispose(); await rm(dir, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose(); await rm(dir, { recursive: true, force: true })
     throw error

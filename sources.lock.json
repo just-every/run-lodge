@@ -1475,7 +1475,7 @@
       "executable": false
     },
     "src/lodge/http/integrations.ts": {
-      "sha256": "6437c2799b844b0a1fd33875d00013764269739ab0b27a21bead11a606441926",
+      "sha256": "a87d994fdcffb4c73dde7bcc912320e3177e0ca58ac9947701e70828f12e6fc7",
       "executable": false
     },
     "src/lodge/http/privacy-pages.ts": {
@@ -1495,7 +1495,7 @@
       "executable": false
     },
     "src/lodge/integrations/credentials.ts": {
-      "sha256": "852d1b767e83bd26d3279d3fdffff7507f3c1896d4c983ea112a9ec32ffd2429",
+      "sha256": "755d036e285f7ef67870f65263459c7997ec66a03660cced41c0639fc267bd30",
       "executable": false
     },
     "src/lodge/languages/copy.ts": {
@@ -4359,7 +4359,7 @@
       "executable": false
     },
     "tests/harness.mjs": {
-      "sha256": "da939bbe77e1096a4c73076508c8f4f376875e7925ec8aa1f52c291bf0a1da64",
+      "sha256": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
       "executable": false
     },
     "tests/hiring-candidates.test.mjs": {
@@ -4387,7 +4387,7 @@
       "executable": false
     },
     "tests/integration-api-flow.mjs": {
-      "sha256": "5126da308b65a95b882838db59fd8b390dbcdcc66530928c9501f8d11adab263",
+      "sha256": "b7c4516ef1ea2e4bfd7f4c43cd2821eeea393b698cddd7c296c619516d465844",
       "executable": false
     },
     "tests/integrations-browser.mjs": {

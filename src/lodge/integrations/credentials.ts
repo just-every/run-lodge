@@ -1,3 +1,4 @@
+import { devAdmitted } from '../../modules/operator-auth/dev-admission.mjs'
 import { AuthStore } from '../../modules/operator-auth/accounts/store.mjs'
 import { actorFor, load, save, type Session } from '../core/store'
 import { can, canReview, cleared, isAdmin, managesVacancy } from '../core/access'
@@ -56,13 +57,14 @@ export async function manageCredential(db: D1Database, state: State, actor: Acto
 }
 
 /** Reuse Base's live session validation, including provider pins and deprovisioning. */
-export async function integrationContext(db: D1Database, authorization: string | undefined) {
+export async function integrationContext(db: D1Database, request: Request) {
+  const authorization = request.headers.get('authorization')
   requireThat(authorization && /^Bearer lodge-app\.[a-f0-9]{64}$/.test(authorization), 'App credential required', 401)
   const row = await db.prepare('SELECT * FROM l_app_credentials WHERE token_hash=? AND revoked_at IS NULL').bind(await sha256(authorization.slice(7))).first<Credential>()
   requireThat(row, 'App credential is no longer active', 401)
   const native = await db.prepare('SELECT token_hash FROM oa_sessions WHERE id=? AND operator_id=?').bind(row.author_session, row.author_id).first<{ token_hash: string }>()
   const session = native && await new AuthStore(db).session(native.token_hash, Date.now()) as Session | null
-  requireThat(session, 'Authorizing session is no longer active', 401)
+  requireThat(session && (session.kind !== 'dev' || await devAdmitted(request)), 'Authorizing session is no longer active', 401)
   const state = await load(db), actor = actorFor(session, state)
   requireThat(!actor.agent && canReview(actor), 'Recruiting membership required', 403)
   return { state, actor, credential: row, jobs: JSON.parse(row.jobs) as string[], fields: JSON.parse(row.fields) as string[] }
