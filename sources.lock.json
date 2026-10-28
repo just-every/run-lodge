@@ -1127,11 +1127,11 @@
       "executable": false
     },
     "src/lodge/agents/coordination-cases.ts": {
-      "sha256": "691b104dc5de1b983c880b2f35da3c68c19058583c314b004da74ec75b6c8500",
+      "sha256": "efbfd33f7cae86607854eb737b107e1ca6655ca3304c31f9bb14ef48c6018741",
       "executable": false
     },
     "src/lodge/agents/coordination.ts": {
-      "sha256": "e62d20e3ba5eefb74eedd7d815ad6e5c2a850059810df7ca094dcd9d61c3ba59",
+      "sha256": "625df2b4808e568ba56db685dac80a32320e9d0e0e8c06cc2ccc62f3a32fcf63",
       "executable": false
     },
     "src/lodge/agents/debriefs.ts": {
@@ -4311,11 +4311,11 @@
       "executable": false
     },
     "tests/coordination-case-browser.mjs": {
-      "sha256": "b4aec87083919036d0a5dbf25e476c8caf3dc042d82b2dfb7beec38bbc7c4afe",
+      "sha256": "e9ae60f2d9d1d0ecc2d036e8a034d87c6717ba838d96db5e15181b064adddd7d",
       "executable": false
     },
     "tests/coordination-case-flow.mjs": {
-      "sha256": "cd474d0d562162f24216117d5b167eb317326a7f0ce42452d8116d8a5dbaa2e1",
+      "sha256": "4439a1285fe8fd8441cbe52612facf0292f24f2960fb77d5fbbf6106457f2847",
       "executable": false
     },
     "tests/crm-browser.mjs": {
