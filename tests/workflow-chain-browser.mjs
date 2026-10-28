@@ -65,7 +65,7 @@ export async function workflowChainPage(browser, { root, origin, run, evidence, 
         }
         const decide = async (actor, reason) => {
           const card = await open(actor)
-          await card.getByLabel('Decision', { exact: true }).selectOption('approved')
+          await card.getByRole('combobox', { name: /^Decision/ }).selectOption('approved')
           await card.getByLabel('Reason', { exact: true }).fill(reason)
           await card.getByRole('button', { name: 'Record decision', exact: true }).click()
           await actor.page.getByText('Saved.', { exact: true }).waitFor()
