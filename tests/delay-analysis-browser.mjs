@@ -11,7 +11,7 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
   if (process.env.LODGE_BROWSER_WIDTH === '390') return
   await mkdir(evidence, { recursive: true })
   const owner = await session(browser, root, origin, 'owner', 1440), { page, context } = owner
-  const agentEmail = ['synthetic-lodge-delay-browser-agent', 'dev.localhost'].join('@')
+  let agentEmail
   let agent
   try {
     const job = await run('vacancy', { title: 'Synthetic delay diagnosis review', location: 'Denver, CO', manager: ownerEmail, headcount: 2, compensation: RANGE })
@@ -27,6 +27,7 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     const requested = await run('request-offer-approval', { id: offer.id, approver: ownerEmail })
     await run('decide-approval', { id: requested.id, version: requested.version, decision: 'approved', reason: 'Reviewed exact terms' })
     await run('offer-outcome', { id: offer.id, outcome: 'declined', reason: 'Recorded response' })
+    agentEmail = ['synthetic-lodge-delay-agent-' + job.id.slice(0, 8), 'dev.localhost'].join('@')
     await run('member', { email: agentEmail, name: 'Synthetic delay browser agent', roles: [], agent: true, actsFor: ownerEmail })
     const invitation = await context.request.post(origin + '/api/lodge/invite', { headers: { origin }, data: { email: agentEmail } })
     assert.equal(invitation.status(), 200)
@@ -35,17 +36,19 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     assert.equal(response.status(), 200)
     const report = await response.json()
     const body = delayDraft(report, ownerEmail)
+    body.summary += ' ' + job.id.slice(0, 8)
     body.sampleLimits = 'Two cases in this browser cohort; incomplete and unfinished histories remain excluded from means.'
     const packet = await api(agent.context, origin, 'propose', body)
     await page.reload()
     await page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: /^Proposals/ }).click()
     const panel = page.getByRole('region', { name: 'Native delay evidence', exact: true })
     await panel.getByText('Inspect native delay evidence', { exact: true }).click()
-    await panel.getByLabel('Delay evidence job', { exact: true }).selectOption(job.id)
+    await panel.getByLabel('Delay evidence job').selectOption(job.id)
     await panel.getByRole('button', { name: 'Load delay evidence', exact: true }).click()
     await panel.getByText('2 cases · 2 completed stage intervals', { exact: false }).waitFor()
-    await panel.getByText('Source case: Synthetic delay case 1', { exact: true }).click()
-    await panel.getByText('Exact event citation', { exact: true }).first().click()
+    const sourceCase = panel.getByText('Source case: Synthetic delay case 1', { exact: true }).locator('..')
+    await sourceCase.locator('summary').first().click()
+    await sourceCase.getByText('Exact event citation', { exact: true }).first().click()
     const capture = async name => {
       await iconTooltips(page)
       for (const width of [1440, 390]) {
@@ -57,22 +60,24 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     assert.ok((await panel.innerText()).includes('Survey feedback: unknown'))
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
     await capture('delay-source-drill')
-    const draft = page.getByRole('article', { name: 'Delay diagnosis draft', exact: true })
+    const draft = page.getByRole('article', { name: 'Delay diagnosis draft', exact: true }).filter({ hasText: body.summary })
     await draft.getByText('Finding citations', { exact: true }).click()
     await draft.getByText('Evidence read for this draft', { exact: true }).click()
     assert.ok((await draft.innerText()).includes('No hiring decision or configuration changes here'))
     assert.ok((await draft.innerText()).includes(report.sources.find(s => s.kind === 'offer').revision))
     await capture('delay-draft-review')
     const before = await current(context, origin)
-    await draft.getByLabel('Draft decision', { exact: true }).selectOption('rejected')
+    await draft.getByLabel('Draft decision').selectOption('rejected')
     await draft.getByLabel('Draft review reason', { exact: true }).fill('Need a larger cohort before a trial')
     await draft.getByRole('button', { name: 'Record draft review', exact: true }).click()
     await draft.getByText('Agent-authored diagnosis draft · rejected', { exact: true }).waitFor()
     const after = await current(context, origin)
     for (const key of ['applications', 'offers', 'vacancies', 'sandboxes']) assert.deepEqual(after[key], before[key])
     await capture('delay-rejected-draft')
-    await panel.getByRole('button', { name: 'Open application history', exact: true }).first().click()
+    await panel.getByText('Source case: Synthetic delay case 1', { exact: true }).click()
+    await sourceCase.getByRole('button', { name: 'Open application history', exact: true }).click()
     await page.getByRole('heading', { name: 'Synthetic delay case 1', exact: true }).waitFor()
+    assert.equal(await page.getByRole('button', { name: 'Apply change', exact: true }).count(), 0, 'a diagnosis is not offered as a hiring command')
     await capture('delay-application-history')
     assert.equal(after.proposals.find(p => p.id === packet.id).status, 'rejected')
   } catch (error) {

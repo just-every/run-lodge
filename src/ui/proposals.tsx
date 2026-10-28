@@ -12,7 +12,7 @@ export function Proposals({ w, mutate, follow }: PageProps) {
     <p className="hint">A coding agent signed in as its own Lodge member reads the same records you can and proposes exact changes through the API (see API.md). Nothing changes until a person approves; approval re-checks that every record it read is unchanged and runs the changes with the approver’s own permissions. No model runs inside Lodge.</p>
     <DelayAnalysis w={w} follow={follow} />
     {w.proposals.filter((p: D) => p.workflow === 'delay-diagnosis').map((p: D) => <DelayDraft key={p.id} p={p} w={w} mutate={mutate} follow={follow} />)}
-    {!open.length && <Empty icon="proposals" title="No proposals waiting.">When an agent member proposes changes for you, they wait here until you approve or reject them.</Empty>}
+    {!open.length && !w.proposals.some((p: D) => p.workflow === 'delay-diagnosis' && p.status === 'proposed') && <Empty icon="proposals" title="No proposals waiting.">When an agent member proposes changes for you, they wait here until you approve or reject them.</Empty>}
     {open.map((p: D) => <article key={p.id} className="card">
       <p className="eyebrow">{sentence(p.workflow.replace(/-/g, ' '))}</p>
       <h2>{p.summary}</h2>

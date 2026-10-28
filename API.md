@@ -894,7 +894,10 @@ The agent sends `propose` with `workflow: "delay-diagnosis"`, a human `approver`
 the returned `cohort` and complete unchanged `sources`, plus `summary`, `findings`,
 `uncertainty`, `sampleLimits`, `proposedChange` and `successCriterion`. Each finding
 has an `observation` or `hypothesis` kind, text and exact event or offer citations
-from that evidence. A citation contains `kind`, `id` and `revision`. The principal
+from that evidence. A required `measurement` names `metric: "mean-completed-stage-hours"`,
+the observed `stage`, a lower nonnegative `targetHours`, positive
+`minimumIntervals` and future `windowDays`. Lodge binds its baseline to the
+observed completed visits; this is a proposed criterion, not a trial receipt. A citation contains `kind`, `id` and `revision`. The principal
 and reviewer must have the same current cohort evidence. Lodge runs no model.
 
 The named human uses `decide-proposal` with `accepted` or `rejected` and a reason.
