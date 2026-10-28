@@ -1,3 +1,4 @@
+import { delegationCurrent } from '../records/approval-delegations'
 import { blindFor } from './blind'
 import type { State } from './state'
 import { Fault, requireThat, scope, type Actor, type Data, type Role } from './types'
@@ -281,6 +282,12 @@ export function canSeeApproval(s: State, a: Actor, approval: Data) {
     if (approval.subjectKind === 'vacancy') return cleared(a, subject, 'confidential')
     const app = subject.application && s.find('application', subject.application)
     return !app || canSeeApplication(s, a, app)
+  }
+  if (approval.chain && has(a, 'approver') && !a.agent) {
+    const vacancy = s.find('vacancy', approval.subjectId)
+    if (vacancy && can(s, a, vacancy, 'approve') && (
+      (approval.delegations ?? []).some((d: Data) => d.delegate === scope(a) && delegationCurrent(s, d, vacancy)) ||
+      (approval.escalations ?? []).some((e: Data) => e.owner === scope(a)))) return true
   }
   if ((approval.approver === scope(a) || approval.chain?.steps.some((step: Data) => step.approvers.includes(scope(a)))) && has(a, approval.subjectKind === 'message' ? 'manager' : 'approver')) {
     if (!approval.chain) return true

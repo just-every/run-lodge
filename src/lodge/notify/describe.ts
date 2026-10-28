@@ -1,4 +1,4 @@
-import { waitingApprovers } from '../records/approval-chains'
+import { approvalRecipients } from '../records/approval-chains'
 import type { State } from '../core/state'
 import { blindCode, blindFor, redactor } from '../core/blind'
 import { canSeeApplication, canSeeApproval, canSeeCandidate, canSeeTeamNote, isAgency, onTeam } from '../core/access'
@@ -23,7 +23,7 @@ export function memberActor(s: State, m: Data | undefined): Actor | null {
 export function reach(s: State, who: Actor, alert: Data) {
   if (isAgency(who)) return false
   if (alert.textOnly) return true
-  if (alert.event === 'approval') { const approval = s.find('approval', alert.approval); return !!approval && approval.status === 'pending' && (!approval.chain || waitingApprovers(approval).includes(who.email)) && canSeeApproval(s, who, approval) }
+  if (alert.event === 'approval') { const approval = s.find('approval', alert.approval); return !!approval && approval.status === 'pending' && (!approval.chain || approvalRecipients(approval).includes(who.email)) && canSeeApproval(s, who, approval) }
   if (alert.note) { const note = s.find('team-note', alert.note); if (!note || !canSeeTeamNote(s, who, note)) return false }
   const app = s.find('application', alert.application)
   if (app) return canSeeApplication(s, who, app) && (alert.scope !== 'team' || onTeam(who.email, s.get('vacancy', app.vacancy)))
@@ -45,7 +45,7 @@ export function describe(s: State, alert: Data, who: Actor) {
   switch (alert.event) {
     case 'application': title = `New application: ${name}`; detail = job; break
     case 'assigned': title = `${by} assigned you to review ${name}`; detail = job; break
-    case 'approval': { const approval = s.find('approval', alert.approval); title = `Approval waiting: ${approval?.terms?.title ?? approval?.terms?.subject ?? 'a request'}`; detail = `Requested by ${personName(s, approval?.requestedBy ?? null)}`; break }
+    case 'approval': { const approval = s.find('approval', alert.approval); title = `${alert.what === 'escalated' ? 'Approval escalated' : 'Approval waiting'}: ${approval?.terms?.title ?? approval?.terms?.subject ?? 'a request'}`; detail = `Requested by ${personName(s, approval?.requestedBy ?? null)}`; break }
     case 'scorecard': title = `${by} submitted a scorecard for ${name}`; detail = job; break
     case 'feedback': title = `Feedback was released for ${name}`; detail = job; break
     case 'interview': title = `${iv ? iv.title.split(':')[0] : 'Interview'} ${alert.what}${at ? ' for ' + at : ''}: ${name}`; detail = job; break

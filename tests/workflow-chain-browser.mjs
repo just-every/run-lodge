@@ -7,7 +7,7 @@ export async function workflowChainPage(browser, { root, origin, run, evidence, 
   const address = name => [name, 'dev.localhost'].join('@')
   const approverEmail = address('approver'), finalEmail = address('interviewer')
   await run('member', { email: finalEmail, name: 'Ivy Chen', roles: ['interviewer', 'approver'] })
-  const steps = [{ approvers: [ownerEmail] }, { approvers: [approverEmail, finalEmail] }]
+  const steps = [{ approvers: [ownerEmail], escalation: { businessDays: 1, owner: approverEmail } }, { approvers: [approverEmail, finalEmail] }]
   try {
     for (const width of browserWidths) {
       const owner = await session(browser, root, origin, 'owner', width)
@@ -30,7 +30,7 @@ export async function workflowChainPage(browser, { root, origin, run, evidence, 
         await page.getByLabel('I selected synthetic test data; these are not live candidates or recipients').check()
         await page.getByRole('button', { name: 'Clone into sandbox', exact: true }).click()
         const box = page.getByRole('article', { name: 'Sandbox ' + name, exact: true })
-        await box.getByLabel('Headcount approval steps', { exact: false }).fill(steps.map(step => step.approvers.join(', ')).join('\n'))
+        await box.getByLabel('Headcount approval steps', { exact: false }).fill(steps.map(step => step.approvers.join(', ') + (step.escalation ? ' | ' + step.escalation.businessDays + ' | ' + step.escalation.owner : '')).join('\n'))
         await box.getByRole('button', { name: 'Save trial configuration', exact: true }).click()
         await box.getByRole('button', { name: 'Preview expected outcomes', exact: true }).click()
         await box.getByRole('heading', { name: 'Headcount chain preview', exact: true }).waitFor()
@@ -95,7 +95,51 @@ export async function workflowChainPage(browser, { root, origin, run, evidence, 
         }
         await final.page.screenshot({ path: join(evidence, `headcount-chain-complete-${width}.png`), fullPage: true })
         assert.ok(await final.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'chain decisions fit the viewport')
-      } finally { await owner.context.close(); await approver.context.close(); await final.context.close() }
+        // Configure the approver's own delegation under Settings, then decide through
+        // the delegate's real session. The request keeps each named principal.
+        await approver.page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Settings', exact: true }).click()
+        const settings = approver.page.getByRole('region', { name: 'Approval delegation settings' })
+        await settings.getByRole('combobox', { name: /^Delegate approver/ }).selectOption(finalEmail)
+        await settings.getByLabel('First day away', { exact: true }).fill('2020-01-01')
+        await settings.getByLabel('Last day away', { exact: true }).fill('2099-12-31')
+        await settings.getByRole('button', { name: 'Save approval delegation', exact: true }).click()
+        await settings.getByRole('button', { name: 'End approval delegation', exact: true }).waitFor()
+        await approver.page.screenshot({ path: join(evidence, `headcount-delegation-settings-${width}.png`), fullPage: true })
+        const delegatedJob = await run('vacancy', { title: 'Delegated headcount ' + width, location: 'Denver', headcount: 1, manager: address('manager'), compensation: { currency: 'USD', min: 6000000, max: 8000000, period: 'year' } })
+        await run('rubric', { id: delegatedJob.id, criteria: [{ name: 'Safe work', description: 'Explains safe operating steps' }] })
+        await run('interview-plan', { id: delegatedJob.id, plan: [{ name: 'Work review', stageName: 'Interview' }] })
+        const trial = await run('sandbox-create', { name: 'Delegated review ' + width, vacancy: delegatedJob.id, mode: 'synthetic', confirmSynthetic: true, samples: [{ label: 'synthetic-lodge-30' }] })
+        await run('sandbox-edit', { id: trial.id, edits: [{ op: 'approval-routing', input: { chain: [{ approvers: [approverEmail], escalation: { businessDays: 1, owner: ownerEmail } }, { approvers: [ownerEmail] }] } }] })
+        const preview = await run('sandbox-preview', { id: trial.id })
+        await run('sandbox-deploy', { id: trial.id, token: preview.token, confirmProduction: true })
+        const delegatedRequest = await run('request-vacancy-approval', { id: delegatedJob.id })
+        const delegatedCard = async actor => {
+          await actor.page.reload()
+          await actor.page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Approvals', exact: true }).click()
+          return actor.page.locator('#approval-' + delegatedRequest.id)
+        }
+        const delegateCard = await delegatedCard(final)
+        await delegateCard.getByText(/Delegated review:/).waitFor()
+        await final.page.screenshot({ path: join(evidence, `delegated-headcount-review-${width}.png`), fullPage: true })
+        for (const actor of [final, owner]) {
+          const card = await delegatedCard(actor)
+          await card.getByRole('combobox', { name: /^Decision/ }).selectOption('approved')
+          await card.getByLabel('Reason', { exact: true }).fill('Reviewed current delegated headcount terms')
+          await card.getByRole('button', { name: 'Record decision', exact: true }).click()
+          await actor.page.getByText('Saved.', { exact: true }).waitFor()
+        }
+        const history = owner.page.getByRole('listitem').filter({ hasText: delegatedJob.title })
+        await history.getByText(/approved by Ivy Chen on behalf of Parker Jones/).waitFor()
+        if (width === 1440) {
+          const approved = (await current(owner.context, origin)).approvals.find(x => x.id === delegatedRequest.id)
+          assert.equal(approved.status, 'approved')
+          assert.deepEqual(approved.decisions.map(d => [d.approver, d.by, d.onBehalfOf ?? null]), [[approverEmail, finalEmail, approverEmail], [ownerEmail, ownerEmail, null]])
+        }
+        await owner.page.screenshot({ path: join(evidence, `delegated-headcount-history-${width}.png`), fullPage: true })
+        await settings.getByRole('button', { name: 'End approval delegation', exact: true }).click()
+        await settings.getByRole('button', { name: 'End approval delegation', exact: true }).waitFor({ state: 'hidden' })
+
+      } catch (error) { await approver.page.screenshot({ path: join(evidence, `headcount-journey-refused-${width}.png`), fullPage: true }); console.error('Headcount journey stopped:', await approver.page.locator('body').innerText()); throw error } finally { await owner.context.close(); await approver.context.close(); await final.context.close() }
     }
   } finally { await run('member', { email: finalEmail, name: 'Ivy Chen', roles: ['interviewer'] }) }
 }

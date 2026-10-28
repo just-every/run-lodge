@@ -1,7 +1,7 @@
 import type { PageProps } from './app'
 import { day, money, pay, when } from './format'
 import { KINDS, person, tone } from './names'
-import { Empty, Field, Form, Status, type D } from './shared'
+import { Empty, Field, Form, memberOptions, Status, type D } from './shared'
 
 function Terms({ x, w }: { x: D; w: D }) {
   const t = x.terms
@@ -28,18 +28,37 @@ export function Approvals({ w, mutate }: PageProps) {
     {!pending.length && <Empty icon="approvals" title="Nothing is waiting for you.">Vacancies, offers and messages sent for approval appear here with their exact terms.</Empty>}
     {pending.map((x: D) => {
       const step = x.chain?.steps.findIndex((step: D, index: number) => !step.approvers.every((email: string) => x.decisions.some((d: D) => d.step === index && d.approver === email && d.decision === 'approved')))
-      const waiting = x.chain ? x.chain.steps[step]?.approvers.filter((email: string) => !x.decisions.some((d: D) => d.step === step && d.approver === email)) ?? [] : [x.approver]
+      const waiting = x.waitingApprovers ?? [x.approver]
       const yours = waiting.includes(me)
       return <article key={x.id} id={'approval-' + x.id} className="card approval-card">
         <header className="approval-head"><h2>{KINDS[x.subjectKind]}: {x.terms.title ?? x.terms.subject}</h2><Status tone={yours ? 'alert' : 'warn'}>{yours ? 'waiting on you' : `waiting on ${waiting.map((email: string) => person(w, email)).join(' and ')}`}</Status></header>
         <p className="muted">Requested by {person(w, x.requestedBy)} · {when(x.requestedAt)} · {x.chain ? 'configured headcount chain' : 'approver ' + person(w, x.approver)}</p>
-        {x.chain && <section aria-label="Headcount approval chain"><h3>Headcount approval chain</h3><p>Chain version {x.chain.version.slice(0, 8)}</p><ol>{x.chain.steps.map((item: D, index: number) => <li key={index}>Step {index + 1}: {item.approvers.map((email: string) => { const d = x.decisions.find((d: D) => d.step === index && d.approver === email); return person(w, email) + ': ' + (d ? d.decision + ' (' + d.reason + ')' : index === step ? 'waiting' : 'not started') }).join('; ')}</li>)}</ol><p>Every named person must approve these exact terms. One rejection stops the chain.</p></section>}
+        {x.chain && <section aria-label="Headcount approval chain"><h3>Headcount approval chain</h3><p>Chain version {x.chain.version.slice(0, 8)}</p><ol>{x.chain.steps.map((item: D, index: number) => <li key={index}>Step {index + 1}: {item.approvers.map((email: string) => { const d = x.decisions.find((d: D) => d.step === index && d.approver === email); return person(w, email) + ': ' + (d ? d.decision + (d.onBehalfOf ? ' by ' + person(w, d.by) + ' on behalf of ' + person(w, d.onBehalfOf) : '') + ' (' + d.reason + ')' : index === step ? 'waiting' : 'not started') }).join('; ')}</li>)}</ol><p>Every named person must approve these exact terms. One rejection stops the chain.</p></section>}
+        {x.delegations?.length > 0 && <p>Delegated review: {x.delegations.map((d: D) => person(w, d.delegate) + ' on behalf of ' + person(w, d.approver)).join('; ')}. Delegation and current job authority are checked again before a decision.</p>}
+        {x.stepDueAt && <p>Step {step + 1} escalation due {when(x.stepDueAt)} · {x.timeZone}. Business days are Monday to Friday; public holidays are not excluded.</p>}
+        {x.escalations?.filter((e: D) => e.step === step).map((e: D) => <p key={e.step} role="status">Escalated to {person(w, e.owner)} at {when(e.at)}. Required approvers can still decide; escalation creates no substitute approval.</p>)}
         <Terms x={x} w={w} />
         {x.currentVersion !== x.version ? <p className="warn">This changed after approval was requested. It needs a new request.</p>
           : yours ? <Decision x={x} mutate={mutate} label="Record decision" />
             : w.actor.owner && !x.chain && <details><summary>Decide as the owner instead of {person(w, x.approver)}</summary><p className="hint">An owner’s decision overrides the named approver and is recorded as yours.</p><Decision x={x} mutate={mutate} label="Record owner’s decision" /></details>}
       </article>
     })}
-    {rest.length > 0 && <><h2>History</h2><ul>{rest.map((x: D) => <li key={x.id}>{KINDS[x.subjectKind]} · {x.terms.title ?? x.terms.subject} · <Status tone={tone(x.status)}>{x.status}</Status> · {person(w, x.decidedBy ?? x.approver)} {x.chain && <ol>{x.decisions.map((d: D, index: number) => <li key={index}>Step {d.step + 1}: {person(w, d.approver)} · {d.decision} · {d.reason}</li>)}</ol>}{x.reason ? `· “${x.reason}”` : ''}</li>)}</ul></>}
+    {rest.length > 0 && <><h2>History</h2><ul>{rest.map((x: D) => <li key={x.id}>{KINDS[x.subjectKind]} · {x.terms.title ?? x.terms.subject} · <Status tone={tone(x.status)}>{x.status}</Status> · {person(w, x.decidedBy ?? x.approver)} {x.chain && <ol>{x.decisions.map((d: D, index: number) => <li key={index}>Step {d.step + 1}: {person(w, d.approver)} · {d.decision}{d.onBehalfOf ? ' by ' + person(w, d.by) + ' on behalf of ' + person(w, d.onBehalfOf) : ''} · {d.reason}</li>)}</ol>}{x.reason ? `· “${x.reason}”` : ''}</li>)}</ul></>}
   </div>
+}
+
+/** An approver can change only their own out-of-office routing. */
+export function ApprovalSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
+  if (w.actor.agent || !(w.actor.owner || w.actor.roles.includes('approver'))) return null
+  const d = w.approvalDelegation
+  return <section className="card" aria-label="Approval delegation settings"><h2>Out-of-office approvals</h2>
+    <p>Delegate your headcount reviews to another human approver for inclusive dates in the business time zone. Each delegate also needs current approval permission on the job. Changing or ending delegation requires a new request for unfinished delegated reviews.</p>
+    {d?.active && <p>Delegating to {person(w, d.delegate)} from {day(d.from)} through {day(d.through)} · {d.timeZone}.</p>}
+    <Form label="Save approval delegation" key={d?.version ?? 'new'} onSubmit={v => mutate('approval-delegation', v)}>
+      <Field label="Delegate approver" name="delegate" defaultValue={d?.delegate} options={memberOptions(w.members.filter((m: D) => !m.agent && m.email !== w.actor.email), 'approver')} />
+      <Field label="First day away" name="from" type="date" defaultValue={d?.from} />
+      <Field label="Last day away" name="through" type="date" defaultValue={d?.through} />
+    </Form>
+    {d?.active && <Form label="End approval delegation" compact onSubmit={() => mutate('approval-delegation', { active: false })} />}
+  </section>
 }

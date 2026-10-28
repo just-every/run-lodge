@@ -1,7 +1,8 @@
 import type { State } from '../core/state'
 import { requireCan, requireMember } from '../core/access'
 import { grantsOf } from '../core/store'
-import { list, requireThat, type Actor, type Data } from '../core/types'
+import { statusDue } from '../communications/timing'
+import { integer, list, requireThat, type Actor, type Data } from '../core/types'
 
 /** Every person in a step must decide; steps themselves run in order. */
 export function chainSteps(s: State, value: unknown, job?: Data) {
@@ -14,7 +15,14 @@ export function chainSteps(s: State, value: unknown, job?: Data) {
     })
     requireThat(approvers.length > 0, 'Every approval step needs a named approver')
     requireThat(new Set(approvers).size === approvers.length, 'Name each approver once within a step')
-    return { approvers }
+    let escalation
+    if (step?.escalation) {
+      const owner = requireMember(s, String(step.escalation.owner).trim().toLowerCase(), 'approver')
+      requireThat(!owner.agent && !owner.roles.includes('agency'), 'Choose a human escalation owner')
+      if (job) requireCan(s, { ...owner, grants: grantsOf(s, owner) } as Actor, job, 'approve')
+      escalation = { businessDays: integer(step.escalation.businessDays, 'Business days before escalation', 1, 60), owner: owner.email }
+    }
+    return { approvers, ...(escalation ? { escalation } : {}) }
   })
 }
 
@@ -28,5 +36,16 @@ export function waitingApprovers(approval: Data): string[] {
   if (approval.status !== 'pending') return []
   const index = activeStep(approval)
   return (approval.chain.steps[index]?.approvers ?? []).filter((email: string) =>
-    !(approval.decisions ?? []).some((d: Data) => d.step === index && d.approver === email))
+    !(approval.decisions ?? []).some((d: Data) => d.step === index && d.approver === email)).map((email: string) =>
+      (approval.delegations ?? []).find((d: Data) => d.step === index && d.approver === email)?.delegate ?? email)
+}
+
+/** Escalation requests attention; it never substitutes a required decision. */
+export function approvalRecipients(approval: Data): string[] {
+  return [...new Set([...waitingApprovers(approval), ...(approval.status === 'pending' ? (approval.escalations ?? []).filter((e: Data) => e.step === activeStep(approval)).map((e: Data) => e.owner) : [])])] as string[]
+}
+
+export function stepTiming(approval: Data, at: string) {
+  const step = approval.chain.steps[activeStep(approval)]
+  return { stepStartedAt: at, stepDueAt: step?.escalation ? statusDue({ delayDays: step.escalation.businessDays, weekdays: [1, 2, 3, 4, 5], timeZone: approval.timeZone }, at) : null }
 }

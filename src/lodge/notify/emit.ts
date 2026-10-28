@@ -1,4 +1,4 @@
-import { waitingApprovers } from '../records/approval-chains'
+import { approvalRecipients } from '../records/approval-chains'
 import type { State } from '../core/state'
 import { TEAM_ROLES, teamOf } from '../core/access'
 import { now, uid, type Data } from '../core/types'
@@ -59,5 +59,5 @@ export function notifyOffer(s: State, offer: Data, by: string | null, what: stri
 export function notifyApproval(s: State, approval: Data, by: string) {
   const subject = s.get(approval.subjectKind, approval.subjectId)
   const app = approval.subjectKind === 'vacancy' ? null : s.get('application', subject.application)
-  notify(s, 'approval', waitingApprovers(approval), { vacancy: app ? appVacancy(s, app) : subject, application: app, approval: approval.id, item: approval.id, by, scope: 'addressed' })
+  notify(s, 'approval', approvalRecipients(approval), { vacancy: app ? appVacancy(s, app) : subject, application: app, approval: approval.id, item: approval.id, by, scope: 'addressed' })
 }

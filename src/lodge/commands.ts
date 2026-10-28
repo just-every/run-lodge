@@ -1,3 +1,4 @@
+import { approvalDelegation } from './records/approval-delegations'
 import { referenceQuestionnaire, recordReference } from './references/records'
 import { payRules } from './records/pay-transparency'
 import { vacancyCompliance } from './enterprise/grants'
@@ -74,6 +75,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'approval-delegation': approvalDelegation,
   'reference-questionnaire': referenceQuestionnaire, 'reference-record': recordReference,
   'crm-pool': crmPool, 'crm-enroll': crmEnroll, 'crm-enable': crmEnable, 'crm-apply': crmApply, 'crm-stop': stopEnrollment,
   'hiring-reminder': configureReminder, 'cancel-hiring-reminder': cancelReminder,

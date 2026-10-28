@@ -1,4 +1,6 @@
-import { activeStep, chainSteps, waitingApprovers } from './approval-chains'
+import { delegationCurrent, requestDelegations } from './approval-delegations'
+import { businessZone } from '../core/time'
+import { activeStep, chainSteps, stepTiming, waitingApprovers } from './approval-chains'
 import type { State } from '../core/state'
 import { requireCan, requireMember, requireRole } from '../core/access'
 import { canonical, now, oneOf, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
@@ -56,7 +58,8 @@ export async function requestApproval(s: State, a: Actor, kind: Subject, record:
   const approver = requireMember(s, text(approverEmail, 'Approver').toLowerCase(), kind === 'message' ? 'manager' : 'approver')
   const pending = latestApproval(s, kind, record.id)
   if (pending?.status === 'pending') s.put('approval', pending.id, { ...s.get('approval', pending.id), status: 'superseded', decidedAt: now() })
-  const approval = s.put('approval', uid(), { subjectKind: kind, subjectId: record.id, version: await versionOf(s, kind, record), terms: terms(s, kind, record), requestedBy: a.email, approver: approver.email, ...(chain ? { chain: structuredClone(chain), decisions: [] } : {}), sequence: (pending?.sequence ?? 0) + 1, status: 'pending', requestedAt: now(), purpose })
+  const at = now(), chainState = chain ? { chain: structuredClone(chain), decisions: [], delegations: requestDelegations(s, chain, record, at), timeZone: businessZone(s.get('business', 'main')) } : null
+  const approval = s.put('approval', uid(), { subjectKind: kind, subjectId: record.id, version: await versionOf(s, kind, record), terms: terms(s, kind, record), requestedBy: a.email, approver: approver.email, ...(chainState ? { ...chainState, ...stepTiming(chainState, at) } : {}), sequence: (pending?.sequence ?? 0) + 1, status: 'pending', requestedAt: at, purpose })
   s.audit(a, 'approval-requested', `${kind}:${record.id}`, { approval: approval.id, approver: approver.email })
   notifyApproval(s, approval, a.email)
   return approval
@@ -83,13 +86,16 @@ export async function decide(s: State, a: Actor, b: Data) {
   // The approver must have reviewed the version that is current now.
   requireThat(b.version === current, 'This changed since you opened it; review the current version', 409)
   requireThat(approval.version === current, 'The subject changed after approval was requested; request approval again', 409)
-  const decisions = approval.chain ? [...approval.decisions, { step: activeStep(approval), approver: a.email, decision, reason, by: a.email, at: now() }] : undefined
+  const step = activeStep(approval)
+  const delegated = (approval.delegations ?? []).find((d: Data) => d.step === step && d.delegate === a.email && !approval.decisions.some((done: Data) => done.step === step && done.approver === d.approver))
+  if (approval.chain) for (const route of approval.delegations ?? []) requireThat(delegationCurrent(s, route, subject), 'The delegation or its authority changed; request approval again', 409)
+  const decisions = approval.chain ? [...approval.decisions, { step, approver: delegated?.approver ?? a.email, decision, reason, by: a.email, ...(delegated ? { onBehalfOf: delegated.approver, delegationVersion: delegated.version } : {}), at: now() }] : undefined
   const complete = !approval.chain || decision === 'rejected' || activeStep({ ...approval, decisions }) === -1
   // A removed capability cannot finish a chain using an earlier saved decision.
   if (approval.chain && decision === 'approved') chainSteps(s, approval.chain.steps, subject)
-  const result = s.put('approval', approval.id, { ...approval, ...(decisions ? { decisions } : {}), status: complete ? decision : 'pending', ...(complete ? { reason, decidedBy: a.email, decidedAt: now() } : {}) })
+  const result = s.put('approval', approval.id, { ...approval, ...(decisions ? { decisions } : {}), ...(approval.chain && !complete && activeStep({ ...approval, decisions }) !== step ? stepTiming({ ...approval, decisions }, now()) : complete && approval.chain ? { stepDueAt: null } : {}), status: complete ? decision : 'pending', ...(complete ? { reason, decidedBy: a.email, decidedAt: now() } : {}) })
   if (!complete && activeStep(result) !== activeStep(approval)) notifyApproval(s, result, a.email)
-  s.audit(a, (approval.chain ? 'approval-step-' : 'approval-') + decision, `${approval.subjectKind}:${approval.subjectId}`, { approval: approval.id, reason, ...(approval.chain ? { step: activeStep(approval), chainVersion: approval.chain.version, complete } : {}) })
+  s.audit(a, (approval.chain ? 'approval-step-' : 'approval-') + decision, `${approval.subjectKind}:${approval.subjectId}`, { approval: approval.id, reason, ...(approval.chain ? { step: activeStep(approval), chainVersion: approval.chain.version, complete, ...(delegated ? { onBehalfOf: delegated.approver, delegationVersion: delegated.version } : {}) } : {}) })
   if (approval.subjectKind === 'offer') notifyOffer(s, subject, a.email, decision === 'approved' ? 'approved' : 'not approved')
   // REQ-001: a headcount decision opens (or refuses) the job's openings.
   if (complete && approval.subjectKind === 'vacancy') settleOpenings(s, a, subject, decision)

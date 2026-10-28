@@ -1,3 +1,4 @@
+import { escalateApprovals } from '../records/approval-escalations'
 import { statusDue, statusTiming, timingLabel } from '../communications/timing'
 import { schemaOf } from '../fields/schema'
 import { validateValues, valuesFor, requireStageFields } from '../fields/values'
@@ -90,7 +91,9 @@ export async function trial(s: State, a: Actor, job: string, selected: Data) {
         outcomes.push({ ...input, status: result.status })
       } catch (error) { outcomes.push({ ...input, error: error instanceof Error ? error.message : 'Trial decision refused' }) }
     }
-    approval = { chain: result.chain ?? null, decisions: result.decisions ?? [], outcomes, approver: result.approver, status: result.status, version: result.version }
+    const dueTrial = isolated.clone()
+    if (result.stepDueAt) await escalateApprovals(dueTrial, Date.parse(result.stepDueAt))
+    approval = { delegations: result.delegations ?? [], stepDueAt: result.stepDueAt, timeZone: result.timeZone, escalationTrial: dueTrial.get('approval', result.id).escalations ?? [], chain: result.chain ?? null, decisions: result.decisions ?? [], outcomes, approver: result.approver, status: result.status, version: result.version }
   }
   return { outcomes, fieldScopes: (v.customSchema ?? []).filter((f: Data) => a.owner || a.roles.includes('admin') || !f.restricted).map((f: Data) => ({ field: f.name, record: f.record, scope: f.restricted ? 'owner/admin only' : 'job-scoped readers', requiredStages: f.requiredStages })), approval, routes: v.approvalRouting ?? {}, stages: v.stages, rubricVersion: v.rubrics.at(-1)?.version ?? null, plan: v.plan, questions: v.questions ?? [], productionContact: 0, productionSignatures: 0, productionHrRecords: 0,
     explanation: 'Only an isolated in-memory copy was evaluated. No recipients, messages, signatures, calendar invitations or HR records are sent or copied to production. Deployment copies configuration only; production runs require their own existing approvals.' }

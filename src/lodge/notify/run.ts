@@ -1,3 +1,4 @@
+import { runApprovalEscalations } from '../records/approval-escalations'
 import { runWeeklyReports } from '../reports/schedules'
 import { scheduledAnalysis } from '../analysis/schedules'
 import { runNurture } from '../crm/run'
@@ -11,6 +12,7 @@ import { flushAlerts, sendDigests } from './deliver'
 
 /** The hourly scheduled run: resume intake upkeep, then every daily digest whose 8:00 has come round. */
 export async function scheduledRun(controller: ScheduledController, env: Bindings) {
+  await runApprovalEscalations(env, controller.scheduledTime)
   await surveyMaintenance(env)
   await resumeIntakeMaintenance(controller, env)
   await scheduledAnalysis(env, controller.scheduledTime)
