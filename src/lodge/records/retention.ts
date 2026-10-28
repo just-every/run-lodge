@@ -98,6 +98,7 @@ export function candidateRecords(s: State, candidateId: string) {
   const refers = (value: unknown): boolean => typeof value === 'string' ? related.has(value)
     : Array.isArray(value) ? value.some(refers)
     : !!value && typeof value === 'object' && Object.values(value).some(refers)
+  // Delay diagnoses retain multi-case evidence and prose: erase the entire packet when any cited person is erased.
   records.proposal = s.scan('proposal').filter(refers)
   records['workflow-sandbox'] = s.scan('workflow-sandbox').filter(refers)
   records.audit = linkedAudits(s, candidateId, records)

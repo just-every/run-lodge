@@ -879,3 +879,27 @@ stable-ID webhooks, delivery history, replay controls, downstream deduplication,
 inert imported notifications and an actual authorized Zapier workflow remain
 unproved. Broader delegation and provider boundaries require their own scope and
 proof. This increment sends no notifications and makes no hiring decision.
+
+
+### Native delay diagnosis drafts
+
+A signed-in agent reads `GET /api/lodge/delay-analysis` with a required `vacancy`
+and optional original-submission `from`, `to` and `timeZone` filters. The result
+contains current scoped cases, completed native stage intervals, recorded offer
+outcomes, definitions, missing observations and exact source revisions. The case
+door `GET /api/lodge/delay-analysis/:id` takes the same cohort filters. Both doors
+require current job management and offer authority; blind applications are omitted.
+
+The agent sends `propose` with `workflow: "delay-diagnosis"`, a human `approver`,
+the returned `cohort` and complete unchanged `sources`, plus `summary`, `findings`,
+`uncertainty`, `sampleLimits`, `proposedChange` and `successCriterion`. Each finding
+has an `observation` or `hypothesis` kind, text and exact event or offer citations
+from that evidence. A citation contains `kind`, `id` and `revision`. The principal
+and reviewer must have the same current cohort evidence. Lodge runs no model.
+
+The named human uses `decide-proposal` with `accepted` or `rejected` and a reason.
+Acceptance records review of the draft only. It executes no hiring command and
+activates no configuration. Acceptance refuses changed evidence; both decisions
+retain the existing native session fence. Losing principal or reviewer scope hides
+the entire packet, and authorized candidate erasure removes related multi-case
+packets. Mailbox, scheduling and survey observations stay unknown in this slice.
