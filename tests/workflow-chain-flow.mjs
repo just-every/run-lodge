@@ -75,6 +75,7 @@ export async function checkWorkflowChains({ h, cmd, send, state, owner, manager,
   const level = await cmd('permission-level', { name: 'Headcount read only', permissions: [] })
   await cmd('job-levels', { id: job.id, members: { [emails[0]]: level.id } })
   await refused(request, 0, 403)
+  assert.equal((await state(cookies[0])).approvals.some(x => x.id === request.id), false, 'lost approval authority withholds the chain terms from current reads')
   await cmd('job-levels', { id: job.id, members: {} })
   assert.equal((await decide(request, 0)).status, 200)
   await cmd('member', { email: emails[0], name: 'synthetic-lodge-1', roles: ['approver', 'manager'], active: false })

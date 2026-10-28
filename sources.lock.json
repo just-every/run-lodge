@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "48ad5a89119539e77f0db566f6fb4ded57fd00f82889b15b6b9d065e5a9a909a",
+      "sha256": "9ddda1b3340f3c87d08da918e3a0154291f104e5f76e9de547817c9b02db4248",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "5f2d2e4b3842a44b01cf1984cb83377ede0a30c380d1a34e3c053862fd547e2a",
+      "sha256": "8731cc8fd668dcfccb02083cb6a65adafb4d487005bcb4d21c0b4ab2b6403c56",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "0a3c984aa9919ec814701547d03c0cb8dae2ecbc0b4170e48cba1f582c15c36e",
+      "sha256": "9c8d5331e50645f1b73bc5e735c2cbeb646d90730f69cd4d8f63804a2108ff47",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -1267,7 +1267,7 @@
       "executable": false
     },
     "src/lodge/core/access.ts": {
-      "sha256": "fad3bc1dbecaa274603b32a9f8a02efea8cd44bd4ec8ecdd74ab643e3582bee0",
+      "sha256": "915f0a1e718fc4db9c44c046e860ae802121b0b4df087e05a6df7d2f33536909",
       "executable": false
     },
     "src/lodge/core/blind.ts": {
@@ -1587,7 +1587,7 @@
       "executable": false
     },
     "src/lodge/records/approvals.ts": {
-      "sha256": "d6b781c6c7225186725e645d51c2e32e6425ed8a4dac323717029c3d9fd85204",
+      "sha256": "f5708ca8b3f41dd94debee4d8de345836273340ae0324c893dbf3ede3a7edf9c",
       "executable": false
     },
     "src/lodge/records/blind-review.ts": {
@@ -3783,7 +3783,7 @@
       "executable": false
     },
     "src/ui/approvals.tsx": {
-      "sha256": "4f778f7da94e09e148525ef4740e35e762d4d3e6e96b41e6a0db8f0aa615e6bc",
+      "sha256": "5f2c0a1e8e2c9ed42a9d6487d983886ba6e40247798d4947ad05392015216539",
       "executable": false
     },
     "src/ui/audit.tsx": {
@@ -4567,7 +4567,7 @@
       "executable": false
     },
     "tests/workflow-chain-flow.mjs": {
-      "sha256": "37d550bb6b42fd005fd6a17a35e1b22d43e7d9d4ab478a843d421a4b97129b2a",
+      "sha256": "e2491d282d488e0a194746315c78cec670a635721b35a622125568c581de2565",
       "executable": false
     },
     "tests/zip.mjs": {

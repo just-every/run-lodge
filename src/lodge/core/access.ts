@@ -282,7 +282,11 @@ export function canSeeApproval(s: State, a: Actor, approval: Data) {
     const app = subject.application && s.find('application', subject.application)
     return !app || canSeeApplication(s, a, app)
   }
-  if ((approval.approver === scope(a) || approval.chain?.steps.some((step: Data) => step.approvers.includes(scope(a)))) && has(a, approval.subjectKind === 'message' ? 'manager' : 'approver')) return true
+  if ((approval.approver === scope(a) || approval.chain?.steps.some((step: Data) => step.approvers.includes(scope(a)))) && has(a, approval.subjectKind === 'message' ? 'manager' : 'approver')) {
+    if (!approval.chain) return true
+    const vacancy = s.find('vacancy', approval.subjectId)
+    return !!vacancy && can(s, a, vacancy, 'approve')
+  }
   if (approval.requestedBy !== scope(a)) return false
   const subject = s.find(approval.subjectKind, approval.subjectId)
   const app = subject?.application && s.find('application', subject.application)
