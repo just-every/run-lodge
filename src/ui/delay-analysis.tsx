@@ -4,6 +4,7 @@ import { call, Check, Field, Form, Table, type D } from './shared'
 import { businessZone } from '../lodge/core/time'
 
 const hours = (value: number) => new Intl.NumberFormat('en-US', { maximumSignificantDigits: 4 }).format(value)
+const waitLabels: Record<string, string> = { candidate: 'Candidate availability', panel: 'Complete panel declarations', readyToSchedule: 'Ready to recorded schedule' }
 
 function DelayCases({ report, follow }: { report: D; follow: PageProps['follow'] }) {
   return <>{report.cases.map((row: D) => <details key={row.application}>
@@ -16,7 +17,9 @@ function DelayCases({ report, follow }: { report: D; follow: PageProps['follow']
     <ul>{row.intervals.map((i: D) => <li key={i.start + i.end}>{i.label}: {hours(i.hours)} elapsed hours · {i.from} to {i.to}</li>)}</ul>
     <h4>Native scheduling observations</h4>
     {!row.scheduling?.length && <p>No native scheduling observations; external attempts remain unknown.</p>}
-    {(row.scheduling ?? []).map((iv: D) => <div key={iv.id}><p>{iv.status} · {iv.panelResponses} of {iv.panelSize} panel declarations · candidate availability {iv.candidateResponded ? 'recorded' : 'unknown'} · proposal to recorded schedule {iv.hoursToRecordedSchedule === null ? 'unknown' : hours(iv.hoursToRecordedSchedule) + ' hours'} · proposal to candidate availability {iv.hoursToCandidateAvailability === null ? 'unknown' : hours(iv.hoursToCandidateAvailability) + ' hours'} · Record <code>{iv.id}</code> · Revision <code>{iv.revision}</code>. Provider availability unverified.</p>{iv.historyIncomplete && <p>Earlier native availability edits have no complete observation history.</p>}<ul>{iv.observations.map((event: D, i: number) => <li key={i}>{event.kind}: {event.at} · {event.hoursAfterProposal === null ? 'Unknown elapsed time' : hours(event.hoursAfterProposal) + ' hours after proposal'}{event.availableSlots === null ? '' : ' · ' + event.availableSlots + ' available choices'}</li>)}</ul></div>)}
+    {(row.scheduling ?? []).map((iv: D) => <div key={iv.id}><p>{iv.status} · {iv.panelResponses} of {iv.panelSize} panel declarations · candidate availability {iv.candidateResponded ? 'recorded' : 'unknown'} · proposal to recorded schedule {iv.hoursToRecordedSchedule === null ? 'unknown' : hours(iv.hoursToRecordedSchedule) + ' hours'} · proposal to candidate availability {iv.hoursToCandidateAvailability === null ? 'unknown' : hours(iv.hoursToCandidateAvailability) + ' hours'} · Record <code>{iv.id}</code> · Revision <code>{iv.revision}</code>. Provider availability unverified.</p>{iv.historyIncomplete && <p>Earlier native availability edits have no complete observation history.</p>}
+      {iv.waits && <ul>{Object.entries(iv.waits).map(([metric, value]: [string, any]) => <li key={metric}>{waitLabels[metric]}: {value.hours === null ? 'Unknown; complete timestamped declarations are unavailable' : hours(value.hours) + ' elapsed hours'}{value.observations.length > 0 && ' · observations ' + value.observations.map((index: number) => index + 1).join(', ')}</li>)}</ul>}
+      <ul>{iv.observations.map((event: D, i: number) => <li key={i}>Observation {i + 1} · {event.kind}: {event.at} · {event.hoursAfterProposal === null ? 'Unknown elapsed time' : hours(event.hoursAfterProposal) + ' hours after proposal'}{event.availableSlots === null ? '' : ' · ' + event.availableSlots + ' available choices'}</li>)}</ul></div>)}
     <h4>Recorded offer outcomes</h4>
     {!row.offers.length && <p>No recorded offers.</p>}
     {row.offers.map((o: D) => <p key={o.id}>{o.status} · {o.hoursToOutcome === null ? 'Duration unknown' : hours(o.hoursToOutcome) + ' hours to recorded outcome'} · Record <code>{o.id}</code> · Revision <code>{o.revision}</code></p>)}
@@ -32,6 +35,12 @@ function Evidence({ report, follow }: { report: D; follow: PageProps['follow'] }
       {report.stages.map((st: D) => <tr key={st.stage}><td>{st.label}</td><td>{st.intervals}</td><td>{st.meanHours === null ? 'Unknown' : hours(st.meanHours)}</td></tr>)}
     </Table>
     <p>Mean time from offer creation to recorded outcome: {report.totals.meanOfferHours === null ? 'Unknown' : hours(report.totals.meanOfferHours) + ' hours'}.</p>
+    {report.scheduling && <section aria-label="Recorded scheduling waits"><h3>Recorded scheduling waits</h3>
+      <p>These observations help separate candidate availability, panel declarations and a possible recruiter queue. Waits can overlap; they do not establish a cause or verify any provider.</p>
+      <Table heads={['Observation', 'Measured interviews', 'Unknown', 'Mean elapsed hours']}>
+        {report.scheduling.map((row: D) => <tr key={row.metric}><td>{waitLabels[row.metric]}</td><td>{row.measured}</td><td>{row.unknown}</td><td>{row.meanHours === null ? 'Unknown' : hours(row.meanHours)}</td></tr>)}
+      </Table>
+    </section>}
     {report.hiring && <p>Native time to hire: {report.hiring.totals.meanDaysToHire === null ? 'Unknown' : hours(report.hiring.totals.meanDaysToHire) + ' calendar days'} · {report.hiring.totals.measuredHires} measured hires. {report.hiring.definition}</p>}
     <h3>Missing observations and limits</h3>
     {report.unknowns.map((x: string) => <p key={x}>{x}</p>)}
@@ -77,7 +86,7 @@ export function DelayDraft({ p, w, mutate, follow }: Pick<PageProps, 'w' | 'muta
     <p className="eyebrow">Agent-authored diagnosis draft · {p.status}</p>
     <h2>{p.summary}</h2>
     <p>Observational evidence only. Accepting records review of this draft; a sandbox trial and production activation require separate review. No hiring decision or configuration changes here.</p>
-    {p.findings.map((f: D, i: number) => <section key={i}><h3>{f.kind === 'hypothesis' ? 'Uncertain hypothesis' : 'Observation'}</h3><p>{f.text}</p><details><summary>Finding citations</summary>{f.citations.map((c: D) => <p key={c.kind + c.id}>{c.kind} <code>{c.id}</code> · Revision <code>{c.revision}</code></p>)}</details></section>)}
+    {p.findings.map((f: D, i: number) => <section key={i}><h3>{f.kind === 'hypothesis' ? 'Uncertain hypothesis' : 'Observation'}</h3><p>{f.text}</p><details><summary>Finding citations</summary>{f.citations.map((c: D, index: number) => <p key={index}>{c.kind} <code>{c.id}</code> · Revision <code>{c.revision}</code>{c.observation !== undefined && <> · Observation {c.observation + 1}: {c.observationKind} at {c.at}</>}</p>)}</details></section>)}
     <h3>Uncertainty</h3><p>{p.uncertainty}</p>
     <h3>Sample limits</h3><p>{p.sampleLimits}</p>
     <h3>Proposed workflow change</h3><p>{p.proposedChange}</p>

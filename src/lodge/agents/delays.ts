@@ -30,6 +30,12 @@ export async function proposeDelay(s: State, a: Actor, b: Data) {
     const citations = f.citations.map((c: Data) => {
       const source = report.sources.find(x => ['stage-event', 'offer', 'interview'].includes(x.kind) && x.kind === c?.kind && x.id === c.id && x.revision === c.revision)
       requireThat(source, 'Citation is fabricated, stale or outside current evidence', 409)
+      if (c.observation !== undefined) {
+        const interview = report.cases.flatMap(row => row.scheduling).find(iv => iv.id === source.id)
+        requireThat(source.kind === 'interview' && Number.isInteger(c.observation) && c.observation >= 0 && interview?.observations[c.observation], 'Interview observation citation is fabricated or outside this revision', 409)
+        const event = interview.observations[c.observation]
+        return { ...source, observation: event.index, at: event.at, observationKind: event.kind }
+      }
       return source
     })
     return { kind, text: narrative(f.text, 'Finding'), citations }
