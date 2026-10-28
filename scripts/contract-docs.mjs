@@ -1,11 +1,21 @@
 // Incrementally regenerate selected legacy acceptance rows from CONTRACT.md.
 // Existing policy quotations and required journeys stay intact.
 import { readFileSync, writeFileSync } from 'node:fs'
-import { parseContract } from '../src/base/seed-contract.mjs'
+import { kinds, parseContract } from '../src/base/seed-contract.mjs'
 
 const [mode, ...ids] = process.argv.slice(2)
 if (!['write', 'check'].includes(mode) || !ids.length) throw Error('Usage: node scripts/contract-docs.mjs write|check CLAUSE [CLAUSE ...]')
-const source = readFileSync('CONTRACT.md', 'utf8'), lines = source.split('\n')
+// Summary counts are generated from the source Status rows before the parser validates them.
+const original = readFileSync('CONTRACT.md', 'utf8')
+const statuses = original.split('\n').filter(line => line.startsWith('|')).map(line => line.split('|').slice(1, -1).map(cell => cell.trim())).filter(cells => cells.length === 6 && kinds.includes(cells[2]))
+const source = original.replace(/^\| (Published|Target and push further|All) \|.*$/gm, (line, label) => {
+  const selected = label === 'All' ? kinds : label.toLowerCase().split(' and ').map(kind => kind.replace('push further', 'push-further'))
+  const rows = statuses.filter(cells => selected.includes(cells[2]))
+  return `| ${label} | ${['done', 'partial', 'missing'].map(status => rows.filter(cells => cells[3] === status).length).join(' | ')} | ${rows.length} |`
+})
+if (mode === 'check' && source !== original) throw Error('Stale generated contract summary counts')
+if (mode === 'write' && source !== original) writeFileSync('CONTRACT.md', source)
+const lines = source.split('\n')
 const contract = parseContract(source)
 let acceptance = readFileSync('ACCEPTANCE.md', 'utf8')
 let claims

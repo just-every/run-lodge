@@ -8,6 +8,7 @@ export const updateRejectionText = { name: 'Synthetic Lodge recorded rejection',
 
 export async function candidateUpdateJob(run, ownerEmail, manager = ownerEmail, suffix = '') {
   let job = await run('vacancy', { title: 'Synthetic Lodge response windows' + suffix, location: 'Denver, CO', manager, headcount: 3, compensation: { currency: 'USD', min: 6000000, max: 8000000, period: 'year' } })
+  job = await run('vacancy-stages', { id: job.id, stages: [...job.stages.slice(0, 3), { name: 'Debrief' }, job.stages[3]] })
   await run('rubric', { id: job.id, criteria: [{ name: 'Safety', description: 'Describes safe work' }] })
   await run('interview-plan', { id: job.id, plan: [{ name: 'Work review', stageName: 'Interview', durationMinutes: 60 }] })
   const approval = await run('request-vacancy-approval', { id: job.id, approver: ownerEmail })
@@ -72,6 +73,7 @@ export async function checkCandidateUpdates() {
     assert.ok(concurrent.some(r => r.status === 200)); assert.ok(concurrent.every(r => [200, 409].includes(r.status)))
     const packet = concurrent.find(r => r.status === 200).value
     assert.equal((await state()).proposals.filter(p => p.workflow === 'candidate-update').length, 1)
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: packet.id, decision: 'accepted', reason: 'Not the named reviewer' }, manager)).status, 403)
     const decision = { id: packet.id, decision: 'accepted', reason: 'Reviewed exact language and current evidence' }
     const decisions = await Promise.all([send('/api/lodge/command/decide-proposal', decision, reviewer), send('/api/lodge/command/decide-proposal', decision, reviewer)])
     assert.ok(decisions.some(r => r.status === 200)); assert.ok(decisions.every(r => [200, 409].includes(r.status)))
@@ -114,6 +116,8 @@ export async function checkCandidateUpdates() {
     assert.equal((await state()).approvals.some(a => a.subjectId === draft.id), false)
     assert.equal((await send('/api/lodge/command/decide-proposal', { id: revokedPacket.id, decision: 'accepted', reason: 'Revoked reviewer' }, reviewer)).status, 404)
     await run('job-levels', { id: job.id, members: {} })
+    await run('move', { application: fresh.application.id, to: job.stages[1].id, reason: 'Human changed the native stage evidence' })
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: revokedPacket.id, decision: 'accepted', reason: 'Stale native event' }, reviewer)).status, 409)
     const held = await run('hold', { candidate: fresh.candidate.id, reason: 'Legal hold' })
     assert.equal((await evidence()).cases.some(r => r.application === fresh.application.id), false)
     assert.equal((await send('/api/lodge/command/decide-proposal', { id: revokedPacket.id, decision: 'accepted', reason: 'Held' }, reviewer)).status, 404)
@@ -135,6 +139,33 @@ export async function checkCandidateUpdates() {
     await h.setTime('2037-11-02T16:59:59.999Z'); assert.equal((await evidence()).cases.find(r => r.application === autumn.application.id).overdue, false)
     await h.setTime('2037-11-02T17:00:00.000Z'); assert.equal((await evidence()).cases.find(r => r.application === autumn.application.id).overdue, true)
     assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM rer_mail_development_outbox').first()).n, mailBefore, 'native window evidence, draft reviews and EML enqueue no mail')
+    // An already permitted window is removed immediately on hire; no additional send or stage command is inferred.
+    const currentJob = (await state()).vacancies.find(v => v.id === job.id)
+    const offer = await run('offer', { application: autumn.application.id, opening: currentJob.openings[0].id, startDate: '2038-01-01', salary: { currency: 'USD', amount: 7000000, period: 'year' } })
+    const offerApproval = await run('request-offer-approval', { id: offer.id, approver: ownerEmail })
+    await run('decide-approval', { id: offerApproval.id, version: offerApproval.version, decision: 'approved', reason: 'Human reviewed terms' })
+    await run('offer-outcome', { id: offer.id, outcome: 'accepted', reason: 'Human recorded acceptance' })
+    assert.equal((await evidence()).cases.some(r => r.application === autumn.application.id), false, 'hires cannot enter candidate updates')
+    const optedState = await state(), optedApp = optedState.applications.find(a => a.id === optedState.receipts.find(r => r.id === code).application)
+    assert.equal(outbound, callsBefore, 'drafts and human-approved unsent downloads make zero outbound provider calls')
+    const currentOptedAccount = await h.signIn(updateAddress('opted'))
+    const permit = new FormData(); permit.set('preference', 'email')
+    assert.equal((await send('/candidate/receipts/' + code + '/account/preferences', permit, currentOptedAccount)).status, 303)
+    const contactRow = (await evidence()).cases.find(r => r.application === optedApp.id)
+    const contactPacket = await run('propose', updateProposal(contactRow, reviewerEmail), agent)
+    const stop = new FormData(); stop.set('preference', 'none')
+    assert.equal((await send('/candidate/receipts/' + code + '/account/preferences', stop, currentOptedAccount)).status, 303)
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: contactPacket.id, decision: 'accepted', reason: 'Contact permission changed' }, reviewer)).status, 404)
+    assert.equal((await state()).proposals.some(p => p.id === contactPacket.id), false)
+    await run('move', { application: optedApp.id, to: 'withdrawn', closeReason: 'pay', reason: 'Human recorded withdrawal' })
+    assert.equal((await evidence()).cases.some(r => r.application === optedApp.id), false)
+    // Erasure removes an accepted proposal and its actual unsent draft, not just an empty preview.
+    const rejectionMessageId = rejectedDraft.id
+    assert.equal((await send('/api/lodge/delete-candidate', { candidate: rejected.candidate.id, confirm: rejected.candidate.name, reason: 'Authorized candidate erasure' }, h.owner)).status, 200)
+    assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='message' AND id=?").bind(rejectionMessageId).first()).n, 0)
+    assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='proposal' AND id=?").bind(rejectPacket.id).first()).n, 0)
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: rejectPacket.id, decision: 'accepted', reason: 'Replayed erased capture' }, reviewer)).status, 404)
+    assert.equal((await send('/api/lodge/command/propose', updateProposal(rejectionRow, reviewerEmail), agent)).status, 404)
     assert.equal(outbound, callsBefore, 'zero outbound provider calls')
     await run('member', { email: agentEmail, name: 'Synthetic Lodge external agent', roles: [], agent: true, actsFor: managerEmail, active: false })
     assert.equal((await send('/api/lodge/candidate-updates', undefined, agent)).status, 403, 'revoked agent session loses evidence access')

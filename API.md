@@ -971,3 +971,41 @@ and discards its activation token; it cannot resume from a replayed archive.
 Principal, reviewer or case revocation hides the complete narrative and trial,
 and authorized erasure removes the related packet. Connected reminder delivery,
 provider failures and diagnosis across every promised cause remain separate gaps.
+
+## Candidate response windows and unsent update proposals
+
+A human with current job settings and contact permission uses
+`candidate-update-policy` to save `vacancy`, `businessDays` (zero through 30),
+`timeZone`, `statusTemplate` and `rejectionTemplate`, with the current policy
+`revision` or null for its first version. Both templates are job-scoped reviewed
+message templates. Status versions use purpose `other`; rejection versions use
+purpose `rejection`. Settings contains the same controls.
+
+`GET /api/lodge/candidate-updates` returns permitted native response windows,
+exact source revisions and filled application-language text. The workspace
+returns the same evidence in `candidateUpdates`. Monday through Friday count
+at the event's local wall time in the chosen zone; weekends are skipped, public
+holidays are not. DST changes the offset rather than the local deadline. Zero
+means the event instant, and the deadline itself is overdue. The anchor is the
+latest current-stage entry or a later scheduled interview end; attendance is
+unverified. Mailbox correspondence stays unknown.
+
+An authenticated external agent sends `propose` with workflow
+`candidate-update`, `application`, the complete returned `sources`, exact
+`subject` and `body`, and a named human `approver`. The existing due, unsent
+DISP-001 email is the only permitted text for a recorded human rejection;
+a reviewed template in the application's language must match it exactly.
+Opt-outs, withdrawals, hires, holds, inaccessible records and missing reviewed
+language text cannot supply an update. Proposal creation changes no hiring
+record and makes no outbound call.
+
+The named human uses `decide-proposal` with `accepted` or `rejected` and a
+`reason`. Acceptance rechecks both the principal and reviewer, current contact
+permission, sources, promise and language version, then creates one unsent
+message for that native event. Concurrent and restarted retries cannot create
+another copy. Lost principal or reviewer access hides the whole proposal and
+its retained draft. Candidate erasure removes the packets with the person.
+The existing `request-message-approval`, `decide-approval` and EML download
+doors still require exact-text approval and current evidence. A draft, review
+or EML download is never delivery or completion. Connected sending, delivery
+readback and weekly kept-informed reporting remain unconnected.

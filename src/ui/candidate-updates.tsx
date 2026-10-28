@@ -50,7 +50,7 @@ export function CandidateUpdateSettings({ w, mutate }: Pick<PageProps, 'w' | 'mu
   const templates = w.messageTemplates.filter((t: D) => t.vacancy === selected)
   return <section className="card" aria-label="Candidate response window settings"><h2>Candidate response windows</h2>
     <p>These promises measure native recorded events. They do not monitor a mailbox or authorize sending. Review status and rejection text in Message templates first; rejection text must match the already scheduled DISP-001 email exactly.</p>
-    <label>Response window job<select value={selected} onChange={e => setSelected(e.target.value)}><option value="">Choose…</option>{jobs.map((v: D) => <option key={v.id} value={v.id}>{v.title}</option>)}</select></label>
+    <label>Response window job<select aria-label="Response window job" value={selected} onChange={e => setSelected(e.target.value)}><option value="">Choose…</option>{jobs.map((v: D) => <option key={v.id} value={v.id}>{v.title}</option>)}</select></label>
     {selected && <Form key={selected + ':' + policy?.revision} label="Save response window" onSubmit={values => mutate('candidate-update-policy', { ...values, vacancy: selected, revision: policy?.revision ?? null, businessDays: Number(values.businessDays) })}>
       <Field label="Response window business days" name="businessDays" type="number" defaultValue={policy?.businessDays ?? 5} />
       <Field label="Response window time zone" name="timeZone" defaultValue={policy?.timeZone ?? w.business.timeZone} />
