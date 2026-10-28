@@ -88,7 +88,7 @@ export async function decide(s: State, a: Actor, b: Data) {
   // A removed capability cannot finish a chain using an earlier saved decision.
   if (approval.chain && decision === 'approved') chainSteps(s, approval.chain.steps, subject)
   const result = s.put('approval', approval.id, { ...approval, ...(decisions ? { decisions } : {}), status: complete ? decision : 'pending', ...(complete ? { reason, decidedBy: a.email, decidedAt: now() } : {}) })
-  if (!complete) notifyApproval(s, result, a.email)
+  if (!complete && activeStep(result) !== activeStep(approval)) notifyApproval(s, result, a.email)
   s.audit(a, (approval.chain ? 'approval-step-' : 'approval-') + decision, `${approval.subjectKind}:${approval.subjectId}`, { approval: approval.id, reason, ...(approval.chain ? { step: activeStep(approval), chainVersion: approval.chain.version, complete } : {}) })
   if (approval.subjectKind === 'offer') notifyOffer(s, subject, a.email, decision === 'approved' ? 'approved' : 'not approved')
   // REQ-001: a headcount decision opens (or refuses) the job's openings.
