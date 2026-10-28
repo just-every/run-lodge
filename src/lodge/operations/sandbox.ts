@@ -78,6 +78,7 @@ export async function rollbackSandbox(s: State, a: Actor, b: Data) {
   requireThat(box.status === 'deployed' && box.previous, 'This sandbox has no deployed configuration to undo', 409)
   requireThat(v.status !== 'open', 'Unpublish the vacancy before rollback', 409)
   requireThat(await sourceStamp(s, true) === box.rollbackStamp, 'Hiring records changed after deployment; review a new sandbox instead of overwriting them', 409)
+  if (canonical(v.approvalChain) !== canonical(box.previous.approvalChain) || canonical(v.approvalRouting) !== canonical(box.previous.approvalRouting)) validateConfiguration(s, a, v.id, box.previous)
   // Rule authoring and rollback retain the same admin boundary.
   if (canonical(configuration(s, v.id).applicationEmailTiming) !== canonical(box.previous.applicationEmailTiming)) {
     requireAdmin(a); requireThat(!a.agent, 'A human must review status timing', 403)

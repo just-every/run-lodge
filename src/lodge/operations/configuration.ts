@@ -1,8 +1,9 @@
+import { chainSteps } from '../records/approval-chains'
 import { businessZone } from '../core/time'
 import { configureStatusTiming, statusTiming, timingLabel } from '../communications/timing'
 import type { State } from '../core/state'
 import { requireAdmin, requireCan, requireManages, requireMember, isAdmin } from '../core/access'
-import { canonical, list, oneOf, requireThat, sha256, type Actor, type Data } from '../core/types'
+import { canonical, list, now, oneOf, requireThat, sha256, uid, type Actor, type Data } from '../core/types'
 import { PROVIDERS } from './providers'
 import { stages, rubric, plan, kit } from '../records/vacancies'
 import { jobQuestions } from '../records/questions'
@@ -27,7 +28,12 @@ function approvalRouting(s: State, a: Actor, b: Data) {
   for (const kind of ['vacancy', 'offer', 'message']) {
     if (b.routing?.[kind]) routing[kind] = requireMember(s, String(b.routing[kind]).toLowerCase(), kind === 'message' ? 'manager' : 'approver').email
   }
-  return s.put('vacancy', v.id, { ...v, approvalRouting: routing })
+  let approvalChain = v.approvalChain ?? null
+  if (b.chain !== undefined) {
+    const steps = chainSteps(s, b.chain, v)
+    if (canonical(steps) !== canonical(approvalChain?.steps ?? [])) approvalChain = steps.length ? { version: uid(), steps, by: a.email, at: now() } : null
+  }
+  return s.put('vacancy', v.id, { ...v, approvalRouting: routing, approvalChain })
 }
 
 function workflowConnectors(s: State, a: Actor, b: Data) {
@@ -39,12 +45,14 @@ function workflowConnectors(s: State, a: Actor, b: Data) {
 
 export function configuration(s: State, id: string) {
   const v = s.get('vacancy', id)
-  return structuredClone({ applicationEmailTiming: v.applicationEmailTiming ?? null, applicationEmailTimingBy: v.applicationEmailTimingBy ?? null, stages: v.stages, rubrics: v.rubrics, plan: v.plan, questions: v.questions ?? [], customSchema: v.customSchema ?? [], hiringViews: v.hiringViews ?? [], approvalRouting: v.approvalRouting ?? {}, workflowConnectors: v.workflowConnectors ?? [], rules: s.scan('screening-rule').filter(r => r.vacancy === id) })
+  return structuredClone({ applicationEmailTiming: v.applicationEmailTiming ?? null, applicationEmailTimingBy: v.applicationEmailTimingBy ?? null, stages: v.stages, rubrics: v.rubrics, plan: v.plan, questions: v.questions ?? [], customSchema: v.customSchema ?? [], hiringViews: v.hiringViews ?? [], approvalRouting: v.approvalRouting ?? {}, approvalChain: v.approvalChain ?? null, workflowConnectors: v.workflowConnectors ?? [], rules: s.scan('screening-rule').filter(r => r.vacancy === id) })
 }
 
 export function installConfiguration(s: State, id: string, config: Data) {
   const { rules, ...fields } = config
-  s.put('vacancy', id, { ...s.get('vacancy', id), ...fields })
+  const current = s.get('vacancy', id), history = [...(current.approvalChainHistory ?? [])]
+  if (fields.approvalChain && !history.some((chain: Data) => chain.version === fields.approvalChain.version)) history.push(structuredClone(fields.approvalChain))
+  s.put('vacancy', id, { ...current, ...fields, approvalChainHistory: history })
   for (const r of s.scan('screening-rule').filter(r => r.vacancy === id)) if (!rules.some((n: Data) => n.id === r.id)) s.remove('screening-rule', r.id)
   for (const r of rules) s.put('screening-rule', r.id, r)
 }
@@ -81,7 +89,7 @@ export function validateConfiguration(s: State, a: Actor, id: string, config: Da
   const hiddenView = (view: Data) => (view.filters ?? []).some((filter: Data) => (config.customSchema ?? []).some((f: Data) => f.id === filter.field && f.restricted))
   if (!isAdmin(a)) requireThat(canonical((config.hiringViews ?? []).filter(hiddenView)) === canonical((live.hiringViews ?? []).filter(hiddenView)), 'Only the owner or a hiring admin can change restricted views', 403)
   hiringViews(isolated, a, { id, views: (config.hiringViews ?? []).filter((view: Data) => isAdmin(a) || !hiddenView(view)) })
-  approvalRouting(isolated, a, { id, routing: config.approvalRouting })
+  approvalRouting(isolated, a, { id, routing: config.approvalRouting, chain: config.approvalChain?.steps ?? [] })
   if (canonical(config.workflowConnectors) !== canonical(live.workflowConnectors)) workflowConnectors(isolated, a, { id, connectors: config.workflowConnectors })
   if (changedRules) for (const r of config.rules) {
     const x = r.versions.at(-1)
@@ -112,7 +120,7 @@ export function configurationImpact(s: State, before: Data, after: Data, actor?:
     fields: c => c.questions.map((q: Data) => `${s.get('question', q.question).versions.at(-1).text}: ${q.required ? 'required' : 'optional'}`).join('; ') || 'No screening fields',
     customFields: c => (c.customSchema ?? []).map((f: Data) => `${f.name}: ${f.record} ${f.type}${f.choices.length ? ' (' + f.choices.join(', ') + ')' : ''}; ${f.restricted ? 'owner/admin only' : 'job-scoped readers'}; required at ${f.requiredStages.map((id: string) => stage(c, id)).join(', ') || 'no stage'}; identity ${f.identity || 'none'}; import column ${f.importColumn || 'none'}`).join('; ') || 'No custom fields',
     savedViews: c => (c.hiringViews ?? []).map((v: Data) => `${v.name}: query ${v.query || 'none'}; filters ${v.filters.map((filter: Data) => `${(c.customSchema ?? []).find((f: Data) => f.id === filter.field)?.name ?? 'Retired field'} equals ${String(filter.equals)}`).join(', ') || 'none'}; tags ${v.tags.join(', ') || 'none'}`).join('; ') || 'No team hiring views',
-    approvals: c => Object.entries(c.approvalRouting).map(([kind, who]) => `${kind}: ${who}`).join('; ') || 'Person selected when requesting approval',
+    approvals: c => (c.approvalChain ? 'Headcount chain ' + c.approvalChain.version.slice(0, 8) + ': ' + c.approvalChain.steps.map((step: Data) => step.approvers.join(' and ')).join(' → ') + '; ' : '') + (Object.entries(c.approvalRouting).map(([kind, who]) => `${kind}: ${who}`).join('; ') || 'Person selected when requesting approval'),
     rules: c => c.rules.map((r: Data) => { const x = r.versions.at(-1), action = x.then; return `${r.name} v${x.version} (${r.active ? 'enabled' : 'disabled'}): ${x.questionText}; condition ${canonical(x.when)}; ${action.kind}${action.stage ? ' to ' + stage(c, action.stage) : action.tag ? ': ' + action.tag : action.reviewer ? ': ' + action.reviewer : action.reason ? ': ' + action.reason : ''}` }).join('; ') || 'No rules',
     connectors: c => c.workflowConnectors.map((id: string) => PROVIDERS.find(p => p.id === id)?.name ?? id).join(', ') || 'No connector references',
   }
