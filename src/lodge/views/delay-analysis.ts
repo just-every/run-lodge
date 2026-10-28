@@ -50,6 +50,12 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
       const complete = !app.imported && dated(o.createdAt) && dated(o.outcomeAt) && Date.parse(o.outcomeAt) >= Date.parse(o.createdAt)
       return { ...source('offer', o.id), status: o.status, createdAt: o.createdAt ?? null, outcomeAt: o.outcomeAt ?? null, hoursToOutcome: complete ? (Date.parse(o.outcomeAt) - Date.parse(o.createdAt)) / 3600000 : null }
     })
+    const accepted = offers.filter(o => o.status === 'accepted')
+    const firstAcceptance = accepted.filter(o => dated(o.outcomeAt)).sort((x, y) => Date.parse(x.outcomeAt) - Date.parse(y.outcomeAt))[0]
+    const hireHours = !app.imported && dated(app.submittedAt) && firstAcceptance && accepted.every(o => dated(o.outcomeAt)) && Date.parse(firstAcceptance.outcomeAt) >= Date.parse(app.submittedAt)
+      ? (Date.parse(firstAcceptance.outcomeAt) - Date.parse(app.submittedAt)) / 3600000 : null
+    const hiring = { submittedAt: dated(app.submittedAt) ? app.submittedAt : null, acceptedAt: firstAcceptance?.outcomeAt ?? null, offer: firstAcceptance?.id ?? null, hours: hireHours,
+      missing: hireHours !== null ? null : app.imported ? 'Imported history is not native timing evidence.' : !dated(app.submittedAt) ? 'Original submission time is missing.' : !accepted.length ? 'No recorded accepted offer.' : 'Acceptance timing is missing or inconsistent.' }
     const scheduling = w.interviews.filter(iv => iv.application === app.id).map(iv => {
       const elapsed = (end: unknown) => !app.imported && dated(iv.createdAt) && dated(end) && Date.parse(end) >= Date.parse(iv.createdAt) ? (Date.parse(end) - Date.parse(iv.createdAt)) / 3600000 : null
       return { ...source('interview', iv.id), status: iv.status, createdAt: iv.createdAt ?? null, scheduledAt: iv.scheduledAt ?? null, candidateRespondedAt: iv.candidateRespondedAt ?? null,
@@ -57,7 +63,7 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
         panelSize: iv.participants.length, panelResponses: iv.participants.filter((who: string) => Object.hasOwn(iv.availability ?? {}, who)).length,
         candidateResponded: Object.hasOwn(iv.availability ?? {}, 'candidate'), providerVerified: false, waits: schedulingWaits(iv, !!app.imported), observations: (iv.observations ?? []).map((event: Data, index: number) => ({ index, kind: event.kind, at: event.at, hoursAfterProposal: elapsed(event.at), availableSlots: event.slots?.length ?? null })), historyIncomplete: !iv.observations?.some((e: Data) => e.kind === 'proposed') }
     })
-    return { application: app.id, name: app.candidateName, status: app.status, imported: !!app.imported, source: source('application', app.id), events, intervals, offers, scheduling, missing: [...new Set(missing)] }
+    return { application: app.id, name: app.candidateName, status: app.status, imported: !!app.imported, source: source('application', app.id), events, intervals, offers, hiring, scheduling, missing: [...new Set(missing)] }
   }).sort((x, y) => x.application.localeCompare(y.application))
   const intervals = cases.flatMap(c => c.intervals)
   const stages = job.stages.map((st: Data) => {
@@ -68,8 +74,10 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
   const sources = [source('vacancy', job.id), ...cases.flatMap(c => [c.source, ...c.events.map(({ kind, id, revision }) => ({ kind, id, revision })), ...c.offers.map(({ kind, id, revision }) => ({ kind, id, revision })), ...c.scheduling.map(({ kind, id, revision }) => ({ kind, id, revision }))])].sort((x, y) => (x.kind + x.id).localeCompare(y.kind + y.id))
   const selectedIds = new Set(cases.map(c => c.application))
   const hiring = cohortReport(s, a, { ...w, applications: w.applications.filter(app => selectedIds.has(app.id)) }, { ...input, from: input.from || undefined, to: input.to || undefined, history: 'native' })
+  const measuredHires = cases.filter(row => row.hiring.hours !== null)
   return {
-    hiring: { totals: hiring.totals, disclosures: hiring.disclosures, definition: hiring.definitions.timeToHire },
+    hiring: { totals: hiring.totals, disclosures: hiring.disclosures, definition: hiring.definitions.timeToHire,
+      elapsed: { measuredApplications: measuredHires.length, unknownApplications: cases.length - measuredHires.length, meanHours: measuredHires.length ? measuredHires.reduce((sum, row) => sum + row.hiring.hours!, 0) / measuredHires.length : null } },
     cohort: { vacancy: job.id, from: input.from || null, to: input.to || null, timeZone: zone }, job: job.title, cases, stages, sources, scheduling: schedulingSummary(cases),
     totals: { cases: cases.length, completedIntervals: intervals.length, offers: offers.length, measuredOutcomes: measured.length, meanOfferHours: measured.length ? measured.reduce((sum, o) => sum + o.hoursToOutcome!, 0) / measured.length : null, outcomes: Object.fromEntries(['draft', 'accepted', 'declined', 'withdrawn'].map(status => [status, offers.filter(o => o.status === status).length])) },
     disclosures: { missingSubmission, excludedUndated: input.from || input.to ? missingSubmission : 0, incompleteCases: cases.filter(c => c.missing.length).length },
@@ -77,6 +85,7 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
       cohort: 'Current authorized, non-spam, non-blind applications for the selected job, by original submission date inclusive in the selected time zone. Undated records are disclosed and excluded only when a date filter is applied. Reopening does not reset submission.',
       stages: 'Elapsed hours between consecutive, linked native stage events. Each completed visit counts once, including repeated visits after reopening. Unfinished stages, gaps and imported history are not assigned a duration. Means divide by measured completed visits, not applications.',
       offers: 'Recorded offer statuses, not verified delivery or candidate response time. Elapsed hours from native offer creation to its recorded outcome; means divide by offers with both valid timestamps. Drafts and incomplete history remain unmeasured.',
+      hiring: 'Elapsed hours from original native application submission to its first recorded accepted offer, once per application. Reopening never resets submission. Imported history, absent acceptance, missing or inconsistent timestamps stay unknown. The mean divides by measured applications, not offers or all cases. This differs from the cohort report calendar-day metric and establishes no verified delivery, signature or provider response.',
       scheduling: 'Elapsed hours from native interview proposal to recorded scheduling or the latest candidate availability. Panel response counts record declarations. Timestamped observation histories support the separate wait measurements; older counts without attributable timestamps do not. No native row verifies calendar availability, a delivered invitation, an external attempt or responsibility for a wait.',
       waits: 'Candidate wait measures proposal to first recorded candidate availability; panel wait measures proposal to the first recorded declaration from every named panellist, including unavailable declarations. These waits can overlap and must not be added. Ready-to-schedule measures the continuous interval during which the ultimately scheduled slot had recorded availability from the candidate and every panellist, ending at the native schedule event. It is a possible recruiter-queue observation, not proof of inactivity or responsibility. Missing participant timestamps, missing common availability, imported or incomplete history stay unknown. Each mean divides by interviews with that measurement, never by all cases; counts disclose the unknown remainder.',
       limits: 'A small observational cohort is not a causal comparison or a suitability ranking. Access is applied before aggregation. No mailbox, scheduling or survey evidence is inferred from missing data.',

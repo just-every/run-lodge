@@ -31,6 +31,10 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     await run('availability', { interview: iv.id, slots: [0] })
     assert.equal((await context.request.post(origin + '/availability/' + iv.candidateToken, { headers: { origin }, form: { slot: '0' } })).status(), 200)
     await run('schedule', { interview: iv.id, slot: 0 })
+    const acceptedOffer = await run('offer', { application: second.id, opening: published.openings[1].id, startDate: '2027-01-01', salary: { currency: 'USD', amount: 9500000, period: 'year' } })
+    const acceptedApproval = await run('request-offer-approval', { id: acceptedOffer.id, approver: ownerEmail })
+    await run('decide-approval', { id: acceptedApproval.id, version: acceptedApproval.version, decision: 'approved', reason: 'Reviewed second offer terms' })
+    await run('offer-outcome', { id: acceptedOffer.id, outcome: 'accepted', reason: 'Human recorded acceptance' })
     agentEmail = ['synthetic-lodge-delay-agent-' + job.id.slice(0, 8), 'dev.localhost'].join('@')
     await run('member', { email: agentEmail, name: 'Synthetic delay browser agent', roles: [], agent: true, actsFor: ownerEmail })
     const invitation = await context.request.post(origin + '/api/lodge/invite', { headers: { origin }, data: { email: agentEmail } })
@@ -41,6 +45,9 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     const report = await response.json()
     assert.deepEqual(report.scheduling.map(row => [row.measured, row.unknown]), [[1, 0], [1, 0], [1, 0]])
     const body = delayDraft(report, ownerEmail)
+    body.measurement.metric = 'mean-submission-to-acceptance-hours'
+    body.measurement.targetHours = report.hiring.elapsed.meanHours * 0.8
+    body.findings[0].citations.push(report.sources.find(s => s.kind === 'application' && s.id === second.id))
     body.findings[0].citations.push({ ...report.sources.find(s => s.kind === 'interview'), observation: 2 })
     body.summary += ' ' + job.id.slice(0, 8)
     body.sampleLimits = 'Two cases in this browser cohort; incomplete and unfinished histories remain excluded from means.'
@@ -51,10 +58,17 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     await panel.getByText('Inspect native delay evidence', { exact: true }).click()
     await panel.getByLabel('Delay evidence job').selectOption(job.id)
     await panel.getByRole('button', { name: 'Load delay evidence', exact: true }).click()
-    await panel.getByText('2 cases · 2 completed stage intervals', { exact: false }).waitFor()
+    await panel.getByText('2 cases · 3 completed stage intervals', { exact: false }).waitFor()
+    assert.deepEqual([report.hiring.elapsed.measuredApplications, report.hiring.elapsed.unknownApplications], [1, 1])
+    assert.ok((await panel.innerText()).includes('1 measured applications · 1 unknown'), 'the joined metric distinguishes the measured application from the case without acceptance')
     const sourceCase = panel.getByText('Source case: Synthetic delay case 1', { exact: true }).locator('..')
     await sourceCase.locator('summary').first().click()
     await sourceCase.getByText('Exact event citation', { exact: true }).first().click()
+    const acceptedCase = panel.getByText('Source case: Synthetic delay case 2', { exact: true }).locator('..')
+    await acceptedCase.locator('summary').first().click()
+    assert.ok((await acceptedCase.innerText()).includes('Submission to recorded acceptance: '))
+    assert.ok((await acceptedCase.innerText()).includes(report.cases.find(c => c.application === second.id).hiring.submittedAt))
+    assert.ok((await acceptedCase.innerText()).includes(acceptedOffer.id), 'the native interval drills through to its actual accepted-offer source')
     const capture = async name => {
       await iconTooltips(page)
       for (const width of [1440, 390]) {
@@ -79,6 +93,7 @@ export async function delayAnalysisPage(browser, { root, origin, run, evidence, 
     assert.ok((await draft.innerText()).includes('No hiring decision or configuration changes here'))
     assert.ok((await draft.innerText()).includes(report.sources.find(s => s.kind === 'offer').revision))
     assert.ok((await draft.innerText()).includes('Observation 3: candidate-availability'), 'the draft shows the exact cited observation')
+    assert.ok((await draft.innerText()).includes('applications with recorded acceptance'), 'the draft retains the joined application denominator')
     await capture('delay-draft-review')
     const before = await current(context, origin)
     await draft.getByLabel('Draft decision').selectOption('rejected')
