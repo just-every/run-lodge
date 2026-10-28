@@ -4447,7 +4447,7 @@
       "executable": false
     },
     "tests/reference-browser.mjs": {
-      "sha256": "1ff9b22a5b726f56947879511aaf04655f4eed8d424bd8be64d55ac318726f8d",
+      "sha256": "0bcef90b5c08d5571f5dcd92452b4a9ac3663b36087f1190eb277b3036b3bee3",
       "executable": false
     },
     "tests/reference-flow.mjs": {

@@ -90,7 +90,11 @@ export async function referencePage(browser, { root, origin, evidence, ownerEmai
         await reader.page.goto(origin + '/app?application=' + app.id)
         await reader.page.getByRole('tab', { name: 'Overview', exact: true }).waitFor()
         assert.equal(await reader.page.getByRole('tab', { name: 'References', exact: true }).count(), 0, 'revoking contact permission removes reference access')
-      } finally { await reader.context.close() }
+      } finally {
+        await reader.context.close()
+        await run('assign-reviewers', { application: app.id, reviewers: [] })
+        await run('hiring-team', { id: job.id, interviewers: [] })
+      }
     } catch (error) {
       await page.screenshot({ path: evidence + '/reference-error-' + width + '.png', fullPage: true })
       console.error('Reference screen failed at width ' + width + ': ' + await page.title())
