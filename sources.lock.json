@@ -4607,11 +4607,11 @@
       "executable": false
     },
     "tests/workflow-chain-browser.mjs": {
-      "sha256": "1510d58fb341cf5191b756526fcfe59b6931be6f96a47f0b038ed6e73b219a78",
+      "sha256": "6c48fcfc5d61684a1a14c17e15771506ff882c13c5faebc8cf61430989c26a01",
       "executable": false
     },
     "tests/workflow-chain-flow.mjs": {
-      "sha256": "d0865183b567fecbd169bc8dee6845fb488c91b9b230a89ca0125449f6bdaf34",
+      "sha256": "37d550bb6b42fd005fd6a17a35e1b22d43e7d9d4ab478a843d421a4b97129b2a",
       "executable": false
     },
     "tests/zip.mjs": {
