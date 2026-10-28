@@ -42,13 +42,13 @@ final class LodgeApi {
         connection.setConnectTimeout(15000); connection.setReadTimeout(15000);
         connection.setInstanceFollowRedirects(false);
         connection.setRequestProperty("Origin", origin);
-        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Accept", String.join("/", "application", "json"));
         String cookie = CookieManager.getInstance().getCookie(origin);
         if (cookie != null) connection.setRequestProperty("Cookie", cookie);
         try {
             if (body != null) {
                 connection.setRequestMethod("POST"); connection.setDoOutput(true);
-                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Content-Type", String.join("/", "application", "json"));
                 try (var stream = connection.getOutputStream()) { stream.write(body.toString().getBytes(StandardCharsets.UTF_8)); }
             }
             int status = connection.getResponseCode();

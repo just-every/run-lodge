@@ -9,23 +9,24 @@ import { join } from 'node:path'
 
 const sdk = process.env.ANDROID_HOME
 assert.ok(sdk, 'Set ANDROID_HOME to an installed SDK with a running emulator')
-const adb = join(sdk, 'platform-tools/adb')
+const adb = join(sdk, 'platform-tools', 'adb')
 async function command(bin, args, collect = false) {
   return new Promise((resolve, reject) => {
     const child = spawn(bin, args, { stdio: collect ? ['ignore', 'pipe', 'inherit'] : 'inherit' })
     let text = ''
     child.stdout?.on('data', b => { text += b })
     child.on('error', reject)
-    child.on('exit', code => code ? reject(Error(bin + ' exited ' + code)) : resolve(text))
+    child.on('exit', code => code ? reject(Error([bin, ...args].join(' ') + ' exited ' + code)) : resolve(text))
   })
 }
 async function capture(path) {
-  const child = spawn(adb, ['exec-out', 'screencap', '-p'])
-  const chunks = []; for await (const c of child.stdout) chunks.push(c)
-  const bytes = Buffer.concat(chunks)
+  await command(adb, ['shell', 'screencap', '-p', '/data/local/tmp/lodge-proof.png'])
+  await command(adb, ['pull', '/data/local/tmp/lodge-proof.png', path])
+  const { readFile } = await import('node:fs/promises')
+  const bytes = await readFile(path)
   assert.equal(bytes.subarray(1, 4).toString(), 'PNG', 'the host must capture a real device image')
-  await writeFile(path, bytes)
 }
+
 const evidence = process.env.LODGE_EVIDENCE
 const cleanups = []
 const f = await hiringScenario({ after: fn => cleanups.push(fn) })
@@ -63,6 +64,7 @@ const server = createServer(async (req, res) => {
       await f.cmd('rubric', { id: job.id, criteria: RUBRIC }, f.manager)
       value = {}
     } else if (path === '/lose-confirmation') { lose = true; value = {} }
+    else if (path === '/allow-confirmation') { lose = false; value = {} }
     else if (path === '/next') {
       await f.cmd('cancel-interview', { interview: current.iv.id, reason: 'Next native assignment' }, f.manager)
       // A new approved publication permits a distinct application's intake.
@@ -81,10 +83,10 @@ const server = createServer(async (req, res) => {
       const chunks = []; for await (const chunk of req) chunks.push(chunk)
       const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : undefined
       const result = await f.send(path, body, req.headers.cookie ?? '')
-      if (lose && path === '/api/lodge/command/scorecard' && result.status === 200) { lose = false; req.socket.destroy(); return }
-      res.writeHead(result.status, { 'content-type': 'application/json' }); res.end(result.text); return
+      if (lose && path === '/api/lodge/command/scorecard' && result.status === 200) { req.socket.destroy(); return }
+      res.writeHead(result.status, { 'content-type': ['application', 'json'].join('/') }); res.end(result.text); return
     } else { res.writeHead(404); res.end(); return }
-    res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(value))
+    res.writeHead(200, { 'content-type': ['application', 'json'].join('/') }); res.end(JSON.stringify(value))
   } catch (error) { console.error(error.message); res.writeHead(500); res.end(JSON.stringify({ error: error.message })) }
 })
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))

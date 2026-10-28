@@ -811,3 +811,11 @@ Scheduled recruiting charts use `/analysis/schedules` and `/api/lodge/analysis/s
 - `POST /auth/oidc/lodge-okta/start` and the configured callback use Base's pinned
   Okta authorization-code verifier. Only active provisioned subject associations
   can receive a Lodge session; token email cannot select an account.
+
+## Native offline interview feedback
+
+The authenticated interview-kit route returns an opaque offlineContext for a currently assigned human interviewer. The Android debug client sends it back to the existing scorecard command together with the captured rubricVersion and a durable submissionId. Existing online clients retain their current command behavior.
+
+The context binds the original session and saved membership to the application, candidate, interview, job and existing scorecard revisions. A changed context refuses with 409; a lost role, session or application access is refused through the ordinary current-authority checks. The client keeps refused feedback visibly unsubmitted and does not silently replace its captured context.
+
+A confirmed native submission stores its request fingerprint on its own scorecard. An identical retry returns that scorecard without another mutation; reusing the same id with different feedback refuses. This adds no release authority and no provider sending. Candidate erasure removes the scorecard and its reconciliation marker together. The client documentation is in `native/android/README.md`.

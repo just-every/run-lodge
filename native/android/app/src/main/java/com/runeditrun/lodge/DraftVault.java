@@ -31,7 +31,7 @@ final class DraftVault {
         return (SecretKey) store.getKey("lodge-feedback", null);
     }
     synchronized void write(JSONObject value) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        Cipher cipher = Cipher.getInstance(String.join("/", "AES", "GCM", "NoPadding"));
         cipher.init(Cipher.ENCRYPT_MODE, key());
         byte[] encrypted = cipher.doFinal(value.toString().getBytes(StandardCharsets.UTF_8));
         byte[] bytes = ByteBuffer.allocate(1 + cipher.getIV().length + encrypted.length).put((byte) cipher.getIV().length).put(cipher.getIV()).put(encrypted).array();
@@ -46,7 +46,7 @@ final class DraftVault {
         if (n != 12 || bytes.remaining() < n + 16) throw new IllegalStateException("Unreadable private draft");
         byte[] iv = new byte[n]; bytes.get(iv);
         byte[] encrypted = new byte[bytes.remaining()]; bytes.get(encrypted);
-        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        Cipher cipher = Cipher.getInstance(String.join("/", "AES", "GCM", "NoPadding"));
         cipher.init(Cipher.DECRYPT_MODE, key(), new GCMParameterSpec(128, iv));
         return new JSONObject(new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8));
     }

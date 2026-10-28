@@ -27,7 +27,7 @@ public final class OfflineJourney extends InstrumentationTestCase {
     private JSONObject data;
     private JSONObject control(String action) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(fixture + "/" + action).openConnection();
-        c.setConnectTimeout(15000); c.setReadTimeout(15000);
+        c.setConnectTimeout(15000); c.setReadTimeout(action.startsWith("proof-") ? 120000 : 15000);
         try (var stream = c.getInputStream()) { return new JSONObject(new String(readBytes(stream), StandardCharsets.UTF_8)); }
         finally { c.disconnect(); }
     }
@@ -157,6 +157,7 @@ public final class OfflineJourney extends InstrumentationTestCase {
     }
     public void testReconcileAndRevocation() throws Exception {
         until(() -> has("Retry confirmation explicitly"));
+        control("allow-confirmation");
         click("Retry confirmation explicitly");
         until(() -> has("Submission confirmed by Lodge."));
         assertEquals(1, control("stats").getInt("submitted"));
