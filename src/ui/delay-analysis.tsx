@@ -11,6 +11,7 @@ function DelayCases({ report, follow }: { report: D; follow: PageProps['follow']
     <summary>Source case: {row.name}</summary>
     <p><button className="link" onClick={() => follow('/app?application=' + encodeURIComponent(row.application))}>Open application history</button> · {row.status}</p>
     <p>Application revision: <code>{row.source.revision}</code></p>
+    {row.hiring && <p>Submission to recorded acceptance: {row.hiring.hours === null ? 'Unknown. ' + row.hiring.missing : hours(row.hiring.hours) + ' elapsed hours · ' + row.hiring.submittedAt + ' to ' + row.hiring.acceptedAt}.</p>}
     {row.missing.map((limit: string) => <p key={limit}>{limit}</p>)}
     <h4>Native stage events</h4>
     <ul>{row.events.map((e: D) => <li key={e.id}>{e.at ?? 'Unknown time'} · {e.fromLabel} → {e.toLabel}<details><summary>Exact event citation</summary><p>Record <code>{e.id}</code></p><p>Revision <code>{e.revision}</code></p></details></li>)}</ul>
@@ -42,6 +43,7 @@ function Evidence({ report, follow }: { report: D; follow: PageProps['follow'] }
       </Table>
     </section>}
     {report.hiring && <p>Native time to hire: {report.hiring.totals.meanDaysToHire === null ? 'Unknown' : hours(report.hiring.totals.meanDaysToHire) + ' calendar days'} · {report.hiring.totals.measuredHires} measured hires. {report.hiring.definition}</p>}
+    {report.hiring?.elapsed && <p>Submission to recorded acceptance: {report.hiring.elapsed.meanHours === null ? 'Unknown' : hours(report.hiring.elapsed.meanHours) + ' mean elapsed hours'} · {report.hiring.elapsed.measuredApplications} measured applications · {report.hiring.elapsed.unknownApplications} unknown. Each application counts once; reopening retains its original submission.</p>}
     <h3>Missing observations and limits</h3>
     {report.unknowns.map((x: string) => <p key={x}>{x}</p>)}
     <details><summary>Cohort and metric definitions</summary>{Object.values(report.definitions).map((x: any, i) => <p key={i}>{x}</p>)}</details>

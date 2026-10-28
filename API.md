@@ -893,13 +893,13 @@ require current job management and offer authority; blind applications are omitt
 The agent sends `propose` with `workflow: "delay-diagnosis"`, a human `approver`,
 the returned `cohort` and complete unchanged `sources`, plus `summary`, `findings`,
 `uncertainty`, `sampleLimits`, `proposedChange` and `successCriterion`. Each finding
-has an `observation` or `hypothesis` kind, text and exact stage-event, interview or offer citations
+has an `observation` or `hypothesis` kind, text and exact application, stage-event, interview or offer citations
 from that evidence. A required `measurement` names a native metric:
 `mean-completed-stage-hours`, `mean-candidate-availability-hours`,
-`mean-panel-declaration-hours`, `mean-ready-to-schedule-hours` or
-`mean-recorded-offer-outcome-hours`. Supply the internal task `stage`, a lower
+`mean-panel-declaration-hours`, `mean-ready-to-schedule-hours`,
+`mean-recorded-offer-outcome-hours` or `mean-submission-to-acceptance-hours`. Supply the internal task `stage`, a lower
 nonnegative `targetHours`, positive `minimumIntervals` and future `windowDays`.
-The minimum counts measured visits, interviews or recorded offers according to
+The minimum counts measured visits, interviews, recorded offers or applications with recorded acceptance according to
 the chosen metric. Lodge freezes the actual baseline, sample unit and metric
 definition from its current report; it never accepts a client-supplied baseline.
 Comparisons retain that metric and definition, refuse a changed definition and
@@ -932,6 +932,16 @@ returned history. Lodge validates the index against that exact record revision
 and records the observation's timestamp and kind. A changed revision or an
 invented observation is refused before any draft is saved.
 
+Submission-to-acceptance joins each original native submission with its first
+recorded accepted offer. It measures elapsed hours, separately from the cohort
+report's business-zone calendar days. Reopening retains the original submission;
+each application counts once. Missing timestamps, absent acceptance and imported
+history remain unknown and outside the measured denominator. Each case exposes
+both interval endpoints and the accepted offer reference, with exact application
+and offer revisions available for findings. This records no verified delivery,
+signature, provider response or causal improvement. Native trials can compare
+this same metric against their frozen baseline and future submission cohort.
+
 Human administrators can read `GET /api/lodge/delay-feedback` with the same cohort
 filters. It reuses the survey report's current access, expiry and minimum-sample
 rules. Anonymous aggregates retain the complete survey-version denominator;
@@ -950,7 +960,7 @@ accepted diagnosis. This conservative increment grants no mailbox or contact aut
 - `delay-trial-run`: explicitly create owner-assigned internal review tasks for
   eligible native stage entries, once each across restart and replay. This command
   runs only during the approved comparison window and sends nothing.
-- `delay-trial-compare`: read completed visits using the frozen stage definition,
+- `delay-trial-compare`: read the chosen native metric using its frozen definition,
   target, minimum sample and cohort dates. Open windows and insufficient samples
   remain inconclusive. Observed target attainment does not establish causation.
 - `delay-trial-rollback`: stop the policy and cancel its remaining open tasks.

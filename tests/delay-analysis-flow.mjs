@@ -390,17 +390,77 @@ async function checkDelayTrialRestore(h, proposal) {
 async function checkDelayHireMetric() {
   const h = await delayFixture()
   try {
+    const path = delayPath + '?vacancy=' + h.job.id
+    const read = async (suffix = '') => {
+      const response = await h.send(path + suffix, undefined, h.agent)
+      assert.equal(response.status, 200, response.text)
+      return response.value
+    }
+    const unknown = await read()
+    assert.deepEqual(unknown.hiring.elapsed, { measuredApplications: 0, unknownApplications: 3, meanHours: null })
+    const unmeasured = delayDraft(unknown, h.ownerEmail)
+    unmeasured.measurement.metric = 'mean-submission-to-acceptance-hours'
+    assert.equal((await h.send('/api/lodge/command/propose', unmeasured, h.agent)).status, 400, 'an absent acceptance never supplies a trial baseline')
     const job = (await h.state()).vacancies.find(v => v.id === h.job.id)
     const offer = await h.command('offer', { application: h.second.id, opening: job.openings[2].id, startDate: '2030-12-01', salary: { currency: 'USD', amount: 9000000, period: 'year' } })
     const approval = await h.command('request-offer-approval', { id: offer.id, approver: h.ownerEmail })
     await h.command('decide-approval', { id: approval.id, version: approval.version, decision: 'approved', reason: 'Reviewed exact native terms' })
     await h.setTime('2030-10-09T12:00:00.000Z')
     await h.command('offer-outcome', { id: offer.id, outcome: 'accepted', reason: 'Human recorded accepted terms' })
-    const path = delayPath + '?vacancy=' + job.id
-    const report = (await h.send(path, undefined, h.agent)).value
+    const report = await read()
     assert.deepEqual([report.hiring.totals.measuredHires, report.hiring.totals.meanDaysToHire, report.totals.outcomes.accepted], [1, 8, 1], 'native time to hire uses original submission and recorded acceptance in the same scoped cohort')
+    assert.deepEqual(report.hiring.elapsed, { measuredApplications: 1, unknownApplications: 2, meanHours: 192 }, 'the elapsed metric counts applications once and does not count a declined offer or an open case')
+    const hired = report.cases.find(row => row.application === h.second.id)
+    assert.deepEqual(hired.hiring, { submittedAt: '2030-10-01T12:00:00.000Z', acceptedAt: '2030-10-09T12:00:00.000Z', offer: offer.id, hours: 192, missing: null })
+    const detail = await h.send(delayPath + '/' + h.second.id + '?vacancy=' + job.id, undefined, h.agent)
+    assert.equal(detail.value.hiring.hours, 192, 'the public drill-down exposes the same sourced interval')
+    assert.deepEqual((await read('&from=2030-10-02')).hiring.elapsed, { measuredApplications: 0, unknownApplications: 0, meanHours: null })
     await h.command('candidate-privacy', { id: h.second.candidate, private: true })
-    const privateView = (await h.send(path, undefined, h.agent)).value
+    const privateView = await read()
     assert.deepEqual([privateView.hiring.totals.measuredHires, privateView.hiring.totals.meanDaysToHire, privateView.totals.outcomes.accepted], [0, null, 0], 'private cases are excluded before both report aggregates')
+    assert.deepEqual(privateView.hiring.elapsed, { measuredApplications: 0, unknownApplications: 2, meanHours: null })
+    await h.command('candidate-privacy', { id: h.second.candidate, private: false })
+    const baseline = await read('&from=2030-10-01&to=2030-10-07'), body = delayDraft(baseline, h.ownerEmail)
+    body.measurement = { ...body.measurement, metric: 'mean-submission-to-acceptance-hours', targetHours: 96, minimumIntervals: 1, windowDays: 2 }
+    const citation = kind => baseline.sources.find(source => source.kind === kind && source.id === (kind === 'application' ? h.second.id : offer.id))
+    body.findings = [{ kind: 'observation', text: 'The original submission and recorded acceptance span eight days; no provider response is verified.', citations: [citation('application'), citation('offer')] }]
+    for (const invalid of [{ ...citation('application'), revision: 'synthetic-lodge-stale' }, { kind: 'application', id: 'synthetic-lodge-invented', revision: 'synthetic-lodge-invented' }]) {
+      assert.equal((await h.send('/api/lodge/command/propose', { ...body, findings: [{ ...body.findings[0], citations: [invalid, citation('offer')] }] }, h.agent)).status, 409)
+    }
+    const packet = await h.command('propose', body, h.agent)
+    assert.deepEqual([packet.measurement.baselineHours, packet.measurement.baselineIntervals, packet.measurement.sampleLabel], [192, 1, 'applications with recorded acceptance'])
+    assert.deepEqual(packet.findings[0].citations, body.findings[0].citations, 'the application and offer revisions cite both ends of the join')
+    await h.command('decide-proposal', { id: packet.id, decision: 'accepted', reason: 'Review the submission-to-acceptance metric without outbound action' })
+    const preview = await h.command('delay-trial-preview', { id: packet.id, afterHours: 12 })
+    const active = await h.command('delay-trial-activate', { id: packet.id, token: preview.token, confirm: true })
+    assert.deepEqual([active.comparisonCohort.from, active.comparisonCohort.to], ['2030-10-10', '2030-10-11'])
+    await h.setTime('2030-10-10T12:00:00.000Z')
+    const next = (await h.command('candidate', { name: 'Synthetic accepted comparison', email: address('synthetic-lodge-accepted-comparison'), vacancy: job.id, source: 'Direct', consentBasis: 'manual' })).application
+    await h.command('move', { application: next.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Recorded withdrawal' })
+    await h.setTime('2030-10-11T00:00:00.000Z')
+    await h.command('reopen', { application: next.id, to: job.stages[0].id, reason: 'Human reopened the same application' })
+    const nextOffer = await h.command('offer', { application: next.id, opening: job.openings[0].id, startDate: '2030-12-01', salary: { currency: 'USD', amount: 9000000, period: 'year' } })
+    const nextApproval = await h.command('request-offer-approval', { id: nextOffer.id, approver: h.ownerEmail })
+    await h.command('decide-approval', { id: nextApproval.id, version: nextApproval.version, decision: 'approved', reason: 'Reviewed comparison offer' })
+    await h.setTime('2030-10-11T12:00:00.000Z')
+    await h.command('offer-outcome', { id: nextOffer.id, outcome: 'accepted', reason: 'Human recorded acceptance' })
+    assert.equal((await h.command('delay-trial-compare', { id: packet.id })).conclusion, 'Insufficient sample or comparison window still open')
+    await h.setTime('2030-10-12T12:00:00.000Z')
+    const comparison = await h.command('delay-trial-compare', { id: packet.id })
+    assert.deepEqual([comparison.baselineHours, comparison.meanHours, comparison.intervals, comparison.sampleLabel, comparison.conclusion], [192, 24, 1, 'applications with recorded acceptance', 'Declared target observed'], 'future comparison retains the original submission through reopening and the application denominator')
+    assert.equal(comparison.definition, packet.measurement.definition)
+    assert.deepEqual(comparison.report.cohort, active.comparisonCohort)
+    await h.command('delay-trial-rollback', { id: packet.id })
+    // A retained legacy submission with missing timing must not become a zero-hour hire.
+    const stored = await h.db.prepare("SELECT value FROM l_records WHERE kind='application' AND id=?").bind(h.second.id).first()
+    const legacy = JSON.parse(stored.value); delete legacy.submittedAt
+    await h.db.prepare("UPDATE l_records SET value=? WHERE kind='application' AND id=?").bind(JSON.stringify(legacy), h.second.id).run()
+    const missing = await read()
+    assert.deepEqual(missing.hiring.elapsed, { measuredApplications: 1, unknownApplications: 3, meanHours: 24 })
+    assert.equal(missing.cases.find(row => row.application === h.second.id).hiring.missing, 'Original submission time is missing.')
+    const legacyDraft = delayDraft(await read('&from=2030-10-01&to=2030-10-07'), h.ownerEmail); legacyDraft.measurement.metric = 'mean-submission-to-acceptance-hours'
+    assert.equal((await h.send('/api/lodge/command/propose', legacyDraft, h.agent)).status, 400)
+    await h.command('candidate-privacy', { id: next.candidate, private: true })
+    assert.ok(!(await h.state(h.owner)).proposals.some(row => row.id === packet.id), 'revoking a joined comparison case hides the entire historical narrative')
   } finally { await h.close() }
 }
