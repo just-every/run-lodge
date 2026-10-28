@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "5b46f0daa801dc237fdf3a730078f802e4a68680bbdcda59312a3155f91fa52c",
+      "sha256": "61a804b253429ab67fbc5a0130d33be0eaa320452851972c2b26ede7171b8174",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "9a0459eb1c6a61543686d0a0adad1a77640113b5a03a5a49e5e1c46adfe0e8d3",
+      "sha256": "0203437b1e138444a5cb713bc7cf83a7866d77f9b9904c58e655b6ec7e7b2fac",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "24b038d6887a9911ba754e46307a8aaaea7332f4a1f6f59fd9a9128a5f0b443f",
+      "sha256": "1736e89c12c508fa3e0f558a5a1d905d195b75e79989f2e02f7caa80e668ce6e",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -219,7 +219,7 @@
       "executable": false
     },
     "docs/interviews-and-scorecards.md": {
-      "sha256": "27294a3b6420d98a91ab5ce9d495c0bdf41167f77919b78f654891bff4035be6",
+      "sha256": "19d1e4bd7d66f849d71a0c7f6b3cb4fdc40198b92595fdb0579d710395ef8e37",
       "executable": false
     },
     "docs/move-in.md": {
@@ -1899,7 +1899,7 @@
       "executable": false
     },
     "src/lodge/views/exports.ts": {
-      "sha256": "81d8af6d608198efb3f65da1ee79e6990d4c38515def44278420f5b8c8b8155f",
+      "sha256": "314df2e8c563c87d1d5bbca278661440076085945fa85e64914a0c56a5b3ac2d",
       "executable": false
     },
     "src/lodge/views/field-views.ts": {
@@ -4443,7 +4443,7 @@
       "executable": false
     },
     "tests/interview-day-browser.mjs": {
-      "sha256": "6890b4fb4e8988558a5cc620168659a8b8bb1f466ce14178438be4d54ddb5db7",
+      "sha256": "8b3f11e751df14151a222e49ebeb7eaa211a771ab1268a7d742bd9abcbbff71f",
       "executable": false
     },
     "tests/interview-day-flow.mjs": {
