@@ -75,6 +75,7 @@ export interface Session { operator: { id: string; email: string; displayName: s
 /** The current person, from the native session; mutations also need an exact same-origin request. */
 export async function signedIn(request: Request, original: Bindings): Promise<Session> {
   const env = runtimeBindings(original)
+  requireThat(!request.headers.has('authorization'), 'App credentials cannot use native session doors', 401)
   requireThat(new URL(request.url).origin === env.AUTH_ORIGIN, 'Invalid host', 403)
   // Downloads record who took them, so even reads refuse other sites' requests.
   requireThat(request.headers.get('sec-fetch-site') !== 'cross-site', 'Invalid origin', 403)

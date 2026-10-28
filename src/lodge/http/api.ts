@@ -1,3 +1,4 @@
+import { integrationApi, integrationManagement } from './integrations'
 import { offlineScorecardContext } from '../records/scorecards'
 import { cohortReport } from '../views/cohort-report'
 import { referenceExport } from '../references/views'
@@ -71,6 +72,8 @@ api.use('/api/lodge/*', async (c, next) => {
 })
 // ATTR-009: the public job board answers under /api/board with its own errors and CORS.
 api.route('/api/board', boardApi)
+api.route('/api/integrations/v1', integrationApi)
+api.route('/api/lodge/integrations', integrationManagement)
 api.post('/api/lodge/application-emails/events', c => applicationEmailEvents(c.req.raw, c.env))
 
 api.onError((error, c) => {

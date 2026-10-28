@@ -1,3 +1,4 @@
+import { checkIntegrationApi, checkEnterpriseIntegration } from './integration-api-flow.mjs'
 import { checkEnterpriseSaml } from './enterprise-saml-flow.mjs'
 import { checkEnterprise } from './enterprise-flow.mjs'
 import { checkBulkInvitations } from './bulk-invitations-flow.mjs'
@@ -207,3 +208,6 @@ test('bulk invitation preview grants scoped access and sends each valid row once
 test('compliance grants are separate from hiring scope and are revoked on every document door', checkCompliance)
 
 test('signed SAML sign-in binds the provisioned subject and refuses replay, stale settings and invalid assertions', checkEnterpriseSaml)
+
+test('INT-001 scoped read-only applications honor current authority and installation credential lifecycle', checkIntegrationApi)
+test('INT-001 employer deprovisioning immediately refuses app credentials without resurrection', checkEnterpriseIntegration)
