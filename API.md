@@ -909,6 +909,22 @@ packets. External mailbox and calendar observations stay unknown. Native intervi
 observations retain recorded availability edits, scheduling timestamps and exact
 record revisions; legacy gaps are disclosed without reconstructing events.
 
+The scheduling summary separates proposal-to-first-candidate-availability,
+proposal-to-complete-panel-declarations and continuous ready-to-schedule elapsed
+hours. Candidate and panel waits can overlap. A panellist's unavailable declaration
+is a timed response, but does not establish common availability. Ready-to-schedule
+requires recorded availability for the ultimately scheduled slot from every
+participant and the candidate, and resets if that availability is withdrawn.
+Each measure reports its own measured denominator and unknown count. Legacy
+declarations without attributable timestamps remain unknown; member identities
+are absent from this evidence. These observations establish no responsibility
+or provider failure.
+
+An interview citation may additionally name an `observation` index from its
+returned history. Lodge validates the index against that exact record revision
+and records the observation's timestamp and kind. A changed revision or an
+invented observation is refused before any draft is saved.
+
 Human administrators can read `GET /api/lodge/delay-feedback` with the same cohort
 filters. It reuses the survey report's current access, expiry and minimum-sample
 rules. Anonymous aggregates retain the complete survey-version denominator;

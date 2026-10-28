@@ -145,6 +145,78 @@ export async function checkDelayAnalysis(t) {
   await h.command('member', { email: h.agentEmail, name: 'Synthetic revoked agent', roles: [], agent: true, actsFor: h.managerEmail, active: false })
   assert.equal((await h.send(delayPath + query, undefined, h.agent)).status, 403)
   await checkDelayHireMetric()
+  await checkNativeSchedulingWaits()
+}
+
+async function checkNativeSchedulingWaits() {
+  const h = await delayFixture()
+  try {
+    const read = async (suffix = '') => {
+      const response = await h.send(delayPath + '?vacancy=' + h.job.id + suffix, undefined, h.agent)
+      assert.equal(response.status, 200, response.text)
+      return response.value
+    }
+    await h.setTime('2030-10-10T12:00:00.000Z')
+    const interview = await h.command('interview', { application: h.second.id, planItem: (await h.state()).vacancies.find(v => v.id === h.job.id).plan[0].id, participants: [h.managerEmail, h.reviewerEmail], slots: ['2030-10-15T12:00:00.000Z'] })
+    const form = new FormData(); form.set('slot', '0')
+    await h.setTime('2030-10-10T18:00:00.000Z')
+    assert.equal((await h.send('/availability/' + interview.candidateToken, form)).status, 200)
+    await h.setTime('2030-10-11T00:00:00.000Z')
+    await h.command('availability', { interview: interview.id, slots: [0] }, h.manager)
+    // One person editing twice does not count as a second panellist answering.
+    await h.command('availability', { interview: interview.id, slots: [0] }, h.manager)
+    let report = await read()
+    assert.equal(report.cases.find(c => c.application === h.second.id).scheduling[0].waits.panel.hours, null)
+    await h.setTime('2030-10-11T18:00:00.000Z')
+    await h.command('availability', { interview: interview.id, slots: [0] }, h.reviewer)
+    await h.setTime('2030-10-12T00:00:00.000Z')
+    await h.command('availability', { interview: interview.id, slots: [] }, h.manager)
+    await h.setTime('2030-10-12T12:00:00.000Z')
+    await h.command('availability', { interview: interview.id, slots: [0] }, h.manager)
+    await h.setTime('2030-10-13T00:00:00.000Z')
+    await h.command('schedule', { interview: interview.id, slot: 0 })
+    report = await read()
+    const measured = report.cases.find(c => c.application === h.second.id).scheduling[0]
+    assert.deepEqual(Object.values(measured.waits).map(m => m.hours), [6, 30, 12], 'candidate and panel waits overlap; a revoked slot resets the continuous ready interval')
+    assert.deepEqual(measured.waits.readyToSchedule.observations, [6, 7])
+    assert.deepEqual(report.scheduling.map(row => [row.measured, row.unknown, row.meanHours]), [[2, 0, 9], [2, 0, 15], [2, 0, 12]], 'means independently combine two native interview histories')
+    assert.equal(JSON.stringify(report).includes(h.reviewerEmail), false, 'panel timing evidence exposes no member identity')
+    const draft = delayDraft(report, h.reviewerEmail), citation = report.sources.find(s => s.kind === 'interview' && s.id === interview.id)
+    draft.findings = [{ kind: 'hypothesis', text: 'A panel availability review may help; the recorded waits overlap and responsibility is unknown.', citations: [{ ...citation, observation: 6 }, { ...citation, observation: 7 }] }]
+    for (const observation of [-1, 100, 0.5]) assert.equal((await h.send('/api/lodge/command/propose', { ...draft, findings: [{ ...draft.findings[0], citations: [{ ...citation, observation }] }] }, h.agent)).status, 409)
+    const packet = await h.command('propose', draft, h.agent)
+    assert.deepEqual(packet.findings[0].citations.map(c => [c.observation, c.observationKind, c.at]), [[6, 'panel-availability', '2030-10-12T12:00:00.000Z'], [7, 'scheduled', '2030-10-13T00:00:00.000Z']])
+    await h.command('cancel-interview', { interview: interview.id, reason: 'Human changed the plan' })
+    assert.equal((await h.send('/api/lodge/command/propose', draft, h.agent)).status, 409, 'observation positions cannot be replayed against a changed record revision')
+    await h.setTime('2030-10-13T12:00:00.000Z')
+    const unavailable = await h.command('interview', { application: h.incomplete.id, planItem: (await h.state()).vacancies.find(v => v.id === h.job.id).plan[0].id, participants: [h.managerEmail], slots: ['2030-10-15T12:00:00.000Z'] })
+    await h.setTime('2030-10-13T18:00:00.000Z')
+    await h.command('availability', { interview: unavailable.id, slots: [] }, h.manager)
+    await h.setTime('2030-10-14T00:00:00.000Z')
+    assert.equal((await h.send('/availability/' + unavailable.candidateToken, form)).status, 200)
+    await h.setTime('2030-10-14T06:00:00.000Z')
+    await h.command('schedule', { interview: unavailable.id, slot: 0 })
+    const withoutOverlap = (await read()).cases.find(c => c.application === h.incomplete.id).scheduling[0]
+    assert.deepEqual(Object.values(withoutOverlap.waits).map(m => m.hours), [12, 6, null], 'a recorded unavailable response is timed but never establishes readiness or a recruiter queue')
+    // Retained legacy timestamps without attributable declarations are not reconstructed.
+    const stored = await h.db.prepare("SELECT value FROM l_records WHERE kind='interview' AND id=?").bind(interview.id).first()
+    const legacy = JSON.parse(stored.value)
+    delete legacy.observations[2].participant
+    await h.db.prepare("UPDATE l_records SET value=? WHERE kind='interview' AND id=?").bind(JSON.stringify(legacy), interview.id).run()
+    const mixed = (await read()).cases.find(c => c.application === h.second.id).scheduling[0]
+    assert.deepEqual(Object.values(mixed.waits).map(m => m.hours), [6, null, 12], 'new declarations can establish later readiness but cannot reconstruct the first response in mixed legacy history')
+    for (const event of legacy.observations) delete event.participant
+    await h.db.prepare("UPDATE l_records SET value=? WHERE kind='interview' AND id=?").bind(JSON.stringify(legacy), interview.id).run()
+    report = await read()
+    const unknown = report.cases.find(c => c.application === h.second.id).scheduling[0]
+    assert.deepEqual(Object.values(unknown.waits).map(m => m.hours), [6, null, null])
+    assert.deepEqual(report.scheduling.map(row => [row.measured, row.unknown, row.meanHours]), [[3, 0, 10], [2, 1, 3], [1, 2, 12]], 'unknown history stays outside each measured denominator')
+    assert.deepEqual((await read('&from=2030-10-02')).scheduling.map(row => [row.interviews, row.measured, row.meanHours]), [[0, 0, null], [0, 0, null], [0, 0, null]], 'cohort selection applies before scheduling aggregation')
+    await h.command('candidate-privacy', { id: h.second.candidate, private: true })
+    const scoped = await read()
+    assert.deepEqual(scoped.scheduling.map(row => [row.interviews, row.measured]), [[2, 2], [2, 2], [2, 1]])
+    assert.ok(!(await h.state(h.reviewer)).proposals.some(p => p.id === packet.id), 'revocation hides narrative and its detailed observation citations together')
+  } finally { await h.close() }
 }
 
 async function checkHumanDelayFeedback(h) {

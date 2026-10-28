@@ -7,6 +7,7 @@ import { requireThat, ROLES, type Actor, type Data } from '../core/types'
 import { cohortReport } from './cohort-report'
 import { surveyReport } from '../surveys/records'
 import type { WorkspaceRecords } from './workspace'
+import { schedulingSummary, schedulingWaits } from './delay-waits'
 
 export type DelayFilter = { vacancy?: string; from?: string | null; to?: string | null; timeZone?: string }
 const dated = (x: unknown): x is string => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(x) && Number.isFinite(Date.parse(x))
@@ -54,7 +55,7 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
       return { ...source('interview', iv.id), status: iv.status, createdAt: iv.createdAt ?? null, scheduledAt: iv.scheduledAt ?? null, candidateRespondedAt: iv.candidateRespondedAt ?? null,
         hoursToRecordedSchedule: elapsed(iv.scheduledAt), hoursToCandidateAvailability: elapsed(iv.candidateRespondedAt), proposedSlots: iv.slots?.length ?? 0,
         panelSize: iv.participants.length, panelResponses: iv.participants.filter((who: string) => Object.hasOwn(iv.availability ?? {}, who)).length,
-        candidateResponded: Object.hasOwn(iv.availability ?? {}, 'candidate'), providerVerified: false, observations: (iv.observations ?? []).map((event: Data) => ({ kind: event.kind, at: event.at, hoursAfterProposal: elapsed(event.at), availableSlots: event.slots?.length ?? null })), historyIncomplete: !iv.observations?.some((e: Data) => e.kind === 'proposed') }
+        candidateResponded: Object.hasOwn(iv.availability ?? {}, 'candidate'), providerVerified: false, waits: schedulingWaits(iv, !!app.imported), observations: (iv.observations ?? []).map((event: Data, index: number) => ({ index, kind: event.kind, at: event.at, hoursAfterProposal: elapsed(event.at), availableSlots: event.slots?.length ?? null })), historyIncomplete: !iv.observations?.some((e: Data) => e.kind === 'proposed') }
     })
     return { application: app.id, name: app.candidateName, status: app.status, imported: !!app.imported, source: source('application', app.id), events, intervals, offers, scheduling, missing: [...new Set(missing)] }
   }).sort((x, y) => x.application.localeCompare(y.application))
@@ -69,14 +70,15 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
   const hiring = cohortReport(s, a, { ...w, applications: w.applications.filter(app => selectedIds.has(app.id)) }, { ...input, from: input.from || undefined, to: input.to || undefined, history: 'native' })
   return {
     hiring: { totals: hiring.totals, disclosures: hiring.disclosures, definition: hiring.definitions.timeToHire },
-    cohort: { vacancy: job.id, from: input.from || null, to: input.to || null, timeZone: zone }, job: job.title, cases, stages, sources,
+    cohort: { vacancy: job.id, from: input.from || null, to: input.to || null, timeZone: zone }, job: job.title, cases, stages, sources, scheduling: schedulingSummary(cases),
     totals: { cases: cases.length, completedIntervals: intervals.length, offers: offers.length, measuredOutcomes: measured.length, meanOfferHours: measured.length ? measured.reduce((sum, o) => sum + o.hoursToOutcome!, 0) / measured.length : null, outcomes: Object.fromEntries(['draft', 'accepted', 'declined', 'withdrawn'].map(status => [status, offers.filter(o => o.status === status).length])) },
     disclosures: { missingSubmission, excludedUndated: input.from || input.to ? missingSubmission : 0, incompleteCases: cases.filter(c => c.missing.length).length },
     definitions: {
       cohort: 'Current authorized, non-spam, non-blind applications for the selected job, by original submission date inclusive in the selected time zone. Undated records are disclosed and excluded only when a date filter is applied. Reopening does not reset submission.',
       stages: 'Elapsed hours between consecutive, linked native stage events. Each completed visit counts once, including repeated visits after reopening. Unfinished stages, gaps and imported history are not assigned a duration. Means divide by measured completed visits, not applications.',
       offers: 'Recorded offer statuses, not verified delivery or candidate response time. Elapsed hours from native offer creation to its recorded outcome; means divide by offers with both valid timestamps. Drafts and incomplete history remain unmeasured.',
-      scheduling: 'Elapsed hours from native interview proposal to recorded scheduling or candidate availability. Panel response counts record declarations, not response timestamps. No native row verifies calendar availability, a delivered invitation, an external attempt or responsibility for a wait.',
+      scheduling: 'Elapsed hours from native interview proposal to recorded scheduling or the latest candidate availability. Panel response counts record declarations. Timestamped observation histories support the separate wait measurements; older counts without attributable timestamps do not. No native row verifies calendar availability, a delivered invitation, an external attempt or responsibility for a wait.',
+      waits: 'Candidate wait measures proposal to first recorded candidate availability; panel wait measures proposal to the first recorded declaration from every named panellist, including unavailable declarations. These waits can overlap and must not be added. Ready-to-schedule measures the continuous interval during which the ultimately scheduled slot had recorded availability from the candidate and every panellist, ending at the native schedule event. It is a possible recruiter-queue observation, not proof of inactivity or responsibility. Missing participant timestamps, missing common availability, imported or incomplete history stay unknown. Each mean divides by interviews with that measurement, never by all cases; counts disclose the unknown remainder.',
       limits: 'A small observational cohort is not a causal comparison or a suitability ranking. Access is applied before aggregation. No mailbox, scheduling or survey evidence is inferred from missing data.',
     }, unknowns: DELAY_UNKNOWNS,
   }

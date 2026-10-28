@@ -50,7 +50,7 @@ export function availability(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, iv.application)
   requireThat(iv.status === 'proposed', 'Availability is closed for this interview', 409)
   const selected = chosen(iv.slots, b.slots)
-  const record = s.put('interview', iv.id, { ...iv, availability: { ...iv.availability, [a.email]: selected }, observations: [...(iv.observations ?? []), { kind: 'panel-availability', at: now(), slots: selected }] })
+  const record = s.put('interview', iv.id, { ...iv, availability: { ...iv.availability, [a.email]: selected }, observations: [...(iv.observations ?? []), { kind: 'panel-availability', participant: iv.participants.indexOf(a.email), at: now(), slots: selected }] })
   s.audit(a, 'availability-recorded', 'interview:' + iv.id)
   return panelView(a, s.get('vacancy', app.vacancy), record)
 }
