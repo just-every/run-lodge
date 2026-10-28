@@ -927,7 +927,7 @@
       "executable": false
     },
     "scripts/installer/portability-policy.mjs": {
-      "sha256": "81672cfb44814d51fb4714bd0977aee13acc7c5951b817d48e8685e35a8847bf",
+      "sha256": "fee585d7b0b27c7dd098ad332bb8e34eb4b8bab386d909f13cc2a6e46e1bd076",
       "executable": false
     },
     "scripts/installer/referral-policy.mjs": {
@@ -1134,8 +1134,12 @@
       "sha256": "56cf6ffa6a509f43969b9e9cd498b38e50c676e60d13e71d3f20660795d9d147",
       "executable": false
     },
+    "src/lodge/agents/delay-trials.ts": {
+      "sha256": "00e9aa42e0be87e22906c4a1a2860caceb653f868027598f916095fb7a74bdf1",
+      "executable": false
+    },
     "src/lodge/agents/delays.ts": {
-      "sha256": "97f6981ca76b863f41ce5cb51808e23ed07aee14961ff6e114be57e38a9950c1",
+      "sha256": "8844d5524a686694e3fd04f55e42ce73e3480eff1a6fcbba1b6ae3c591065eb8",
       "executable": false
     },
     "src/lodge/agents/proposals.ts": {
@@ -1231,7 +1235,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "25fa12b0c3726fcbf8edd2ffb3489c001684809d69d586ede9393bd3998c34f3",
+      "sha256": "23e3a8a2a7d33fc8e7737a8db60cd67bb2cdba8576292ada81eb6839b5f98ee8",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -1439,7 +1443,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "f8ed33c133de6ea51744316b18624d2510cf5e625f6ad16ff1dc3dbb622ff27e",
+      "sha256": "bd473030e7dfde51592a092dab8eab92a63e3c5f0c9b0f170bee4d96735c6fdc",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -1875,7 +1879,7 @@
       "executable": false
     },
     "src/lodge/views/delay-analysis.ts": {
-      "sha256": "c261087858de8aeb6fc32151736e0597be8df6e07d6fe6c2dcb3662e1d5b6de2",
+      "sha256": "a68b5fec8725f4f05ec301445f60b13b69516c470e15fa628232ca5ddfaee10e",
       "executable": false
     },
     "src/lodge/views/exports.ts": {
@@ -3847,7 +3851,7 @@
       "executable": false
     },
     "src/ui/delay-analysis.tsx": {
-      "sha256": "78a85e2316ee1f9a78668c622eb139e376ef9c90144cabe01e94258317a5589b",
+      "sha256": "549f11cf73e98682222294d318b2c50af1da5ae380e0601b1cc8eb3600658311",
       "executable": false
     },
     "src/ui/document-rendering.ts": {
@@ -4307,7 +4311,7 @@
       "executable": false
     },
     "tests/delay-analysis-flow.mjs": {
-      "sha256": "5d5f0b57adbfcbad77bb229d0f9bdb0174180b902548bcc10d47e81094f42ac3",
+      "sha256": "152b61e697a4b3d23d663a41f4d620dc813ad05228515240db707cc8a8ed1646",
       "executable": false
     },
     "tests/document-fixtures.mjs": {

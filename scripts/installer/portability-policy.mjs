@@ -95,6 +95,10 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'proposal') {
+   const value = JSON.parse(row.value);
+   if (value.delayTrial) return { ...row, value: JSON.stringify({ ...value, delayTrial: { ...value.delayTrial, status: 'withheld', token: null } }) };
+  }
   if (table === 'l_records' && row.kind === 'weekly-report') {
    const value = JSON.parse(row.value);
    return { ...row, value: JSON.stringify({ ...value, enabled: false, status: 'withheld' }) };

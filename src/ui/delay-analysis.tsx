@@ -14,6 +14,9 @@ function DelayCases({ report, follow }: { report: D; follow: PageProps['follow']
     <h4>Native stage events</h4>
     <ul>{row.events.map((e: D) => <li key={e.id}>{e.at ?? 'Unknown time'} · {e.fromLabel} → {e.toLabel}<details><summary>Exact event citation</summary><p>Record <code>{e.id}</code></p><p>Revision <code>{e.revision}</code></p></details></li>)}</ul>
     <ul>{row.intervals.map((i: D) => <li key={i.start + i.end}>{i.label}: {hours(i.hours)} elapsed hours · {i.from} to {i.to}</li>)}</ul>
+    <h4>Native scheduling observations</h4>
+    {!row.scheduling?.length && <p>No native scheduling observations; external attempts remain unknown.</p>}
+    {(row.scheduling ?? []).map((iv: D) => <p key={iv.id}>{iv.status} · {iv.panelResponses} of {iv.panelSize} panel declarations · candidate availability {iv.candidateResponded ? 'recorded' : 'unknown'} · proposal to recorded schedule {iv.hoursToRecordedSchedule === null ? 'unknown' : hours(iv.hoursToRecordedSchedule) + ' hours'} · proposal to candidate availability {iv.hoursToCandidateAvailability === null ? 'unknown' : hours(iv.hoursToCandidateAvailability) + ' hours'} · Record <code>{iv.id}</code> · Revision <code>{iv.revision}</code>. Provider availability unverified.</p>)}
     <h4>Recorded offer outcomes</h4>
     {!row.offers.length && <p>No recorded offers.</p>}
     {row.offers.map((o: D) => <p key={o.id}>{o.status} · {o.hoursToOutcome === null ? 'Duration unknown' : hours(o.hoursToOutcome) + ' hours to recorded outcome'} · Record <code>{o.id}</code> · Revision <code>{o.revision}</code></p>)}
@@ -29,6 +32,7 @@ function Evidence({ report, follow }: { report: D; follow: PageProps['follow'] }
       {report.stages.map((st: D) => <tr key={st.stage}><td>{st.label}</td><td>{st.intervals}</td><td>{st.meanHours === null ? 'Unknown' : hours(st.meanHours)}</td></tr>)}
     </Table>
     <p>Mean time from offer creation to recorded outcome: {report.totals.meanOfferHours === null ? 'Unknown' : hours(report.totals.meanOfferHours) + ' hours'}.</p>
+    {report.hiring && <p>Native time to hire: {report.hiring.totals.meanDaysToHire === null ? 'Unknown' : hours(report.hiring.totals.meanDaysToHire) + ' calendar days'} · {report.hiring.totals.measuredHires} measured hires. {report.hiring.definition}</p>}
     <h3>Missing observations and limits</h3>
     {report.unknowns.map((x: string) => <p key={x}>{x}</p>)}
     <details><summary>Cohort and metric definitions</summary>{Object.values(report.definitions).map((x: any, i) => <p key={i}>{x}</p>)}</details>
@@ -37,10 +41,10 @@ function Evidence({ report, follow }: { report: D; follow: PageProps['follow'] }
 }
 
 export function DelayAnalysis({ w, follow }: Pick<PageProps, 'w' | 'follow'>) {
-  const [query, setQuery] = useState(''), [report, setReport] = useState<D>(), [error, setError] = useState('')
+  const [query, setQuery] = useState(''), [report, setReport] = useState<D>(), [error, setError] = useState(''), [feedback, setFeedback] = useState<D>()
   useEffect(() => {
     let live = true
-    setReport(undefined); setError('')
+    setReport(undefined); setFeedback(undefined); setError('')
     if (query) call('delay-analysis?' + query).then(r => { if (live) setReport(r) }).catch(e => { if (live) setError(e.message) })
     return () => { live = false }
   }, [query, w])
@@ -57,6 +61,13 @@ export function DelayAnalysis({ w, follow }: Pick<PageProps, 'w' | 'follow'>) {
       </Form>
       {error && <p role="alert">{error}</p>}
       {report && <Evidence report={report} follow={follow} />}
+      {report && !w.actor.agent && (w.actor.owner || w.actor.roles.includes('admin')) && <>
+        <button onClick={async () => { try { setFeedback(await call('delay-feedback?' + query)) } catch (e: any) { setError(e.message) } }}>Read human-only survey context</button>
+        {feedback && <section aria-label="Human-only delay feedback"><p>{feedback.definition}</p><p>{feedback.limit}</p>
+          {!feedback.surveys.length && <p>No retained survey observations for this job.</p>}
+          {feedback.surveys.map((r: D) => <section key={r.id}><h3>{r.title} · version {r.version}</h3><p>{r.responses} responses from {r.invitations} provider handoffs.</p>{r.suppressed ? <p>Small sample: answers suppressed.</p> : <><p>Mean process ratings: {r.averages.join(', ')}</p>{r.identified.map((x: D) => <p key={x.application}>{x.candidateName} · stage days {x.stageDays} · arrival to interview hours {x.schedulingHours.join(', ') || 'unknown'}</p>)}</>}</section>)}
+        </section>}
+      </>}
     </details>
   </section>
 }
