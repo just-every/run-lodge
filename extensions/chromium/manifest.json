@@ -1,0 +1,8 @@
+{
+  "manifest_version": 3,
+  "name": "Lodge explicit prospect capture",
+  "version": "0.1.0",
+  "description": "Review selected or typed details in your signed-in Lodge installation.",
+  "permissions": ["activeTab", "scripting"],
+  "action": { "default_title": "Capture prospect", "default_popup": "popup.html" }
+}

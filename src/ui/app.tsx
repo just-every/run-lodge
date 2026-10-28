@@ -1,3 +1,4 @@
+import { CaptureSettings, ProspectCapture, takeProspectHandoff } from './prospect-capture'
 import { Integrations } from './integrations'
 import { CohortReport } from './cohort-report'
 import { ReferenceSettings } from './references'
@@ -29,6 +30,7 @@ export interface Nav { tab: string; app: string | null; job: string | null; vaca
 export type Target = Partial<Omit<Nav, 'tab'>>
 
 export function App() {
+  const [handoff, setHandoff] = useState<D | null>(null), [capture, setCapture] = useState(false)
   const [w, setW] = useState<D>(), [error, setError] = useState(''), [notice, setNotice] = useState('')
   // An empty tab is the home screen: the job board, the screen the owner picked, once there are applications to run.
   const [nav, setNav] = useState<Nav>({ tab: '', app: null, job: null, vacancy: null })
@@ -43,7 +45,7 @@ export function App() {
   function follow(href: string) {
     const q = new URLSearchParams(new URL(href, location.origin).search), at = (k: string) => q.get(k)
     setKit(at('kit')); setNotice(''); scrollTo({ top: 0 })
-    history.replaceState(null, '', at('kit') ? '/app?kit=' + encodeURIComponent(at('kit')!) : at('report') === 'cohort' ? '/app?report=cohort' : '/app')
+    history.replaceState(null, '', at('capture') === '1' ? '/app?capture=1' : at('kit') ? '/app?kit=' + encodeURIComponent(at('kit')!) : at('report') === 'cohort' ? '/app?report=cohort' : '/app')
     if (at('report') === 'cohort') setNav(n => ({ ...n, tab: 'Cohort report' }))
     if (at('settings') === 'references') setNav(n => ({ ...n, tab: 'Settings', app: at('application'), job: null }))
     else if (at('application')) setNav(n => ({ ...n, tab: 'Applications', app: at('application'), job: null }))
@@ -52,7 +54,7 @@ export function App() {
     else if (at('candidate')) setNav(n => ({ ...n, tab: 'Candidates' }))
     else if (at('task')) { setNav(n => ({ ...n, tab: 'Overview' })); setFocus('task-' + at('task')) }
   }
-  useEffect(() => { follow(location.href); reload().catch(e => setError(e.message)) }, [])
+  useEffect(() => { setHandoff(takeProspectHandoff()); setCapture(new URLSearchParams(location.search).get('capture') === '1'); follow(location.href); reload().catch(e => setError(e.message)) }, [])
   useEffect(() => { if (w && focus) { document.getElementById(focus)?.scrollIntoView({ block: 'center' }); setFocus(null) } }, [w, focus, nav.tab])
   async function mutate(op: string, body: D) {
     const result = await call(op.startsWith('esign/') ? op : 'command/' + op, body)
@@ -82,7 +84,8 @@ export function App() {
     ...((!actor.agent && admin) || w.references?.editable.length ? [{ name: 'Settings', icon: 'people' } as Tab] : []),
     ...(admin ? [{ name: 'People', icon: 'people' } as Tab, { name: 'Audit', icon: 'audit' } as Tab] : []),
   ]
-  const go = (tab: string, target: Target = {}) => { setKit(null); setNav(n => ({ ...n, ...target, tab })); setNotice(''); scrollTo({ top: 0 }) }
+  const go = (tab: string, target: Target = {}) => { setHandoff(null); setCapture(false); history.replaceState(null, '', '/app'); setKit(null); setNav(n => ({ ...n, ...target, tab })); setNotice(''); scrollTo({ top: 0 }) }
+  const closeCapture = () => { setHandoff(null); setCapture(false); history.replaceState(null, '', '/app') }
   const closeKit = () => { history.replaceState(null, '', '/app'); setKit(null) }
   const props = { w, mutate, reload, go, setNotice, nav, follow }
   const home = w.business && manager && w.applications.some((a: D) => a.manages) ? 'Applications' : 'Overview'
@@ -93,21 +96,22 @@ export function App() {
       <TopBar w={w} go={go} manager={manager} />
       <main>
         <p aria-live="polite" className="notice">{notice}</p>
-        {kit && <Kit id={kit} w={w} mutate={mutate} close={closeKit} />}
-        {!kit && tab === 'Cohort report' && <CohortReport {...props} />}
-        {!kit && tab === 'Overview' && <Overview {...props} />}
-        {!kit && tab === 'Vacancies' && <Vacancies {...props} />}
-        {!kit && tab === 'Applications' && <Applications {...props} />}
-        {!kit && tab === 'Candidates' && <Candidates {...props} />}
-        {!kit && tab === 'Events' && <Events {...props} />}
-        {!kit && tab === 'Approvals' && <Approvals {...props} />}
-        {!kit && tab === 'Proposals' && <Proposals {...props} />}
-        {!kit && tab === 'Retention' && <Retention {...props} />}
-        {!kit && tab === 'Move in' && <MoveIn {...props} />}
-        {!kit && tab === 'Settings' && <div className="page wide"><ReferenceSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
-        {!kit && tab === 'People' && <People {...props} />}
-        {!kit && tab === 'Audit' && <Audit {...props} />}
-        {!kit && tab === 'Workflow sandbox' && <WorkflowSandbox {...props} />}
+        {capture && <ProspectCapture handoff={handoff} destinations={w.prospectCapture} close={closeCapture} clearHandoff={() => setHandoff(null)} />}
+        {kit && !capture && <Kit id={kit} w={w} mutate={mutate} close={closeKit} />}
+        {!kit && !capture && tab === 'Cohort report' && <CohortReport {...props} />}
+        {!kit && !capture && tab === 'Overview' && <Overview {...props} />}
+        {!kit && !capture && tab === 'Vacancies' && <Vacancies {...props} />}
+        {!kit && !capture && tab === 'Applications' && <Applications {...props} />}
+        {!kit && !capture && tab === 'Candidates' && <Candidates {...props} />}
+        {!kit && !capture && tab === 'Events' && <Events {...props} />}
+        {!kit && !capture && tab === 'Approvals' && <Approvals {...props} />}
+        {!kit && !capture && tab === 'Proposals' && <Proposals {...props} />}
+        {!kit && !capture && tab === 'Retention' && <Retention {...props} />}
+        {!kit && !capture && tab === 'Move in' && <MoveIn {...props} />}
+        {!kit && !capture && tab === 'Settings' && <div className="page wide"><ReferenceSettings {...props} />{admin && !actor.agent && <><Integrations /><CaptureSettings /></>}</div>}
+        {!kit && !capture && tab === 'People' && <People {...props} />}
+        {!kit && !capture && tab === 'Audit' && <Audit {...props} />}
+        {!kit && !capture && tab === 'Workflow sandbox' && <WorkflowSandbox {...props} />}
       </main>
       <footer className="shell-foot">Lodge keeps the hiring record. It sends no email, ranks no one and makes no hiring decision; people do.</footer>
     </div>

@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Capture prospect</title><link rel="stylesheet" href="popup.css"></head>
+<body><main><h1>Capture prospect</h1><p>Only details you select or type are handed to Lodge. Nothing is added before native review and confirmation.</p>
+<form id="capture">
+<label>Lodge installation URL<input name="installation" type="url" required placeholder="https://your-installation.example"></label>
+<label>Source page URL<input name="sourceURL" type="url" required readonly></label>
+<button type="button" id="selection">Use selected text as name</button>
+<label>Name<input name="name" maxlength="160" required></label>
+<label>Email<input name="email" type="email" maxlength="254"></label>
+<label>Phone<input name="phone" maxlength="40"></label>
+<label>Location<input name="location" maxlength="160"></label>
+<label>Headline<input name="headline" maxlength="300"></label>
+<div class="actions"><button type="submit">Review in Lodge</button><button type="button" id="cancel">Cancel capture</button></div>
+<p role="alert" id="error"></p>
+</form><p>LinkedIn and inbox capture are not supported. Sign in to Lodge first. Closing this window discards the details.</p></main><script src="popup.js"></script></body></html>

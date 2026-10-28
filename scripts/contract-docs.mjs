@@ -5,7 +5,14 @@ import { parseContract } from '../src/base/seed-contract.mjs'
 
 const [mode, ...ids] = process.argv.slice(2)
 if (!['write', 'check'].includes(mode) || !ids.length) throw Error('Usage: node scripts/contract-docs.mjs write|check CLAUSE [CLAUSE ...]')
-const source = readFileSync('CONTRACT.md', 'utf8'), lines = source.split('\n')
+// Summary cells are generated from the complete source register before parsing it.
+let source = readFileSync('CONTRACT.md', 'utf8')
+const rows = source.split('\n').filter(line => /^\| `?[A-Z][A-Z0-9-]*-[0-9]+`? \|/.test(line)).map(line => line.split('|').slice(1, -1).map(cell => cell.trim()))
+source = source.replace(/^\| (Published|Target and push further|All) \|.*$/gm, (_, label) => {
+  const selected = rows.filter(row => label === 'All' || (label === 'Published' ? row[2] === 'published' : ['target', 'push-further'].includes(row[2])))
+  return '| ' + label + ' | ' + ['done', 'partial', 'missing'].map(status => selected.filter(row => row[3] === status).length).join(' | ') + ' | ' + selected.length + ' |'
+})
+const lines = source.split('\n')
 const contract = parseContract(source)
 let acceptance = readFileSync('ACCEPTANCE.md', 'utf8')
 let claims
@@ -29,7 +36,7 @@ for (const id of ids) {
   const claim = `| ${id} | ${status} | ${evidence} | ${gap} |`
   claims = pattern.test(claims) ? claims.replace(pattern, claim) : claims.trimEnd() + '\n' + claim + '\n'
 }
-for (const [path, generated] of [['ACCEPTANCE.md', acceptance], ['docs/CLAIMS.md', claims]]) {
+for (const [path, generated] of [['CONTRACT.md', source], ['ACCEPTANCE.md', acceptance], ['docs/CLAIMS.md', claims]]) {
   if (mode === 'write') writeFileSync(path, generated)
   else if (readFileSync(path, 'utf8') !== generated) throw Error('Stale generated contract record: ' + path)
 }

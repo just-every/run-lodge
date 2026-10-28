@@ -43,6 +43,7 @@ export function SourceSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
 export function SourceCredit({ app, w, mutate }: { app: D; w: D; mutate: PageProps['mutate'] }) {
   return <section className="source-credit" aria-label="Source and credit">
     <p className="meta">{app.postTitle ? `Post: ${app.postTitle} · ` : ''}Source: {app.sourceEntry ? `${app.sourceEntry.name} (${TYPE[app.sourceEntry.type]})` : `${app.source || 'Not recorded'} (not on the source list)`} · {app.credit ? `Credited to ${credited(w, app.credit)}` : 'No one credited yet'}</p>
+    {app.sourceURL && <p className="meta" style={{ overflowWrap: 'anywhere' }}>Source page: {app.sourceURL}</p>}
     {app.creditHistory?.length > 0 && <details><summary>Credit history</summary><ul className="plain">{[...app.creditHistory, app.credit].map((c: D, i: number) => <li key={i}>{credited(w, c)} · {when(c.at)} · {person(w, c.by)}{c.reason ? ` · “${c.reason}”` : c.automatic ? ' · set automatically' : ''}</li>)}</ul></details>}
     {app.manages && <details><summary>Change credit</summary><Form label="Save credit" compact reset onSubmit={x => mutate('source-credit', { application: app.id, kind: x.kind, who: x.who, reason: x.why })}>
       <Field label="Credited as" name="kind" options={Object.entries(KIND).map(([value, label]) => ({ value, label: label as string }))} />
