@@ -213,3 +213,39 @@ export async function reviewStatusTiming(h, timing, eventAt, expected) {
   assert.equal((await h.state()).vacancies.find(v => v.id === h.job.id).applicationEmailTimingBy, 'status-timing-admin@example.test')
   await cmd('publish', { id: h.job.id })
 }
+
+// The headcount slice uses the existing isolated configuration review door.
+export async function reviewHeadcountChain(h, job, steps, decisions = []) {
+  const cmd = h.command
+  const original = (await h.state()).vacancies.find(v => v.id === job.id).approvalChain ?? null
+  const box = await cmd('sandbox-create', { name: 'Headcount chain trial', vacancy: job.id, mode: 'synthetic', confirmSynthetic: true, samples: [{ label: 'synthetic-lodge-1' }], approvalDecisions: decisions })
+  const edit = chain => cmd('sandbox-edit', { id: box.id, edits: [{ op: 'approval-routing', input: { routing: {}, chain } }] })
+  await edit(steps)
+  const before = await durableHiring(h)
+  let preview = await cmd('sandbox-preview', { id: box.id })
+  assert.deepEqual(await durableHiring(h), before, 'chain preview copies no decisions, openings or notification to production')
+  assert.deepEqual(preview.impact.approval.chain.steps, steps)
+  assert.deepEqual(preview.impact.approval.outcomes.map(x => x.status), decisions.map((x, i) => x.decision === 'rejected' ? 'rejected' : i === decisions.length - 1 && decisions.length === steps.reduce((n, step) => n + step.approvers.length, 0) ? 'approved' : 'pending'))
+  assert.deepEqual([preview.impact.productionContact, preview.impact.productionSignatures, preview.impact.productionHrRecords], [0, 0, 0])
+  const deploy = token => ({ id: box.id, token, confirmProduction: true })
+  await cmd('sandbox-deploy', { ...deploy(preview.token), confirmProduction: false }, h.owner, 400)
+  await edit([...steps].reverse())
+  await cmd('sandbox-deploy', deploy(preview.token), h.owner, 409)
+  await edit(steps)
+  preview = await cmd('sandbox-preview', { id: box.id })
+  // A live source revision also invalidates the saved review.
+  await cmd('rubric', { id: job.id, criteria: job.rubrics.at(-1).criteria })
+  await cmd('sandbox-deploy', deploy(preview.token), h.owner, 409)
+  preview = await cmd('sandbox-preview', { id: box.id })
+  await cmd('sandbox-deploy', deploy(preview.token))
+  let live = (await h.state()).vacancies.find(v => v.id === job.id)
+  assert.deepEqual(live.approvalChain, (await h.state()).sandboxes.find(x => x.id === box.id).config.approvalChain, 'activation installs the exact reviewed chain version')
+  const version = live.approvalChain.version
+  await cmd('sandbox-rollback', { id: box.id })
+  live = (await h.state()).vacancies.find(v => v.id === job.id)
+  assert.deepEqual(live.approvalChain, original)
+  assert.ok(live.approvalChainHistory.some(x => x.version === version), 'rollback preserves earlier configuration versions without decisions')
+  preview = await cmd('sandbox-preview', { id: box.id })
+  await cmd('sandbox-deploy', deploy(preview.token))
+  return (await h.state()).vacancies.find(v => v.id === job.id)
+}
