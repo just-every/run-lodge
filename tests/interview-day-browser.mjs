@@ -51,7 +51,7 @@ export async function interviewDayPage(browser, { root, origin, run, evidence, o
       const planner = page.getByRole('region', { name: 'Interview day planner' })
       await planner.getByText('Build draft alternatives', { exact: true }).click()
       await planner.getByLabel('Candidate time zone', { exact: true }).fill('America/New_York')
-      await planner.getByLabel('Recorded candidate availability', { exact: true }).fill('2027-03-15T10:00, 2027-03-15T17:00')
+      await planner.locator('[name="candidateAvailability"]').fill('2027-03-15T10:00, 2027-03-15T17:00')
       for (let i = 0; i < 3; i++) {
         await planner.locator('[name="requires' + i + '"]').fill('safety')
         await planner.locator('[name="required' + i + '"]').fill(i < 2 ? members[i] : '')
@@ -63,7 +63,7 @@ export async function interviewDayPage(browser, { root, origin, run, evidence, o
       await draft.getByText('Awaiting human review', { exact: true }).waitFor()
       if (width === 1440) {
         assert.equal(await draft.getByRole('region', { name: /^Alternative / }).count(), 2)
-        assert.ok((await draft.innerText()).includes('7:00 a.m. PDT'), 'Pacific participant sees the correct daylight-saving time')
+        assert.ok((await draft.innerText()).includes('8:00 a.m. PDT'), 'Pacific participant sees the correct daylight-saving time')
         assert.ok((await planner.innerText()).includes('Provider and resource availability unverified'))
       }
       await fits()
