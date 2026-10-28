@@ -54,7 +54,7 @@ export function delayAnalysis(s: State, a: Actor, w: WorkspaceRecords, input: De
       return { ...source('interview', iv.id), status: iv.status, createdAt: iv.createdAt ?? null, scheduledAt: iv.scheduledAt ?? null, candidateRespondedAt: iv.candidateRespondedAt ?? null,
         hoursToRecordedSchedule: elapsed(iv.scheduledAt), hoursToCandidateAvailability: elapsed(iv.candidateRespondedAt), proposedSlots: iv.slots?.length ?? 0,
         panelSize: iv.participants.length, panelResponses: iv.participants.filter((who: string) => Object.hasOwn(iv.availability ?? {}, who)).length,
-        candidateResponded: Object.hasOwn(iv.availability ?? {}, 'candidate'), providerVerified: false }
+        candidateResponded: Object.hasOwn(iv.availability ?? {}, 'candidate'), providerVerified: false, observations: (iv.observations ?? []).map((event: Data) => ({ kind: event.kind, at: event.at, hoursAfterProposal: elapsed(event.at), availableSlots: event.slots?.length ?? null })), historyIncomplete: !iv.observations?.some((e: Data) => e.kind === 'proposed') }
     })
     return { application: app.id, name: app.candidateName, status: app.status, imported: !!app.imported, source: source('application', app.id), events, intervals, offers, scheduling, missing: [...new Set(missing)] }
   }).sort((x, y) => x.application.localeCompare(y.application))

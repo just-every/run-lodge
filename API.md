@@ -886,14 +886,14 @@ proof. This increment sends no notifications and makes no hiring decision.
 A signed-in agent reads `GET /api/lodge/delay-analysis` with a required `vacancy`
 and optional original-submission `from`, `to` and `timeZone` filters. The result
 contains current scoped cases, completed native stage intervals, recorded offer
-outcomes, definitions, missing observations and exact source revisions. The case
+outcomes, native scheduling observations, time-to-hire metrics, definitions, missing observations and exact source revisions. The case
 door `GET /api/lodge/delay-analysis/:id` takes the same cohort filters. Both doors
 require current job management and offer authority; blind applications are omitted.
 
 The agent sends `propose` with `workflow: "delay-diagnosis"`, a human `approver`,
 the returned `cohort` and complete unchanged `sources`, plus `summary`, `findings`,
 `uncertainty`, `sampleLimits`, `proposedChange` and `successCriterion`. Each finding
-has an `observation` or `hypothesis` kind, text and exact event or offer citations
+has an `observation` or `hypothesis` kind, text and exact stage-event, interview or offer citations
 from that evidence. A required `measurement` names `metric: "mean-completed-stage-hours"`,
 the observed `stage`, a lower nonnegative `targetHours`, positive
 `minimumIntervals` and future `windowDays`. Lodge binds its baseline to the
@@ -905,4 +905,36 @@ Acceptance records review of the draft only. It executes no hiring command and
 activates no configuration. Acceptance refuses changed evidence; both decisions
 retain the existing native session fence. Losing principal or reviewer scope hides
 the entire packet, and authorized candidate erasure removes related multi-case
-packets. Mailbox, scheduling and survey observations stay unknown in this slice.
+packets. External mailbox and calendar observations stay unknown. Native interview
+observations retain recorded availability edits, scheduling timestamps and exact
+record revisions; legacy gaps are disclosed without reconstructing events.
+
+Human administrators can read `GET /api/lodge/delay-feedback` with the same cohort
+filters. It reuses the survey report's current access, expiry and minimum-sample
+rules. Anonymous aggregates retain the complete survey-version denominator;
+only explicitly identified responses join selected applications. This door refuses
+agents, even agents acting for the owner. Answers never enter diagnosis packets.
+
+Only the current human owner can run these native task-policy commands on an
+accepted diagnosis. This conservative increment grants no mailbox or contact authority:
+
+- `delay-trial-preview`: give the proposal `id` and `afterHours` between 1 and 720.
+  A bounded baseline submission cohort is frozen at its observation timestamp.
+  The ordinary task command runs on an isolated copy; production remains unchanged.
+- `delay-trial-activate`: give the exact preview `token` and `confirm: true`.
+  Changed sources, authority or eligible cases require a fresh preview. Future
+  submissions begin the next business-zone calendar day for the declared window.
+- `delay-trial-run`: explicitly create owner-assigned internal review tasks for
+  eligible native stage entries, once each across restart and replay. This command
+  runs only during the approved comparison window and sends nothing.
+- `delay-trial-compare`: read completed visits using the frozen stage definition,
+  target, minimum sample and cohort dates. Open windows and insufficient samples
+  remain inconclusive. Observed target attainment does not establish causation.
+- `delay-trial-rollback`: stop the policy and cancel its remaining open tasks.
+  Past decisions, application stages and production workflow configuration stay intact.
+
+Native trial configuration is under Settings. Archive restore withholds the policy
+and discards its activation token; it cannot resume from a replayed archive.
+Principal, reviewer or case revocation hides the complete narrative and trial,
+and authorized erasure removes the related packet. Connected reminder delivery,
+provider failures and diagnosis across every promised cause remain separate gaps.

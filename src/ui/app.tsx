@@ -1,3 +1,4 @@
+import { DelayTrialSettings } from './delay-analysis'
 import { Integrations } from './integrations'
 import { CohortReport } from './cohort-report'
 import { ReferenceSettings } from './references'
@@ -45,7 +46,7 @@ export function App() {
     setKit(at('kit')); setNotice(''); scrollTo({ top: 0 })
     history.replaceState(null, '', at('kit') ? '/app?kit=' + encodeURIComponent(at('kit')!) : at('report') === 'cohort' ? '/app?report=cohort' : '/app')
     if (at('report') === 'cohort') setNav(n => ({ ...n, tab: 'Cohort report' }))
-    if (at('settings') === 'references') setNav(n => ({ ...n, tab: 'Settings', app: at('application'), job: null }))
+    if (['references', 'delay-trials'].includes(at('settings') ?? '')) setNav(n => ({ ...n, tab: 'Settings', app: at('application'), job: null }))
     else if (at('application')) setNav(n => ({ ...n, tab: 'Applications', app: at('application'), job: null }))
     else if (at('job')) setNav(n => ({ ...n, tab: 'Applications', job: at('job'), app: '' }))
     else if (at('approval')) { setNav(n => ({ ...n, tab: 'Approvals' })); setFocus('approval-' + at('approval')) }
@@ -104,7 +105,7 @@ export function App() {
         {!kit && tab === 'Proposals' && <Proposals {...props} />}
         {!kit && tab === 'Retention' && <Retention {...props} />}
         {!kit && tab === 'Move in' && <MoveIn {...props} />}
-        {!kit && tab === 'Settings' && <div className="page wide"><ReferenceSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
+        {!kit && tab === 'Settings' && <div className="page wide"><ReferenceSettings {...props} /><DelayTrialSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
         {!kit && tab === 'People' && <People {...props} />}
         {!kit && tab === 'Audit' && <Audit {...props} />}
         {!kit && tab === 'Workflow sandbox' && <WorkflowSandbox {...props} />}
