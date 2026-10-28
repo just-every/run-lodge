@@ -22,8 +22,9 @@ export async function messageTemplatePage(browser, { root, origin, evidence, own
     await page.setViewportSize({ width: 1440, height: 1000 })
   }
   try {
-    const { job, spanish } = await messageTemplateJob(run, ownerEmail, ownerEmail, ' ' + crypto.randomUUID().slice(0, 8))
-    const address = n => ['synthetic-lodge-browser-' + n, 'example.test'].join('@')
+    const suffix = crypto.randomUUID().slice(0, 8)
+    const { job, spanish } = await messageTemplateJob(run, ownerEmail, ownerEmail, ' ' + suffix)
+    const address = n => ['synthetic-lodge-browser-' + suffix + '-' + n, 'example.test'].join('@')
     const en = await run('candidate', { name: 'Synthetic Lodge English', email: address(1), phone: '+1 555 0101', source: 'Direct', consentBasis: 'manual', vacancy: job.id })
     await run('candidate', { name: 'Synthetic Lodge missing phone', email: address(3), source: 'Direct', consentBasis: 'manual', vacancy: job.id })
     const applied = await context.request.post(origin + '/jobs/' + spanish, { headers: { origin }, form: { name: 'Synthetic Lodge Spanish', email: address(2), phone: '+1 555 0102', noticeVersion: '1', consent: 'yes' } })
@@ -55,7 +56,9 @@ export async function messageTemplatePage(browser, { root, origin, evidence, own
     await bulk.getByLabel('Bulk action', { exact: true }).selectOption('message')
     await bulk.getByLabel('Reusable message template', { exact: true }).selectOption(template.id)
     await bulk.getByLabel('Approver (a hiring manager’s email, optional)', { exact: true }).fill(ownerEmail)
+    const previewResponse = page.waitForResponse(r => r.request().method() === 'POST' && new URL(r.url()).pathname === '/api/lodge/command/bulk-preview')
     await bulk.getByRole('button', { name: 'Preview', exact: true }).click()
+    const reviewed = await (await previewResponse).json()
     const preview = page.getByRole('region', { name: 'Bulk preview', exact: true })
     await preview.getByText('2 ready · 1 refused', { exact: true }).waitFor()
     assert.match(await preview.innerText(), /Hello Synthetic Lodge English, phone \+1 555 0101/)
@@ -67,7 +70,15 @@ export async function messageTemplatePage(browser, { root, origin, evidence, own
     await capture('template-recipient-preview')
     await preview.getByRole('button', { name: 'Apply to 2', exact: true }).click()
     await page.getByRole('status').filter({ hasText: '2 applied · 0 refused · drafts saved, not sent' }).waitFor()
-    const m = (await current(context, origin)).messages.find(m => m.application === en.application.id)
+    const ready = reviewed.items.filter(i => i.ok)
+    const retry = await run('bulk-apply', {
+      batch: 'synthetic-lodge-browser-' + crypto.randomUUID(), review: reviewed.review, action: reviewed.action,
+      items: ready.map(i => i.application), previewed: Object.fromEntries(ready.map(i => [i.application, i.seen])),
+    })
+    assert.equal(retry.replayed, true, 'retrying the same reviewed UI selection with a fresh client batch id reuses the result')
+    const messages = (await current(context, origin)).messages
+    assert.equal(messages.filter(m => m.templateDraft?.selectionReview === reviewed.review).length, 2, 'the UI selection creates only two drafts')
+    const m = messages.find(m => m.application === en.application.id)
     assert.equal(m.templateDraft.version, 1)
     await run('decide-approval', { id: m.approval.id, version: m.version, decision: 'approved', reason: 'Reviewed exact text' })
     await page.goto(origin + '/app?application=' + en.application.id)
