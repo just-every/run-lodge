@@ -136,7 +136,7 @@ export function bulkExport(w: Workspace, ids: string[]) {
       documents: w.documents.filter(d => d.application === id || (d.candidate === application.candidate && !d.application)),
       references: { questionnaires: forApp(w.references.questionnaires), records: forApp(w.references.records) },
       interviewDays: forApp(w.scheduling.drafts),
-    interviews: forApp(w.interviews), scorecards: forApp(w.scorecards), applicationEmails: forApp(w.applicationEmails), messages: forApp(w.messages), offers: forApp(w.offers),
+      interviews: forApp(w.interviews), scorecards: forApp(w.scorecards), applicationEmails: forApp(w.applicationEmails), messages: forApp(w.messages), offers: forApp(w.offers),
       teamNotes: w.teamNotes.filter(n => n.application === id || (n.candidate === application.candidate && !n.application)),
       activity: w.activity.filter(e => e.application === id),
     }

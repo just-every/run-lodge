@@ -62,3 +62,16 @@ under **Scorecards** for the people who run the job; edit it, then keep or
 discard it. It never moves the candidate.
 
 Next: [Offers and the hire](offers.md).
+
+
+## Draft interview days
+
+Under Settings, choose the job in Interviewer pools. Record each member's employer-declared qualifications, time zone, working weekdays and hours, daily session cap, required break and explicitly recorded availability. Give the source of each declaration. Declare room availability and busy times there too. Saving preserves the earlier pool version.
+
+On an active application's Interviews tab, open Build draft alternatives. Record the candidate's time zone, availability and break, then choose up to three interview-plan sessions. Supply proposed starts in the candidate's zone, required qualifications, required panel size, required people, optional people and a declared room. Excluding an unavailable panellist lets you explore substitutes; revise a required-person choice if it names that person.
+
+Lodge checks these declarations and existing native bookings, shows up to five feasible alternatives, and explains conflicts or omitted optional attendance. Each participant's displayed time uses their declared zone, including daylight saving. If the search limit is reached, unlisted combinations remain unknown.
+
+Reviewing an alternative records a human's review of that exact draft. Changes to members, assignments or configuration make it stale and require a new draft. Review grants no interviewer access, changes no independent scorecard assignment, and applies no substitute or production schedule. Restored draft reviews require fresh planning.
+
+Provider and resource availability remain unverified. These drafts make no provider calls, reservations, candidate commitments or notices. Connected calendar checks and real event updates require the separate authorized calendar integration.
