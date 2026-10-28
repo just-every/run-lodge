@@ -92,12 +92,18 @@ export async function checkMessageTemplates() {
     assert.equal((await send('/api/lodge/command/bulk-apply', { ...body, action: { ...body.action, approver: managerEmail } }, manager)).status, 409)
     const mailCount = async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM rer_mail_development_outbox').first()).n
     const mailBefore = await mailCount(), callsBefore = outbound
-    const concurrent = await Promise.all([send('/api/lodge/command/bulk-apply', body, manager), send('/api/lodge/command/bulk-apply', body, manager)])
+    const concurrent = await Promise.all([send('/api/lodge/command/bulk-apply', body, manager), send('/api/lodge/command/bulk-apply', body, manager), send('/api/lodge/command/bulk-apply', { ...body, batch: 'synthetic-lodge-competing-batch' }, manager)])
     assert.ok(concurrent.some(r => r.status === 200)); assert.ok(concurrent.every(r => [200, 409].includes(r.status)))
     assert.equal((await state()).messages.length, before + 2, 'a concurrent batch creates one draft per eligible recipient')
+    const appliedBatch = concurrent.find(r => r.status === 200).value.batch
     await h.restart()
     assert.equal((await run('bulk-apply', body, manager)).replayed, true)
     assert.equal((await state()).messages.length, before + 2, 'durable replay after restart creates no second draft')
+    const renewedBatch = { ...body, batch: 'synthetic-lodge-retry-new-batch' }
+    const renewed = await run('bulk-apply', renewedBatch, manager)
+    assert.equal(renewed.replayed, true, 'the reviewed selection is applied once even when a retry replaces its batch id')
+    assert.equal(renewed.batch, appliedBatch, 'the original batch owns the reviewed selection')
+    assert.equal((await state()).messages.length, before + 2, 'a restarted retry with a new batch id creates no second draft')
     let drafts = (await state()).messages.filter(m => [en.app.id, es.app.id].includes(m.application))
     for (const m of drafts) {
       assert.equal(m.templateDraft.selectionReview, p.review)

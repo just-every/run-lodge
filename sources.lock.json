@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "10a1e48ef2093c60e65ca1a0e8ed80b40a8f8b30322cab94675b8d408129b0d7",
+      "sha256": "22fc6cbd8c6c3024b55378f736e9e7edf40a1943ff65449891ac49a0bb53522d",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "04d81336ce3bc79a4fe59cf25d5c0370c9dd6313b00aa6915e44d5bb7e4a1980",
+      "sha256": "bec2fddb77ea3ba7d8d6a0f1692f683d1c99ef5c327f76a22aba1da81bada16d",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "b7d6f8a732c06b77c1b22d6cffd9325f84e2902724dedc610217609743f83e49",
+      "sha256": "c6c36139c1872cada7b18f37859e053a0e101747b14546fe29fe4afae6099198",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -1623,7 +1623,7 @@
       "executable": false
     },
     "src/lodge/records/bulk.ts": {
-      "sha256": "fc5e0768837981b9516d240f61b60959007a04446cce14908d7bce47bc63aa58",
+      "sha256": "f8bdded5dcd92d84bc06bb697c084a053f34c259861305904b7977030f4a1d62",
       "executable": false
     },
     "src/lodge/records/candidate-lineage.ts": {
@@ -4327,7 +4327,7 @@
       "executable": false
     },
     "tests/delay-analysis-flow.mjs": {
-      "sha256": "c3b1888a93470d3c5c1a526a68ba8dee32de5fb116f1cf93aa40ba97821ad535",
+      "sha256": "abb92f6f0e7ded04754f6463f1f60017ef7b1263561770fb871421f44a6040c0",
       "executable": false
     },
     "tests/document-fixtures.mjs": {
@@ -4463,11 +4463,11 @@
       "executable": false
     },
     "tests/message-template-browser.mjs": {
-      "sha256": "a05312d3e23e8cb92e4f495e13ddc4572ace899a0764f8afd6c89f7b3c1f47b6",
+      "sha256": "a9e43c499c5022dc6e90a11ecbbbca1b0afa77cd004eacde1545dc14ed20bbe5",
       "executable": false
     },
     "tests/message-template-flow.mjs": {
-      "sha256": "2a924b50dff72972a8f7ecdeddc7625c86dc4b108c09740e2bd8924204f21951",
+      "sha256": "06b93ebe034a466926b628428f9eeebf12d560d486746f193d224e03d9d6ce55",
       "executable": false
     },
     "tests/mobile-native-journey.mjs": {

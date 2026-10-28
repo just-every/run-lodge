@@ -457,7 +457,7 @@ async function checkDelayHireMetric() {
     await h.db.prepare("UPDATE l_records SET value=? WHERE kind='application' AND id=?").bind(JSON.stringify(legacy), h.second.id).run()
     const missing = await read()
     assert.deepEqual(missing.hiring.elapsed, { measuredApplications: 1, unknownApplications: 3, meanHours: 24 })
-    assert.equal(missing.cases.find(row => row.application === h.second.id).hiring.missing, 'Original submission time is missing.')
+    assert.deepEqual([missing.cases.find(row => row.application === h.second.id).hiring.submittedAt, missing.cases.find(row => row.application === h.second.id).hiring.hours], [null, null], 'a missing submission supplies neither an endpoint nor a duration')
     const legacyDraft = delayDraft(await read('&from=2030-10-01&to=2030-10-07'), h.ownerEmail); legacyDraft.measurement.metric = 'mean-submission-to-acceptance-hours'
     assert.equal((await h.send('/api/lodge/command/propose', legacyDraft, h.agent)).status, 400)
     await h.command('candidate-privacy', { id: next.candidate, private: true })

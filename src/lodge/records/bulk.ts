@@ -133,6 +133,11 @@ export async function bulkApply(s: State, a: Actor, b: Data) {
     requireThat(review.by === a.email && canonical(review.action) === canonical(act), 'Review this exact template and action before applying', 409)
     requireThat(canonical(items(b).slice().sort()) === canonical(review.items.map((r: Data) => r.application).sort()), 'The recipient selection changed; preview again', 409)
     requireThat(canonical(previewed) === canonical(Object.fromEntries(review.items.map((r: Data) => [r.application, r.seen]))), 'The preview changed; preview again', 409)
+    if (review.batch) return { ...s.get('bulk-batch', review.batch), replayed: true }
+    // Reviews made before batch binding may already have produced frozen drafts.
+    requireThat(!s.all('message').some(m => m.templateDraft?.selectionReview === review.id), 'This selection already created drafts; preview again before another batch', 409)
+    // The revision fence on this review also prevents concurrent clients with different batch ids from both applying it.
+    s.put('message-draft-review', review.id, { ...review, batch })
     act.selectionReview = review.id
   }
   const results = []
