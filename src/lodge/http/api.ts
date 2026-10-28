@@ -1,3 +1,4 @@
+import { sourcingEvidence } from '../agents/sourcing'
 import { delayAnalysis, delayFeedback } from '../views/delay-analysis'
 import { integrationApi, integrationManagement } from './integrations'
 import { offlineScorecardContext } from '../records/scorecards'
@@ -136,6 +137,11 @@ api.post('/api/lodge/capture/:id/resolve', async c => {
   const result = resolveCapture(state, actor, { ...await body(c), id: c.req.param('id') })
   await save(c.env.DB, state, actor)
   return c.json(result)
+})
+
+api.get('/api/lodge/sourcing-evidence', async c => {
+  const { state, actor } = await context(c)
+  return c.json(sourcingEvidence(state, actor, c.req.query('brief'), c.req.query('candidate')))
 })
 
 const delayInput = (c: C) => ({ vacancy: c.req.query('vacancy'), from: c.req.query('from'), to: c.req.query('to'), timeZone: c.req.query('timeZone') })

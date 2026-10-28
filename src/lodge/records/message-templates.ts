@@ -89,3 +89,18 @@ export function requireCurrentTemplateRecipient(s: State, m: Data, app: Data) {
     && canonical(values) === canonical({ candidate_name: candidate.name, candidate_phone: candidate.phone ?? '', job_title: job.title, business_name: business.name }),
   'Recipient or merge data changed; create a fresh reviewed draft', 409)
 }
+
+/** Prior-pool drafts retain human-selected language; no application is created to fill a template. */
+export function poolTemplate(s: State, a: Actor, reference: Data, candidate: Data, job: Data, language: string) {
+  requireManages(a, job); requireCan(s, a, job, 'contact')
+  const template = s.get('message-template', reference.id)
+  requireThat(template.vacancy === job.id && reference.revision === s.revisionOf('message-template', template.id), 'Read the current reviewed template', 409)
+  const version = template.versions.filter((v: Data) => v.language === language).at(-1)
+  requireThat(version?.reviewedBy, 'No reviewed template in the human-selected language', 409)
+  const business = s.get('business', 'main'), values: Data = { candidate_name: candidate.name, candidate_phone: candidate.phone, job_title: job.title, business_name: business.name }
+  const fill = (value: string) => value.replace(/\{([^{}]*)\}/g, (_match, field: string) => {
+    requireThat(typeof values[field] === 'string' && values[field].trim(), `Missing merge value: ${field}`, 409)
+    return values[field]
+  })
+  return { id: template.id, revision: reference.revision, version: version.version, language, reviewedBy: version.reviewedBy, reviewedAt: version.reviewedAt, subject: fill(version.subject), body: fill(version.body) }
+}

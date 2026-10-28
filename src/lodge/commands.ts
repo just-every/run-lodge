@@ -1,3 +1,4 @@
+import { sourcingBrief } from './agents/sourcing'
 import { previewDelayTrial, activateDelayTrial, runDelayTrial, compareDelayTrial, rollbackDelayTrial } from './agents/delay-trials'
 import { savePool } from './scheduling/pools'
 import { planDay, reviewDay } from './scheduling/planner'
@@ -78,6 +79,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'sourcing-brief': sourcingBrief,
   'delay-trial-preview': previewDelayTrial, 'delay-trial-activate': activateDelayTrial, 'delay-trial-run': runDelayTrial, 'delay-trial-compare': compareDelayTrial, 'delay-trial-rollback': rollbackDelayTrial,
   'reference-questionnaire': referenceQuestionnaire, 'reference-record': recordReference,
   'crm-pool': crmPool, 'crm-enroll': crmEnroll, 'crm-enable': crmEnable, 'crm-apply': crmApply, 'crm-stop': stopEnrollment,
