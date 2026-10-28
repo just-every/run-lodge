@@ -4207,7 +4207,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "b2b645ea6c7e445dd1fd669c88206b84536829d7f8fed4d4b4f53a3854f01767",
+      "sha256": "6c384b03555d1dc32b9606a1ff800891ec6a78bb78234573e2d90fe85a7faff3",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
@@ -4251,7 +4251,7 @@
       "executable": false
     },
     "tests/clause-browser.mjs": {
-      "sha256": "ac89cedc1d40cca1b547115bfbb20edb939ad9a14f8e681a15d5340e423f57b2",
+      "sha256": "340ec63d6784231c6b0b1883da9f569a6091018d089e075284659afc3fa56f05",
       "executable": false
     },
     "tests/cohort-report-browser.mjs": {
@@ -4406,8 +4406,12 @@
       "sha256": "f0db6ef02d3cce901a8ceff26395f38ff3b038575d064bad36145aa6bd52003a",
       "executable": false
     },
+    "tests/interview-day-browser.mjs": {
+      "sha256": "6890b4fb4e8988558a5cc620168659a8b8bb1f466ce14178438be4d54ddb5db7",
+      "executable": false
+    },
     "tests/interview-day-flow.mjs": {
-      "sha256": "f96de2d3a195bc27a3d0378e0fce7d424d39d9d6ebce938b043ce0d8058697dd",
+      "sha256": "00eea52d8df53ac1ca5fe7e25ab2db92111ad7b90813493e26b7ed30366f08f0",
       "executable": false
     },
     "tests/language-fixtures.mjs": {

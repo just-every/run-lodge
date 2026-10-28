@@ -78,6 +78,8 @@ export async function checkInterviewDay(t) {
   assert.equal((await review(beforeConfig)).status, 409, 'configuration revisions refuse stale human review')
   await conflict(input, 'room is unavailable')
   assert.deepEqual(currentPool.versions[0], pool.versions[0], 'declarations preserve their earlier versions')
+  await configure({ members: poolInput.members.map(m => ({ ...m, availability: [range('2027-03-15T18:00:00Z', '2027-03-15T19:00:00Z')] })) })
+  await conflict(input, 'has no recorded availability')
   await configure({})
   const stale = await create()
   await cmd('assign-reviewers', { application: app.id, reviewers: [a] }, manager)
@@ -116,6 +118,30 @@ export async function checkInterviewDay(t) {
   const candidateBefore = (await state()).applications.find(x => x.id === app.id)
   assert.equal(candidateBefore.status, 'active')
   assert.deepEqual(candidateBefore.reviewers, [a], 'review never replaces independent assignments')
+  const unchanged = await production()
+  assert.deepEqual(unchanged.filter(r => r.kind !== 'application'), before.filter(r => r.kind !== 'application'), 'all draft alternatives and substitute review preserve production interviews and independent cards')
+  const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
+  const { loadPolicy } = await import('@runeditrun/rer/internal/cli/portability-policy.mjs')
+  const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs')
+  const service = await createPortability({ db: h.db, policy }), exportId = await service.exports.create(), records = []
+  try {
+    while ((await service.exports.advance(exportId, { maxParts: 16 })).phase === 'building') {}
+    for await (const record of readArchive(await service.exports.download(exportId))) records.push(record)
+  } finally { await service.exports.abort(exportId) }
+  const dst = await (await import('./harness.mjs')).harness({ claim: false })
+  try {
+    const target = await createPortability({ db: dst.db, policy }), closing = records.at(-1), imported = await target.imports.create(records[0])
+    for (const part of records.filter(r => r.kind === 'part')) await target.imports.uploadPart(imported, part.index, part)
+    await target.imports.finalize(imported, { contentHash: closing.contentHash, archiveHash: closing.archiveHash })
+    const restoredOwner = await dst.signIn((await state()).actor.email)
+    const restored = (await dst.state(restoredOwner)).scheduling.drafts.find(d => d.id === substitute.id)
+    assert.equal(restored.status, 'draft')
+    assert.equal(restored.stale, true, 'restored draft review must be renewed')
+    assert.equal(restored.review, null)
+    assert.equal((await dst.send('/api/lodge/command/interview-day-review', { id: restored.id, fingerprint: substitute.fingerprint, alternative: 0 }, restoredOwner)).status, 409)
+    const restoredProduction = (await dst.db.prepare("SELECT kind,id,value FROM l_records WHERE kind IN ('interview','scorecard') ORDER BY kind,id").all()).results
+    assert.deepEqual(restoredProduction, before.filter(r => ['interview', 'scorecard'].includes(r.kind)), 'restore preserves independent production records without applying any draft')
+  } finally { await dst.close() }
   await cmd('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Synthetic journey completed' }, manager)
   const erase = await send('/api/lodge/delete-candidate', { candidate: added.candidate.id, confirm: added.candidate.name, reason: 'Synthetic erasure request' }, h.owner)
   assert.equal(erase.status, 200, erase.text)
