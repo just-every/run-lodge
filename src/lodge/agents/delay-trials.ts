@@ -53,13 +53,13 @@ export async function previewDelayTrial(s: State, a: Actor, b: Data) {
   requireThat(p.delayTrial?.status !== 'active', 'Rollback the active native trial before replacing it', 409)
   const report = await evidence(s, a, p, p.delay.cohort)
   requireThat(canonical(report.sources) === canonical(p.sources), 'Diagnosis evidence changed; prepare a fresh draft', 409)
-  requireThat(report.cohort.from && report.cohort.to && report.cohort.to < times(report.cohort.timeZone).dateOf(now()), 'A trial needs a bounded completed baseline submission cohort', 409)
+  requireThat(report.cohort.from && report.cohort.to && report.cohort.to <= times(report.cohort.timeZone).dateOf(now()), 'A trial needs a bounded baseline submission cohort ending no later than today', 409)
   const policy = { stage: p.measurement.stage, afterHours: integer(b.afterHours, 'Hours before an internal review task', 1, 720), owner: a.email }
   const impact = due(s, report, policy)
   const isolated = s.clone()
   for (const row of impact) task(isolated, a, { ...row, owner: a.email, kind: 'task', note: 'Review native stage wait; no candidate contact is authorized by this task.' })
   const token = await stamp(s, p, report, policy, impact)
-  const delayTrial = { status: 'review', policy, baseline: report, impact, token, previewedAt: now(), productionTasks: 0, outboundContacts: 0 }
+  const delayTrial = { status: 'review', policy, baseline: report, baselineObservedAt: now(), impact, token, previewedAt: now(), productionTasks: 0, outboundContacts: 0 }
   s.put('proposal', p.id, { ...p, delayTrial })
   s.audit(a, 'delay-trial-previewed', 'proposal:' + p.id)
   return delayTrial

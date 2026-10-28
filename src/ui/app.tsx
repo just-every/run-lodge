@@ -1,3 +1,4 @@
+import { DelayTrialSettings } from './delay-analysis'
 import { Integrations } from './integrations'
 import { MessageTemplates } from './message-templates'
 import { CohortReport } from './cohort-report'
@@ -105,7 +106,7 @@ export function App() {
         {!kit && tab === 'Proposals' && <Proposals {...props} />}
         {!kit && tab === 'Retention' && <Retention {...props} />}
         {!kit && tab === 'Move in' && <MoveIn {...props} />}
-        {!kit && tab === 'Settings' && <div className="page wide"><MessageTemplates {...props} /><ReferenceSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
+        {!kit && tab === 'Settings' && <div className="page wide"><MessageTemplates {...props} /><ReferenceSettings {...props} /><DelayTrialSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
         {!kit && tab === 'People' && <People {...props} />}
         {!kit && tab === 'Audit' && <Audit {...props} />}
         {!kit && tab === 'Workflow sandbox' && <WorkflowSandbox {...props} />}

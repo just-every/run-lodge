@@ -73,6 +73,8 @@ export async function checkDelayAnalysis(t) {
   assert.equal(JSON.stringify(report).includes(h.managerEmail), false, 'evidence omits event actors and decision reasons')
   const scheduled = report.cases.find(c => c.application === h.first.id).scheduling[0]
   assert.deepEqual([scheduled.hoursToRecordedSchedule, scheduled.hoursToCandidateAvailability, scheduled.panelResponses, scheduled.panelSize, scheduled.candidateResponded, scheduled.providerVerified], [24, 12, 1, 1, true, false])
+  assert.deepEqual(scheduled.observations.map(o => [o.kind, o.hoursAfterProposal]), [['proposed', 0], ['panel-availability', 0], ['candidate-availability', 12], ['scheduled', 24]])
+  assert.equal(scheduled.historyIncomplete, false)
   assert.equal(scheduled.revision, report.sources.find(x => x.kind === 'interview' && x.id === h.iv.id).revision)
   assert.equal(report.hiring.totals.measuredHires, 0)
   assert.equal(report.hiring.totals.meanDaysToHire, null)
@@ -106,9 +108,10 @@ export async function checkDelayAnalysis(t) {
   for (const field of ['applications', 'offers', 'vacancies', 'sandboxes']) assert.deepEqual(after[field], before[field], 'draft decisions change no hiring or production configuration: ' + field)
   assert.equal((await h.send('/api/lodge/command/decide-proposal', { id: accepted.id, decision: 'accepted', reason: 'Replay' }, h.reviewer)).status, 409)
   await checkHumanDelayFeedback(h)
+  await checkNativeDelayTrial(h, read)
   await h.command('candidate-privacy', { id: h.first.candidate, private: true })
   const privateReport = await read()
-  assert.deepEqual([privateReport.totals.cases, privateReport.totals.offers], [7, 1], 'private cases and their offers are excluded before aggregation')
+  assert.deepEqual([privateReport.totals.cases, privateReport.totals.offers], [11, 1], 'private cases and their offers are excluded before aggregation')
   assert.equal((await h.send(delayPath + '/' + h.first.id + query, undefined, h.agent)).status, 404)
   assert.equal((await h.state(h.reviewer)).proposals.length, 0, 'private-case revocation hides the entire multi-case narrative')
   await h.command('candidate-privacy', { id: h.first.candidate, private: false })
@@ -181,4 +184,96 @@ async function checkHumanDelayFeedback(h) {
   await h.setTime('2030-11-08T12:00:00.000Z')
   assert.equal((await h.send(path, undefined, await h.signIn(h.ownerEmail))).value.surveys[0].responses, 0, 'expired answers are not readable before maintenance')
   await h.setTime('2030-10-07T12:00:00.000Z')
+}
+
+async function checkNativeDelayTrial(h, read) {
+  await h.setTime('2030-10-05T12:00:00.000Z')
+  await h.command('candidate', { name: 'Synthetic baseline queue', email: address('synthetic-lodge-baseline-queue'), vacancy: h.job.id, source: 'Direct', consentBasis: 'manual' })
+  await h.setTime('2030-10-07T12:00:00.000Z')
+  const query = '?vacancy=' + h.job.id + '&from=2030-10-01&to=2030-10-05'
+  const draft = async () => {
+    const report = (await h.send(delayPath + query, undefined, h.agent)).value
+    const body = delayDraft(report, h.ownerEmail)
+    body.measurement.minimumIntervals = 2; body.measurement.windowDays = 2
+    const packet = await h.command('propose', body, h.agent)
+    await h.command('decide-proposal', { id: packet.id, decision: 'accepted', reason: 'Review a native internal task trial only' })
+    return packet
+  }
+  let packet = await draft()
+  const before = await h.state(), mailBefore = (await h.db.prepare('SELECT COUNT(*) AS n FROM rer_mail_development_outbox').first()).n
+  for (const [who, status] of [[h.manager, 403], [h.reviewer, 404], [h.agent, 403]]) assert.equal((await h.send('/api/lodge/command/delay-trial-preview', { id: packet.id, afterHours: 12 }, who)).status, status)
+  const preview = await h.command('delay-trial-preview', { id: packet.id, afterHours: 12 })
+  assert.deepEqual([preview.status, preview.impact.length, preview.productionTasks, preview.outboundContacts], ['review', 1, 0, 0])
+  assert.deepEqual((await h.state()).tasks, before.tasks, 'sandbox uses the ordinary task validator on an isolated copy')
+  assert.equal((await h.send('/api/lodge/command/delay-trial-activate', { id: packet.id, token: preview.token, confirm: false }, h.owner)).status, 400)
+  assert.equal((await h.send('/api/lodge/command/delay-trial-activate', { id: packet.id, token: 'synthetic-lodge-wrong', confirm: true }, h.owner)).status, 409)
+  await h.command('interview-reply', { interview: h.iv.id, answer: 'cannot-attend', note: 'New scheduling observation' }, h.manager)
+  assert.equal((await h.send('/api/lodge/command/delay-trial-activate', { id: packet.id, token: preview.token, confirm: true }, h.owner)).status, 409)
+  packet = await draft()
+  const exact = await h.command('delay-trial-preview', { id: packet.id, afterHours: 12 })
+  const active = await h.command('delay-trial-activate', { id: packet.id, token: exact.token, confirm: true })
+  assert.deepEqual([active.status, active.comparisonCohort.from, active.comparisonCohort.to], ['active', '2030-10-08', '2030-10-09'])
+  assert.deepEqual((await h.state()).tasks, before.tasks)
+  assert.equal((await h.send('/api/lodge/command/delay-trial-run', { id: packet.id }, h.owner)).status, 409, 'future trial does not run early')
+  await h.setTime('2030-10-08T12:00:00.000Z')
+  const apps = []
+  for (let n = 0; n < 3; n++) apps.push((await h.command('candidate', { name: 'Synthetic comparison ' + n, email: address('synthetic-lodge-comparison-' + n), vacancy: h.job.id, source: 'Direct', consentBasis: 'manual' })).application)
+  assert.deepEqual((await h.command('delay-trial-run', { id: packet.id })).created, [], 'new entries have not reached the reviewed delay threshold')
+  await h.setTime('2030-10-09T12:00:00.000Z')
+  const run = await h.command('delay-trial-run', { id: packet.id })
+  assert.equal(run.created.length, 3)
+  const tasks = (await h.state()).tasks.filter(t => t.delayTrial === packet.id)
+  assert.deepEqual(tasks.map(t => t.application).sort(), apps.map(a => a.id).sort())
+  assert.ok(tasks.every(t => t.owner === h.ownerEmail && t.status === 'open'))
+  await h.restart(); await h.setTime('2030-10-09T12:00:00.000Z')
+  assert.deepEqual((await h.command('delay-trial-run', { id: packet.id })).created, [], 'restart and replay create no second task for a native stage entry')
+  for (const app of apps.slice(0, 2)) await h.command('move', { application: app.id, to: h.job.stages[1].id, reason: 'A human completed the review' })
+  const early = await h.command('delay-trial-compare', { id: packet.id })
+  assert.equal(early.conclusion, 'Insufficient sample or comparison window still open')
+  await h.setTime('2030-10-10T12:00:00.000Z')
+  const measured = await h.command('delay-trial-compare', { id: packet.id })
+  assert.deepEqual([measured.baselineHours, measured.intervals, measured.meanHours, measured.targetHours, measured.conclusion], [36, 2, 24, 28.8, 'Declared target observed'])
+  assert.deepEqual(measured.report.cohort, active.comparisonCohort)
+  assert.ok(measured.report.cases.some(row => row.missing.some(x => x.includes('unfinished'))), 'unfinished comparison history remains disclosed')
+  assert.ok(measured.limitation.includes('no causal improvement'))
+  assert.equal((await h.send('/api/lodge/command/delay-trial-run', { id: packet.id }, h.owner)).status, 409, 'the task policy cannot run after its reviewed window')
+  await checkDelayTrialRestore(h, packet.id)
+  const beforeRollback = await h.state()
+  await h.command('delay-trial-rollback', { id: packet.id })
+  assert.ok((await h.state()).tasks.filter(t => t.delayTrial === packet.id).every(t => t.status === 'cancelled'))
+  for (const key of ['applications', 'offers', 'vacancies', 'sandboxes']) assert.deepEqual((await h.state())[key], beforeRollback[key], key + ' is unaffected by trial rollback')
+  assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM rer_mail_development_outbox').first()).n, mailBefore, 'native task preview, activation, runs and comparison make no outbound contacts')
+  await h.command('candidate-privacy', { id: apps[0].candidate, private: true })
+  assert.ok(!(await h.state(h.manager)).proposals.some(p => p.id === packet.id), 'a revoked comparison case hides the full trial and historical narrative')
+  await h.command('candidate-privacy', { id: apps[0].candidate, private: false })
+  const rejected = await h.command('propose', delayDraft(await read(), h.ownerEmail), h.agent)
+  await h.command('decide-proposal', { id: rejected.id, decision: 'rejected', reason: 'No trial authorized' })
+  assert.equal((await h.send('/api/lodge/command/delay-trial-preview', { id: rejected.id, afterHours: 12 }, h.owner)).status, 409)
+  await h.setTime('2030-10-07T12:00:00.000Z')
+  return 4
+}
+
+async function checkDelayTrialRestore(h, proposal) {
+  const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
+  const { loadPolicy } = await import('@runeditrun/rer/internal/cli/portability-policy.mjs')
+  const { harness } = await import('./harness.mjs')
+  const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs')
+  const service = await createPortability({ db: h.db, policy }), id = await service.exports.create()
+  const records = []
+  try {
+    while ((await service.exports.advance(id, { maxParts: 16 })).phase === 'building') {}
+    for await (const row of readArchive(await service.exports.download(id))) records.push(row)
+  } finally { await service.exports.abort(id) }
+  const dst = await harness({ clock: '2030-10-10T12:00:00.000Z', claim: false })
+  try {
+    const target = await createPortability({ db: dst.db, policy }), closing = records.at(-1), importId = await target.imports.create(records[0])
+    for (const part of records.filter(r => r.kind === 'part')) await target.imports.uploadPart(importId, part.index, part)
+    await target.imports.finalize(importId, { contentHash: closing.contentHash, archiveHash: closing.archiveHash })
+    assert.equal((await target.imports.status(importId)).phase, 'complete')
+    const owner = await dst.signIn(h.ownerEmail), restored = (await dst.state(owner)).proposals.find(p => p.id === proposal)
+    assert.deepEqual([restored.delayTrial.status, restored.delayTrial.token], ['withheld', null])
+    const before = await dst.state(owner)
+    for (const op of ['delay-trial-run', 'delay-trial-activate']) assert.equal((await dst.send('/api/lodge/command/' + op, { id: proposal, confirm: true, token: 'synthetic-lodge-replay' }, owner)).status, 409)
+    assert.deepEqual((await dst.state(owner)).tasks, before.tasks, 'a restored archive confers no active native task policy')
+  } finally { await dst.close() }
 }
