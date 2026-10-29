@@ -1,3 +1,4 @@
+import { canSeeHandoffProposal } from '../agents/handoff-exceptions'
 import { canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { canSeeSourcing } from '../agents/sourcing'
 import { canSeeCoordinationProposal } from '../agents/coordination-cases'
@@ -25,6 +26,7 @@ export const sourceFields = (record: Data) => Object.keys(record).filter(key => 
  * to be prepared again.
  */
 export function canSeeProposal(s: State, a: Actor, p: Data, view: WorkspaceRecords) {
+  if (p.workflow === 'handoff-exception') return canSeeHandoffProposal(s, a, p)
   if (p.workflow === 'candidate-update') return canSeeCandidateUpdate(s, a, p)
   if (p.workflow === 'sourcing-research') return canSeeSourcing(s, a, p)
   if (p.workflow === 'feedback-coordination') return canSeeCoordinationProposal(s, a, p)

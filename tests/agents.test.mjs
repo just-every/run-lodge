@@ -1,4 +1,6 @@
 import { checkReminderCadence, checkReminderStops } from './reminders-flow.mjs'
+import { checkHandoffExceptions } from './handoff-exception-flow.mjs'
+test('Local accepted-offer handoff exceptions preserve exact artifacts, human ownership and incomplete destination status', checkHandoffExceptions)
 // LDG-013: agent-native workflows through the same API a person uses. The
 // "agent" here is a test client signed in as an agent member: Lodge runs no
 // model, so there is nothing to fake; these requests are what any coding agent sends.
