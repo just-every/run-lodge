@@ -3,18 +3,21 @@ import type { PageProps } from './app'
 import { Check, Field, Form, type D } from './shared'
 
 export function SourcingSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
-  const [jobId, setJobId] = useState(''), [criteria, setCriteria] = useState<string[]>([])
+  const [jobId, setJobId] = useState(''), [templateId, setTemplateId] = useState(''), [language, setLanguage] = useState('en'), [criteria, setCriteria] = useState<string[]>([])
   const jobs = w.vacancies.filter((v: D) => v.manages && v.approvedNow && v.status === 'open')
   const job = jobs.find((v: D) => v.id === jobId) ?? jobs[0]
   if (w.actor.agent || !(w.actor.owner || w.actor.roles.includes('admin')) || !job) return null
   const templates = w.messageTemplates.filter((t: D) => t.vacancy === job.id)
+  const selectedTemplate = templates.find((t: D) => t.id === templateId)
+  const version = selectedTemplate?.versions.filter((v: D) => v.language === language).at(-1)
   return <section className="card" aria-label="Sourcing research settings"><h2>Prior-pool research criteria</h2>
     <p>Select job-related criteria and reviewed language for an external agent. Only consented native pool records may be researched. No campaign or sending is enabled.</p>
-    <label>Sourcing role<select value={job.id} onChange={e => { setJobId(e.target.value); setCriteria([]) }}>{jobs.map((v: D) => <option key={v.id} value={v.id}>{v.title}</option>)}</select></label>
-    <Form key={job.id} label="Save sourcing criteria" onSubmit={values => mutate('sourcing-brief', { ...values, vacancy: job.id, criteria })}>
-      <fieldset><legend>Job-related criteria</legend>{job.rubrics.at(-1).criteria.map((c: D) => <label key={c.id}><input type="checkbox" checked={criteria.includes(c.id)} onChange={e => setCriteria(e.target.checked ? [...criteria, c.id] : criteria.filter(id => id !== c.id))} />{c.name}: {c.description}</label>)}</fieldset>
-      <Field label="Sourcing template" name="template" options={templates.map((t: D) => ({ value: t.id, label: t.name }))} />
-      <Field label="Reviewed outreach language" name="language" defaultValue="en" />
+    <label>Sourcing role<select aria-label="Sourcing role" value={job.id} onChange={e => { setJobId(e.target.value); setTemplateId(''); setCriteria([]) }}>{jobs.map((v: D) => <option key={v.id} value={v.id}>{v.title}</option>)}</select></label>
+    <Form key={job.id} label="Save sourcing criteria" onSubmit={values => mutate('sourcing-brief', { ...values, vacancy: job.id, criteria, template: templateId, language, templateVersion: version?.version })}>
+      <fieldset><legend>Job-related criteria</legend>{job.rubrics.at(-1).criteria.map((c: D) => <label className="check" key={c.id}><input type="checkbox" checked={criteria.includes(c.id)} onChange={e => setCriteria(e.target.checked ? [...criteria, c.id] : criteria.filter(id => id !== c.id))} />{c.name}: {c.description}</label>)}</fieldset>
+      <label>Sourcing template<select aria-label="Sourcing template" name="template" required value={templateId} onChange={e => setTemplateId(e.target.value)}><option value="">Choose…</option>{templates.map((t: D) => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
+      <label>Reviewed outreach language<input aria-label="Reviewed outreach language" value={language} onChange={e => setLanguage(e.target.value)} required /></label>
+      {version ? <div className="wide"><p>Reviewed template version {version.version} · {version.language}</p><p>{version.subject}</p><p className="pre">{version.body}</p></div> : <p>Choose a template with a reviewed version in this language.</p>}
       <Check label="I reviewed these criteria, template and language" name="reviewed" />
     </Form>
     {(w.sourcingBriefs ?? []).filter((b: D) => b.vacancy === job.id).map((b: D) => <p key={b.id}>Selected {b.criteria.map((c: D) => c.name).join(', ')} · {b.language}<details><summary>Agent brief reference</summary><code>{b.id}</code></details></p>)}

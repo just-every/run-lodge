@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "4c87c60be2fea07aa119f9b911ab17309ff764f7f7c9c347e3f097f27b289503",
+      "sha256": "d3ebddcf07c03f7052bcbf76e7e09db52cc7406f451eb6c15a75dad025eacddf",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -155,7 +155,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "78c5ce6fd34dc3bc5d9601afcce4e557d0f685b701a6181010d295340a6c4657",
+      "sha256": "a0a0bcc8cb075b37332a40398ab8c74818f084034ede1904277274b057326ae3",
       "executable": false
     },
     "base-copies.json": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4eb6c463fb0ace4f531cc92a556d244c9867c3c1ddff52170f10cc9470331eec",
+      "sha256": "2066ec84b1e8fb27e62df5f9d4ab578d56ba80640410f5f28ca39dcedf86c1d5",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "747fa14e9508f15c207cb0e955d286dcf8cc05417803da43a1a2e273ecc00740",
+      "sha256": "faed48facb7fbc9200c2d8993cbdc8bbfe3e1fe29c54864301ec2bee34a5d4d5",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -315,7 +315,7 @@
       "executable": false
     },
     "management/integration/deployment-spec.json": {
-      "sha256": "748e655a60dfa3f46f70dbd034d12a9fe604d8741952ad32eb3c78849fa184b8",
+      "sha256": "124fd01b59afd1c061712a7567a4e7a9d5eb74a898e879f572d32e1da3bc2a23",
       "executable": false
     },
     "migrations/core/0001_owner.sql": {
@@ -1151,7 +1151,7 @@
       "executable": false
     },
     "src/lodge/agents/sourcing.ts": {
-      "sha256": "b7dddc62c28c3623e3f110563fcd7230ef2631e248c7a4818c838f61d20e9b95",
+      "sha256": "3163d6f35897e2c589d719d39680931a39a492aea356d4d0b58605e8b83ffc18",
       "executable": false
     },
     "src/lodge/analysis/execute.ts": {
@@ -1747,7 +1747,7 @@
       "executable": false
     },
     "src/lodge/records/retention.ts": {
-      "sha256": "ff2c0245226f9847e2690c679fea26defb9f4dc637f31177bb951b0699e18f8d",
+      "sha256": "1beac595cb11ca90c91779f881ee0b0f7de76489e382173b02c7ad2c79a0df86",
       "executable": false
     },
     "src/lodge/records/reviews.ts": {
@@ -1911,7 +1911,7 @@
       "executable": false
     },
     "src/lodge/views/exports.ts": {
-      "sha256": "314df2e8c563c87d1d5bbca278661440076085945fa85e64914a0c56a5b3ac2d",
+      "sha256": "8a09211672cca980edb16fb03a6aec6434e6dc342368944ea29a4484433a083e",
       "executable": false
     },
     "src/lodge/views/field-views.ts": {
@@ -4127,7 +4127,7 @@
       "executable": false
     },
     "src/ui/sourcing-proposals.tsx": {
-      "sha256": "79c64808b9dcf913f4c976b76c102e26f8d8b9c97b26521fcaae02606ff57550",
+      "sha256": "bdefddad87c28532a679b04e0fb02014a517531601dac5e9bbc8618403590826",
       "executable": false
     },
     "src/ui/tasks.tsx": {
@@ -4255,7 +4255,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "33785a896eae3e2ad665e484bbbbc6e437b657802a7874c4607db5d2fa117988",
+      "sha256": "2245e8c7651dece4a672b1a4d32d9390b5b818b45072f0bce18aaaa4a5277cfe",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
@@ -4307,7 +4307,7 @@
       "executable": false
     },
     "tests/clause-browser.mjs": {
-      "sha256": "8bb09f01718011df4c1136c82de4f367250862aa5b46636337515bd415ba66e2",
+      "sha256": "fddd4cf5591750c8b717c14d227588db5af99cf10a1548a1e94c6871b74772f8",
       "executable": false
     },
     "tests/cohort-report-browser.mjs": {
@@ -4658,8 +4658,12 @@
       "sha256": "f747fe6f74a3f5a524d0f9fa6a67e1b5fa53db6d112e1cfb447dd2a23e09f182",
       "executable": false
     },
+    "tests/sourcing-proposal-browser.mjs": {
+      "sha256": "293a091e24fc052ec578a9bff2e744abc02a29f49687d155ed730f316300a515",
+      "executable": false
+    },
     "tests/sourcing-proposal-flow.mjs": {
-      "sha256": "3d07f3b0cd1ebefbc039ee77421cb46b508997469de179fc9f95b76dbda7c381",
+      "sha256": "beccd28e7f337c4b31969a5feb915402632e1e6f50b7614a1bd121056a4a99e7",
       "executable": false
     },
     "tests/surveys-driver.mjs": {
