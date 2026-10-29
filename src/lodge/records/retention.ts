@@ -71,6 +71,7 @@ export function candidateRecords(s: State, candidateId: string) {
     'candidate-email-change': byApp('candidate-email-change'),
     'reference-questionnaire': byApp('reference-questionnaire'), 'reference-record': byApp('reference-record'),
     'interview-day': byApp('interview-day'), 'coordination-case': byApp('coordination-case'),
+    'take-home': byApp('take-home'), 'take-home-submission': byApp('take-home-submission'), 'take-home-grade': byApp('take-home-grade'),
     application: apps, 'stage-event': byApp('stage-event'), interview: byApp('interview'), scorecard: byApp('scorecard'),
     'interview-note': byApp('interview-note'), notification: byApp('notification'), alert: byApp('alert'), 'team-note': byApp('team-note'), task: byApp('task'), debrief: byApp('debrief'), 'rule-match': byApp('rule-match'), 'rejection-email': byApp('rejection-email'), review: byApp('review'), 'fair-chance-record': byApp('fair-chance-record'), 'event-capture': byApp('event-capture'), message: messages, offer: offers, receipt: byApp('receipt'), monitoring: byApp('monitoring'),
     approval: s.scan('approval').filter(x => subjects.has(x.subjectId)),

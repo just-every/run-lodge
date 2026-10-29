@@ -1,3 +1,4 @@
+import { validateAssessments } from './assessment-policy.mjs';
 import { validateReferralRecords } from './referral-policy.mjs';
 import { createHash } from 'node:crypto';
 import { PortabilityError } from '@runeditrun/rer/modules/portability';
@@ -28,6 +29,7 @@ export async function validateStaged({ read }) {
   refuse(bytes.toString('base64') === blob.base64 && Number.isSafeInteger(value.size) && value.size > 0 && bytes.length === value.size);
   refuse(typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256) && createHash('sha256').update(bytes).digest('hex') === value.sha256);
  };
+ validateAssessments({ rows, get, reference, refuse });
  validateCandidateLineage(rows.filter(row => row.kind === 'candidate').map(row => get(row.kind, row.id)), refuse);
  const referralFiles = validateReferralRecords({ rows, get, reference, refuse, original });
  const agencyFiles = validateAgencyRecords({ rows, get, reference, refuse, original });

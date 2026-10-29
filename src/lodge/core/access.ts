@@ -209,6 +209,11 @@ export function canSeeContact(s: State, a: Actor, candidate: Data) {
  */
 export function canSeeDocument(s: State, a: Actor, doc: Data) {
   if (isAgency(a)) return false
+  if (doc.takeHome) {
+    const record = s.find('take-home', doc.takeHome), app = record && s.find('application', record.application), job = app && s.find('vacancy', app.vacancy)
+    const version = record?.versions.find((v: Data) => v.version === doc.takeHomeVersion)
+    if (a.agent || !app || !job || !version || !canSeeApplication(s, a, app) || !can(s, a, job, 'scorecards') || !(managesVacancy(a, job) || version.graders.includes(scope(a)))) return false
+  }
   if (doc.restricted) {
     if (!isCompliance(a)) return false
     if (!isAdmin(a)) {
