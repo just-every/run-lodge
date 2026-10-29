@@ -1,6 +1,7 @@
 import { handoffView } from '../agents/handoff-exceptions'
 import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
+import { assessmentView } from '../assessments/records'
 import { waitingApprovers } from '../records/approval-chains'
 import { schedulingView } from '../scheduling/planner'
 import { referenceView } from '../references/views'
@@ -207,6 +208,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     teamNotes, activity: activity(s, { applications: projected, messages, interviews, offers, teamNotes }),
     tasks,
     references: referenceView(s, a, appIds),
+    takeHomes: assessmentView(s, a),
     // SCREEN-001: the question library, for admins who keep it and managers who attach it.
     questions: library(s, a),
     // REQ-002: job templates, for the admins who keep them and the managers who start jobs from them.
