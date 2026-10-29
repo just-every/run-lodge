@@ -19,7 +19,7 @@ export function Proposals({ w, mutate, follow }: PageProps) {
     {w.proposals.filter((p: D) => p.workflow === 'feedback-coordination').map((p: D) => <FeedbackCaseProposal key={p.id} p={p} w={w} mutate={mutate} />)}
     <DelayAnalysis w={w} follow={follow} />
     {w.proposals.filter((p: D) => p.workflow === 'delay-diagnosis').map((p: D) => <DelayDraft key={p.id} p={p} w={w} mutate={mutate} follow={follow} />)}
-    {!open.length && !w.proposals.some((p: D) => ['delay-diagnosis', 'candidate-update', 'sourcing-research'].includes(p.workflow) && p.status === 'proposed') && <Empty icon="proposals" title="No proposals waiting.">When an agent member proposes changes for you, they wait here until you approve or reject them.</Empty>}
+    {!open.length && !w.proposals.some((p: D) => ['delay-diagnosis', 'candidate-update', 'sourcing-research', 'feedback-coordination'].includes(p.workflow) && p.status === 'proposed') && <Empty icon="proposals" title="No proposals waiting.">When an agent member proposes changes for you, they wait here until you approve or reject them.</Empty>}
     {open.map((p: D) => <article key={p.id} className="card">
       <p className="eyebrow">{sentence(p.workflow.replace(/-/g, ' '))}</p>
       <h2>{p.summary}</h2>

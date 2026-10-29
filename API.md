@@ -1043,7 +1043,7 @@ Review creates no application, campaign, booking, message record or outbound
 contact. Licensed research, connected replies, Slack campaign approval and
 calendar authority remain unavailable through this native draft door.
 
-### Native missing-feedback cases
+## Native missing-feedback cases
 
 The authenticated workspace's coordination facts include native feedback cases.
 A human runs `coordination-discover` with an application, interview and responsible
