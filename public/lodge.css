@@ -286,3 +286,6 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
 .delay-analysis{overflow-wrap:anywhere}
 .delay-analysis th{font-size:13px}
 .delay-analysis details{min-width:0}
+
+.feedback-case { overflow-wrap: anywhere; }
+.feedback-case p, .feedback-case li, .feedback-case code { font-size: max(13px, 1em); }

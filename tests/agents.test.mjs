@@ -226,3 +226,4 @@ test('Native delay evidence and agent diagnosis preserve exact citations, uncert
 import { checkCandidateUpdates } from './candidate-update-flow.mjs'
 test('COORD-005 native response windows and human-reviewed unsent updates preserve authority and lifecycle', checkCandidateUpdates)
 test('Native sourcing research keeps exact consented facts and reviewed outreach inert through stale sources, revocation and erasure', async () => (await import('./sourcing-proposal-flow.mjs')).checkSourcingProposals())
+test('Native feedback cases preserve human ownership, truthful submission readback, revocation and erasure', async () => (await import('./coordination-case-flow.mjs')).checkCoordinationCases())
