@@ -41,8 +41,8 @@ export async function takeHomePage(browser, { root, origin, evidence, ownerEmail
     await settings.getByLabel('Take-home instructions', { exact: true }).fill('Prepare a short plan for a safe site handover.')
     await settings.getByLabel('Candidate time zone', { exact: true }).fill('America/New_York')
     await settings.getByLabel('Deadline in candidate time zone', { exact: true }).fill('2099-03-14T09:00')
-    await settings.getByLabel('First grader', { exact: true }).selectOption(grader)
-    await settings.getByLabel('Second grader', { exact: true }).selectOption(ownerEmail)
+    await settings.getByLabel('First grader').selectOption(grader)
+    await settings.getByLabel('Second grader').selectOption(ownerEmail)
     await settings.getByLabel('Optional instruction attachment', { exact: true }).setInputFiles({ name: file.name, mimeType: file.mediaType, buffer: Buffer.from(file.base64, 'base64') })
     await settings.getByRole('button', { name: 'Save take-home assignment', exact: true }).click()
     await page.getByText('Saved.', { exact: true }).waitFor()
@@ -72,9 +72,9 @@ export async function takeHomePage(browser, { root, origin, evidence, ownerEmail
     const fillGrade = async (p, note) => {
       const panel = await open(p)
       await panel.getByText('Write your take-home scorecard', { exact: true }).click()
-      await panel.getByLabel('Rating for Safety plan', { exact: true }).selectOption('3')
+      await panel.getByLabel('Rating for Safety plan').selectOption('3')
       await panel.getByLabel('Evidence for Safety plan', { exact: true }).fill('The handover includes safe isolation and a named owner.')
-      await panel.getByLabel('Take-home recommendation', { exact: true }).selectOption('yes')
+      await panel.getByLabel('Take-home recommendation').selectOption('yes')
       await panel.getByLabel('Take-home key take-aways', { exact: true }).fill(note)
       await panel.getByRole('button', { name: 'Submit take-home scorecard', exact: true }).click()
       await panel.getByText(note, { exact: true }).waitFor()
@@ -98,5 +98,8 @@ export async function takeHomePage(browser, { root, origin, evidence, ownerEmail
     const staffDownload = await interviewer.context.request.get(origin + '/api/lodge/download/document/' + sub.files[0])
     assert.equal((await staffDownload.body()).toString(), original)
     assert.deepEqual(errors, [], 'take-home screens have no browser exceptions')
+  } catch (error) {
+    for (const [label, p] of [['manager', page], ['grader', interviewer.page], ['candidate', candidate.page]]) await p.screenshot({ path: evidence + '/take-home-error-' + label + '.png', fullPage: true }).catch(() => {})
+    throw error
   } finally { await candidate.context.close(); await interviewer.context.close(); await context.close() }
 }

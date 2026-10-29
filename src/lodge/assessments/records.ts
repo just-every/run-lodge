@@ -17,6 +17,11 @@ export function assessmentReader(s: State, a: Actor, record: Data, version = cur
     && (managesVacancy(a, job) || version.graders.includes(scope(a)))
 }
 
+function eligibleGrader(s: State, address: string, app: Data, job: Data) {
+  const who = memberActor(s, s.find('member', address))
+  return !!who && canSeeApplication(s, who, app) && can(s, who, job, 'scorecards') && (assignedTo(s, who, app) || managesVacancy(who, job))
+}
+
 function manager(s: State, a: Actor, id: string) {
   const app = requireApplication(s, a, id), job = s.get('vacancy', app.vacancy)
   requireThat(!a.agent, 'Only a person can manage take-home assignments', 403)
@@ -38,8 +43,7 @@ export async function assignTakeHome(s: State, a: Actor, b: Data) {
   const graders = list(b.graders, 'Graders', 2, x => text(x, 'Grader').toLowerCase())
   requireThat(graders.length === 2 && new Set(graders).size === 2, 'Choose two different human graders')
   for (const address of graders) {
-    const who = memberActor(s, s.find('member', address))
-    requireThat(who && canSeeApplication(s, who, app) && can(s, who, job, 'scorecards') && (assignedTo(s, who, app) || managesVacancy(who, job)), 'Each grader needs existing application and scorecard authority', 403)
+    requireThat(eligibleGrader(s, address, app, job), 'Each grader needs existing application and scorecard authority', 403)
   }
   const timing = deadline(b.deadline, b.timeZone)
   requireThat(Date.parse(timing.dueAt) > Date.now(), 'Choose a future deadline')
@@ -131,9 +135,13 @@ export function releaseTakeHome(s: State, a: Actor, b: Data) {
 
 export function assessmentView(s: State, a: Actor) {
   const assignments: Data[] = [], submissions: Data[] = [], grades: Data[] = [], editable: string[] = []
+  const graderOptions: Record<string, string[]> = {}
   for (const app of s.all('application')) {
     const job = s.find('vacancy', app.vacancy)
-    if (!a.agent && job && !app.imported && canSeeApplication(s, a, app) && managesVacancy(a, job) && can(s, a, job, 'settings') && can(s, a, job, 'scorecards')) editable.push(app.id)
+    if (!a.agent && job && !app.imported && canSeeApplication(s, a, app) && managesVacancy(a, job) && can(s, a, job, 'settings') && can(s, a, job, 'scorecards')) {
+      editable.push(app.id)
+      graderOptions[app.id] = s.all('member').filter(m => eligibleGrader(s, m.email, app, job)).map(m => m.email)
+    }
   }
   for (const row of s.all('take-home')) {
     const record = s.get('take-home', row.id), versions = record.versions.filter((v: Data) => assessmentReader(s, a, record, v))
@@ -146,5 +154,5 @@ export function assessmentView(s: State, a: Actor) {
       for (const card of s.all('take-home-grade').filter(g => g.assessment === record.id && g.version === v.version)) if (card.author === scope(a) || v.released) grades.push(card)
     }
   }
-  return { assignments, submissions, grades, editable }
+  return { assignments, submissions, grades, editable, graderOptions }
 }
