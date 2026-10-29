@@ -27,7 +27,7 @@ export function focusOf(rubric: Data, vacancy: Data, interview: Data | null | un
 }
 
 /** Ratings 1-4 per criterion; every rating needs the interviewer's evidence, and blanks stay unanswered. */
-function rate(rubric: Data, b: Data) {
+export function rate(rubric: Data, b: Data) {
   const ratings: Data = {}, evidence: Data = {}
   for (const id of Object.keys(b.ratings ?? {})) requireThat(b.ratings[id] === null || b.ratings[id] === '' || rubric.criteria.some((c: Data) => c.id === id), 'This interview’s kit does not assess that criterion')
   for (const c of rubric.criteria) {
