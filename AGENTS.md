@@ -95,3 +95,5 @@ This incrementally generates those rows in ACCEPTANCE.md and docs/CLAIMS.md,
 preserving unrelated legacy records and existing policy quotations. Stage the
 intentional edits, then regenerate the edition source lock last with
 `node scripts/edition-authoring/cli.mjs lock` and run its `check` command.
+
+Lander-Regenerate: node scripts/contract-docs.mjs write BASE-AGENT-001 BASE-AGENT-002 BASE-AGENT-003 BASE-AGENT-004 BASE-AGENT-005 BASE-AGENT-006 BASE-AGENT-007 BASE-AGENT-008 BASE-AGENT-009 BASE-AGENT-010 BASE-AGENT-011 BASE-AGENT-012 BASE-AGENT-013

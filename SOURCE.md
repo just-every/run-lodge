@@ -70,3 +70,12 @@ their original bytes. These source copies do not yet mount the shared door or
 replace Lodge's current source-bound proposal authority. Runtime integration
 and its complete specialist conformance remain required before adoption can
 be claimed. The CLI dependency remains the exact package pin in package.json.
+
+**Core agent door (29 October 2026).** The production Worker now mounts the
+shared door before native authentication redirects. Agent-door, Business
+settings, operator-auth and their theme/icon dependencies are recorded at Base
+`2135c394939f4a737adabdc8003b0e667b31ac5a` (rer-v0.2.91). The separate CLI
+pin is `@runeditrun/rer@0.2.91`. Applied schemas retain their original bytes.
+Lodge's adapters keep native membership, source visibility and human-only
+hiring decisions authoritative; the declared capability families are tools,
+policy, pause, audit and idempotency. See [Agent access](docs/agent-access.md).
