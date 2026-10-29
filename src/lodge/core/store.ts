@@ -1,3 +1,4 @@
+import { syncCoordinationCases } from '../agents/coordination-cases'
 import { queueApplicationStageEmails } from '../communications/queue'
 import { syncReferralAlerts } from '../referrals/records'
 import { requireStageFields } from '../fields/values'
@@ -47,6 +48,7 @@ export async function save(db: D1Database, state: State, actor: Actor | null, ex
   recordBlindReveals(state, actor)
   // OFFER-005: an edit, email change, closure or outcome voids the offer's signing envelope in this same batch.
   await settleEnvelopes(state)
+  syncCoordinationCases(state)
   const { writes, fences, scans } = state.pending()
   if (!writes.length && !extra.length) return
   const guard = (sql: string, params: unknown[]) => db.prepare(`INSERT INTO l_guard SELECT CASE WHEN ${sql} THEN 1 ELSE 0 END`).bind(...params)

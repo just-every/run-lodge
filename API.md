@@ -1009,3 +1009,37 @@ The existing `request-message-approval`, `decide-approval` and EML download
 doors still require exact-text approval and current evidence. A draft, review
 or EML download is never delivery or completion. Connected sending, delivery
 readback and weekly kept-informed reporting remain unconnected.
+
+### Native missing-feedback cases
+
+The authenticated workspace's coordination facts include native feedback cases.
+A human runs `coordination-discover` with an application, interview and responsible
+panellist from a current missing-scorecard fact. Repeated discovery returns the
+same durable case. Read the current case from state before acting: its
+`sources` array binds the exact application, interview, vacancy and case revisions.
+
+Human `coordination-case` actions take `id`, that `sources` array and `action`:
+
+- `assign`: a current human `owner`, `nextAction` and an explicit-zone `deadline`.
+- `progress`: the next action and deadline for a still-current unresolved case.
+- `reconcile`: read factual native submission status; no asserted status is accepted.
+- `stop`: a human explanation in `reason`; no completion claim.
+
+An authenticated agent proposes these actions with `propose`, workflow
+`feedback-coordination`, the case id in `case`, current `sources`, a named
+human `approver`, a `summary`, and the action fields inside `input`.
+The ordinary `decide-proposal` door approves or rejects the exact action.
+Both principal and reviewer need current application authority; stale sources
+require a fresh proposal. Ownership and progress change only after human approval.
+
+Completion means the exact interview's responsible panellist has actually
+submitted the application's current-rubric scorecard. A task, draft, another
+interview's card or agent assertion cannot establish it. Readback includes no
+ratings or private notes. Assignment changes and lost authority require review;
+closed applications and cancelled panels stop the local case. Overdue cases
+remain unresolved. Restored cases require fresh ownership, restored proposals
+are withheld, and candidate erasure removes their case history and packets.
+
+This native door sends no notice and establishes no connected booking, reply,
+calendar or mailbox completion. Existing communications grants, scorecard
+release controls and human hiring decisions remain required.

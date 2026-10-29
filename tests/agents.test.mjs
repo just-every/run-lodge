@@ -225,3 +225,4 @@ test('Native delay evidence and agent diagnosis preserve exact citations, uncert
 // Native response promises and externally authored drafts never imply connected delivery.
 import { checkCandidateUpdates } from './candidate-update-flow.mjs'
 test('COORD-005 native response windows and human-reviewed unsent updates preserve authority and lifecycle', checkCandidateUpdates)
+test('Native feedback cases preserve human ownership, truthful submission readback, revocation and erasure', async () => (await import('./coordination-case-flow.mjs')).checkCoordinationCases())

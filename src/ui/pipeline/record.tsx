@@ -1,3 +1,4 @@
+import { FeedbackCaseProposal } from '../coordination-cases'
 import { nextReviewStage } from '../../lodge/core/blind'
 import { useState, type FormEvent } from 'react'
 import type { PageProps } from '../app'
@@ -53,7 +54,8 @@ export function RecordOverview({ app, v, c, w, mutate }: { app: D; v?: D; c: D; 
   const waiting = openProposals(w).filter((p: D) => proposalApplication(p) === app.id)
   const active = app.status === 'active'
   return <>
-    {waiting.length > 0 && <Exception proposals={waiting} app={app} v={v} w={w} mutate={mutate} />}
+    {waiting.some((p: D) => p.workflow !== 'feedback-coordination') && <Exception proposals={waiting.filter((p: D) => p.workflow !== 'feedback-coordination')} app={app} v={v} w={w} mutate={mutate} />}
+    {waiting.filter((p: D) => p.workflow === 'feedback-coordination').map((p: D) => <FeedbackCaseProposal key={p.id} p={p} w={w} mutate={mutate} />)}
     <p className="record-status"><Status tone={active ? 'good' : 'neutral'}>{active ? stageName(v, app.stage) : stageName(v, app.status)}</Status>{active && <span className="muted">for {since(lastMove(app))} · received {when(app.submittedAt) || app.submittedAt}</span>}</p>
     <p className="meta">{[c.email, c.phone, c.location].filter(Boolean).join(' · ') || 'Contact details are visible to the hiring team only.'}</p>
     {c.headline && <p>{c.headline}</p>}
