@@ -54,6 +54,7 @@ function stateOf(s: State, row: Data): Data {
   if (!same(row.assignment, assignment(s, row))) return { status: 'review-required', reason: 'Interview, rubric or assignments changed', confirmation: null }
   if (!row.owner || !ownsCurrently(s, row.owner, app.id)) return { status: 'review-required', reason: row.owner ? 'Recruiter lost current authority' : 'Human ownership required', confirmation: null }
   if (!preparerCurrent(s, row)) return { status: 'review-required', reason: 'Preparing agent or principal lost authority', confirmation: null }
+  if (row.reviewRequired) return { status: 'review-required', reason: row.reason, confirmation: null }
   const card = submittedFeedback(s, app, iv, row.panellist)
   if (card) return { status: 'completed', reason: 'Confirmed native feedback submission', confirmation: { scorecard: card.id, submittedAt: card.submittedAt } }
   return { status: 'open', reason: 'Required native feedback is not submitted', confirmation: null }
@@ -76,7 +77,7 @@ export function syncCoordinationCases(s: State) {
   for (const original of s.all(KIND)) {
     const next = stateOf(s, original)
     if (original.status !== next.status || original.reason !== next.reason || !same(original.confirmation, next.confirmation)) {
-      history(s, null, { ...original, ...next }, next.status, { reason: next.reason, confirmation: next.confirmation })
+      history(s, null, { ...original, ...next, reviewRequired: next.status === 'review-required' || original.reviewRequired === true }, next.status, { reason: next.reason, confirmation: next.confirmation })
     }
   }
 }
@@ -115,6 +116,7 @@ function actionInput(b: Data): Data {
   const action = oneOf(b.action, ['assign', 'progress', 'reconcile', 'stop'] as const, 'Feedback case action')
   const allowed = ['id', 'sources', 'action', ...(action === 'assign' ? ['owner', 'nextAction', 'deadline'] : action === 'progress' ? ['nextAction', 'deadline'] : action === 'stop' ? ['reason'] : [])]
   requireThat(Object.keys(b).every(key => allowed.includes(key)), 'Case actions accept no asserted status, completion, scorecard content or extra fields')
+  if (action === 'assign' || action === 'progress') requireThat(typeof b.deadline === 'string' && /(?:Z|[+-]\d{2}:\d{2})$/i.test(b.deadline), 'Deadline needs an explicit time zone')
   if (action === 'assign' || action === 'progress') return { action, ...(action === 'assign' ? { owner: text(b.owner, 'Current human recruiter').toLowerCase() } : {}), nextAction: safeText(b.nextAction, 'Next action'), deadline: instant(b.deadline, 'Deadline') }
   return { action, ...(action === 'stop' ? { reason: safeText(b.reason, 'Stop reason') } : {}) }
 }
@@ -124,8 +126,8 @@ function fresh(s: State, row: Data, expected: unknown) {
 }
 
 export function coordinationCaseAction(s: State, a: Actor, b: Data, proposal?: Data) {
-  const row = s.get(KIND, b.id)
-  requireThat(!a.agent && canCoordinate(s, a, row.application), 'Feedback case not found', 404)
+  const row = s.find(KIND, b.id)
+  requireThat(row && !a.agent && canCoordinate(s, a, row.application), 'Feedback case not found', 404)
   fresh(s, row, b.sources)
   const input = actionInput(b), current = stateOf(s, row)
   let next: Data = { ...row, ...current }
@@ -134,7 +136,7 @@ export function coordinationCaseAction(s: State, a: Actor, b: Data, proposal?: D
     requireThat(ownsCurrently(s, input.owner!, row.application), 'Choose a current human recruiter with this application’s authority', 403)
     const app = s.get('application', row.application), iv = s.get('interview', row.interview)
     requireThat(iv.participants.includes(row.panellist) && canReview(human(s, row.panellist) ?? { owner: false, roles: [] }), 'Panellist needs current authority', 409)
-    next = { ...next, owner: input.owner, nextAction: input.nextAction, deadline: input.deadline, assignment: assignment(s, row), preparedBy: proposal?.proposedBy ?? null, preparedFor: proposal?.proposedFor ?? null }
+    next = { ...next, owner: input.owner, nextAction: input.nextAction, deadline: input.deadline, reviewRequired: false, assignment: assignment(s, row), preparedBy: proposal?.proposedBy ?? null, preparedFor: proposal?.proposedFor ?? null }
     next = { ...next, ...stateOf(s, next) }
     requireThat(app.status === 'active' && next.status !== 'review-required', 'Review the changed assignment or authority first', 409)
   } else if (input.action === 'progress') {
@@ -158,8 +160,8 @@ export function canSeeCoordinationProposal(s: State, a: Actor, p: Data) {
 
 export function proposeCoordinationCase(s: State, a: Actor, b: Data) {
   requireThat(a.agent, 'An authenticated agent authors feedback case proposals', 403)
-  const row = s.get(KIND, b.case), reviewer = human(s, b.approver)
-  requireThat(canCoordinate(s, a, row.application) && reviewer && canCoordinate(s, reviewer, row.application), 'Feedback case not found', 404)
+  const row = s.find(KIND, b.case), reviewer = human(s, b.approver)
+  requireThat(row && canCoordinate(s, a, row.application) && reviewer && canCoordinate(s, reviewer, row.application), 'Feedback case not found', 404)
   fresh(s, row, b.sources)
   const input = actionInput({ ...b.input, id: row.id, sources: b.sources })
   const summary = safeText(b.summary, 'Proposal summary')

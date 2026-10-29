@@ -16,9 +16,9 @@ export function coordination(s: State, a: Actor) {
   for (const iv of s.all('interview')) {
     const app = s.all('application').find(x => x.id === iv.application)
     const vacancy = app && s.all('vacancy').find(v => v.id === app.vacancy)
-    if (!app || !vacancy || !managesVacancy(a, vacancy) || !canCoordinate(s, a, app.id) || app.status !== 'active') continue
+    if (!app || !vacancy || !managesVacancy(a, vacancy) || app.status !== 'active') continue
     if (iv.status === 'proposed') awaitingTimes.push({ interview: iv.id, application: app.id, title: iv.title, responded: Object.keys(iv.availability ?? {}), best: commonSlots(iv).slice(0, 3) })
-    if (iv.status === 'scheduled' && iv.start < nowIso) {
+    if (iv.status === 'scheduled' && iv.start < nowIso && canCoordinate(s, a, app.id)) {
       for (const p of iv.participants) if (!submittedFeedback(s, app, iv, p)) missingScorecards.push({ interview: iv.id, application: app.id, title: iv.title, interviewer: p, since: iv.start })
     }
   }
