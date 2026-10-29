@@ -39,6 +39,17 @@ for (const id of ids) {
   const claim = `| ${id} | ${status} | ${evidence} | ${gap} |`
   claims = pattern.test(claims) ? claims.replace(pattern, claim) : claims.trimEnd() + '\n' + claim + '\n'
 }
+// New shared rows belong in the existing acceptance table, before its prose.
+// This also repairs rows appended by an older generator without touching them.
+if (ids.some(id => id.startsWith('BASE-AGENT-'))) {
+  const agentRows = acceptance.match(/^\| BASE-AGENT-\d+ \|.*$/gm) ?? []
+  if (agentRows.length) {
+    acceptance = acceptance.replace(/^\| BASE-AGENT-\d+ \|.*\n?/gm, '')
+    const boundary = '\n\n## Running the evidence'
+    if (!acceptance.includes(boundary)) throw Error('Missing acceptance table boundary')
+    acceptance = acceptance.replace(boundary, '\n' + agentRows.join('\n') + boundary)
+  }
+}
 for (const [path, generated] of [['ACCEPTANCE.md', acceptance], ['docs/CLAIMS.md', claims]]) {
   if (mode === 'write') writeFileSync(path, generated)
   else if (readFileSync(path, 'utf8') !== generated) throw Error('Stale generated contract record: ' + path)
