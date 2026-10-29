@@ -1,4 +1,6 @@
 import { checkReminderCadence, checkReminderStops } from './reminders-flow.mjs'
+import { checkHandoffExceptions } from './handoff-exception-flow.mjs'
+test('Local accepted-offer handoff exceptions preserve exact artifacts, human ownership and incomplete destination status', checkHandoffExceptions)
 // LDG-013: agent-native workflows through the same API a person uses. The
 // "agent" here is a test client signed in as an agent member: Lodge runs no
 // model, so there is nothing to fake; these requests are what any coding agent sends.
@@ -219,3 +221,11 @@ test('Nurture pools preserve consent, exact review, replies, opt-out, owned task
 test('Nurture stops on expired consent, withdrawal, hire, revoked authority and uncertain delivery; imported pools never grant consent', async t => (await import('./crm-stops.mjs')).checkNurtureStops(t))
 
 test('Restored nurture archives keep sending, native reply activation and queued steps inert', async t => (await import('./crm-restore.mjs')).checkNurtureRestore(t))
+
+test('Native delay evidence and agent diagnosis preserve exact citations, uncertainty, live authority and inert review', async t => (await import('./delay-analysis-flow.mjs')).checkDelayAnalysis(t))
+
+// Native response promises and externally authored drafts never imply connected delivery.
+import { checkCandidateUpdates } from './candidate-update-flow.mjs'
+test('COORD-005 native response windows and human-reviewed unsent updates preserve authority and lifecycle', checkCandidateUpdates)
+test('Native sourcing research keeps exact consented facts and reviewed outreach inert through stale sources, revocation and erasure', async () => (await import('./sourcing-proposal-flow.mjs')).checkSourcingProposals())
+test('Native feedback cases preserve human ownership, truthful submission readback, revocation and erasure', async () => (await import('./coordination-case-flow.mjs')).checkCoordinationCases())

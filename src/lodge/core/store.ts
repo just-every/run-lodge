@@ -1,3 +1,5 @@
+import { syncCoordinationCases } from '../agents/coordination-cases'
+import { base64ToBytes, sha256 } from './types'
 import { queueApplicationStageEmails } from '../communications/queue'
 import { syncReferralAlerts } from '../referrals/records'
 import { requireStageFields } from '../fields/values'
@@ -18,6 +20,11 @@ export function authority(actor: Actor, owner = false) {
 export async function load(db: D1Database): Promise<State> {
   const { results } = await db.prepare("SELECT kind,id,revision,value FROM l_records WHERE kind <> 'blob'").all<{ kind: string; id: string; revision: string; value: string }>()
   const state = new State(results.map(r => ({ kind: r.kind, id: r.id, revision: r.revision, value: JSON.parse(r.value) }) as Row))
+  state.artifactReader = async id => {
+    const row = await db.prepare("SELECT revision,value FROM l_records WHERE kind='blob' AND id=?").bind(id).first<{ revision: string; value: string }>()
+    if (!row) return null
+    return { revision: row.revision, sha256: await sha256(base64ToBytes(JSON.parse(row.value).base64)) }
+  }
   state.applicationMailEpoch = (await db.prepare('SELECT epoch FROM l_application_email_activation WHERE id=1').first<{ epoch: string }>())?.epoch
   // Read only UTF-8 resume bytes for the sanitized REVIEW-002 text projection.
   const texts = await db.prepare("SELECT b.id,b.value FROM l_records b JOIN l_records d ON d.id=b.id AND d.kind='document' WHERE b.kind='blob' AND json_extract(d.value,'$.kind')='resume' AND (json_extract(d.value,'$.mediaType') LIKE 'text/%' OR json_extract(d.value,'$.name') LIKE '%.txt')").all<{ id: string; value: string }>()
@@ -47,6 +54,7 @@ export async function save(db: D1Database, state: State, actor: Actor | null, ex
   recordBlindReveals(state, actor)
   // OFFER-005: an edit, email change, closure or outcome voids the offer's signing envelope in this same batch.
   await settleEnvelopes(state)
+  syncCoordinationCases(state)
   const { writes, fences, scans } = state.pending()
   if (!writes.length && !extra.length) return
   const guard = (sql: string, params: unknown[]) => db.prepare(`INSERT INTO l_guard SELECT CASE WHEN ${sql} THEN 1 ELSE 0 END`).bind(...params)
@@ -75,6 +83,7 @@ export interface Session { operator: { id: string; email: string; displayName: s
 /** The current person, from the native session; mutations also need an exact same-origin request. */
 export async function signedIn(request: Request, original: Bindings): Promise<Session> {
   const env = runtimeBindings(original)
+  requireThat(!request.headers.has('authorization'), 'App credentials cannot use native session doors', 401)
   requireThat(new URL(request.url).origin === env.AUTH_ORIGIN, 'Invalid host', 403)
   // Downloads record who took them, so even reads refuse other sites' requests.
   requireThat(request.headers.get('sec-fetch-site') !== 'cross-site', 'Invalid origin', 403)

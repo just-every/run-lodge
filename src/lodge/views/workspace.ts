@@ -1,4 +1,10 @@
+import { handoffView } from '../agents/handoff-exceptions'
+import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
+import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
+import { waitingApprovers } from '../records/approval-chains'
+import { schedulingView } from '../scheduling/planner'
 import { referenceView } from '../references/views'
+import { messageTemplatesView } from '../records/message-templates'
 import { publicReceipt } from '../careers/receipt'
 import { careersDomainView } from '../careers/domain'
 import type { Bindings } from '../../auth.server'
@@ -133,14 +139,18 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     const app = applications.find(x => x.id === m.application)!
     const vacancy = s.all('vacancy').find(v => v.id === app.vacancy)
     if (!vacancy || !managesVacancy(a, vacancy)) continue
+    if (m.templateDraft && !contactOn(m.application)) continue
+    if (m.candidateUpdate && !canSeeCandidateUpdate(s, a, m.candidateUpdate)) continue
     const approval = latestApproval(s, 'message', m.id), version = await versionOf(s, 'message', m)
     messages.push({ ...m, ...(contactOn(m.application) ? {} : { to: undefined }), version, approval: approval ? addressed(approval) : null, approvedNow: approval?.status === 'approved' && approval.version === version })
   }
 
   const approvals: Data[] = []
   for (const x of myApprovals) {
+    const message = x.subjectKind === 'message' ? s.find('message', x.subjectId) : undefined
+    if (message?.candidateUpdate && !canSeeCandidateUpdate(s, a, message.candidateUpdate)) continue
     const subject = s.all(x.subjectKind).find(r => r.id === x.subjectId)
-    approvals.push({ ...addressed(x), currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
+    approvals.push({ ...addressed(x), waitingApprovers: waitingApprovers(x), currentVersion: subject ? await versionOf(s, x.subjectKind, subject) : null })
   }
 
   const visibleCards = versioned(s.all('scorecard').filter(c => canSeeScorecard(s, a, c)))
@@ -191,6 +201,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     duplicateReviews: admin ? s.all('duplicate-review').filter(r => !hiddenCandidate(r.first) && !hiddenCandidate(r.second)) : [],
     documents: s.all('document').filter(d => canSeeDocument(s, a, s.get('document', d.id))),
     interviews,
+    scheduling: await schedulingView(s, a, appIds),
     scorecards: visibleCards,
     notes: s.all('interview-note').filter(n => canSeeNote(s, a, n)),
     teamNotes, activity: activity(s, { applications: projected, messages, interviews, offers, teamNotes }),
@@ -233,7 +244,10 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     // MIG-008: the owner's cutovers of imported jobs into live ones.
     cutovers: a.owner && !a.agent ? s.all('cutover').sort((x, y) => y.at.localeCompare(x.at)) : [],
     applicationEmails: s.all('application-email').filter(m => applications.some(app => app.id === m.application && canSeeContact(s, a, s.get('candidate', app.candidate)))),
-    messages, offers, approvals,
+    handoffExceptions: await handoffView(s, a),
+    candidateUpdates: candidateUpdatesView(s, a),
+    sourcingBriefs: sourcingBriefs(s, a),
+    messages, messageTemplates: messageTemplatesView(s, a), offers, approvals,
     restricted: isCompliance(a) ? s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) }) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.
     fairChance: admin ? fairChanceView(s, a, appIds) : null,
@@ -282,7 +296,7 @@ export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
 export async function workspace(s: State, a: Actor, env?: Bindings) {
   const records = await workspaceRecords(s, a, env)
   if (isComplianceOnly(a)) return { ...records, proposals: [], interviewerActivity: null }
-  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication)))), interviewerActivity: interviewerActivity(s, a, records) }
+  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => p.workflow === 'sourcing-research' ? { ...p, stale: staleSourcing(s, p) } : fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication)))), interviewerActivity: interviewerActivity(s, a, records) }
 }
 
 export type Workspace = Awaited<ReturnType<typeof workspace>>

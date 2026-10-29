@@ -261,6 +261,8 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
 
 /* DATA-003: the bulk-actions panel under a job's board. */
 .bulk { margin: 1rem 0; }
+.bulk-outcome { min-width: 0; overflow-wrap: anywhere; }
+.bulk-outcome .status { white-space: normal; }
 .bulk fieldset { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
 .bulk form { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: end; margin: 0.5rem 0; }
 
@@ -279,3 +281,11 @@ ol.history strong{color:var(--rer-text);font-weight:600;font-size:14px}
 .icon-control [role=tooltip]{position:absolute;right:0;top:100%;z-index:20;max-width:220px;width:max-content;padding:5px 9px;border:1px solid var(--line);border-radius:6px;background:var(--rer-surface);color:var(--rer-text);font-size:13px;pointer-events:none;visibility:hidden;opacity:0;transition:visibility 0s .3s,opacity 0s .3s}
 .icon-control:hover [role=tooltip]{visibility:visible;opacity:1}
 .icon-control:focus-within [role=tooltip]{visibility:visible;opacity:1;transition-delay:0s}
+
+/* Native delay evidence keeps exact citations readable within narrow review panels. */
+.delay-analysis{overflow-wrap:anywhere}
+.delay-analysis th{font-size:13px}
+.delay-analysis details{min-width:0}
+
+.feedback-case { overflow-wrap: anywhere; }
+.feedback-case p, .feedback-case li, .feedback-case code { font-size: max(13px, 1em); }

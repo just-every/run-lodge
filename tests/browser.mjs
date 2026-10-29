@@ -1,3 +1,12 @@
+import { handoffExceptionPage } from './handoff-exception-browser.mjs'
+import { candidateUpdatePage } from './candidate-update-browser.mjs'
+import { sourcingProposalPage } from './sourcing-proposal-browser.mjs'
+import { coordinationCasePage } from './coordination-case-browser.mjs'
+import { delayAnalysisPage } from './delay-analysis-browser.mjs'
+import { interviewDayPage } from './interview-day-browser.mjs'
+import { integrationsPage } from './integrations-browser.mjs'
+import { messageTemplatePage } from './message-template-browser.mjs'
+import { workflowChainPage } from './workflow-chain-browser.mjs'
 import { cohortReportPage } from './cohort-report-browser.mjs'
 import { referencePage } from './reference-browser.mjs'
 import { payWorkspace } from './pay-transparency-browser.mjs'
@@ -89,7 +98,15 @@ try {
   for (const [as, roles, name] of PERSONAS) await api(owner.context, server.origin, 'member', { email: `${as}@dev.localhost`, name, roles })
 
   await applicationEmailWorkspace(browser, root, server.origin, resolve(evidence, 'application-emails'))
+  await interviewDayPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await cohortReportPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await integrationsPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await handoffExceptionPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'handoff-exceptions'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await candidateUpdatePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'candidate-updates'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await messageTemplatePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'message-templates'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await sourcingProposalPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'sourcing'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await coordinationCasePage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'feedback-cases'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await delayAnalysisPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'delays'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await referencePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'references'), ownerEmail: 'owner@example.test' })
 
   for (const width of browserWidths) result.journeys.push(await journey(browser, root, server.origin, width, evidence))
@@ -147,6 +164,7 @@ try {
     await fieldsImportPage(browser, { root, origin: server.origin, evidence })
     await blindPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await connectorsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+    await workflowChainPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
     await operationsPage(browser, { root, origin: server.origin, run, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   } finally {
     await site.close(); await unlisted.close()

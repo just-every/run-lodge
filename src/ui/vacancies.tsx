@@ -117,7 +117,7 @@ function Detail({ v, w, mutate, go, select }: { v: D; select: (id: string) => vo
       <h3>Approval</h3>
       {v.approval && <p>Latest request: {v.approval.status} by {person(w, v.approval.approver)}{v.approval.reason ? ` (“${v.approval.reason}”)` : ''}{v.approval.version !== v.version ? ' · the terms changed since, so it no longer applies' : ''}</p>}
       {v.approvedNow ? <button className="primary" onClick={() => mutate('publish', { id: v.id })}>Publish application page</button>
-        : <Form label="Request approval" compact onSubmit={x => mutate('request-vacancy-approval', { id: v.id, approver: x.approver })}><Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} /></Form>}
+        : <Form label="Request approval" compact onSubmit={x => mutate('request-vacancy-approval', { id: v.id, approver: x.approver })}>{v.approvalChain ? <p>The configured headcount chain requires every named approver in step order.</p> : <Field label="Approver" name="approver" options={memberOptions(w.members, 'approver')} />}</Form>}
     </section>}
     {v.status === 'open' && <Form label="Unpublish" compact onSubmit={x => mutate('unpublish', { id: v.id, reason: x.reason })}><Field label="Reason for unpublishing" name="reason" /></Form>}
     {!v.imported && v.status !== 'closed' && <VacancyInternal v={v} mutate={mutate} />}

@@ -1,10 +1,11 @@
 import type { State } from '../core/state'
 import { requireApplication, requireCan, requireManages } from '../core/access'
-import { Fault, canonical, list, now, oneOf, optionalText, requireThat, sha256, text, type Actor, type Data } from '../core/types'
+import { Fault, canonical, list, now, oneOf, optionalText, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { bulkExport } from '../views/exports'
 import { workspace } from '../views/workspace'
 import { requestApproval } from './approvals'
 import { message, PURPOSES } from './messages'
+import { templateMessage } from './message-templates'
 import { assignReviewers, move } from './pipeline'
 import { fill, MERGE_FIELDS, reasons } from './rejections'
 
@@ -39,14 +40,14 @@ function tag(s: State, a: Actor, b: Data) {
 function action(b: Data) {
   requireThat(b.action && typeof b.action === 'object', 'Choose the action')
   const act = { ...b.action, kind: oneOf(b.action.kind, BULK_KINDS, 'Bulk action') } as Data
-  if (act.kind === 'message') {
+  if (act.kind === 'message' && !act.template) {
     act.purpose = oneOf(act.purpose ?? 'other', PURPOSES, 'Purpose')
     act.subject = text(act.subject, 'Subject', 200)
     act.body = text(act.body, 'Message', 20000)
     for (const field of `${act.subject} ${act.body}`.match(/\{[^{}]*\}/g) ?? [])
       requireThat((MERGE_FIELDS as readonly string[]).includes(field.slice(1, -1)), `Unknown merge field ${field}; use ${MERGE_FIELDS.map(f => `{${f}}`).join(', ')}`)
-    act.approver = optionalText(act.approver, 'Approver', 200) || undefined
   }
+  if (act.kind === 'message') act.approver = optionalText(act.approver, 'Approver', 200) || undefined
   return act
 }
 
@@ -73,7 +74,10 @@ async function runOne(s: State, a: Actor, act: Data, application: string) {
   const candidate = s.get('candidate', app.candidate)
   requireThat(candidate.email, 'This candidate has no email address', 409)
   const values = { candidate_name: candidate.name, job_title: vacancy.title, business_name: s.find('business', 'main')?.name ?? '' }
-  const draft = message(s, a, { application, purpose: act.purpose, to: candidate.email, subject: fill(act.subject, values), body: fill(act.body, values) })
+  const fields: Data = act.template ? templateMessage(s, a, act.template, application)
+    : { purpose: act.purpose, to: candidate.email, subject: fill(act.subject, values), body: fill(act.body, values) }
+  let draft = message(s, a, { application, ...fields })
+  if (fields.templateDraft) draft = s.put('message', draft.id, { ...draft, templateDraft: { ...fields.templateDraft, selectionReview: act.selectionReview } })
   if (act.approver) await requestApproval(s, a, 'message', draft, act.approver)
   return draft
 }
@@ -90,16 +94,16 @@ const refusal = (e: unknown) => { if (e instanceof Fault) return e.message; thro
 function outgoing(s: State, copy: State, act: Data, id: string) {
   const kind = act.kind === 'reject' ? 'rejection-email' : act.kind === 'message' ? 'message' : null
   const m = kind && copy.all(kind).find(x => x.application === id && !s.find(kind, x.id))
-  return m ? { email: { to: m.to, subject: m.subject, body: m.body, ...(m.sendAt ? { sendAt: m.sendAt } : { sent: false }) } } : {}
+  return m ? { email: { to: m.to, subject: m.subject, body: m.body, ...(m.templateDraft ? { template: m.templateDraft.name, version: m.templateDraft.version, language: m.templateDraft.language } : {}), ...(m.sendAt ? { sendAt: m.sendAt } : { sent: false }) } } : {}
 }
 
 /** What each item would become, without changing anything. */
 export async function bulkPreview(s: State, a: Actor, b: Data) {
   const act = action(b)
-  const results = []
+  const results: Data[] = []
   for (const id of items(b)) {
     const app = s.find('application', id)
-    const seen = app ? { application: s.revisionOf('application', id), candidate: s.revisionOf('candidate', app.candidate) } : null
+    const seen = app ? { application: s.revisionOf('application', id), candidate: s.revisionOf('candidate', app.candidate), ...(act.template ? { vacancy: s.revisionOf('vacancy', app.vacancy), business: s.revisionOf('business', 'main') } : {}) } : null
     const copy = s.clone()
     try {
       await runOne(copy, a, act, id)
@@ -109,7 +113,12 @@ export async function bulkPreview(s: State, a: Actor, b: Data) {
       results.push({ application: id, ok: false, refusal: refusal(e) })
     }
   }
-  return { action: act, items: results, ready: results.filter(r => r.ok).length, refused: results.filter(r => !r.ok).length }
+  let review
+  if (act.kind === 'message' && act.template) {
+    const record = s.put('message-draft-review', uid(), { by: a.email, action: act, at: now(), items: results.filter(r => r.ok).map(r => ({ application: r.application, seen: r.seen })) })
+    review = record.id
+  }
+  return { action: act, items: results, ready: results.filter(r => r.ok).length, refused: results.filter(r => !r.ok).length, ...(review ? { review } : {}) }
 }
 
 /** Apply the previewed action item by item; an item changed since its preview is refused, never applied on new data. */
@@ -119,6 +128,18 @@ export async function bulkApply(s: State, a: Actor, b: Data) {
   const earlier = s.find('bulk-batch', batch)
   if (earlier) { requireThat(earlier.by === a.email, 'Batch not found', 404); return { ...earlier, replayed: true } }
   const act = action(b), previewed: Data = b.previewed && typeof b.previewed === 'object' ? b.previewed : {}
+  if (act.kind === 'message' && act.template) {
+    const review = s.get('message-draft-review', b.review, 'reviewed selection')
+    requireThat(review.by === a.email && canonical(review.action) === canonical(act), 'Review this exact template and action before applying', 409)
+    requireThat(canonical(items(b).slice().sort()) === canonical(review.items.map((r: Data) => r.application).sort()), 'The recipient selection changed; preview again', 409)
+    requireThat(canonical(previewed) === canonical(Object.fromEntries(review.items.map((r: Data) => [r.application, r.seen]))), 'The preview changed; preview again', 409)
+    if (review.batch) return { ...s.get('bulk-batch', review.batch), replayed: true }
+    // Reviews made before batch binding may already have produced frozen drafts.
+    requireThat(!s.all('message').some(m => m.templateDraft?.selectionReview === review.id), 'This selection already created drafts; preview again before another batch', 409)
+    // The revision fence on this review also prevents concurrent clients with different batch ids from both applying it.
+    s.put('message-draft-review', review.id, { ...review, batch })
+    act.selectionReview = review.id
+  }
   const results = []
   for (const id of items(b)) {
     const seen = previewed[id]
@@ -126,6 +147,7 @@ export async function bulkApply(s: State, a: Actor, b: Data) {
     try {
       requireThat(seen && app, 'Preview this item before applying', 409)
       requireThat(s.revisionOf('application', id) === seen.application && s.revisionOf('candidate', app!.candidate) === seen.candidate, 'This application or candidate changed since the preview; preview again', 409)
+      if (act.template) requireThat(s.revisionOf('vacancy', app!.vacancy) === seen.vacancy && s.revisionOf('business', 'main') === seen.business, 'Job or merge data changed since the preview; preview again', 409)
       await runOne(s.clone(), a, act, id)
       await runOne(s, a, act, id)
       results.push({ application: id, ok: true })

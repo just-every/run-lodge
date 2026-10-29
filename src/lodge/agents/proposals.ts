@@ -1,3 +1,8 @@
+import { proposeHandoff, decideHandoff } from './handoff-exceptions'
+import { proposeCandidateUpdate, decideCandidateUpdate } from './candidate-updates'
+import { proposeSourcing, decideSourcing } from './sourcing'
+import { proposeCoordinationCase, decideCoordinationCase } from './coordination-cases'
+import { proposeDelay, decideDelay } from './delays'
 import { blindSourceStamp } from '../core/blind'
 import type { State } from '../core/state'
 import { isAdmin, requireMember } from '../core/access'
@@ -68,6 +73,11 @@ function checkFeedback(s: State, view: WorkspaceRecords, change: Data, citations
 }
 
 export async function propose(s: State, a: Actor, b: Data) {
+  if (b.workflow === 'handoff-exception') return proposeHandoff(s, a, b)
+  if (b.workflow === 'candidate-update') return proposeCandidateUpdate(s, a, b)
+  if (b.workflow === 'sourcing-research') return proposeSourcing(s, a, b)
+  if (b.workflow === 'feedback-coordination') return proposeCoordinationCase(s, a, b)
+  if (b.workflow === 'delay-diagnosis') return proposeDelay(s, a, b)
   requireThat(a.roles.length || a.owner, 'Lodge membership required', 403)
   const workflow = oneOf(b.workflow, Object.keys(WORKFLOWS) as Workflow[], 'Workflow')
   const approver = text(b.approver ?? (workflow === 'feedback-packet' ? scope(a) : ''), 'Approver').toLowerCase()
@@ -122,6 +132,11 @@ export async function propose(s: State, a: Actor, b: Data) {
 
 export async function decideProposal(s: State, a: Actor, b: Data) {
   const p = s.get('proposal', b.id)
+  if (p.workflow === 'handoff-exception') return decideHandoff(s, a, p, b)
+  if (p.workflow === 'candidate-update') return decideCandidateUpdate(s, a, p, b)
+  if (p.workflow === 'sourcing-research') return decideSourcing(s, a, p, b)
+  if (p.workflow === 'feedback-coordination') return decideCoordinationCase(s, a, p, b)
+  if (p.workflow === 'delay-diagnosis') return decideDelay(s, a, p, b)
   requireThat(canSeeProposal(s, a, p, await workspaceRecords(s, a)), 'Proposal not found', 404)
   requireThat(p.status === 'proposed', 'This proposal was already decided', 409)
   requireThat(p.approver === a.email || (a.owner && p.proposedBy !== a.email), 'This proposal is for ' + p.approver + ' to decide', 403)

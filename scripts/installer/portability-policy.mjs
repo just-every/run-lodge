@@ -52,7 +52,12 @@ export async function validateStaged({ read }) {
   if (row.kind === 'weekly-report-attempt') reference('weekly-report', value.schedule);
   if (row.kind === 'analysis-schedule') reference('analysis-chart', value.chart);
   if (row.kind === 'application') { reference('candidate', value.candidate); reference('vacancy', value.vacancy); }
-  if (['crm-reply', 'crm-enrollment', 'hiring-reminder', 'interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
+  if (['interview-day', 'crm-reply', 'crm-enrollment', 'hiring-reminder', 'interview', 'scorecard', 'interview-note', 'stage-event', 'application-email', 'application-submission', 'message', 'offer', 'receipt', 'monitoring'].includes(row.kind)) reference('application', value.application);
+  if (row.kind === 'coordination-case') {
+   const app = reference('application', value.application), interview = reference('interview', value.interview);
+   refuse(interview.application === app.id && value.vacancy === app.vacancy && typeof value.panellist === 'string' && Array.isArray(value.history));
+  }
+  if (row.kind === 'interviewer-pool') reference('vacancy', value.vacancy);
   if (row.kind === 'application-email') {
    const app = reference('application', value.application);
    refuse(value.candidate === app.candidate && value.vacancy === app.vacancy);
@@ -95,6 +100,19 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'proposal') {
+   const value = JSON.parse(row.value);
+   if (value.workflow === 'feedback-coordination') return { ...row, value: JSON.stringify({ ...value, status: 'withheld' }) };
+   if (value.delayTrial) return { ...row, value: JSON.stringify({ ...value, delayTrial: { ...value.delayTrial, status: 'withheld', token: null } }) };
+  }
+  if (table === 'l_records' && row.kind === 'coordination-case') {
+   const value = JSON.parse(row.value);
+   return { ...row, value: JSON.stringify({ ...value, owner: null, status: 'review-required', reason: 'Restored case requires fresh human ownership', confirmation: null }) };
+  }
+  if (table === 'l_records' && row.kind === 'interview-day') {
+   const value = JSON.parse(row.value);
+   return { ...row, value: JSON.stringify({ ...value, status: 'draft', review: null, fingerprint: 'restored-review-required' }) };
+  }
   if (table === 'l_records' && row.kind === 'weekly-report') {
    const value = JSON.parse(row.value);
    return { ...row, value: JSON.stringify({ ...value, enabled: false, status: 'withheld' }) };
@@ -134,7 +152,7 @@ export const policy = {
  // Base's operator identities travel with the archive so restored memberships keep their people;
  // sessions, tokens, dependency keys and pending links stay behind (Base's default exclusions).
  includeTables: ['oa_operators', 'oa_bootstrap', 'oa_external_identities', 'oa_invitation_cancellations', 'oa_tokens', 'oa_auth_settings', 'oa_auth_audit', 'oa_domain_rules', 'oa_logout_events', 'oc_owner_claims', 'oc_idp_grants'],
- excludeTables: ['l_application_email_activation'],
+ excludeTables: ['l_application_email_activation', 'l_app_credentials'],
  requiredConfiguration: ['OWNER_EMAIL', 'SESSION_SECRET', 'SETUP_TOKEN', 'AUTH_ORIGIN', 'MAIL_PROVIDER', 'MAIL_FROM'],
  validateStaged,
 };

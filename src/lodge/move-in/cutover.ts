@@ -24,7 +24,7 @@ import { legacyLink } from './legacy-links'
 //   marked with why; the approval adoption and any legacy link kept for a retained application stay.
 
 const SOURCE = 'workable'
-const TOUCHED = ['interview', 'scorecard', 'interview-note', 'team-note', 'task', 'message', 'offer', 'review', 'rule-match', 'rejection-email', 'debrief', 'document', 'receipt', 'esign-envelope']
+const TOUCHED = ['interview-day', 'interview', 'scorecard', 'interview-note', 'team-note', 'task', 'message', 'offer', 'review', 'rule-match', 'rejection-email', 'debrief', 'document', 'receipt', 'esign-envelope']
 
 const activatedFor = (s: State, importedId: string) => s.all('application').find(x => x.activated?.from === importedId && !x.activated.undone)
 const live = (s: State, id: string) => s.get('application', id)

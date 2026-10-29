@@ -819,3 +819,304 @@ The authenticated interview-kit route returns an opaque offlineContext for a cur
 The context binds the original session and saved membership to the application, candidate, interview, job and existing scorecard revisions. A changed context refuses with 409; a lost role, session or application access is refused through the ordinary current-authority checks. The client keeps refused feedback visibly unsubmitted and does not silently replace its captured context.
 
 A confirmed native submission stores its request fingerprint on its own scorecard. An identical retry returns that scorecard without another mutation; reusing the same id with different feedback refuses. This adds no release authority and no provider sending. Candidate erasure removes the scorecard and its reconciliation marker together. The client documentation is in `native/android/README.md`.
+
+## Scoped application integrations (INT-001 increment)
+
+A current human owner or hiring admin opens **Settings → Application integrations**
+in the native workspace. They authorize their own application view for explicitly
+selected jobs. Creation and rotation show a new credential once; copy it directly
+into the consuming application's private configuration. Revocation is immediate.
+Management uses the native session and exact same-origin checks:
+
+- `GET /api/lodge/integrations` lists the current person's credential metadata and
+  currently permitted jobs, without any token or hash.
+- `POST /api/lodge/integrations` accepts a name, a nonempty jobs array of job IDs
+  and a fields array containing identity, contact or neither. Application summary
+  fields are always included. No arbitrary member or principal can be supplied.
+- `POST /api/lodge/integrations/:id/rotate` and
+  `POST /api/lodge/integrations/:id/revoke` require the metadata's current revision.
+  Rotation preserves the exact job and field selection and immediately invalidates
+  the old token. A revoked credential cannot be rotated back into service.
+
+The additive versioned application API accepts the credential only in the
+Authorization header, with the Bearer scheme. Native cookies, board keys and
+query parameters cannot substitute for it:
+
+- `GET /api/integrations/v1/applications` returns an applications array. An optional
+  job query parameter narrows it to one of the authorized jobs.
+- `GET /api/integrations/v1/applications/:id` returns one permitted application.
+  Unknown and out-of-scope IDs both return 404.
+- An optional fields query parameter selects comma-separated credential field
+  groups. Asking for an ungranted field group returns 403. Omitting it selects
+  all granted groups. Current human permissions can still redact a granted field.
+
+Each application contains id, job, stage, status and submittedAt (null when the
+original submission time is unavailable). Identity adds candidateName. Contact
+adds email and phone only where the author currently has contact permission on
+that same job. Blind review omits both identity and contact. Every list and detail
+first intersects the credential's selected jobs with current membership, team,
+custom permission levels, confidential-job and private-candidate visibility.
+Nothing returns answers, monitoring, accommodation, documents, notes, independent
+feedback, approval material, offers or identity administration. No write or other
+resource operation is delegated. Native session doors refuse bearer requests,
+even when a native cookie accompanies them. Public careers-board reads remain
+independent; an application credential cannot submit through a board key door.
+
+Credentials are installation-local, stored as SHA-256 hashes in a separate table,
+excluded from archives and never included in audit payloads. They are bounded by
+the native session that authorized their latest version, including its expiry,
+revocation, provider connection pin and saved enterprise identity. Rotation with
+a fresh native sign-in renews that boundary. Deactivated or removed membership
+permanently revokes its credentials; reactivation requires fresh authorization.
+Candidate erasure removes that person's applications from subsequent API reads.
+Restore grants no app credentials, including when the same human signs in again.
+Responses use no-store caching. Consumers must protect their own retained copies;
+Lodge cannot retract records already downloaded into another system.
+
+This is a read-only application increment. The original INT-001 target remains
+partial: mutating integrations and the remaining versioned resource APIs, signed
+stable-ID webhooks, delivery history, replay controls, downstream deduplication,
+inert imported notifications and an actual authorized Zapier workflow remain
+unproved. Broader delegation and provider boundaries require their own scope and
+proof. This increment sends no notifications and makes no hiring decision.
+
+
+### Native delay diagnosis drafts
+
+A signed-in agent reads `GET /api/lodge/delay-analysis` with a required `vacancy`
+and optional original-submission `from`, `to` and `timeZone` filters. The result
+contains current scoped cases, completed native stage intervals, recorded offer
+outcomes, native scheduling observations, time-to-hire metrics, definitions, missing observations and exact source revisions. The case
+door `GET /api/lodge/delay-analysis/:id` takes the same cohort filters. Both doors
+require current job management and offer authority; blind applications are omitted.
+
+The agent sends `propose` with `workflow: "delay-diagnosis"`, a human `approver`,
+the returned `cohort` and complete unchanged `sources`, plus `summary`, `findings`,
+`uncertainty`, `sampleLimits`, `proposedChange` and `successCriterion`. Each finding
+has an `observation` or `hypothesis` kind, text and exact application, stage-event, interview or offer citations
+from that evidence. A required `measurement` names a native metric:
+`mean-completed-stage-hours`, `mean-candidate-availability-hours`,
+`mean-panel-declaration-hours`, `mean-ready-to-schedule-hours`,
+`mean-recorded-offer-outcome-hours` or `mean-submission-to-acceptance-hours`. Supply the internal task `stage`, a lower
+nonnegative `targetHours`, positive `minimumIntervals` and future `windowDays`.
+The minimum counts measured visits, interviews, recorded offers or applications with recorded acceptance according to
+the chosen metric. Lodge freezes the actual baseline, sample unit and metric
+definition from its current report; it never accepts a client-supplied baseline.
+Comparisons retain that metric and definition, refuse a changed definition and
+count only measured observations from the declared future submission cohort.
+A citation contains `kind`, `id` and `revision`. The principal
+and reviewer must have the same current cohort evidence. Lodge runs no model.
+
+The named human uses `decide-proposal` with `accepted` or `rejected` and a reason.
+Acceptance records review of the draft only. It executes no hiring command and
+activates no configuration. Acceptance refuses changed evidence; both decisions
+retain the existing native session fence. Losing principal or reviewer scope hides
+the entire packet, and authorized candidate erasure removes related multi-case
+packets. External mailbox and calendar observations stay unknown. Native interview
+observations retain recorded availability edits, scheduling timestamps and exact
+record revisions; legacy gaps are disclosed without reconstructing events.
+
+The scheduling summary separates proposal-to-first-candidate-availability,
+proposal-to-complete-panel-declarations and continuous ready-to-schedule elapsed
+hours. Candidate and panel waits can overlap. A panellist's unavailable declaration
+is a timed response, but does not establish common availability. Ready-to-schedule
+requires recorded availability for the ultimately scheduled slot from every
+participant and the candidate, and resets if that availability is withdrawn.
+Each measure reports its own measured denominator and unknown count. Legacy
+declarations without attributable timestamps remain unknown; member identities
+are absent from this evidence. These observations establish no responsibility
+or provider failure.
+
+An interview citation may additionally name an `observation` index from its
+returned history. Lodge validates the index against that exact record revision
+and records the observation's timestamp and kind. A changed revision or an
+invented observation is refused before any draft is saved.
+
+Submission-to-acceptance joins each original native submission with its first
+recorded accepted offer. It measures elapsed hours, separately from the cohort
+report's business-zone calendar days. Reopening retains the original submission;
+each application counts once. Missing timestamps, absent acceptance and imported
+history remain unknown and outside the measured denominator. Each case exposes
+both interval endpoints and the accepted offer reference, with exact application
+and offer revisions available for findings. This records no verified delivery,
+signature, provider response or causal improvement. Native trials can compare
+this same metric against their frozen baseline and future submission cohort.
+
+Human administrators can read `GET /api/lodge/delay-feedback` with the same cohort
+filters. It reuses the survey report's current access, expiry and minimum-sample
+rules. Anonymous aggregates retain the complete survey-version denominator;
+only explicitly identified responses join selected applications. This door refuses
+agents, even agents acting for the owner. Answers never enter diagnosis packets.
+
+Only the current human owner can run these native task-policy commands on an
+accepted diagnosis. This conservative increment grants no mailbox or contact authority:
+
+- `delay-trial-preview`: give the proposal `id` and `afterHours` between 1 and 720.
+  A bounded baseline submission cohort is frozen at its observation timestamp.
+  The ordinary task command runs on an isolated copy; production remains unchanged.
+- `delay-trial-activate`: give the exact preview `token` and `confirm: true`.
+  Changed sources, authority or eligible cases require a fresh preview. Future
+  submissions begin the next business-zone calendar day for the declared window.
+- `delay-trial-run`: explicitly create owner-assigned internal review tasks for
+  eligible native stage entries, once each across restart and replay. This command
+  runs only during the approved comparison window and sends nothing.
+- `delay-trial-compare`: read the chosen native metric using its frozen definition,
+  target, minimum sample and cohort dates. Open windows and insufficient samples
+  remain inconclusive. Observed target attainment does not establish causation.
+- `delay-trial-rollback`: stop the policy and cancel its remaining open tasks.
+  Past decisions, application stages and production workflow configuration stay intact.
+
+Native trial configuration is under Settings. Archive restore withholds the policy
+and discards its activation token; it cannot resume from a replayed archive.
+Principal, reviewer or case revocation hides the complete narrative and trial,
+and authorized erasure removes the related packet. Connected reminder delivery,
+provider failures and diagnosis across every promised cause remain separate gaps.
+
+## Candidate response windows and unsent update proposals
+
+A human with current job settings and contact permission uses
+`candidate-update-policy` to save `vacancy`, `businessDays` (zero through 30),
+`timeZone`, `statusTemplate` and `rejectionTemplate`, with the current policy
+`revision` or null for its first version. Both templates are job-scoped reviewed
+message templates. Status versions use purpose `other`; rejection versions use
+purpose `rejection`. Settings contains the same controls.
+
+`GET /api/lodge/candidate-updates` returns permitted native response windows,
+exact source revisions and filled application-language text. The workspace
+returns the same evidence in `candidateUpdates`. Monday through Friday count
+at the event's local wall time in the chosen zone; weekends are skipped, public
+holidays are not. DST changes the offset rather than the local deadline. Zero
+means the event instant, and the deadline itself is overdue. The anchor is the
+latest current-stage entry or a later scheduled interview end; attendance is
+unverified. Mailbox correspondence stays unknown.
+
+An authenticated external agent sends `propose` with workflow
+`candidate-update`, `application`, the complete returned `sources`, exact
+`subject` and `body`, and a named human `approver`. The existing due, unsent
+DISP-001 email is the only permitted text for a recorded human rejection;
+a reviewed template in the application's language must match it exactly.
+Opt-outs, withdrawals, hires, holds, inaccessible records and missing reviewed
+language text cannot supply an update. Proposal creation changes no hiring
+record and makes no outbound call.
+
+The named human uses `decide-proposal` with `accepted` or `rejected` and a
+`reason`. Acceptance rechecks both the principal and reviewer, current contact
+permission, sources, promise and language version, then creates one unsent
+message for that native event. Concurrent and restarted retries cannot create
+another copy. Lost principal or reviewer access hides the whole proposal and
+its retained draft. Candidate erasure removes the packets with the person.
+The existing `request-message-approval`, `decide-approval` and EML download
+doors still require exact-text approval and current evidence. A draft, review
+or EML download is never delivery or completion. Connected sending, delivery
+readback and weekly kept-informed reporting remain unconnected.
+
+### Local accepted-offer handoff exceptions
+
+This COORD-003 increment records local preflight evidence and human-owned
+exceptions. It does not connect to an HRIS or background-check provider.
+A human with job settings, offer and contact rights selects administrative
+fields in Settings using `handoff-policy` with `vacancy`, current policy
+`revision` (null initially) and `fields`: `phone`, `location`, `department`
+or `manager`. Legal offer terms are outside this configuration.
+
+Read `GET /api/lodge/handoff-preflight/<offer-id>` for an accepted offer.
+It returns current offer and approval fingerprints, exact source revisions,
+selected missing fields, and signed-original and certificate digests computed
+from stored bytes. Native signature completion is distinguished from an
+outside-signature human attestation and an unsigned recorded acceptance.
+An agent receives artifact metadata only, never native signed bytes or signing
+credentials. Both the preparing principal and human reviewer must retain offer,
+contact and document access. Missing destination and background evidence stays
+unknown; no provider verification is inferred from an attestation.
+
+An external authenticated agent submits `propose` with workflow
+`handoff-exception`, `offer`, the entire returned `sources`, and `comparison`
+containing the returned `termsVersion`, `signature` and `issues`. It also names
+`approver`, human `owner`, an ISO `deadline` with a time zone, and `nextAction`.
+The named reviewer calls `decide-proposal` with `accepted` or `rejected` and a
+`reason`. Acceptance approves only that owner, deadline and next action. A
+changed source refuses approval. Repeated and concurrent proposals for the
+same source snapshot do not create duplicate open packets or cases.
+
+The authorized workspace exposes `handoffExceptions` with current preflights
+and durable local cases. A human records reassignment, progress or explicit
+stop through `handoff-progress`, passing case `id`, current case `revision`,
+fresh preflight `sources`, `owner`, `deadline`, `nextAction`, `reason`, and
+`status` (`owned` or `stopped`). Earlier ownership history remains. Missing
+owner authority is flagged for review; lost principal or reviewer authority
+hides the retained packet. Candidate erasure removes cases and proposals.
+Existing human controls perform administrative corrections. Offer terms, pay
+and start dates keep their existing approval requirements.
+
+Cases and downloaded handoff files always report `complete: false`,
+`employeeCreated: false` and destination readback unknown. Neither an agent
+assertion, a stop nor a file download can establish employee creation or a
+completed handoff. Provider mapping, correction, creation and readback remain
+outside this local increment.
+
+### Prior-pool research drafts
+
+A human pool administrator selects a published, currently approved role, a subset
+of its rubric criteria and a reviewed message template and language in Settings.
+The `sourcing-brief` command accepts `vacancy`, `criteria` (criterion ids),
+`template`, `templateVersion`, `language` and explicit `reviewed: true`; its record appears in
+`sourcingBriefs` in the authorized workspace.
+
+Read `/api/lodge/sourcing-evidence?brief=<id>&candidate=<id>` as an authenticated
+agent acting for a current pool administrator. This native-only view requires
+current pool consent, retention and contact access and returns authorized
+candidate fields and resume passages with exact record revisions, human-selected
+criteria, consent evidence and reviewed template provenance. Restricted originals
+and arbitrary custom fields are excluded.
+
+Submit `propose` with workflow `sourcing-research`, the `brief`, `candidate`, named
+human `approver`, exact returned `sources`, and `claims`. Each claim supplies a
+selected `criterion`, `text` equal to an exact source passage, and a `source`
+containing `kind`, `id`, `revision`, `field` and the exact `quote`. Quotes contain at
+least eight characters. Supply `outreach` with the returned template subject and
+its filled body followed by two newlines and each cited passage in curly double
+quotation marks on its own line. Unsupported factual paraphrases, protected
+traits, scores, rankings, fabricated citations and unreviewed message changes are
+refused. Lodge does not run a model or verify the truth of a recorded claim.
+
+The named current human reviewer uses `decide-proposal` with `decision: kept` or
+`decision: rejected` and a reason. Keeping rechecks every source revision; any
+lost principal or reviewer grant, pool consent, contact permission or retention
+hides the whole narrative. Candidate erasure removes packets and quotations.
+Review creates no application, campaign, booking, message record or outbound
+contact. Licensed research, connected replies, Slack campaign approval and
+calendar authority remain unavailable through this native draft door.
+
+## Native missing-feedback cases
+
+The authenticated workspace's coordination facts include native feedback cases.
+A human runs `coordination-discover` with an application, interview and responsible
+panellist from a current missing-scorecard fact. Repeated discovery returns the
+same durable case. Read the current case from state before acting: its
+`sources` array binds the exact application, interview, vacancy and case revisions.
+
+Human `coordination-case` actions take `id`, that `sources` array and `action`:
+
+- `assign`: a current human `owner`, `nextAction` and an explicit-zone `deadline`.
+- `progress`: the next action and deadline for a still-current unresolved case.
+- `reconcile`: read factual native submission status; no asserted status is accepted.
+- `stop`: a human explanation in `reason`; no completion claim.
+
+An authenticated agent proposes these actions with `propose`, workflow
+`feedback-coordination`, the case id in `case`, current `sources`, a named
+human `approver`, a `summary`, and the action fields inside `input`.
+The ordinary `decide-proposal` door approves or rejects the exact action.
+Both principal and reviewer need current application authority; stale sources
+require a fresh proposal. Ownership and progress change only after human approval.
+
+Completion means the exact interview's responsible panellist has actually
+submitted the application's current-rubric scorecard. A task, draft, another
+interview's card or agent assertion cannot establish it. Readback includes no
+ratings or private notes. Assignment changes and lost authority require review;
+closed applications and cancelled panels stop the local case. Overdue cases
+remain unresolved. Restored cases require fresh ownership, restored proposals
+are withheld, and candidate erasure removes their case history and packets.
+
+This native door sends no notice and establishes no connected booking, reply,
+calendar or mailbox completion. Existing communications grants, scorecard
+release controls and human hiring decisions remain required.

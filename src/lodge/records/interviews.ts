@@ -30,7 +30,7 @@ export function interview(s: State, a: Actor, b: Data) {
   const record = s.put('interview', uid(), {
     application: app.id, vacancy: vacancy.id, planItem: item.id, title: `${item.name}: ${vacancy.title}`, durationMinutes: integer(b.durationMinutes ?? item.durationMinutes, 'Duration', 10, 480),
     participants: [...new Set(participants)], slots, availability: {}, candidateToken: token(), location: optionalText(b.location, 'Location or video link', 500), timezone: isZone(b.timezone) ? b.timezone : businessZone(s.find('business', 'main')),
-    status: 'proposed', createdBy: a.email, createdAt: now(),
+    status: 'proposed', createdBy: a.email, createdAt: now(), observations: [{ kind: 'proposed', at: now() }],
   })
   s.audit(a, 'interview-proposed', 'interview:' + record.id)
   return record
@@ -49,7 +49,8 @@ export function availability(s: State, a: Actor, b: Data) {
   requireThat(onPanel(a, iv), 'Only invited interviewers record their own availability', 403)
   const app = requireApplication(s, a, iv.application)
   requireThat(iv.status === 'proposed', 'Availability is closed for this interview', 409)
-  const record = s.put('interview', iv.id, { ...iv, availability: { ...iv.availability, [a.email]: chosen(iv.slots, b.slots) } })
+  const selected = chosen(iv.slots, b.slots)
+  const record = s.put('interview', iv.id, { ...iv, availability: { ...iv.availability, [a.email]: selected }, observations: [...(iv.observations ?? []), { kind: 'panel-availability', participant: iv.participants.indexOf(a.email), at: now(), slots: selected }] })
   s.audit(a, 'availability-recorded', 'interview:' + iv.id)
   return panelView(a, s.get('vacancy', app.vacancy), record)
 }
@@ -57,7 +58,7 @@ export function availability(s: State, a: Actor, b: Data) {
 /** The candidate's answer through their private availability link. */
 export function candidateAvailability(s: State, iv: Data, slots: unknown) {
   requireThat(iv.status === 'proposed', 'This interview is no longer collecting availability', 409)
-  const record = s.put('interview', iv.id, { ...iv, availability: { ...iv.availability, candidate: chosen(iv.slots, slots) }, candidateRespondedAt: now() })
+  const record = s.put('interview', iv.id, { ...iv, availability: { ...iv.availability, candidate: chosen(iv.slots, slots) }, candidateRespondedAt: now(), observations: [...(iv.observations ?? []), { kind: 'candidate-availability', at: now(), slots: chosen(iv.slots, slots) }] })
   s.audit(null, 'candidate-availability', 'interview:' + iv.id)
   return record
 }
@@ -75,7 +76,7 @@ export function schedule(s: State, a: Actor, b: Data) {
   requireManages(a, s.get('vacancy', app.vacancy))
   requireThat(iv.status === 'proposed', 'This interview is already scheduled or canceled', 409)
   const index = integer(b.slot, 'Time', 0, iv.slots.length - 1)
-  const record = s.put('interview', iv.id, { ...iv, status: 'scheduled', start: iv.slots[index], scheduledBy: a.email, scheduledAt: now() })
+  const record = s.put('interview', iv.id, { ...iv, status: 'scheduled', start: iv.slots[index], scheduledBy: a.email, scheduledAt: now(), observations: [...(iv.observations ?? []), { kind: 'scheduled', at: now(), slot: index }] })
   s.audit(a, 'interview-scheduled', 'interview:' + iv.id, { start: record.start })
   notifyInterview(s, record, a.email, 'scheduled')
   return record
@@ -104,7 +105,7 @@ export function cancel(s: State, a: Actor, b: Data) {
   const app = requireApplication(s, a, iv.application)
   requireManages(a, s.get('vacancy', app.vacancy))
   requireThat(iv.status !== 'cancelled', 'Already canceled', 409)
-  const record = s.put('interview', iv.id, { ...iv, status: 'cancelled', cancelReason: text(b.reason, 'Reason', 500) })
+  const record = s.put('interview', iv.id, { ...iv, status: 'cancelled', cancelReason: text(b.reason, 'Reason', 500), observations: [...(iv.observations ?? []), { kind: 'cancelled', at: now() }] })
   s.audit(a, 'interview-cancelled', 'interview:' + iv.id)
   notifyInterview(s, record, a.email, 'canceled')
   return record

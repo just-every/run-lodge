@@ -2,13 +2,14 @@ import { statusDue, statusTiming, timingLabel } from '../communications/timing'
 import { schemaOf } from '../fields/schema'
 import { validateValues, valuesFor, requireStageFields } from '../fields/values'
 import type { State } from '../core/state'
-import { requireApplication } from '../core/access'
+import { grantsOf } from '../core/store'
+import { requireApplication, requireMember } from '../core/access'
 import { list, now, oneOf, requireThat, text, type Actor, type Data } from '../core/types'
 import { answers } from '../records/questions'
 import { evaluate } from '../records/rules'
 import { move } from '../records/pipeline'
 import { interview, schedule } from '../records/interviews'
-import { requestApproval } from '../records/approvals'
+import { decide, requestApproval } from '../records/approvals'
 
 /** Explicit synthetic inputs are user test data, never application seed/fallback data. */
 export function selection(s: State, a: Actor, job: string, input: Data) {
@@ -24,7 +25,8 @@ export function selection(s: State, a: Actor, job: string, input: Data) {
     return { eventAt: raw.eventAt, label: text(raw.label ?? `Test case ${index + 1}`, 'Test case label', 100), answers: raw.answers ?? {}, customValues: raw.customValues ?? {}, move: raw.move, interview: raw.interview }
   })
   requireThat(samples.length, 'Select at least one test case')
-  return { mode, samples, confirmSynthetic: mode === 'synthetic' }
+  const approvalDecisions = list(input.approvalDecisions ?? [], 'Headcount trial decisions', 64, (d: any) => ({ approver: text(d?.approver, 'Trial approver').toLowerCase(), decision: oneOf(d?.decision, ['approved', 'rejected'] as const, 'Trial decision') }))
+  return { mode, samples, approvalDecisions, confirmSynthetic: mode === 'synthetic' }
 }
 
 export async function trial(s: State, a: Actor, job: string, selected: Data) {
@@ -75,9 +77,20 @@ export async function trial(s: State, a: Actor, job: string, selected: Data) {
     }
   }
   let approval: Data | null = null
-  if (v.approvalRouting?.vacancy) {
-    const result = await requestApproval(s.clone(), a, 'vacancy', v, v.approvalRouting.vacancy)
-    approval = { approver: result.approver, status: result.status, version: result.version }
+  if (v.approvalChain || v.approvalRouting?.vacancy) {
+    const isolated = s.clone()
+    let result = await requestApproval(isolated, a, 'vacancy', v, v.approvalChain ? undefined : v.approvalRouting.vacancy)
+    const outcomes: Data[] = []
+    for (const input of selected.approvalDecisions ?? []) {
+      try {
+        const member = requireMember(isolated, input.approver, 'approver')
+        requireThat(!member.agent, 'Choose a human trial approver')
+        const actor = { ...member, grants: grantsOf(isolated, member) } as Actor
+        result = await decide(isolated, actor, { id: result.id, version: result.version, decision: input.decision, reason: 'Isolated headcount trial' })
+        outcomes.push({ ...input, status: result.status })
+      } catch (error) { outcomes.push({ ...input, error: error instanceof Error ? error.message : 'Trial decision refused' }) }
+    }
+    approval = { chain: result.chain ?? null, decisions: result.decisions ?? [], outcomes, approver: result.approver, status: result.status, version: result.version }
   }
   return { outcomes, fieldScopes: (v.customSchema ?? []).filter((f: Data) => a.owner || a.roles.includes('admin') || !f.restricted).map((f: Data) => ({ field: f.name, record: f.record, scope: f.restricted ? 'owner/admin only' : 'job-scoped readers', requiredStages: f.requiredStages })), approval, routes: v.approvalRouting ?? {}, stages: v.stages, rubricVersion: v.rubrics.at(-1)?.version ?? null, plan: v.plan, questions: v.questions ?? [], productionContact: 0, productionSignatures: 0, productionHrRecords: 0,
     explanation: 'Only an isolated in-memory copy was evaluated. No recipients, messages, signatures, calendar invitations or HR records are sent or copied to production. Deployment copies configuration only; production runs require their own existing approvals.' }

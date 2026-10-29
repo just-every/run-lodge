@@ -1,3 +1,10 @@
+import { configureHandoff, updateHandoff } from './agents/handoff-exceptions'
+import { configureCandidateUpdates } from './agents/candidate-updates'
+import { sourcingBrief } from './agents/sourcing'
+import { discoverCoordinationCase, coordinationCaseAction } from './agents/coordination-cases'
+import { previewDelayTrial, activateDelayTrial, runDelayTrial, compareDelayTrial, rollbackDelayTrial } from './agents/delay-trials'
+import { savePool } from './scheduling/pools'
+import { planDay, reviewDay } from './scheduling/planner'
 import { referenceQuestionnaire, recordReference } from './references/records'
 import { payRules } from './records/pay-transparency'
 import { vacancyCompliance } from './enterprise/grants'
@@ -45,6 +52,7 @@ import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } fr
 import { availability, cancel, interview, reply, schedule } from './records/interviews'
 import { correct, note, releaseFeedback, scorecard } from './records/scorecards'
 import { message, requestMessageApproval } from './records/messages'
+import { messageTemplate } from './records/message-templates'
 import { teamNote } from './records/notes'
 import { completeTask, task } from './records/tasks'
 import { team } from './records/team'
@@ -74,6 +82,11 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'handoff-policy': configureHandoff, 'handoff-progress': updateHandoff,
+  'candidate-update-policy': configureCandidateUpdates,
+  'sourcing-brief': sourcingBrief,
+  'coordination-discover': discoverCoordinationCase, 'coordination-case': coordinationCaseAction,
+  'delay-trial-preview': previewDelayTrial, 'delay-trial-activate': activateDelayTrial, 'delay-trial-run': runDelayTrial, 'delay-trial-compare': compareDelayTrial, 'delay-trial-rollback': rollbackDelayTrial,
   'reference-questionnaire': referenceQuestionnaire, 'reference-record': recordReference,
   'crm-pool': crmPool, 'crm-enroll': crmEnroll, 'crm-enable': crmEnable, 'crm-apply': crmApply, 'crm-stop': stopEnrollment,
   'hiring-reminder': configureReminder, 'cancel-hiring-reminder': cancelReminder,
@@ -105,9 +118,10 @@ export const commands: Record<string, Command> = {
   'rejection-reasons': rejectionReasons, 'rejection-template': rejectionTemplate, 'review-decision': reviewDecision, 'review-recommendation': reviewRecommendation,
   'assign-reviewers': assignReviewers, 'board-view': boardView, source, 'source-settings': sourceSettings, 'job-board': jobBoard, 'board-key': boardKey, 'revoke-board-key': revokeBoardKey, 'rotate-board-key': rotateBoardKey, 'vacancy-internal': vacancyInternal, 'internal-policy': internalPolicy, 'reports-to': reportsTo, 'apply-internal': applyInternal, 'source-credit': sourceCredit, 'fair-chance-places': fairChancePlaces, 'fair-chance-step': fairChanceStep, move, reopen, transfer, 'mark-spam': markSpam, 'unmark-spam': unmarkSpam, 'clear-spam-flag': clearSpamFlag,
   'interview-self-scheduling': selfScheduling,
+  'interviewer-pool': savePool, 'interview-day': planDay, 'interview-day-review': reviewDay,
   interview, availability, schedule, 'cancel-interview': cancel, 'interview-reply': reply,
   scorecard, 'correct-scorecard': correct, 'release-feedback': releaseFeedback, note, 'team-note': teamNote, task, 'complete-task': completeTask,
-  message, 'request-message-approval': requestMessageApproval,
+  message, 'request-message-approval': requestMessageApproval, 'message-template': messageTemplate,
   'offer-template': offerTemplate, 'job-offer-template': jobOfferTemplate, offer, 'request-offer-approval': requestOfferApproval, 'offer-outcome': outcome, 'offer-signed-outside': signedOutside,
   'esign-disclosure': esignDisclosure, 'esign-signer': esignSigner, 'esign-void': esignVoid, 'esign-move-signer': (s, a, b) => esignMoveSigner(s, a, b, m => grantsOf(s, m)),
   hold, 'release-hold': releaseHold, 'extend-retention': extendRetention, 'data-request': dataRequest, 'complete-data-request': completeRequest, 'extend-data-request': extendRequest, 'refuse-data-request': refuseRequest, 'cpra-notice': saveCpraNotice, 'permission-level': permissionLevel, 'delete-permission-level': deletePermissionLevel, 'job-levels': jobLevels,

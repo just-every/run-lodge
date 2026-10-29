@@ -1,3 +1,4 @@
+import { waitingApprovers } from '../records/approval-chains'
 import type { State } from '../core/state'
 import { blindCode, blindFor, redactor } from '../core/blind'
 import { canSeeApplication, canSeeApproval, canSeeCandidate, canSeeTeamNote, isAgency, onTeam } from '../core/access'
@@ -22,7 +23,7 @@ export function memberActor(s: State, m: Data | undefined): Actor | null {
 export function reach(s: State, who: Actor, alert: Data) {
   if (isAgency(who)) return false
   if (alert.textOnly) return true
-  if (alert.event === 'approval') { const approval = s.find('approval', alert.approval); return !!approval && approval.status === 'pending' && canSeeApproval(s, who, approval) }
+  if (alert.event === 'approval') { const approval = s.find('approval', alert.approval); return !!approval && approval.status === 'pending' && (!approval.chain || waitingApprovers(approval).includes(who.email)) && canSeeApproval(s, who, approval) }
   if (alert.note) { const note = s.find('team-note', alert.note); if (!note || !canSeeTeamNote(s, who, note)) return false }
   const app = s.find('application', alert.application)
   if (app) return canSeeApplication(s, who, app) && (alert.scope !== 'team' || onTeam(who.email, s.get('vacancy', app.vacancy)))

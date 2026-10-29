@@ -70,6 +70,8 @@ export function candidateRecords(s: State, candidateId: string) {
     'crm-enrollment': byApp('crm-enrollment'), 'crm-reply': byApp('crm-reply'), 'crm-pool': s.scan('crm-pool').filter(p => p.candidates?.some((id: string) => candidateIds.has(id))), 'hiring-reminder': byApp('hiring-reminder'), 'capture-mail': byApp('capture-mail'), 'application-email': byApp('application-email'), 'application-submission': byApp('application-submission'),
     'candidate-email-change': byApp('candidate-email-change'),
     'reference-questionnaire': byApp('reference-questionnaire'), 'reference-record': byApp('reference-record'),
+    'interview-day': byApp('interview-day'), 'coordination-case': byApp('coordination-case'),
+    'handoff-exception': byApp('handoff-exception'),
     application: apps, 'stage-event': byApp('stage-event'), interview: byApp('interview'), scorecard: byApp('scorecard'),
     'interview-note': byApp('interview-note'), notification: byApp('notification'), alert: byApp('alert'), 'team-note': byApp('team-note'), task: byApp('task'), debrief: byApp('debrief'), 'rule-match': byApp('rule-match'), 'rejection-email': byApp('rejection-email'), review: byApp('review'), 'fair-chance-record': byApp('fair-chance-record'), 'event-capture': byApp('event-capture'), message: messages, offer: offers, receipt: byApp('receipt'), monitoring: byApp('monitoring'),
     approval: s.scan('approval').filter(x => subjects.has(x.subjectId)),
@@ -98,8 +100,10 @@ export function candidateRecords(s: State, candidateId: string) {
   const refers = (value: unknown): boolean => typeof value === 'string' ? related.has(value)
     : Array.isArray(value) ? value.some(refers)
     : !!value && typeof value === 'object' && Object.values(value).some(refers)
+  // Sourcing packets and delay diagnoses retain evidence and prose: erase the entire packet when any cited person is erased.
   records.proposal = s.scan('proposal').filter(refers)
   records['workflow-sandbox'] = s.scan('workflow-sandbox').filter(refers)
+  records['message-draft-review'] = s.scan('message-draft-review').filter(refers)
   records.audit = linkedAudits(s, candidateId, records)
   return records
 }

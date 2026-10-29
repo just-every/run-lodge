@@ -1,3 +1,4 @@
+import { InterviewDay } from './interview-day'
 import type { PageProps } from './app'
 import { person, people } from './names'
 import { instant, slot, when, zoneName } from './format'
@@ -24,6 +25,7 @@ export function Interviews({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate:
     : w.coordination.missingScorecards.some((m: D) => m.interview === iv.id) ? 'awaiting scorecards' : 'held'
   return <section className="card">
     <h3>Interviews</h3>
+    {app.manages && v && <InterviewDay app={app} v={v} w={w} mutate={mutate} />}
     {!list.length && <p className="empty">No interviews planned.</p>}
     {list.map((iv: D) => <article key={iv.id} className="card">
       <h4>{iv.title} <Status tone={status(iv) === 'scheduled' ? 'good' : 'neutral'}>{status(iv)}</Status></h4>

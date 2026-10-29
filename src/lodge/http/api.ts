@@ -1,3 +1,8 @@
+import { handoffEvidence } from '../agents/handoff-exceptions'
+import { candidateUpdatesView } from '../agents/candidate-updates'
+import { sourcingEvidence } from '../agents/sourcing'
+import { delayAnalysis, delayFeedback } from '../views/delay-analysis'
+import { integrationApi, integrationManagement } from './integrations'
 import { offlineScorecardContext } from '../records/scorecards'
 import { cohortReport } from '../views/cohort-report'
 import { referenceExport } from '../references/views'
@@ -71,6 +76,8 @@ api.use('/api/lodge/*', async (c, next) => {
 })
 // ATTR-009: the public job board answers under /api/board with its own errors and CORS.
 api.route('/api/board', boardApi)
+api.route('/api/integrations/v1', integrationApi)
+api.route('/api/lodge/integrations', integrationManagement)
 api.post('/api/lodge/application-emails/events', c => applicationEmailEvents(c.req.raw, c.env))
 
 api.onError((error, c) => {
@@ -132,6 +139,36 @@ api.post('/api/lodge/capture/:id/resolve', async c => {
   const result = resolveCapture(state, actor, { ...await body(c), id: c.req.param('id') })
   await save(c.env.DB, state, actor)
   return c.json(result)
+})
+
+api.get('/api/lodge/sourcing-evidence', async c => {
+  const { state, actor } = await context(c)
+  return c.json(sourcingEvidence(state, actor, c.req.query('brief'), c.req.query('candidate')))
+})
+
+const delayInput = (c: C) => ({ vacancy: c.req.query('vacancy'), from: c.req.query('from'), to: c.req.query('to'), timeZone: c.req.query('timeZone') })
+api.get('/api/lodge/handoff-preflight/:id', async c => {
+  const { state, actor } = await context(c)
+  return c.json(await handoffEvidence(state, actor, c.req.param('id')))
+})
+api.get('/api/lodge/candidate-updates', async c => {
+  const { state, actor } = await context(c)
+  return c.json(candidateUpdatesView(state, actor))
+})
+api.get('/api/lodge/delay-analysis', async c => {
+  const { state, actor } = await context(c)
+  return c.json(delayAnalysis(state, actor, await workspaceRecords(state, actor), delayInput(c)))
+})
+api.get('/api/lodge/delay-feedback', async c => {
+  const { state, actor } = await context(c)
+  return c.json(delayFeedback(state, actor, await workspaceRecords(state, actor), delayInput(c)))
+})
+api.get('/api/lodge/delay-analysis/:id', async c => {
+  const { state, actor } = await context(c)
+  const report = delayAnalysis(state, actor, await workspaceRecords(state, actor), delayInput(c))
+  const row = report.cases.find(x => x.application === c.req.param('id'))
+  requireThat(row, 'Delay case not found', 404)
+  return c.json({ cohort: report.cohort, definitions: report.definitions, unknowns: report.unknowns, ...row })
 })
 
 api.get('/api/lodge/state', async c => {
