@@ -1,3 +1,4 @@
+import { seedTakeHome, file as assessmentFile, original as assessmentOriginal } from './take-home-flow.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -54,6 +55,17 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   const referral = await src.command('referral-submit', { vacancy: vacancy.id, name: 'Referral archive applicant', email: 'referral-archive@example.test', consentNote: 'Candidate agreed to sharing the resume', confirmed: true, resume: { name: 'referral.txt', mediaType: 'text/plain', base64: Buffer.from('REFERRAL-FROZEN-ORIGINAL').toString('base64') } }, employee)
   const referralFile = (await src.state(employee)).referrals.submissions.find(r => r.id === referral.id).files[0]
 
+  // Take-home versions, submissions, original bytes and unreleased grades round-trip together.
+  const assessment = await seedTakeHome(src, 8)
+  await src.command('take-home-assign', { application: assessment.app.id, version: 0, instructions: 'Synthetic archive instructions', timeZone: 'America/New_York', deadline: '2099-03-14T13:00:00.000Z', graders: assessment.graders, attachment: assessmentFile })
+  assert.equal((await src.send(assessment.base, { version: 1, submissionId: 'synthetic-lodge-archive-submission', files: [assessmentFile] }, assessment.cookie)).status, 303)
+  const assessmentView = (await src.state()).takeHomes
+  const assessmentRecord = assessmentView.assignments.find(r => r.id === assessment.app.id)
+  const assessmentSubmission = assessmentView.submissions.find(r => r.assessment === assessment.app.id)
+  await src.command('take-home-grade', { application: assessment.app.id, version: 1, rubricVersion: assessment.app.rubricVersion, ratings: {}, evidence: {}, recommendation: 'yes', takeaways: 'Synthetic private archived judgment' }, assessment.ivy)
+  const assessmentGrade = (await src.state(assessment.ivy)).takeHomes.grades[0]
+  const assessmentSurvivor = (await src.command('candidate', { name: 'Synthetic merged assessment applicant', email: assessment.person.email, source: 'Direct', consentBasis: 'manual' })).candidate
+  await src.command('review-duplicate', { keep: assessmentSurvivor.id, other: assessment.person.id, decision: 'merge', reason: 'Synthetic same person' })
   const people=[]
   for (const name of ['Lineage A','Lineage B','Lineage C','Deleted person']) people.push((await src.command('candidate',{name,source:'Direct',consentBasis:'manual'})).candidate)
   const [a,b,c,deleted]=people
@@ -96,6 +108,15 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   }
   const removeAgency = (items, kind, id) => items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id), 1)
   const mutations = [
+   ['missing take-home assignment', (_d,_b,items) => removeAgency(items, 'take-home', assessment.app.id)],
+   ['missing take-home application', (_d,_b,items) => changeAgency(items, 'take-home', assessment.app.id, { application: 'missing-application' })],
+   ['wrong take-home candidate', (_d,_b,items) => changeAgency(items, 'take-home', assessment.app.id, { candidate: candidate.id })],
+   ['wrong take-home version', (_d,_b,items) => changeAgency(items, 'take-home-submission', assessmentSubmission.id, { version: 99 })],
+   ['missing take-home original', (_d,_b,items) => removeAgency(items, 'blob', assessmentSubmission.files[0])],
+   ['wrong take-home file relationship', (_d,_b,items) => changeAgency(items, 'document', assessmentSubmission.files[0], { application: application.id })],
+   ['wrong take-home file version', (_d,_b,items) => changeAgency(items, 'document', assessmentSubmission.files[0], { takeHomeVersion: 99 })],
+   ['detached take-home grade', (_d,_b,items) => changeAgency(items, 'take-home-grade', assessmentGrade.id, { submission: 'missing-submission' })],
+
    ['missing referral original', (_d,_b,items) => removeAgency(items, 'blob', referralFile.id)],
    ['missing referral member', (_d,_b,items) => removeAgency(items, 'member', 'archive-employee@example.test')],
    ['missing agency reference', (_d,_b,items) => changeAgency(items, 'agency-submission', pending.id, { agency: 'missing-agency' })],
@@ -186,6 +207,18 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   assert.equal(createHash('sha256').update(download.text).digest('hex'), doc.sha256)
   assert.equal((await dst.send('/api/lodge/agency/file/' + pendingFile.id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
   assert.equal((await dst.send('/api/lodge/download/document/' + accepted.files[0].id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
+  const restoredAssessment = (await dst.state(owner)).takeHomes
+  assert.equal(restoredAssessment.assignments.find(r => r.id === assessment.app.id).versions[0].instructions, 'Synthetic archive instructions')
+  assert.equal(restoredAssessment.assignments.find(r => r.id === assessment.app.id).candidate, assessmentSurvivor.id)
+  assert.equal(restoredAssessment.grades.some(g => g.assessment === assessment.app.id), false, 'restore preserves independent feedback privacy')
+  assert.equal((await dst.send('/api/lodge/download/document/' + assessmentSubmission.files[0], undefined, owner)).text, assessmentOriginal)
+  assert.equal((await dst.send('/api/lodge/download/document/' + assessmentRecord.versions[0].attachment, undefined, owner)).text, assessmentOriginal)
+  assert.equal((await dst.send(assessment.base, undefined, assessment.cookie)).status, 401, 'source candidate sessions do not travel')
+  const restoredCandidate = await dst.signIn(assessment.person.email)
+  assert.match((await dst.send(assessment.base, undefined, restoredCandidate)).text, /Submission received/)
+  assert.equal((await dst.send(assessment.base + '/files/' + assessmentSubmission.files[0], undefined, restoredCandidate)).text, assessmentOriginal)
+  const restoredGrader = await dst.signIn(assessment.graders[0])
+  assert.equal((await dst.state(restoredGrader)).takeHomes.grades.find(g => g.id === assessmentGrade.id).takeaways, assessmentGrade.takeaways)
   const employeeRestored = await dst.signIn('archive-employee@example.test')
   assert.equal((await dst.send('/api/lodge/referral/file/' + referralFile.id, undefined, employeeRestored)).text, 'REFERRAL-FROZEN-ORIGINAL')
   assert.equal((await dst.state(employeeRestored)).referrals.submissions[0].name, 'Referral archive applicant')

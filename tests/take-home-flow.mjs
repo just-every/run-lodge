@@ -53,6 +53,7 @@ export async function checkTakeHome() {
     assert.match((await h.send(base, undefined, cookie)).text, /9:00 a.m. EDT/)
     assert.equal((await h.send('/api/lodge/state', undefined, cookie)).status, 403, 'candidate identity gains no staff role')
     for (const [p, who, status] of [[base, '', 401], [base, otherCookie, 404], [base.replace(f.receipt.id, f.otherReceipt.id), otherCookie, 404]]) await noWrite(() => h.send(p, undefined, who), status)
+    await noWrite(() => h.send(base, { version: 1, submissionId: 'synthetic-lodge-foreign-origin', link: 'https://example.test/synthetic-lodge-1' }, cookie, { origin: 'https://foreign.example.test' }), 403)
     const instructionDoc = record.versions[0].attachment
     assert.equal((await h.send(base + '/files/' + instructionDoc, undefined, cookie)).text, original)
     await noWrite(() => h.send(base + '/files/' + instructionDoc, undefined, otherCookie), 404)
@@ -79,6 +80,13 @@ export async function checkTakeHome() {
     assert.equal((await h.state(reviewer)).takeHomes.assignments.length, 0, 'mere application access does not designate a grader')
     await noWrite(() => h.send('/api/lodge/download/take-home/' + app.id, undefined, reviewer), 404)
     const rubric = (await h.state()).vacancies.find(j => j.id === app.vacancy).rubrics.find(r => r.version === app.rubricVersion)
+    // Name-blind review keeps original filenames, links and bytes out of every staff view.
+    await h.command('blind-review', { id: app.vacancy, enabled: true, stages: [beforeApp.stage], revealStage: f.job.stages[1].id })
+    const blinded = (await h.state(ivy)).takeHomes.submissions.find(s => s.application === app.id)
+    assert.equal(blinded.originalsWithheld, true); assert.deepEqual(blinded.files, []); assert.equal(blinded.link, '')
+    await noWrite(() => h.send('/api/lodge/download/document/' + sub.files[0], undefined, ivy), 404)
+    assert.equal(JSON.parse((await h.send('/api/lodge/download/take-home/' + app.id, undefined, ivy)).text).submissions[0].link, '')
+    await h.command('blind-review', { id: app.vacancy, enabled: false, reason: 'Synthetic reveal review' })
     const grade = { application: app.id, version: 1, rubricVersion: app.rubricVersion, ratings: { [rubric.criteria[0].id]: 3 }, evidence: { [rubric.criteria[0].id]: 'The plan names a safe work sequence.' }, recommendation: 'yes', takeaways: 'Synthetic independent first judgment' }
     await noWrite(() => h.send('/api/lodge/command/take-home-grade', { ...grade, rubricVersion: 99 }, ivy), 409)
     await h.command('take-home-grade', grade, ivy)
@@ -118,6 +126,16 @@ export async function checkTakeHome() {
     await h.command('take-home-extend', { application: app.id, version: 2, previousDeadline: '2027-03-15T13:00:00.000Z', deadline: '2027-03-15T14:00:00.000Z', reason: 'Recorded extension' })
     await h.setTime('2027-03-15T13:30:00.000Z')
     assert.equal((await h.send(base, versionTwo, cookie)).status, 303, 'link-only submission is supported without fetching')
+    // Losing a reviewer assignment removes access even though the take-home still designates them.
+    await h.command('assign-reviewers', { application: app.id, reviewers: [graders[1]] })
+    await noWrite(() => h.send('/api/lodge/download/document/' + sub.files[0], undefined, ivy), 404)
+    assert.equal((await h.state(ivy)).takeHomes.assignments.length, 0)
+    await h.command('assign-reviewers', { application: app.id, reviewers: graders })
+    const renewedCookie = await h.signIn(person.email)
+    const signedOut = await h.send('/candidate/signout', {}, cookie)
+    assert.equal(signedOut.status, 303)
+    await noWrite(() => h.send(base, versionTwo, cookie), 401)
+    assert.equal((await h.send(base, undefined, renewedCookie)).status, 200)
     const report = await h.send('/api/lodge/download/candidate/' + person.id, undefined, h.owner)
     assert.equal(JSON.parse(report.text).document.find(d => d.id === sub.files[0]).base64, file.base64)
     await h.command('move', { application: app.id, to: 'withdrawn', closeReason: 'other-offer', reason: 'Synthetic close' })
@@ -128,7 +146,7 @@ export async function checkTakeHome() {
     const remaining = await snapshot()
     assert.equal(remaining.filter(r => ['take-home', 'take-home-submission', 'take-home-grade'].includes(r.kind)).length, 0)
     assert.equal(remaining.some(r => r.kind === 'blob' && r.id === sub.files[0]), false)
-    await noWrite(() => h.send(base, versionTwo, cookie), 404)
+    await noWrite(() => h.send(base, versionTwo, renewedCookie), 404)
     assert.equal(outbound, 0, 'take-home assignment, links and grading perform zero outbound requests')
   } finally { await h.close() }
 }

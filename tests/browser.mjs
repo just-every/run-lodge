@@ -1,5 +1,6 @@
 import { candidateUpdatePage } from './candidate-update-browser.mjs'
 import { sourcingProposalPage } from './sourcing-proposal-browser.mjs'
+import { takeHomePage } from './take-home-browser.mjs'
 import { delayAnalysisPage } from './delay-analysis-browser.mjs'
 import { interviewDayPage } from './interview-day-browser.mjs'
 import { integrationsPage } from './integrations-browser.mjs'
@@ -96,6 +97,7 @@ try {
   for (const [as, roles, name] of PERSONAS) await api(owner.context, server.origin, 'member', { email: `${as}@dev.localhost`, name, roles })
 
   await applicationEmailWorkspace(browser, root, server.origin, resolve(evidence, 'application-emails'))
+  await takeHomePage(browser, { root, origin: server.origin, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await interviewDayPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await cohortReportPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await integrationsPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
