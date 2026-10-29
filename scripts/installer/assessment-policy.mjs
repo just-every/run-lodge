@@ -11,7 +11,7 @@ export function validateAssessments({ rows, get, reference, refuse }) {
     refuse(record.id === app.id && record.candidate === app.candidate && Array.isArray(record.versions) && record.versions.length > 0);
     for (const [i, v] of record.versions.entries()) {
       refuse(v.version === i + 1 && typeof v.instructions === 'string' && !!v.instructions.trim() && v.delivery === 'not-delivered');
-      refuse(job.rubrics.some(r => r.version === v.rubricVersion) && v.rubricVersion === app.rubricVersion && job.stages.some(s => s.id === v.stage));
+      refuse(job.rubrics.some(r => r.version === v.rubricVersion) && v.rubricVersion === app.rubricVersion && typeof v.stage === 'string' && !!v.stage);
       refuse(typeof v.dueAt === 'string' && Number.isFinite(Date.parse(v.dueAt)) && typeof v.timeZone === 'string');
       try { new Intl.DateTimeFormat('en-US', { timeZone: v.timeZone }); } catch { refuse(false); }
       refuse(Array.isArray(v.graders) && v.graders.length === 2 && new Set(v.graders).size === 2 && v.graders.every(g => typeof g === 'string'));
