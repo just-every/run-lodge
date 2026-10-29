@@ -98,6 +98,9 @@ export async function takeHomePage(browser, { root, origin, evidence, ownerEmail
     const staffDownload = await interviewer.context.request.get(origin + '/api/lodge/download/document/' + sub.files[0])
     assert.equal((await staffDownload.body()).toString(), original)
     assert.deepEqual(errors, [], 'take-home screens have no browser exceptions')
+    // End this journey's temporary review grant before the shared hiring journeys begin.
+    await run('assign-reviewers', { application: app.id, reviewers: [] })
+    assert.equal((await current(interviewer.context, origin)).takeHomes.assignments.some(r => r.application === app.id), false, 'a take-home record grants no application access after review revocation')
   } catch (error) {
     for (const [label, p] of [['manager', page], ['grader', interviewer.page], ['candidate', candidate.page]]) await p.screenshot({ path: evidence + '/take-home-error-' + label + '.png', fullPage: true }).catch(() => {})
     throw error

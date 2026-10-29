@@ -4671,7 +4671,7 @@
       "executable": false
     },
     "tests/take-home-browser.mjs": {
-      "sha256": "af6150b16e9ab2dac17022ce1f27e7a714752ad6208f4459c660daeb71afe94a",
+      "sha256": "32da81a23003918ce405ef8825337afe9a507b0043d1df9c77174f1785362ead",
       "executable": false
     },
     "tests/take-home-flow.mjs": {
