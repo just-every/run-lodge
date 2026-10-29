@@ -1,3 +1,4 @@
+import { handoffExceptionPage } from './handoff-exception-browser.mjs'
 import { candidateUpdatePage } from './candidate-update-browser.mjs'
 import { sourcingProposalPage } from './sourcing-proposal-browser.mjs'
 import { delayAnalysisPage } from './delay-analysis-browser.mjs'
@@ -99,6 +100,7 @@ try {
   await interviewDayPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await cohortReportPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await integrationsPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await handoffExceptionPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'handoff-exceptions'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await candidateUpdatePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'candidate-updates'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await messageTemplatePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'message-templates'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await sourcingProposalPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'sourcing'), ownerEmail: (await current(owner.context, server.origin)).actor.email })

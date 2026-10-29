@@ -8,6 +8,12 @@ function Evidence({ row, follow }: { row: D; follow: PageProps['follow'] }) {
   return <>
     <p>{row.signature.label}. {row.signature.kind === 'outside' && 'Human attestation only; not provider-verified.'}</p>
     <p>{row.terms.title} · {row.terms.salary.currency} {(row.terms.salary.amount / 100).toFixed(2)} per {row.terms.salary.period} · Start {row.terms.startDate} · {row.approved ? 'Current terms approved' : 'Approval needs review'}</p>
+    <details><summary>Approved offer terms</summary>
+      <p>{row.terms.location || 'No offer location recorded'} · {row.terms.employmentType || 'No offer employment type recorded'}</p>
+      {row.terms.bonus !== undefined && <p>Bonus: USD {(row.terms.bonus / 100).toFixed(2)}. Equity: {row.terms.equity || 'None stated'}.</p>}
+      <p className="pre">{row.terms.terms || 'No other terms recorded'}</p><p>{row.terms.contingencies || 'No contingencies recorded'}</p>
+      {row.terms.conditional && <p>Conditional offer. Background-check status remains unknown.</p>}
+    </details>
     <ul>{row.fields.map((f: D) => <li key={f.key}>{f.label}: {f.missing ? 'Missing' : f.value}</li>)}</ul>
     <p>Handoff incomplete. Background checks unknown. Destination employee readback unknown. No employee creation is verified.</p>
     <button className="link" onClick={() => follow('/app?application=' + encodeURIComponent(row.application))}>Open source application</button>
@@ -26,7 +32,7 @@ export function HandoffExceptions({ w, mutate, follow }: Pick<PageProps, 'w' | '
   const view = w.handoffExceptions, proposals = w.proposals.filter((p: D) => p.workflow === 'handoff-exception')
   if (!view?.preflights.length && !view?.cases.length && !proposals.length) return null
   const owners = w.members.filter((m: D) => m.active && !m.agent)
-  return <section aria-label="Handoff exceptions"><h2>Handoff exceptions</h2>
+  return <section aria-label="Handoff exceptions" style={{ overflowWrap: 'anywhere' }}><h2>Handoff exceptions</h2>
     <p>Your external coding agent can propose ownership from the local preflight. A human reviews the exact sources and proposed next action. Field corrections use the existing application and job controls; legal terms, pay and start dates retain their existing approval requirements.</p>
     <details><summary>Current local preflights</summary>{view.preflights.map((row: D) => <article className="card" key={row.offer} aria-label={'Handoff preflight for ' + row.name}><h3>{row.name}</h3><Evidence row={row} follow={follow} /></article>)}</details>
     {proposals.map((p: D) => <article className="card" key={p.id} aria-label={'Handoff proposal for ' + p.handoff.name}>
@@ -61,7 +67,7 @@ export function HandoffSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) 
   const view = w.handoffExceptions, policy = view?.policies.find((p: D) => p.vacancy === selected)
   return <section className="card" aria-label="Handoff preflight settings"><h2>Handoff preflight fields</h2>
     <p>Select the administrative fields your team checks locally. This creates no provider connection or permission to create an employee.</p>
-    <label>Handoff job<select value={selected} onChange={e => setSelected(e.target.value)}><option value="">Choose…</option>{jobs.map((j: D) => <option key={j.id} value={j.id}>{j.title}</option>)}</select></label>
+    <label>Handoff job<select aria-label="Handoff job" value={selected} onChange={e => setSelected(e.target.value)}><option value="">Choose…</option>{jobs.map((j: D) => <option key={j.id} value={j.id}>{j.title}</option>)}</select></label>
     {selected && <Form key={selected + policy?.revision} label="Save handoff fields" onSubmit={values => mutate('handoff-policy', { vacancy: selected, revision: policy?.revision ?? null, fields: Object.keys(view.fields).filter(key => values[key]) })}>
       {Object.entries(view.fields).map(([key, label]) => <Check key={key} name={key} label={String(label)} defaultChecked={policy?.fields.includes(key) ?? key === 'phone'} />)}
     </Form>}

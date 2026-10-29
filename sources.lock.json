@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "d3ebddcf07c03f7052bcbf76e7e09db52cc7406f451eb6c15a75dad025eacddf",
+      "sha256": "795b2df59ed6ee54aafdb179364e4401c8277bbc8308660f8c837cdd5e585dc6",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -155,7 +155,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "a0a0bcc8cb075b37332a40398ab8c74818f084034ede1904277274b057326ae3",
+      "sha256": "6d0b09672f98f8b516fac886b28821360b885f02d07de85d124485e75e30fada",
       "executable": false
     },
     "base-copies.json": {
@@ -167,7 +167,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "2066ec84b1e8fb27e62df5f9d4ab578d56ba80640410f5f28ca39dcedf86c1d5",
+      "sha256": "a42919ccbd5e78dec7c654ce32f48ebc3d45ec5df410956ab354b0fe583e50bb",
       "executable": false
     },
     "DEMO.md": {
@@ -199,7 +199,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "faed48facb7fbc9200c2d8993cbdc8bbfe3e1fe29c54864301ec2bee34a5d4d5",
+      "sha256": "bdc8c60c3396000e0e0aa330e594ba89d0f98cc909838bf3ae3b81b8b3499b3d",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -1147,7 +1147,7 @@
       "executable": false
     },
     "src/lodge/agents/handoff-exceptions.ts": {
-      "sha256": "040a5815bcce48e02d444f89f093488bd20e95a5a87b55e4fd68b094e4c4a384",
+      "sha256": "9b83f508c57ec3e84328db0542f745409f4f2dc2d64318a8156b832209895ef1",
       "executable": false
     },
     "src/lodge/agents/proposals.ts": {
@@ -1915,7 +1915,7 @@
       "executable": false
     },
     "src/lodge/views/exports.ts": {
-      "sha256": "8a09211672cca980edb16fb03a6aec6434e6dc342368944ea29a4484433a083e",
+      "sha256": "ab0436c4f33e0fbf610692796225a295845a8430422ab22432f398bc91fce434",
       "executable": false
     },
     "src/lodge/views/field-views.ts": {
@@ -3927,7 +3927,7 @@
       "executable": false
     },
     "src/ui/handoff-exceptions.tsx": {
-      "sha256": "31b4ff9cb83661a7c28d91737e40c2e26be21ee24b3a84acbdb6d80a019a1458",
+      "sha256": "4a2cbba1e7dc0068e72feab0a40477a3cc3de686fc9dc087e599ce6bf5a600dc",
       "executable": false
     },
     "src/ui/hiring-views.tsx": {
@@ -4063,7 +4063,7 @@
       "executable": false
     },
     "src/ui/proposals.tsx": {
-      "sha256": "79cec3e8658c6fd0077e9bd08cad4ed49752f65bafdc9d766e3c8e013a5fac94",
+      "sha256": "92668d20b4a1907cc82974f7e1f13885963e821300c7d27ee4ad62926dedb969",
       "executable": false
     },
     "src/ui/provider-setup.tsx": {
@@ -4263,7 +4263,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "2245e8c7651dece4a672b1a4d32d9390b5b818b45072f0bce18aaaa4a5277cfe",
+      "sha256": "680c5191d27652e7aae0e6eff6404a8287bad225ccf16dc30bcab2cae58d3e8d",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
@@ -4442,8 +4442,12 @@
       "sha256": "0c1659f45bf2d78dfec43f1521c8fe7d1431a8ac5b3b25cb74ffba8bd1e2d3bb",
       "executable": false
     },
+    "tests/handoff-exception-browser.mjs": {
+      "sha256": "4de888486ebaad35d5be3ae58c6f26f09064267d752ad2b22058d50c6ae37d00",
+      "executable": false
+    },
     "tests/handoff-exception-flow.mjs": {
-      "sha256": "a15cd8caeba2deb769e89929aa06932b97cd23a0682930d7384335df681b5fb4",
+      "sha256": "fb511e1d8810f3c4fe57ca256d4f067385d5b817a6785afd7323111e8b8d1e81",
       "executable": false
     },
     "tests/harness.mjs": {

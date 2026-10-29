@@ -4,20 +4,20 @@ import { pathToFileURL } from 'node:url'
 import { businessHarness } from './harness.mjs'
 
 export const handoffAddress = n => ['synthetic-lodge-handoff-' + n, 'example.test'].join('@')
-export async function handoffJob(run, ownerEmail, manager = ownerEmail, suffix = '') {
+export async function handoffJob(run, ownerEmail, manager = ownerEmail, suffix = '', offerApprover = ownerEmail, approve = run) {
   let job = await run('vacancy', { title: 'Synthetic Lodge handoff' + suffix, location: 'Denver, CO', manager, headcount: 3, compensation: { currency: 'USD', min: 6000000, max: 8000000, period: 'year' } })
   await run('rubric', { id: job.id, criteria: [{ name: 'Planning', description: 'Describes a safe work plan' }] })
   await run('interview-plan', { id: job.id, plan: [{ name: 'Work review', stageName: 'Interview' }] })
   const approval = await run('request-vacancy-approval', { id: job.id, approver: ownerEmail })
   await run('decide-approval', { id: approval.id, version: approval.version, decision: 'approved', reason: 'Headcount reviewed' })
   job = await run('publish', { id: job.id })
-  const template = await run('offer-template', { name: 'Synthetic Lodge handoff terms' + suffix, reviewed: true, native: true, body: 'Dear {{candidateName}}, {{title}}. {{pay}}. {{startDate}}. {{terms}}', normalApprover: ownerEmail, exceptionApprover: ownerEmail })
+  const template = await run('offer-template', { name: 'Synthetic Lodge handoff terms' + suffix, reviewed: true, native: true, body: 'Dear {{candidateName}}, {{title}}. {{pay}}. {{startDate}}. {{terms}}', normalApprover: offerApprover, exceptionApprover: offerApprover })
   const offers = [], people = []
   for (let index = 0; index < 3; index++) {
     const person = await run('candidate', { name: 'Synthetic Lodge hire ' + index + suffix, email: handoffAddress(index + suffix), source: 'Direct', consentBasis: 'manual', vacancy: job.id })
     const offer = await run('offer', { application: person.application.id, salary: { currency: 'USD', amount: 7000000, period: 'year' }, startDate: '2037-12-07', terms: 'Forty hours each week.', opening: job.openings[index].id, offerTemplate: { id: template.id, version: 1 } })
     const asked = await run('request-offer-approval', { id: offer.id })
-    await run('decide-approval', { id: asked.id, version: asked.version, decision: 'approved', reason: 'Exact document and terms reviewed' })
+    await approve('decide-approval', { id: asked.id, version: asked.version, decision: 'approved', reason: 'Exact document and terms reviewed' })
     people.push(person); offers.push(offer)
   }
   const original = Buffer.from('Synthetic Lodge signed paper original' + suffix)
@@ -47,6 +47,10 @@ export async function checkHandoffExceptions() {
       assert.equal(response.status, 200, response.text); return response.value
     }
     let row = await evidence()
+    assert.deepEqual(row.terms.salary, { currency: 'USD', amount: 7000000, period: 'year' })
+    assert.equal(row.terms.startDate, '2037-12-07')
+    assert.equal(row.terms.terms, 'Forty hours each week.')
+    assert.equal(row.termsVersion, row.signature.termsVersion)
     assert.deepEqual(row.fields.map(field => [field.key, field.missing]), [['department', true], ['phone', true]])
     assert.equal(row.signature.kind, 'outside'); assert.equal(row.signature.providerVerified, false)
     assert.equal(row.signature.artifacts[0].sha256, createHash('sha256').update(f.original).digest('hex'))
@@ -88,11 +92,15 @@ export async function checkHandoffExceptions() {
     assert.equal((await propose(handoffProposal(row, reviewerEmail))).value.id, packet.id)
     await h.restart()
     assert.equal((await propose(handoffProposal(row, reviewerEmail))).value.id, packet.id)
-    await run('decide-proposal', { id: packet.id, decision: 'accepted', reason: 'Approve this named owner, deadline and next action' }, reviewer)
+    const decisions = await Promise.all([1, 2].map(() => send('/api/lodge/command/decide-proposal', { id: packet.id, decision: 'accepted', reason: 'Approve this named owner, deadline and next action' }, reviewer)))
+    assert.ok(decisions.some(r => r.status === 200) && decisions.every(r => [200, 409].includes(r.status)), JSON.stringify(decisions))
     await run('decide-proposal', { id: packet.id, decision: 'accepted', reason: 'Retry same approval' }, reviewer)
     let owned = (await state(reviewer)).handoffExceptions.cases[0]
     assert.equal(owned.history.length, 1); assert.equal(owned.owner, reviewerEmail)
     assert.deepEqual([owned.complete, owned.employeeCreated, owned.destinationReadback], [false, false, 'unknown'])
+    const exported = await send('/api/lodge/download/candidate/' + row.candidate, undefined, h.owner)
+    assert.equal(exported.status, 200)
+    assert.equal(exported.value['handoff-exception'][0].history[0].proposal, packet.id)
     const download = await send('/api/lodge/download/handoff/' + row.offer, undefined, principal)
     assert.equal(download.status, 200); assert.deepEqual([download.value.complete, download.value.employeeCreated], [false, false])
     assert.equal((await send('/api/lodge/command/handoff-progress', { id: owned.id, revision: owned.revision, sources: row.sources, status: 'completed' }, reviewer)).status, 400)
@@ -118,6 +126,10 @@ export async function checkHandoffExceptions() {
     await run('job-levels', { id: f.job.id, members: { [principalEmail]: restricted.id }, roles: {} })
     assert.equal((await send('/api/lodge/handoff-preflight/' + row.offer, undefined, agent)).status, 404)
     assert.equal((await state(reviewer)).handoffExceptions.cases.length, 0, 'principal revocation hides retained narrative')
+    await run('job-levels', { id: f.job.id, members: {}, roles: {} })
+    const noContact = await run('permission-level', { name: 'Synthetic Lodge no contact access', permissions: ['offers'] })
+    await run('job-levels', { id: f.job.id, members: { [reviewerEmail]: noContact.id }, roles: {} })
+    assert.equal((await state(principal)).handoffExceptions.cases.length, 0, 'contact permission is independently required')
     await run('job-levels', { id: f.job.id, members: {}, roles: {} })
     const fresh = await run('propose', handoffProposal(await evidence(), reviewerEmail), agent)
     await run('decide-proposal', { id: fresh.id, decision: 'rejected', reason: 'Do not adopt this plan' }, reviewer)
