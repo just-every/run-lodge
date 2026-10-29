@@ -8,7 +8,7 @@ export function TakeHomeSettings({ w, mutate, nav }: PageProps) {
   const app = w.applications.find((a: D) => a.id === nav.app)
   if (!app || !w.takeHomes.editable.includes(app.id)) return null
   const record = w.takeHomes.assignments.find((r: D) => r.application === app.id), v = record?.versions.at(-1)
-  const graders = w.members.filter((m: D) => m.active && !m.agent && (app.reviewers.includes(m.email) || w.interviews.some((iv: D) => iv.application === app.id && iv.participants.includes(m.email)) || m.owner || m.roles.includes('admin'))).map((m: D) => ({ value: m.email, label: m.name }))
+  const graders = w.members.filter((m: D) => w.takeHomes.graderOptions[app.id]?.includes(m.email)).map((m: D) => ({ value: m.email, label: m.name }))
   return <section className="card" aria-label="Take-home settings"><h2>Take-home settings</h2><p>For {app.candidateName}. Choose two people who already have application and scorecard access. Lodge does not deliver these instructions or send reminders.</p>
     <Form key={app.id + ':' + (v?.version ?? 0)} label="Save take-home assignment" onSubmit={async (x, form) => {
       const file = fileFrom(form, 'attachment')
