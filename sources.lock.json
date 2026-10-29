@@ -1147,7 +1147,11 @@
       "executable": false
     },
     "src/lodge/agents/proposals.ts": {
-      "sha256": "e75a71153a7addaf094b5cbd39b68aa3cf5d5c65b7b72995f9a2477815810810",
+      "sha256": "90332d6c7a5ab8fe593f74de148f3539985da9ec9a430dea01ac6027548cadfb",
+      "executable": false
+    },
+    "src/lodge/agents/sourcing.ts": {
+      "sha256": "b7dddc62c28c3623e3f110563fcd7230ef2631e248c7a4818c838f61d20e9b95",
       "executable": false
     },
     "src/lodge/analysis/execute.ts": {
@@ -1239,7 +1243,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "ac7fc87bc5f1f0a0c1bf320ddd6083ab4323f37c29944c68b5597c4575802bbe",
+      "sha256": "1b777f7837a8e03b6ea2927be2f84ee768fda6336546d837018e1c7a869779b2",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -1447,7 +1451,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "a6480bd67c3fe3c852ebc6a5d3b9d8790b3139ba83d91b2836ed8605e333d3cc",
+      "sha256": "2e52f9ef7fef2c0f97081514941afc11ee037d69c5a0d06303b501cf1665afe2",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -1687,7 +1691,7 @@
       "executable": false
     },
     "src/lodge/records/message-templates.ts": {
-      "sha256": "1cb457ab6faab385e59999666f41246ebfcc0c588a45fa1a8d81d002997e5be8",
+      "sha256": "4f09090652e85b2fa660c0da4451b17ae2689a3ed9505bf550a005a1bc6d921c",
       "executable": false
     },
     "src/lodge/records/messages.ts": {
@@ -1939,7 +1943,7 @@
       "executable": false
     },
     "src/lodge/views/proposals.ts": {
-      "sha256": "2cee46bf48f020b204324edd1e928e2bb95fe3a411c17fa354ba2ee58f3068b1",
+      "sha256": "5f531750091037e6ea32857031b691be39b2918ac8d23c043c1039750c5d79b8",
       "executable": false
     },
     "src/lodge/views/rejections-report.ts": {
@@ -1959,7 +1963,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "66f51f8167ba5b8541f8e41c4bcaf76fce99bcfc8e93c32aefd8728f29fd11e9",
+      "sha256": "8e42c6eab0603be97184d3f01a94bbb4815965fe31750d9cbdf48d250c9a0d01",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -3823,7 +3827,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "d9bc49f6c5572e6a8447bd54c9ddfc76f2cef7de4d076176e05720fb690df7b7",
+      "sha256": "ff6c49d5cdf69a270231b207fe33a7cff45f0fdab9ee6d25243e6b6fe55b315c",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -4051,7 +4055,7 @@
       "executable": false
     },
     "src/ui/proposals.tsx": {
-      "sha256": "0eca8e01e930ac6798b8a127630aac4595ab2a49277435ebd9f08d4bd922845e",
+      "sha256": "9040c89994ba580e8a0f6a28e7dc840e4ed0ac371181c021f9edf2e5a2c8033e",
       "executable": false
     },
     "src/ui/provider-setup.tsx": {
@@ -4122,6 +4126,10 @@
       "sha256": "82bb8425fca1d07ade45c77b399404d47304b47da3188241dc8c01ddd140a46b",
       "executable": false
     },
+    "src/ui/sourcing-proposals.tsx": {
+      "sha256": "79c64808b9dcf913f4c976b76c102e26f8d8b9c97b26521fcaae02606ff57550",
+      "executable": false
+    },
     "src/ui/tasks.tsx": {
       "sha256": "7c97d73fc1a8006d119dce34fa077de933b400d7dc8f7d15e1515dbee54eca3a",
       "executable": false
@@ -4163,7 +4171,7 @@
       "executable": false
     },
     "tests/agents.test.mjs": {
-      "sha256": "d7d7e03e11ce1dc572251b0104fb2cf51a6a4c3d8071f739933f8b7d943997f1",
+      "sha256": "d6b092411f4b1c18c0e77d9b2b422c71f4ed128a8db03ad7d414cc5f1e35c97d",
       "executable": false
     },
     "tests/analysis-browser.mjs": {
@@ -4648,6 +4656,10 @@
     },
     "tests/site/site.test.mjs": {
       "sha256": "f747fe6f74a3f5a524d0f9fa6a67e1b5fa53db6d112e1cfb447dd2a23e09f182",
+      "executable": false
+    },
+    "tests/sourcing-proposal-flow.mjs": {
+      "sha256": "3d07f3b0cd1ebefbc039ee77421cb46b508997469de179fc9f95b76dbda7c381",
       "executable": false
     },
     "tests/surveys-driver.mjs": {

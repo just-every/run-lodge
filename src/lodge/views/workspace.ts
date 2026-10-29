@@ -1,4 +1,5 @@
 import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
+import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
 import { waitingApprovers } from '../records/approval-chains'
 import { schedulingView } from '../scheduling/planner'
 import { referenceView } from '../references/views'
@@ -243,6 +244,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     cutovers: a.owner && !a.agent ? s.all('cutover').sort((x, y) => y.at.localeCompare(x.at)) : [],
     applicationEmails: s.all('application-email').filter(m => applications.some(app => app.id === m.application && canSeeContact(s, a, s.get('candidate', app.candidate)))),
     candidateUpdates: candidateUpdatesView(s, a),
+    sourcingBriefs: sourcingBriefs(s, a),
     messages, messageTemplates: messageTemplatesView(s, a), offers, approvals,
     restricted: isCompliance(a) ? s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) }) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.
@@ -292,7 +294,7 @@ export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
 export async function workspace(s: State, a: Actor, env?: Bindings) {
   const records = await workspaceRecords(s, a, env)
   if (isComplianceOnly(a)) return { ...records, proposals: [], interviewerActivity: null }
-  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication)))), interviewerActivity: interviewerActivity(s, a, records) }
+  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => p.workflow === 'sourcing-research' ? { ...p, stale: staleSourcing(s, p) } : fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication)))), interviewerActivity: interviewerActivity(s, a, records) }
 }
 
 export type Workspace = Awaited<ReturnType<typeof workspace>>
