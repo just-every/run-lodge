@@ -1,3 +1,4 @@
+import { HandoffExceptions } from './handoff-exceptions'
 import { CandidateUpdates } from './candidate-updates'
 import { SourcingDraft } from './sourcing-proposals'
 import { DelayAnalysis, DelayDraft } from './delay-analysis'
@@ -7,12 +8,13 @@ import { when } from './format'
 import { Empty, Field, Form, Status, type D } from './shared'
 
 export function Proposals({ w, mutate, follow }: PageProps) {
-  const open = w.proposals.filter((p: D) => !['delay-diagnosis', 'candidate-update', 'sourcing-research'].includes(p.workflow) && p.status === 'proposed')
-  const done = w.proposals.filter((p: D) => !['delay-diagnosis', 'candidate-update', 'sourcing-research'].includes(p.workflow) && p.status !== 'proposed')
+  const open = w.proposals.filter((p: D) => !['handoff-exception', 'delay-diagnosis', 'candidate-update', 'sourcing-research'].includes(p.workflow) && p.status === 'proposed')
+  const done = w.proposals.filter((p: D) => !['handoff-exception', 'delay-diagnosis', 'candidate-update', 'sourcing-research'].includes(p.workflow) && p.status !== 'proposed')
   return <div className="page">
     <h1>Agent proposals</h1>
     <p className="hint">A coding agent signed in as its own Lodge member reads the same records you can and proposes exact changes through the API (see API.md). Nothing changes until a person approves; approval re-checks that every record it read is unchanged and runs the changes with the approver’s own permissions. No model runs inside Lodge.</p>
     <CandidateUpdates w={w} mutate={mutate} follow={follow} />
+    <HandoffExceptions w={w} mutate={mutate} follow={follow} />
     {w.proposals.filter((p: D) => p.workflow === 'sourcing-research').map((p: D) => <SourcingDraft key={p.id} p={p} w={w} mutate={mutate} />)}
     <DelayAnalysis w={w} follow={follow} />
     {w.proposals.filter((p: D) => p.workflow === 'delay-diagnosis').map((p: D) => <DelayDraft key={p.id} p={p} w={w} mutate={mutate} follow={follow} />)}

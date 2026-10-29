@@ -1,3 +1,4 @@
+import { proposeHandoff, decideHandoff } from './handoff-exceptions'
 import { proposeCandidateUpdate, decideCandidateUpdate } from './candidate-updates'
 import { proposeSourcing, decideSourcing } from './sourcing'
 import { proposeDelay, decideDelay } from './delays'
@@ -71,6 +72,7 @@ function checkFeedback(s: State, view: WorkspaceRecords, change: Data, citations
 }
 
 export async function propose(s: State, a: Actor, b: Data) {
+  if (b.workflow === 'handoff-exception') return proposeHandoff(s, a, b)
   if (b.workflow === 'candidate-update') return proposeCandidateUpdate(s, a, b)
   if (b.workflow === 'sourcing-research') return proposeSourcing(s, a, b)
   if (b.workflow === 'delay-diagnosis') return proposeDelay(s, a, b)
@@ -128,6 +130,7 @@ export async function propose(s: State, a: Actor, b: Data) {
 
 export async function decideProposal(s: State, a: Actor, b: Data) {
   const p = s.get('proposal', b.id)
+  if (p.workflow === 'handoff-exception') return decideHandoff(s, a, p, b)
   if (p.workflow === 'candidate-update') return decideCandidateUpdate(s, a, p, b)
   if (p.workflow === 'sourcing-research') return decideSourcing(s, a, p, b)
   if (p.workflow === 'delay-diagnosis') return decideDelay(s, a, p, b)

@@ -58,6 +58,7 @@ export function handoff(w: Workspace, id: string) {
   requireThat(o.status === 'accepted', 'Only an accepted offer has an HR handoff', 409)
   return {
     format: 'lodge-hr-handoff-1', exportedAt: now(), exportedBy: w.actor.email,
+    complete: false, employeeCreated: false, destinationReadback: 'unknown',
     person: { name: candidate.name, email: candidate.email, phone: candidate.phone, location: candidate.location },
     role: { title: o.title, department: vacancy.department, manager: vacancy.manager, location: vacancy.location, workMode: vacancy.workMode, employmentType: vacancy.employmentType },
     pay: o.salary, startDate: o.startDate, terms: o.terms, offerAcceptedAt: o.outcomeAt,

@@ -1146,8 +1146,12 @@
       "sha256": "e87abe8f275fd51594f8751fb646964e132dfabb565a96230abd12c63868b7f4",
       "executable": false
     },
+    "src/lodge/agents/handoff-exceptions.ts": {
+      "sha256": "040a5815bcce48e02d444f89f093488bd20e95a5a87b55e4fd68b094e4c4a384",
+      "executable": false
+    },
     "src/lodge/agents/proposals.ts": {
-      "sha256": "90332d6c7a5ab8fe593f74de148f3539985da9ec9a430dea01ac6027548cadfb",
+      "sha256": "12af960822981d06c51a79962815828bff9378c2697200fc3120604bee7afda7",
       "executable": false
     },
     "src/lodge/agents/sourcing.ts": {
@@ -1243,7 +1247,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "1b777f7837a8e03b6ea2927be2f84ee768fda6336546d837018e1c7a869779b2",
+      "sha256": "b97f76da38b8ddf71de78372901bee882c6f4b1d725d7acb8ca54073e11b2f70",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -1307,11 +1311,11 @@
       "executable": false
     },
     "src/lodge/core/state.ts": {
-      "sha256": "20eb0f4bfef18d14e225f6431789d87a9e2e4c870b55a626002d87b40900a57c",
+      "sha256": "530ebbcbf5882af745395e984c05fc71e751b6b70e0b1fa848f601c931fa3b0d",
       "executable": false
     },
     "src/lodge/core/store.ts": {
-      "sha256": "6b5cc37cdf267bfb766e3485c8c4378c80b1032a1265bb1fcf1e5969626b335b",
+      "sha256": "c90ca3625094b2d798ca64dc50e816f93f49c931a845dbedddb3db9003465a49",
       "executable": false
     },
     "src/lodge/core/time.ts": {
@@ -1451,7 +1455,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "2e52f9ef7fef2c0f97081514941afc11ee037d69c5a0d06303b501cf1665afe2",
+      "sha256": "a9d31b2f7a3531876a3df2a8c92195fb5595de5f3ee29a26e81abee0d1d6c932",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -1747,7 +1751,7 @@
       "executable": false
     },
     "src/lodge/records/retention.ts": {
-      "sha256": "1beac595cb11ca90c91779f881ee0b0f7de76489e382173b02c7ad2c79a0df86",
+      "sha256": "a4ad0accee9cfc866f78bff5fa9ab08ea839fa5313de2c8ffa2a29a1aee6871f",
       "executable": false
     },
     "src/lodge/records/reviews.ts": {
@@ -1935,7 +1939,7 @@
       "executable": false
     },
     "src/lodge/views/offer-exports.ts": {
-      "sha256": "884d4bc5fd08a9f9ccebd1df41d8eb82dfaca2909e1ba353746831ddca4cdd08",
+      "sha256": "e7b8ee3d4030ed41b6d8ef1a5609143bf863d04924de3e0fdbd08856228536ed",
       "executable": false
     },
     "src/lodge/views/openings-report.ts": {
@@ -1943,7 +1947,7 @@
       "executable": false
     },
     "src/lodge/views/proposals.ts": {
-      "sha256": "5f531750091037e6ea32857031b691be39b2918ac8d23c043c1039750c5d79b8",
+      "sha256": "c34fdc4dcdf5e0bba944ba3ab57f21d5599058a1b19eddd0aa9adc6d688f0c8c",
       "executable": false
     },
     "src/lodge/views/rejections-report.ts": {
@@ -1963,7 +1967,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "8e42c6eab0603be97184d3f01a94bbb4815965fe31750d9cbdf48d250c9a0d01",
+      "sha256": "c34b823fb72916c41b5fe37585ac142751a332d08f99a0eb9b8d69fd4ab4997f",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -3827,7 +3831,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "ff6c49d5cdf69a270231b207fe33a7cff45f0fdab9ee6d25243e6b6fe55b315c",
+      "sha256": "bb2f2d24a9d4f67d50fa331675fc342f863d3e771da0ba93f74149a774fb0983",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -3920,6 +3924,10 @@
     },
     "src/ui/format.ts": {
       "sha256": "695beb2787f28704d2e51026facb091f89500efbcae12594ac4ffcf8426673b5",
+      "executable": false
+    },
+    "src/ui/handoff-exceptions.tsx": {
+      "sha256": "31b4ff9cb83661a7c28d91737e40c2e26be21ee24b3a84acbdb6d80a019a1458",
       "executable": false
     },
     "src/ui/hiring-views.tsx": {
@@ -4055,7 +4063,7 @@
       "executable": false
     },
     "src/ui/proposals.tsx": {
-      "sha256": "9040c89994ba580e8a0f6a28e7dc840e4ed0ac371181c021f9edf2e5a2c8033e",
+      "sha256": "79cec3e8658c6fd0077e9bd08cad4ed49752f65bafdc9d766e3c8e013a5fac94",
       "executable": false
     },
     "src/ui/provider-setup.tsx": {
@@ -4171,7 +4179,7 @@
       "executable": false
     },
     "tests/agents.test.mjs": {
-      "sha256": "d6b092411f4b1c18c0e77d9b2b422c71f4ed128a8db03ad7d414cc5f1e35c97d",
+      "sha256": "94a595208a7fd2e9c89754dbf8cc7c0a053a273c3aea8840042aac6a6a3de822",
       "executable": false
     },
     "tests/analysis-browser.mjs": {
@@ -4432,6 +4440,10 @@
     },
     "tests/further-language-page.mjs": {
       "sha256": "0c1659f45bf2d78dfec43f1521c8fe7d1431a8ac5b3b25cb74ffba8bd1e2d3bb",
+      "executable": false
+    },
+    "tests/handoff-exception-flow.mjs": {
+      "sha256": "a15cd8caeba2deb769e89929aa06932b97cd23a0682930d7384335df681b5fb4",
       "executable": false
     },
     "tests/harness.mjs": {

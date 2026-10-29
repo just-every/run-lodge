@@ -1,3 +1,4 @@
+import { configureHandoff, updateHandoff } from './agents/handoff-exceptions'
 import { configureCandidateUpdates } from './agents/candidate-updates'
 import { sourcingBrief } from './agents/sourcing'
 import { previewDelayTrial, activateDelayTrial, runDelayTrial, compareDelayTrial, rollbackDelayTrial } from './agents/delay-trials'
@@ -80,6 +81,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'handoff-policy': configureHandoff, 'handoff-progress': updateHandoff,
   'candidate-update-policy': configureCandidateUpdates,
   'sourcing-brief': sourcingBrief,
   'delay-trial-preview': previewDelayTrial, 'delay-trial-activate': activateDelayTrial, 'delay-trial-run': runDelayTrial, 'delay-trial-compare': compareDelayTrial, 'delay-trial-rollback': rollbackDelayTrial,

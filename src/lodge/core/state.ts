@@ -11,6 +11,13 @@ const key = (kind: string, id: string) => kind + '\u0000' + id
  */
 export class State {
   readonly resumeTexts = new Map<string, string>()
+  artifactReader?: (id: string) => Promise<{ sha256: string; revision: string } | null>
+  async artifactDigest(id: string) {
+    const artifact = await this.artifactReader?.(id) ?? null
+    const k = key('blob', id)
+    if (!this.reads.has(k) && !this.changed.has(k)) this.reads.set(k, artifact?.revision ?? null)
+    return artifact
+  }
   applicationMailEpoch?: string
   original(kind: string, id: string) { return this.initialRows.find(r => r.kind === kind && r.id === id)?.value }
 
@@ -106,6 +113,7 @@ export class State {
   clone() {
     const copy = new State([...this.rows.values()].map(r => ({ ...r, value: structuredClone(r.value) })))
     for (const [id, value] of this.resumeTexts) copy.resumeTexts.set(id, value)
+    copy.artifactReader = this.artifactReader
     return copy
   }
 
