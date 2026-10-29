@@ -369,8 +369,8 @@ Judged from the code and tests at commit `c35544c6` (22 October 2026).
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 52 | 30 | 32 | 114 |
-| All | 69 | 30 | 32 | 131 |
+| Target and push further | 52 | 31 | 31 | 114 |
+| All | 69 | 31 | 31 | 131 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -450,7 +450,7 @@ Judged from the code and tests at commit `c35544c6` (22 October 2026).
 | `KIT-001` | Interview kits with questions and focus attributes | target | done | `src/lodge/records/vacancies.ts`; `src/lodge/records/scorecards.ts`; `src/lodge/views/kits.ts`; `src/ui/kit.tsx`; `tests/hiring-offers.test.mjs`; `tests/browser-journey.mjs` |  |
 | `SCORE-001` | Overall recommendation, key take-aways and released panel summary | target | done | `src/lodge/records/scorecards.ts`; `src/lodge/views/workspace.ts`; `src/ui/scorecards.tsx`; `tests/hiring-candidates.test.mjs` |  |
 | `SCORE-002` | Scorecard corrections as linked versions | target | partial | `src/lodge/records/scorecards.ts`; `src/lodge/views/offer-exports.ts`; `src/ui/scorecards.tsx`; `tests/hiring-offers.test.mjs` | The manager's after-release correction notice is an in-app item only; its email delivery is owed by COM-001 (account-blocked). |
-| `ASSESS-001` | Native take-home tests | target | missing |  | No take-home or assessment flow exists. |
+| `ASSESS-001` | Native take-home tests | target | partial | `tests/hiring-candidates.test.mjs` invokes `tests/take-home-flow.mjs` (checkTakeHome): native candidate isolation, original bytes, deadline and extension boundaries, stale assignments, replay, independent grading and release, live grader authority, unchanged stages, authorized export, holds and erasure. | Native human-created assignment and submission records are implemented with versioned instructions, optional original attachment, candidate-local deadlines, recorded extensions and private file or link submissions. Instructions remain not delivered. Missing authorized COM-001 candidate-mailbox grants. Actual instruction and attachment delivery, candidate receipt, missing-submission AUTO-002 reminders, delivered grader notifications, automatic stage-workflow integration and the complete original receive-reminder-submit-grade acceptance remain unbuilt or unproved. Existing authorized-sender and recorded application-language review requirements remain unchanged. Archive validation and current browser proof are pending. This native slice grants no mailbox or assessment-provider authority. |
 | `ASSESS-002` | CoderPad and TestGorilla assessments | target | missing |  | No assessment provider connection exists. |
 | `TEAM-001` | Shared candidate notes and activity feed | target | done | `src/lodge/records/notes.ts`; `src/lodge/views/activity.ts`; `src/lodge/core/access.ts`; `src/ui/notes.tsx`; `tests/hiring-security.test.mjs` |  |
 | `TEAM-002` | @mentions with access-checked notifications | target | done | `tests/notify-driver.mjs` (checkMentions, run as `tests/hiring-reports.test.mjs` TEAM-002); `tests/notify-driver.mjs` (called by `tests/browser.mjs`); `src/lodge/notify/mentions.ts`; `src/lodge/notify/describe.ts`; `src/lodge/records/notes.ts`; `src/lodge/views/home.ts`; `src/ui/notifications.tsx`; `src/ui/notes.tsx` |  |
