@@ -3,7 +3,7 @@ import { can, canSeeApplication, canSeeContact, canSeeDocument, managesVacancy }
 import { blindFor } from '../core/blind'
 import { canonical, now, oneOf, requireThat, scope, text, uid, type Actor, type Data } from '../core/types'
 import { protectedTerm } from '../core/protected'
-import { approvedNow, latestApproval, versionOf } from '../records/approvals'
+import { approvedNow, latestApproval, terms, versionOf } from '../records/approvals'
 import { delayHuman } from '../views/delay-analysis'
 
 export const HANDOFF_FIELDS = { phone: 'Candidate phone', location: 'Candidate location', department: 'Job department', manager: 'Job manager' }
@@ -70,9 +70,10 @@ export async function handoffEvidence(s: State, a: Actor, id: string): Promise<D
   }
   if (sig?.kind === 'outside') issues.push('Outside signature is a human attestation, not provider verification')
   issues.push('Background checks and destination employee readback are unknown')
+  const { document, ...approvedTerms } = terms(s, 'offer', offer)
   return { offer: offer.id, application: app.id, candidate: person.id, vacancy: job.id, name: person.name,
     offerRevision: s.revisionOf('offer', offer.id), termsVersion: version, approved, approvedDocumentSha256: offer.document?.sha256 ?? null,
-    terms: { title: offer.title, salary: offer.salary, startDate: offer.startDate, terms: offer.terms, location: offer.location ?? null, employmentType: offer.employmentType ?? null, contingencies: offer.contingencies ?? null, opening: offer.opening }, fields, signature: { kind: sig?.kind ?? 'unsigned', label: sig?.label ?? 'Recorded acceptance without signature', termsVersion: sig?.termsVersion ?? null,
+    terms: approvedTerms, fields, signature: { kind: sig?.kind ?? 'unsigned', label: sig?.label ?? 'Recorded acceptance without signature', termsVersion: sig?.termsVersion ?? null,
       method: sig?.method ?? null, differences: sig?.differences ?? null, attestedBy: sig?.attestedBy ?? null, attestedAt: sig?.attestedAt ?? null, completedAt: sig?.completedAt ?? null, providerVerified: false, artifacts },
     issues: [...new Set(issues)], sources: sources.sort((x, y) => (x.kind + x.id).localeCompare(y.kind + y.id)), backgroundCheck: 'unknown', destinationReadback: 'unknown', employeeCreated: false, complete: false }
 }
@@ -87,7 +88,7 @@ function ownership(s: State, b: Data, offer: Data) {
   const owner = text(b.owner, 'Named human owner').toLowerCase(), person = delayHuman(s, owner)
   requireThat(person && allowed(s, person, offer), 'The named human owner needs current offer, contact and document authority', 403)
   const deadline = text(b.deadline, 'Deadline', 40)
-  requireThat(/^\d{4}-\d\d-\d\dT/.test(deadline) && Number.isFinite(Date.parse(deadline)), 'Use an exact deadline with a time zone')
+  requireThat(/^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(deadline) && Number.isFinite(Date.parse(deadline)), 'Use an exact deadline with a time zone')
   const nextAction = text(b.nextAction, 'Next action', 2000)
   requireThat(!protectedTerm(nextAction), 'Protected-trait claims are not permitted')
   return { owner, deadline: new Date(deadline).toISOString(), nextAction }

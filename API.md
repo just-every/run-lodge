@@ -1010,6 +1010,50 @@ doors still require exact-text approval and current evidence. A draft, review
 or EML download is never delivery or completion. Connected sending, delivery
 readback and weekly kept-informed reporting remain unconnected.
 
+### Local accepted-offer handoff exceptions
+
+This COORD-003 increment records local preflight evidence and human-owned
+exceptions. It does not connect to an HRIS or background-check provider.
+A human with job settings, offer and contact rights selects administrative
+fields in Settings using `handoff-policy` with `vacancy`, current policy
+`revision` (null initially) and `fields`: `phone`, `location`, `department`
+or `manager`. Legal offer terms are outside this configuration.
+
+Read `GET /api/lodge/handoff-preflight/<offer-id>` for an accepted offer.
+It returns current offer and approval fingerprints, exact source revisions,
+selected missing fields, and signed-original and certificate digests computed
+from stored bytes. Native signature completion is distinguished from an
+outside-signature human attestation and an unsigned recorded acceptance.
+An agent receives artifact metadata only, never native signed bytes or signing
+credentials. Both the preparing principal and human reviewer must retain offer,
+contact and document access. Missing destination and background evidence stays
+unknown; no provider verification is inferred from an attestation.
+
+An external authenticated agent submits `propose` with workflow
+`handoff-exception`, `offer`, the entire returned `sources`, and `comparison`
+containing the returned `termsVersion`, `signature` and `issues`. It also names
+`approver`, human `owner`, an ISO `deadline` with a time zone, and `nextAction`.
+The named reviewer calls `decide-proposal` with `accepted` or `rejected` and a
+`reason`. Acceptance approves only that owner, deadline and next action. A
+changed source refuses approval. Repeated and concurrent proposals for the
+same source snapshot do not create duplicate open packets or cases.
+
+The authorized workspace exposes `handoffExceptions` with current preflights
+and durable local cases. A human records reassignment, progress or explicit
+stop through `handoff-progress`, passing case `id`, current case `revision`,
+fresh preflight `sources`, `owner`, `deadline`, `nextAction`, `reason`, and
+`status` (`owned` or `stopped`). Earlier ownership history remains. Missing
+owner authority is flagged for review; lost principal or reviewer authority
+hides the retained packet. Candidate erasure removes cases and proposals.
+Existing human controls perform administrative corrections. Offer terms, pay
+and start dates keep their existing approval requirements.
+
+Cases and downloaded handoff files always report `complete: false`,
+`employeeCreated: false` and destination readback unknown. Neither an agent
+assertion, a stop nor a file download can establish employee creation or a
+completed handoff. Provider mapping, correction, creation and readback remain
+outside this local increment.
+
 ### Prior-pool research drafts
 
 A human pool administrator selects a published, currently approved role, a subset
