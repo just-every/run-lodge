@@ -49,6 +49,10 @@ export async function checkCoordinationCases() {
     assert.equal((await state()).coordination.cases.length, 1, 'concurrent and repeated discovery share one durable assignment key')
     assert.deepEqual([row.status, row.owner, row.confirmation], ['review-required', null, null])
     assert.equal((await send('/api/lodge/command/coordination-case', { id: row.id, action: 'assign' }, agent)).status, 403)
+    const hidden = await send('/api/lodge/command/coordination-case', { id: row.id, action: 'stop', sources: row.sources, reason: 'Outside hiring authority' }, panel)
+    const unknown = await send('/api/lodge/command/coordination-case', { id: 'synthetic-lodge-unknown', action: 'stop' }, panel)
+    assert.equal(hidden.status, 404)
+    assert.deepEqual(hidden.value, unknown.value, 'a panellist cannot probe case existence or mutate ownership')
     const packet = await cmd('propose', caseProposal(row, managerEmail, recruiterEmail), agent)
     assert.equal((await read()).owner, null, 'a proposal creates no ownership')
     const staleSources = row.sources
@@ -68,9 +72,11 @@ export async function checkCoordinationCases() {
     assert.equal((await read()).owner, recruiterEmail, 'ownership and progress survive Worker restart')
     await h.setTime('2030-10-09T12:00:00.000Z')
     assert.equal((await read()).overdue, true, 'overdue remains visibly unresolved')
-    for (const input of [{ action: 'complete' }, { action: 'reconcile', status: 'completed' }]) {
+    const beforeRefusals = await read()
+    for (const input of [{ action: 'complete' }, { action: 'reconcile', status: 'completed' }, { action: 'progress', nextAction: 'Review native feedback', deadline: '2030-10-09' }]) {
       assert.equal((await send('/api/lodge/command/coordination-case', { id: row.id, sources: (await read()).sources, ...input })).status, 400)
     }
+    assert.deepEqual(await read(), beforeRefusals, 'unsafe assertions and ambiguous deadlines change no case history or ownership')
     const protectedPacket = caseProposal(await read(), managerEmail, recruiterEmail, { summary: 'Compare protected age before chasing feedback' })
     assert.equal((await send('/api/lodge/command/propose', protectedPacket, agent)).status, 400)
     const fabricated = caseProposal(await read(), managerEmail, recruiterEmail); fabricated.sources.push({ kind: 'monitoring', id: app.id, revision: 'synthetic-lodge-1' })
@@ -117,6 +123,7 @@ export async function checkCoordinationCases() {
     assert.equal((await read()).status, 'review-required', 'lost preparing authority is not success')
     assert.ok(!(await state()).proposals.some(p => p.id === revokedPacket.id), 'whole historical packet is hidden after preparer revocation')
     await cmd('member', { email: agentEmail, name: 'Case agent', roles: [], agent: true, actsFor: managerEmail, active: true })
+    assert.equal((await read()).status, 'review-required', 'restoring an agent grant alone cannot resume a paused case')
     const pending = await cmd('propose', caseProposal(await read(), managerEmail, managerEmail), agent)
     await cmd('member', { email: managerEmail, name: 'Revoked principal', roles: [], active: false })
     assert.equal((await read()).status, 'review-required')
@@ -125,6 +132,8 @@ export async function checkCoordinationCases() {
     await act({ action: 'assign', owner: h.ownerEmail, nextAction: 'Owner manually reviews unresolved case', deadline: '2030-10-10T12:00:00.000Z' })
     await act({ action: 'stop', reason: 'Explicit human stop without completion' })
     assert.deepEqual([(await read()).status, (await read()).confirmation], ['stopped', null])
+    await cmd('scorecard', { application: app.id, interview: second.id, recommendation: 'yes', takeaways: 'Feedback submitted after a human stopped coordination', submit: true }, panel)
+    assert.deepEqual([(await read()).status, (await read()).confirmation], ['stopped', null], 'a later submission cannot undo the explicit human stop')
     await cmd('move', { application: app.id, to: 'withdrawn', reason: 'Candidate withdrew', closeReason: 'other-offer' })
     const erased = await send('/api/lodge/delete-candidate', { candidate: app.candidate, confirm: 'Synthetic feedback candidate', reason: 'Native erasure request' }, h.owner)
     assert.equal(erased.status, 200, erased.text)
