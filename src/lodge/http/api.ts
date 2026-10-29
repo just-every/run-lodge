@@ -181,6 +181,12 @@ api.get('/api/lodge/state', async c => {
 api.post('/api/lodge/command/:op', async c => {
   const { state, actor } = await context(c, c.req.param('op') === 'agency-submit', ['referral-alerts', 'referral-submit', 'apply-internal'].includes(c.req.param('op')))
   const op = c.req.param('op'), input = await body(c)
+  if (op === 'member' && input.businessAgentId) {
+    requireThat(actor.owner && input.agent === true, 'Only the owner binds a Business agent', 403)
+    const sponsor = await c.env.DB.prepare("SELECT id FROM oa_operators WHERE email=? AND status='active'").bind(String(input.actsFor ?? '').toLowerCase()).first<{id:string}>()
+    requireThat(sponsor, 'Current native sponsor required', 403)
+    input.sponsorNativeId = sponsor.id
+  }
   if (op === 'crm-enroll' || op === 'crm-enable') { input.origin = runtimeBindings(c.env).AUTH_ORIGIN; input.replyAddress = c.env.CRM_REPLY_ADDRESS ?? state.find('application-email-transport', 'main')?.replyTo }
   if (['careers-domain-verify', 'careers-domain-connect', 'careers-domain-disconnect'].includes(op)) return c.json(await careersDomainOperation(runtimeBindings(c.env), actor, op.slice('careers-domain-'.length) as 'verify' | 'connect' | 'disconnect', input))
   const result = op === 'careers-domain-challenge' ? careersDomainChallenge(state, actor, input, runtimeBindings(c.env)) : await run(state, actor, op, input)

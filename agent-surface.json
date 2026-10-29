@@ -1,0 +1,230 @@
+{
+  "schema": "rer-agent-surface/1",
+  "seed": "lodge",
+  "specialist": "Recruiting coordinator",
+  "capabilities": [
+    "tools",
+    "policy",
+    "pause",
+    "audit",
+    "idempotency"
+  ],
+  "tools": [
+    {
+      "name": "lodge.jobs.list",
+      "scope": "lodge:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "LDG-006",
+        "OPS-005"
+      ]
+    },
+    {
+      "name": "lodge.records.read",
+      "scope": "lodge:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "LDG-004",
+        "LDG-006",
+        "LDG-009",
+        "OPS-005"
+      ]
+    },
+    {
+      "name": "lodge.proposals.list",
+      "scope": "lodge:read",
+      "readOnly": true,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "LDG-013",
+        "COORD-006"
+      ]
+    },
+    {
+      "name": "lodge.proposals.prepare",
+      "scope": "lodge:prepare",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "LDG-013",
+        "COORD-001",
+        "COORD-002",
+        "COORD-003",
+        "COORD-004",
+        "COORD-005"
+      ]
+    },
+    {
+      "name": "lodge.debriefs.prepare",
+      "scope": "lodge:prepare",
+      "readOnly": false,
+      "classes": [
+        "standard"
+      ],
+      "clauses": [
+        "COORD-006"
+      ]
+    }
+  ],
+  "resources": [],
+  "notTools": [
+    {
+      "clauses": [
+        "LDG-013",
+        "COORD-006"
+      ],
+      "reason": "screen"
+    },
+    {
+      "clauses": [
+        "LDG-015"
+      ],
+      "reason": "import-door"
+    },
+    {
+      "clauses": [
+        "OPS-002",
+        "INT-001",
+        "ATTR-009"
+      ],
+      "reason": "installation"
+    }
+  ],
+  "journey": [
+    {
+      "id": "jobs",
+      "tool": "lodge.jobs.list",
+      "args": {},
+      "expect": [
+        {
+          "class": "standard"
+        }
+      ]
+    },
+    {
+      "id": "source",
+      "tool": "lodge.records.read",
+      "args": {
+        "kind": "vacancy",
+        "id": {
+          "$fixture": "job",
+          "pointer": "/id"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard"
+        }
+      ],
+      "target": {
+        "kind": "vacancy",
+        "id": {
+          "$fixture": "job",
+          "pointer": "/id"
+        }
+      }
+    },
+    {
+      "id": "drafts",
+      "tool": "lodge.proposals.list",
+      "args": {},
+      "expect": [
+        {
+          "class": "standard"
+        }
+      ]
+    },
+    {
+      "id": "proposal",
+      "tool": "lodge.proposals.prepare",
+      "args": {
+        "workflow": "prepare-vacancy",
+        "summary": "Prepare an estimator vacancy for human review",
+        "intake": "We need an estimator in Brooklyn.",
+        "approver": {
+          "$sponsor": "email"
+        },
+        "changes": [
+          {
+            "op": "vacancy",
+            "input": {
+              "title": "Estimator",
+              "location": "Brooklyn, NY",
+              "headcount": 1,
+              "manager": {
+                "$sponsor": "email"
+              },
+              "description": "Prepare estimates from drawings."
+            }
+          }
+        ]
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "debrief",
+      "tool": "lodge.debriefs.prepare",
+      "args": {
+        "application": {
+          "$fixture": "debrief",
+          "pointer": "/application"
+        },
+        "statements": {
+          "$fixture": "debrief",
+          "pointer": "/statements"
+        }
+      },
+      "expect": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "target": {
+        "kind": "application",
+        "id": {
+          "$fixture": "debrief",
+          "pointer": "/application"
+        }
+      }
+    }
+  ],
+  "witness": {
+    "tool": "lodge.proposals.list",
+    "args": {}
+  },
+  "spend": {
+    "none": true
+  },
+  "verification": {
+    "owner": {
+      "initializer": "tests/initialize-agent-owner.mjs"
+    },
+    "agent": {
+      "initializer": "tests/initialize-agent.mjs"
+    },
+    "fixtures": {
+      "module": "tests/agent-phase-fixtures.mjs"
+    },
+    "journey": "tests/agent-native-journey.mjs"
+  }
+}

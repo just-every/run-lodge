@@ -11,6 +11,10 @@ import { Fault, requireThat, uid, type Actor, type Data, type Role } from './typ
 
 /** Scalar SQL that is true only while the actor's exact session and operator version are current. */
 export function authority(actor: Actor, owner = false) {
+  if (actor.door) return {
+    sql: `EXISTS(SELECT 1 FROM oa_operators WHERE id=? AND version=? AND status='active'${owner ? " AND role='owner'" : ''}) AND EXISTS(SELECT 1 FROM agent_door_state WHERE id=1 AND envelope IS ? AND local_revision=? AND local_paused=0 AND json_extract(envelope,'$.exp')>unixepoch()) AND EXISTS(SELECT 1 FROM agent_door_agents WHERE id=? AND sponsor=? AND revoked=0)${(actor.memberships ?? []).map(() => " AND (SELECT revision FROM l_records WHERE kind='member' AND id=?) IS ?").join('')}`,
+    params: [actor.id, actor.version, actor.door.envelope, actor.door.localRevision, actor.door.agent, actor.id, ...(actor.memberships ?? []).flatMap(m => [m.email, m.revision])] as unknown[],
+  }
   return {
     sql: `EXISTS(SELECT 1 FROM oa_sessions se JOIN oa_operators o ON o.id=se.operator_id WHERE se.id=? AND o.id=? AND o.version=se.operator_version AND o.status='active' AND se.revoked_at IS NULL AND se.expires_at>unixepoch()*1000${owner ? " AND o.role='owner'" : ''})${(actor.memberships ?? []).map(() => " AND (SELECT revision FROM l_records WHERE kind='member' AND id=?) IS ?").join('')}`,
     params: [actor.session, actor.id, ...(actor.memberships ?? []).flatMap(m => [m.email, m.revision])] as unknown[],

@@ -25,3 +25,7 @@ if every record it read is unchanged; missing information is flagged, never
 invented.
 
 The API is described in the repository's `API.md`.
+
+## Company agent door
+
+Company agents use the shared `/mcp` door and the native binding described in [Agent access](agent-access.md). Native source-bound proposal and debrief authority remains in effect.

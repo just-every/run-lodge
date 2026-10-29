@@ -46,6 +46,14 @@ export function member(s: State, a: Actor, b: Data) {
   const agent = b.agent === true
   const actsFor = agent ? email(b.actsFor, 'The person this agent works for') : null
   if (actsFor) { const principal = s.find('member', actsFor); requireThat(principal?.active && !principal.agent && !principal.roles?.includes('agency') && actsFor !== address, 'An agent acts for an active person') }
+  // A Business agent binds to this explicit native agent member and the current
+  // sponsor's immutable operator id. Address reuse never transfers the binding.
+  const businessAgentId = agent && b.businessAgentId !== undefined ? text(b.businessAgentId, 'Business agent id', 200) : existing?.businessAgentId ?? null
+  if (businessAgentId) {
+    requireThat(agent && a.owner && typeof b.sponsorNativeId === 'string', 'Only the owner binds an agent to a native person', 403)
+    requireThat(!existing?.businessAgentId || existing.businessAgentId === businessAgentId, 'Create a new native agent for a different Business identity', 409)
+    requireThat(!s.scan('member').some(m => m.email !== address && m.businessAgentId === businessAgentId), 'Business agent already bound', 409)
+  }
   // An agent's roles come from the person it acts for; it never holds roles of its own.
   const roles = agent ? [] : list(b.roles, 'Roles', ROLES.length, r => oneOf(r, ROLES, 'Role'))
   requireThat(roles.length > 0 || agent || b.active === false, 'Choose at least one role')
@@ -58,6 +66,7 @@ export function member(s: State, a: Actor, b: Data) {
   // Only the owner grants the "see private" permission (confidential jobs, private candidates).
   const seePrivate = !agent && (a.owner ? b.seePrivate === true : existing?.seePrivate === true)
   const record = s.put('member', address, { ...existing, email: address, name: text(b.name, 'Member name', 120), roles: [...new Set(roles)], active: b.active !== false, owner: false, agent, actsFor, seePrivate, reportsTo: existing?.reportsTo ?? null })
+  if (businessAgentId) s.put('member', address, { ...record, businessAgentId, sponsorNativeId: b.sponsorNativeId })
   if (existing?.active && !record.active) suspendOwnedWork(s, a, address)
   s.audit(a, existing ? 'member-updated' : 'member-added', 'member:' + address, { roles: record.roles, active: record.active, agent, actsFor, seePrivate })
   return record
