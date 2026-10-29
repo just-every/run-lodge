@@ -155,7 +155,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "2f6f85122d861202b8d474c34deef3806bfc27d25b5ec10bf6b88cdd3f3555e5",
+      "sha256": "bc6a4df15e024d53c8ab55a5586bb8eccd514d02aa0d5b28a4968cb0116f0189",
       "executable": false
     },
     "base-copies.json": {
@@ -4059,7 +4059,7 @@
       "executable": false
     },
     "src/ui/proposals.tsx": {
-      "sha256": "fe9af09dc485b6c921fef68e6039226c2d822ac26d14e48bcc24abb6cc6e169d",
+      "sha256": "a68138d9621f873f139791457b56889c2335452b3d3287a234b380a2104b7077",
       "executable": false
     },
     "src/ui/provider-setup.tsx": {

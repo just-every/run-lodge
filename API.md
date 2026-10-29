@@ -1010,7 +1010,7 @@ doors still require exact-text approval and current evidence. A draft, review
 or EML download is never delivery or completion. Connected sending, delivery
 readback and weekly kept-informed reporting remain unconnected.
 
-### Native missing-feedback cases
+## Native missing-feedback cases
 
 The authenticated workspace's coordination facts include native feedback cases.
 A human runs `coordination-discover` with an application, interview and responsible
