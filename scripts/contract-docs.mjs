@@ -27,7 +27,7 @@ for (const id of ids) {
   if (cells.length !== 6) throw Error('Expected six source status cells: ' + id)
   const [,, , status, evidence, gap] = cells
   const pattern = new RegExp('^\\| ' + id + ' \\|.*$', 'm')
-  const old = acceptance.match(pattern)?.[0]
+  const old = acceptance.match(pattern)?.[0] ?? (id.startsWith('BASE-AGENT-') ? `| ${id} | ${clause.title} |  | ${status} |` : null)
   if (!old) throw Error('Missing acceptance row: ' + id)
   const oldCells = old.split('|').slice(1, -1).map(x => x.trim())
   const legacyJourney = oldCells[2].startsWith('Required journey:') ? oldCells[2].split('`')[0].trim() + ' ' : ''
@@ -35,9 +35,20 @@ for (const id of ids) {
   const nativePolicy = clause.text.match(/Native phone-reference default ADOPTED WITH RIDERS[\s\S]*?(?= \*\*Acceptance evidence:)/)?.[0]
   const journey = id === 'HIRE-008' && sourceJourney ? `Required journey: ${sourceJourney} ${nativePolicy ? nativePolicy + ' ' : ''}` : legacyJourney
   const row = `| ${id} | ${oldCells[1]} | ${journey}${evidence}${gap ? ' Remaining: ' + gap : ''} | ${status} |`
-  acceptance = acceptance.replace(pattern, row)
+  acceptance = pattern.test(acceptance) ? acceptance.replace(pattern, row) : acceptance.trimEnd() + '\n' + row + '\n'
   const claim = `| ${id} | ${status} | ${evidence} | ${gap} |`
   claims = pattern.test(claims) ? claims.replace(pattern, claim) : claims.trimEnd() + '\n' + claim + '\n'
+}
+// New shared rows belong in the existing acceptance table, before its prose.
+// This also repairs rows appended by an older generator without touching them.
+if (ids.some(id => id.startsWith('BASE-AGENT-'))) {
+  const agentRows = acceptance.match(/^\| BASE-AGENT-\d+ \|.*$/gm) ?? []
+  if (agentRows.length) {
+    acceptance = acceptance.replace(/^\| BASE-AGENT-\d+ \|.*\n?/gm, '')
+    const boundary = '\n\n## Running the evidence'
+    if (!acceptance.includes(boundary)) throw Error('Missing acceptance table boundary')
+    acceptance = acceptance.replace(boundary, '\n' + agentRows.join('\n') + boundary)
+  }
 }
 for (const [path, generated] of [['ACCEPTANCE.md', acceptance], ['docs/CLAIMS.md', claims]]) {
   if (mode === 'write') writeFileSync(path, generated)

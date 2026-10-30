@@ -28,3 +28,14 @@ export async function enterpriseAuth(original: Bindings) {
     },
   } })
 }
+
+/** The identity switch witnesses the provider this native door actually serves. */
+export async function enterpriseControl(original: Bindings) {
+  const env = runtimeBindings(original)
+  if (oidcConfigured(env)) return enterpriseAuth(env)
+  // SAML is verified by Lodge's signed-XML adapter, rather than OA's OIDC
+  // transport. This private control instance declares that actual issuer;
+  // its legacy external-token HTTP routes are never mounted.
+  if (!samlConfigured(env)) throw new Error('Employer identity is not configured')
+  return createOperatorAuth({ db: env.DB, config: { ...authConfig(env), externalIssuers: [env.ENTERPRISE_OKTA_ISSUER!] }, mailSender: operatorMail(env), clientIp: request => request.headers.get('CF-Connecting-IP') ?? '' })
+}

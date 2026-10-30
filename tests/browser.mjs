@@ -201,18 +201,19 @@ try {
   assert.equal((await fetch(server.origin + '/jobs')).status, 200, 'preview serves the application pages')
   await server.close(); server = undefined
   // The credential-free build and preview above prove the production artifact.
-  // Base #275 requires target-secret reads for dry runs, including with mail configured.
+  // Offline planning succeeds without credentials and reports outstanding deploy
+  // inputs. It never reads target secrets or creates a deployment receipt.
   const deployEnv = '.cache/browser-deploy.env'
   await mkdir(join(root, '.cache'), { recursive: true })
   const noCredentials = 'CLOUDFLARE_ACCOUNT_ID=\nCLOUDFLARE_API_TOKEN=\n'
   await writeFile(join(root, deployEnv), noCredentials + 'MAIL_API_KEY=\n', { mode: 0o600 })
-  const missing = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv], { expected: 3 })
-  assert.match(missing, /production sign-in mail: MAIL_API_KEY/, 'the dry run names the sign-in method a real deploy still needs')
+  const missing = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
+  assert.match(missing, /production sign-in mail:[^\n]*MAIL_API_KEY/, 'the dry run names the sign-in method a real deploy still needs')
   for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN']) assert.ok(missing.includes(name), missing)
   await writeFile(join(root, deployEnv), noCredentials + 'MAIL_API_KEY=test-only-offline-plan\n', { mode: 0o600 })
-  const configured = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv], { expected: 3 })
+  const configured = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
   for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN']) assert.ok(configured.includes(name), configured)
-  assert.doesNotMatch(configured, /production sign-in mail: MAIL_API_KEY/, 'the configured mail input satisfies the sign-in prerequisite')
+  assert.doesNotMatch(configured, /production sign-in mail:[^\n]*MAIL_API_KEY/, 'the configured mail input satisfies the sign-in prerequisite')
   await assert.rejects(readFile(join(root, '.rer/deploy/production.json')), { code: 'ENOENT' })
 
   // Whole-installation archive: refused into a non-empty checkout, restored into a fresh one.

@@ -50,7 +50,7 @@
     "@cloudflare/vite-plugin": "1.54.5",
     "@cloudflare/workers-types": "5.20260908.1",
     "@playwright/test": "1.55.1",
-    "@runeditrun/rer": "0.2.79",
+    "@runeditrun/rer": "0.2.91",
     "@types/node": "22.18.6",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",

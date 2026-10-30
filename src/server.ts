@@ -1,3 +1,4 @@
+import { agentResponse } from './lodge/agent-door/index.ts'
 import { weeklyPages } from './lodge/reports/pages'
 import { bulkInvitationPages } from './lodge/operations/bulk-invitations-page'
 import { enterprisePages } from './lodge/enterprise/http'
@@ -49,7 +50,9 @@ async function route(request: Request, env: Bindings, execution: ExecutionContex
     if (asset) return asset
   if (/^\/enterprise\/invitations(?:\/|$)/.test(new URL(request.url).pathname)) return bulkInvitationPages.fetch(request, env, execution)
   if (/^\/(?:enterprise|scim)(?:\/|$)/.test(new URL(request.url).pathname) || new URL(request.url).pathname.startsWith('/auth/oidc/lodge-okta/')) return enterprisePages.fetch(request, env, execution)
-    const auth = await authResponse(request, env)
+    const door = await agentResponse(request, env)
+  if (door) return door
+  const auth = await authResponse(request, env)
     if (auth) return auth
     // The installed variant: the Lobby at / and the public claim state it reads.
     // Local dev serves the saved origin's data at its own port (RER_DEV_ORIGIN).

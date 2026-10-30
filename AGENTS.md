@@ -43,10 +43,20 @@ must keep working and [ACCEPTANCE.md](ACCEPTANCE.md) for what is proven.
   defined once; `public/lodge.css` (the app) and the site read those tokens.
 - `migrations/core`: Base auth, outbox and portability (0001–0005), Base import-kit
   (0006, 0016), Lodge records (0007), current Base auth, dependency, owner-claim
-  and erasure schemas (0008–0015). Never edit an applied migration; add the next one.
+  and erasure schemas (0008–0015), owner sign-in and sealed dependency keys
+  (0017–0018), application-mail activation and enterprise SAML transactions
+  (0019–0020). Business settings, stable Business people and the shared agent
+  door add schemas 0022–0024. Never edit an applied migration; add the next one.
 - `src/modules/*`, `src/base`: byte copies of Base at the revision in
   `base-copies.json` (see SOURCE.md). Refresh them with Base's `refresh-base`;
-  do not edit them in place.
+  do not edit them in place. The agent-door, Business-settings and operator-auth
+  runtime at Base `2135c394939f4a737adabdc8003b0e667b31ac5a` is recorded
+  independently of the `@runeditrun/rer` 0.2.91 CLI pin. Lodge's native adapters
+  in `src/lodge/agent-door` expose the five tools in `agent-surface.json` with
+  the core tools, policy, pause, audit and idempotency families. Run normal
+  `rer verify` for their production-build conformance; see
+  [docs/agent-access.md](docs/agent-access.md) for native authority and the
+  undeclared families. Copying source alone never proves an optional family.
 
 ## Rules that keep Lodge correct
 
@@ -89,3 +99,5 @@ This incrementally generates those rows in ACCEPTANCE.md and docs/CLAIMS.md,
 preserving unrelated legacy records and existing policy quotations. Stage the
 intentional edits, then regenerate the edition source lock last with
 `node scripts/edition-authoring/cli.mjs lock` and run its `check` command.
+
+Lander-Regenerate: node scripts/contract-docs.mjs write BASE-AGENT-001 BASE-AGENT-002 BASE-AGENT-003 BASE-AGENT-004 BASE-AGENT-005 BASE-AGENT-006 BASE-AGENT-007 BASE-AGENT-008 BASE-AGENT-009 BASE-AGENT-010 BASE-AGENT-011 BASE-AGENT-012 BASE-AGENT-013
