@@ -939,7 +939,7 @@
       "executable": false
     },
     "scripts/installer/assessment-policy.mjs": {
-      "sha256": "f845e0631e5e5e20fa888a08dde06e5fe20fe9a59cbc6390b3b2662fdd3232b8",
+      "sha256": "e9c3963076a7c855fc90791a16f752b158af2176ff80070990593e57cf7f4d4f",
       "executable": false
     },
     "scripts/installer/candidate-lineage.mjs": {
@@ -1707,7 +1707,7 @@
       "executable": false
     },
     "src/lodge/records/candidates.ts": {
-      "sha256": "45c59b1d94744ba6d6e43f3a76365cb4d49f94b106717942fc7dd9e9db3c9869",
+      "sha256": "d2cef403114d0c8a4997a7a5755a07e9b7bce68f3d0b62675ac48cb009d810a5",
       "executable": false
     },
     "src/lodge/records/capture.ts": {
@@ -4759,7 +4759,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "d8a74ec7521aada22756508891f88e59ddb9835ff9d7964e29a65bd83d8b78bc",
+      "sha256": "e955354b18248229bacb0e29f00f2994977bed0c3516f76d18b3a5c2e044181b",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
@@ -4811,7 +4811,7 @@
       "executable": false
     },
     "tests/clause-browser.mjs": {
-      "sha256": "8197fc25a4eea882edd569e7c8f91fd81fde17810094b5b880ea8fb0f9854585",
+      "sha256": "c0b39edc2b38e7cb469aabe3ecff1904e3882a8d87f03c144244011c784bedac",
       "executable": false
     },
     "tests/cohort-report-browser.mjs": {
@@ -5079,7 +5079,7 @@
       "executable": false
     },
     "tests/portability.test.mjs": {
-      "sha256": "b4d80572b09ea154b75457786e5c8d0e45d7ada81414bcff8096b3be4de55dde",
+      "sha256": "24567d0dbbdd23077a0d45afc35c6d9f59431cfe25c322175768a4cc6d3c32ca",
       "executable": false
     },
     "tests/posts-page.mjs": {
@@ -5198,8 +5198,12 @@
       "sha256": "467a83cc0a86ce0712ee56deb09bf054d29726a4d6451d74cff4802feb37b987",
       "executable": false
     },
+    "tests/take-home-browser.mjs": {
+      "sha256": "bb41a03abb8ed600ce50a4cc49a9a73b25481667b858b0b6923e762d43db2fea",
+      "executable": false
+    },
     "tests/take-home-flow.mjs": {
-      "sha256": "c02d455940dc1f3cdf25a429dc2637dfa00642e611eff5570fd13aeed677b2ec",
+      "sha256": "044df45b3f8ef0240fd39ae6338c866f17246cb7c7235d1bb2ca8bbe853134f6",
       "executable": false
     },
     "tests/talent-page.mjs": {
