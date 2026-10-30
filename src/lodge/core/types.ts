@@ -24,6 +24,8 @@ export const ROLES: Role[] = ['admin', 'manager', 'interviewer', 'approver', 'co
 
 /** The signed-in person behind a request, resolved from the native session only. */
 export interface Actor {
+  /** Signed door admission; never accepted from command input. */
+  door?: { agent: string; sponsor: string; label: string; envelope: string; localRevision: number }
   id: string
   email: string
   name: string

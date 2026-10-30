@@ -7,7 +7,7 @@ import { operatorAuth, runtimeBindings, type Bindings } from '../../auth.server'
 import { actorFor, load, save, signedIn } from '../core/store'
 import { Fault, requireThat, type Data } from '../core/types'
 import { esc, page } from '../http/public'
-import { configured, oidcConfigured, samlConfigured, enterpriseAuth, providerId } from './config'
+import { configured, oidcConfigured, samlConfigured, enterpriseAuth, enterpriseControl, providerId } from './config'
 import { samlResponse } from './saml'
 import { provision, scimAuthorized, scimUser } from './scim'
 
@@ -70,7 +70,7 @@ enterprisePages.post('/enterprise/settings', async c => {
   const b = c.req.header('content-type')?.includes('application/json') ? await input(c.req.raw) : Object.fromEntries((await c.req.formData()).entries())
   requireThat([true, false, 'true', 'false'].includes(b.enabled), 'Choose whether enterprise identity is enabled')
   const enabled = b.enabled === true || b.enabled === 'true'
-  await operatorAuth(runtimeBindings(c.env)).setIdentitySettings(c.req.raw, { idpSignIn: enabled })
+  await (await enterpriseControl(c.env)).setIdentitySettings(c.req.raw, { idpSignIn: enabled })
   s.put('enterprise-settings', 'main', { enabled, issuer: c.env.ENTERPRISE_OKTA_ISSUER })
   s.audit(a, enabled ? 'enterprise-identity-enabled' : 'enterprise-identity-disabled', 'business:main', { issuer: c.env.ENTERPRISE_OKTA_ISSUER })
   await save(c.env.DB, s, a)

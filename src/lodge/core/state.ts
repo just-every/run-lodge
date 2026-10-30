@@ -95,7 +95,7 @@ export class State {
 
   audit(actor: Actor | null, action: string, record: string, detail: Data = {}) {
     const id = uid()
-    this.put('audit', id, { at: now(), actor: actor?.id ?? 'public', email: actor?.email ?? 'public', action, record, ...detail })
+    this.put('audit', id, { at: now(), actor: actor?.id ?? 'public', email: actor?.email ?? 'public', action, record, ...detail, ...(actor?.door ? { agent: actor.door.agent, sponsor: actor.door.sponsor, preparedBy: actor.door.label } : {}) })
   }
 
   /** Changes and fences for the store, in a deterministic order. */
