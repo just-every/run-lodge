@@ -37,3 +37,5 @@ Selected rows generated from CONTRACT.md. The complete status register remains i
 | COM-001 | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
 | LDG-015 | done | `tests/portability.test.mjs`; `tests/browser.mjs` |  |
 | OFFER-001 | done | `tests/hiring-offers.test.mjs` (OFFER-001); `tests/offer-driver.mjs`; `src/lodge/records/offer-templates.ts`; `src/lodge/views/offer-document.ts`; `src/ui/offer-form.tsx` |  |
+| OFFER-002 | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
+| OFFER-005 | done | `tests/esign-driver.mjs` (checkEsign, run as `tests/hiring-offers.test.mjs` OFFER-005; candidateScreens); `tests/esign-driver.mjs` (called by `tests/browser.mjs`); `src/lodge/esign/envelope.ts`; `src/lodge/esign/flow.ts`; `src/lodge/esign/seal.ts`; `src/lodge/http/sign-pages.ts`; `src/lodge/http/esign.ts`; `src/ui/esign.tsx` |  |
