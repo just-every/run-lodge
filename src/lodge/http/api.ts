@@ -1,6 +1,7 @@
 import { handoffEvidence } from '../agents/handoff-exceptions'
 import { candidateUpdatesView } from '../agents/candidate-updates'
 import { sourcingEvidence } from '../agents/sourcing'
+import { assessmentView } from '../assessments/records'
 import { delayAnalysis, delayFeedback } from '../views/delay-analysis'
 import { integrationApi, integrationManagement } from './integrations'
 import { offlineScorecardContext } from '../records/scorecards'
@@ -473,6 +474,17 @@ api.get('/api/lodge/download/handoff/:id', async c => {
   const result = handoff(await workspace(state, actor), c.req.param('id'))
   state.audit(actor, 'handoff-exported', 'offer:' + c.req.param('id'))
   return recorded(c, state, actor, json(result, 'hr-handoff.json'))
+})
+
+api.get('/api/lodge/download/take-home/:id', async c => {
+  const { state, actor } = await context(c)
+  const app = requireApplication(state, actor, c.req.param('id')), job = state.get('vacancy', app.vacancy)
+  requireThat(can(state, actor, job, 'export'), 'Your permission level does not let you export', 403)
+  const view = assessmentView(state, actor)
+  requireThat(view.assignments.some(r => r.application === app.id), 'Take-home not found', 404)
+  const records = Object.fromEntries(['assignments', 'submissions', 'grades'].map(key => [key, (view as Data)[key].filter((r: Data) => r.application === app.id)]))
+  state.audit(actor, 'take-home-exported', 'application:' + app.id)
+  return recorded(c, state, actor, attachment(JSON.stringify(blindResult(state, actor, records, app), null, 2), 'application/json', 'take-home.json'))
 })
 
 api.get('/api/lodge/download/references/:id', async c => {
