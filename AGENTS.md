@@ -49,10 +49,14 @@ must keep working and [ACCEPTANCE.md](ACCEPTANCE.md) for what is proven.
   door add schemas 0021–0023. Never edit an applied migration; add the next one.
 - `src/modules/*`, `src/base`: byte copies of Base at the revision in
   `base-copies.json` (see SOURCE.md). Refresh them with Base's `refresh-base`;
-  do not edit them in place. The agent-door and Business-settings prerequisites
-  at Base `d555e789cffb744a9f83d76ebe42a2e3bdd7a055` are recorded independently
-  of the CLI package pin. Their source and schemas alone do not enable a door;
-  a native integration and complete specialist conformance are still required.
+  do not edit them in place. The agent-door, Business-settings and operator-auth
+  runtime at Base `2135c394939f4a737adabdc8003b0e667b31ac5a` is recorded
+  independently of the `@runeditrun/rer` 0.2.91 CLI pin. Lodge's native adapters
+  in `src/lodge/agent-door` expose the five tools in `agent-surface.json` with
+  the core tools, policy, pause, audit and idempotency families. Run normal
+  `rer verify` for their production-build conformance; see
+  [docs/agent-access.md](docs/agent-access.md) for native authority and the
+  undeclared families. Copying source alone never proves an optional family.
 
 ## Rules that keep Lodge correct
 

@@ -155,7 +155,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "4f5707a63f9bcd352094891592fcc517c5aee90d1b6f9198cad6fa3543c60c3d",
+      "sha256": "0d848d0157e911b3d71216343a517e741b7a91a51f9f08f3317e055dc24938da",
       "executable": false
     },
     "API.md": {
@@ -4743,7 +4743,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "15a81707659b7ec39393eff6d1aaeaba44e90def8cd6d7be5f5ffb2c21754a08",
+      "sha256": "d8a74ec7521aada22756508891f88e59ddb9835ff9d7964e29a65bd83d8b78bc",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
