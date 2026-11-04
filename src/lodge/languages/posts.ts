@@ -1,7 +1,7 @@
 import { SOURCE_UI } from './copy'
 import type { State } from '../core/state'
 import { canonical, requireThat, type Data } from '../core/types'
-import { jobForm } from '../records/questions'
+import { jobForm, requireSalarySafeQuestion } from '../records/questions'
 import { schemaOf } from '../fields/schema'
 import { cpraNotice, inCalifornia } from '../records/privacy'
 
@@ -27,6 +27,7 @@ export function translationSource(s: State, v: Data, post: Data) {
 export function requireTranslation(s: State, v: Data, post?: Data | null) {
   if (!post || post.language === 'en') return
   const t = post.translation
+  requireSafeTranslation(t)
   requireThat(t?.reviewedBy && t.source === translationSource(s, v, post), 'Review the translation against the current notice and question versions before publishing this language', 409)
   const present = (value: unknown, label: string) => requireThat(typeof value === 'string' && value.trim(), `Missing ${post.language} translation: ${label}`, 409)
   if (post.language !== 'es') {
@@ -59,6 +60,11 @@ export function requireTranslation(s: State, v: Data, post?: Data | null) {
     present(t.cpra.saleStatement, 'California sale and sharing statement')
     for (const c of t.cpra.categories) for (const k of ['category', 'collected', 'purposes', 'retention']) present(c[k], 'California ' + k)
   }
+}
+
+/** Drafts and reviewed overrides use the existing fixed phrase vocabulary in every language. */
+export function requireSafeTranslation(translation?: Data) {
+  for (const q of Object.values(translation?.questions ?? {})) requireSalarySafeQuestion(q as Data)
 }
 
 export function translationReady(s: State, v: Data, post: Data) {

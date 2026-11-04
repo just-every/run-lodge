@@ -46,7 +46,7 @@ export async function checkPayTransparency(t) {
   job = await cmd('vacancy', { ...job, payRanges: [co, ny] })
   await approve()
   job = await cmd('publish', { id: job.id })
-  await cmd('job-board', { token: 'synthetic-lodge-board', allowedOrigins: [] })
+  await cmd('job-board', { token: 'synthetic-lodge-board', allowedOrigins: [h.origin] })
   const path = '/api/board/v1/synthetic-lodge-board/jobs/' + job.id
   const board = await send(path)
   assert.equal(board.status, 200)
@@ -67,12 +67,24 @@ export async function checkPayTransparency(t) {
   const salary = await send('/api/lodge/command/question', { text: 'Your current salary?', type: 'number' })
   assert.equal(salary.status, 400)
   assert.match(salary.value.error, /salary-history/)
-  const desired = await cmd('question', { text: 'What compensation do you seek?', type: 'number' })
+  const desired = await cmd('question', { text: 'What compensation do you seek?', help: 'Choose your desired compensation for this role.', type: 'single-choice', options: ['60000', '70000'] })
+  for (const change of [{ text: 'Your previous salary?' }, { help: 'Please enter your CURRENT PAY.' }, { options: ['60000', 'Based on prior earnings'] }]) {
+    const before = (await state()).questions
+    for (const id of [undefined, desired.id]) {
+      const refused = await send('/api/lodge/command/question', { ...desired.versions.at(-1), ...change, id })
+      assert.equal(refused.status, 400)
+      assert.match(refused.value.error, /salary-history/i)
+    }
+    assert.deepEqual((await state()).questions, before, 'refused wording creates neither a question nor a version')
+  }
   await cmd('job-questions', { id: job.id, questions: [{ question: desired.id }] })
   assert.match((await send('/jobs/' + job.slug)).text, /What compensation do you seek/)
-  job = await cmd('job-post', { vacancy: job.id, title: 'Denver supervisor', locations: [denver.id], destinations: ['careers', 'embed', 'api'], language: 'en' })
+  await checkStoredQuestionGuard(h, job, [desired])
+  const extra = await cmd('question', { text: 'Choose your preferred compensation.', help: 'Desired pay for this opening.', type: 'single-choice', options: ['60000', '70000'] })
+  job = await cmd('job-post', { vacancy: job.id, title: 'Denver supervisor', locations: [denver.id], questions: [{ question: extra.id }], destinations: ['careers', 'embed', 'api'], language: 'en' })
   const post = job.posts.at(-1)
   await cmd('post-status', { vacancy: job.id, post: post.id, status: 'live' })
+  await checkStoredQuestionGuard(h, { ...post, vacancy: job.id }, [desired, extra])
   const postBoard = await send('/api/board/v1/synthetic-lodge-board/jobs/' + post.id)
   assert.deepEqual(postBoard.value.pay, [{ location: 'Denver, CO', currency: 'USD', min: 6000000, max: 8000000, period: 'year', minorUnits: 2 }])
   assert.equal(postBoard.value.payTransparency, 'Pay for Denver, CO: $60,000–$80,000 a year\nHealth insurance; annual bonus eligibility.')
@@ -80,7 +92,7 @@ export async function checkPayTransparency(t) {
   assert.ok(postPage.text.includes('$60,000–$80,000'))
   assert.ok(!postPage.text.includes('$70,000–$90,000'))
   const { spanishText } = await import('./languages-driver.mjs')
-  job = await cmd('job-post', { vacancy: job.id, title: 'Supervisor de Denver', language: 'es', locations: [denver.id], destinations: ['careers', 'api'], translation: { ...spanishText(desired), questions: { [desired.id]: { text: '¿Qué remuneración busca?', help: '', options: [] } } } })
+  job = await cmd('job-post', { vacancy: job.id, title: 'Supervisor de Denver', language: 'es', locations: [denver.id], destinations: ['careers', 'api'], translation: { ...spanishText(desired), questions: { [desired.id]: { text: '¿Qué remuneración busca?', help: 'Indique su remuneración deseada.', options: ['60000', '70000'] } } } })
   const spanish = job.posts.at(-1)
   const untranslated = await send('/api/lodge/command/post-status', { vacancy: job.id, post: spanish.id, status: 'live' })
   assert.equal(untranslated.status, 409)
@@ -100,4 +112,55 @@ export async function checkPayTransparency(t) {
   await cmd('pay-rules', { rules })
   assert.equal((await send('/jobs/' + post.slug)).status, 404)
   assert.equal((await send('/api/board/v1/synthetic-lodge-board/jobs/' + post.id)).status, 404)
+}
+
+// Seed only the pre-repair record; every observation and submission uses the real public doors.
+async function checkStoredQuestionGuard(h, listing, questions) {
+  let sequence = 0
+  const probe = async visible => {
+    const boardPath = '/api/board/v1/synthetic-lodge-board/jobs/' + listing.id
+    const board = await h.send(boardPath)
+    assert.equal(board.status, 200)
+    assert.deepEqual(board.value.questions.map(q => q.id), visible.map(q => q.id))
+    for (const prefix of ['/jobs/', '/embed/jobs/']) {
+      const page = await h.send(prefix + listing.slug)
+      assert.equal(page.status, 200)
+      for (const q of questions) assert.equal(page.text.includes('name="q-' + q.id + '"'), visible.some(x => x.id === q.id), prefix + ' current question projection')
+      assert.ok(!/current salary|previous pay|prior earnings/i.test(page.text))
+    }
+    for (const door of ['/jobs/' + listing.slug, '/embed/jobs/' + listing.slug, boardPath + '/applications']) {
+      const marker = 'synthetic-lodge-unsafe-answer'
+      const values = { name: 'Synthetic Lodge ' + (++sequence), email: ['synthetic-lodge-' + crypto.randomUUID(), 'example.test'].join('@'), noticeVersion: 1, consent: 'yes' }
+      const answers = Object.fromEntries(questions.map(q => [q.id, visible.some(x => x.id === q.id) ? '60000' : marker]))
+      const body = door.startsWith('/api/') ? { ...values, answers } : new FormData()
+      if (body instanceof FormData) for (const [key, value] of Object.entries({ ...values, ...Object.fromEntries(Object.entries(answers).map(([id, value]) => ['q-' + id, value])) })) body.set(key, String(value))
+      const result = await h.send(door, body, '', { 'cf-connecting-ip': '198.51.100.' + sequence })
+      assert.equal(result.status, door.startsWith('/api/') ? 201 : 200, result.text)
+      const workspace = await h.state(), candidate = workspace.candidates.find(c => c.email === values.email)
+      const app = workspace.applications.find(a => a.candidate === candidate?.id)
+      assert.ok(app, 'the supported application completes')
+      assert.deepEqual((app.answers ?? []).map(a => [a.question, a.value]), visible.map(q => [q.id, '60000']), 'only currently safe questions accept answers')
+      assert.ok(!JSON.stringify(app).includes(marker), 'a forged answer to a hidden unsafe question is never retained')
+    }
+  }
+  await probe(questions)
+  for (const q of questions) {
+    const original = JSON.parse((await h.db.prepare("SELECT value FROM l_records WHERE kind='question' AND id=?").bind(q.id).first()).value)
+    for (const change of [{ text: 'Your current salary?' }, { help: 'Please state previous pay.' }, { options: ['60000', 'Prior earnings'] }]) {
+      const stored = structuredClone(original)
+      Object.assign(stored.versions.at(-1), change)
+      await h.db.prepare("UPDATE l_records SET value=?,revision=? WHERE kind='question' AND id=?").bind(JSON.stringify(stored), crypto.randomUUID(), q.id).run()
+      try {
+        await probe(questions.filter(x => x.id !== q.id))
+        for (const op of ['job-questions', 'job-post']) {
+          const result = await h.send('/api/lodge/command/' + op, { id: listing.vacancy ?? listing.id, vacancy: listing.vacancy ?? listing.id, title: 'Synthetic Lodge post', locations: [listing.locations?.[0] ?? listing.officeId], destinations: ['careers'], questions: [{ question: q.id }] }, h.owner)
+          assert.equal(result.status, 400, op + ': ' + result.text)
+          assert.match(result.value.error, /salary-history/i)
+        }
+      } finally {
+        await h.db.prepare("UPDATE l_records SET value=?,revision=? WHERE kind='question' AND id=?").bind(JSON.stringify(original), crypto.randomUUID(), q.id).run()
+      }
+    }
+  }
+  await probe(questions)
 }
