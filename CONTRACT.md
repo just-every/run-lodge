@@ -556,8 +556,8 @@ Judged from the code and tests at commit `c35544c6` (22 October 2026).
 | Clauses | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Published | 17 | 0 | 0 | 17 |
-| Target and push further | 52 | 44 | 31 | 127 |
-| All | 69 | 44 | 31 | 144 |
+| Target and push further | 52 | 45 | 30 | 127 |
+| All | 69 | 45 | 30 | 144 |
 
 | Clause | Title | Kind | Status | Evidence | Gap |
 | --- | --- | --- | --- | --- | --- |
@@ -653,7 +653,7 @@ Judged from the code and tests at commit `c35544c6` (22 October 2026).
 | `OFFER-005` | Lodge-native e-signature with audit trail | target | done | `tests/esign-driver.mjs` (checkEsign, run as `tests/hiring-offers.test.mjs` OFFER-005; candidateScreens); `tests/esign-driver.mjs` (called by `tests/browser.mjs`); `src/lodge/esign/envelope.ts`; `src/lodge/esign/flow.ts`; `src/lodge/esign/seal.ts`; `src/lodge/http/sign-pages.ts`; `src/lodge/http/esign.ts`; `src/ui/esign.tsx` |  |
 | `OFFER-006` | Offers signed outside Lodge | target | done | `src/lodge/records/offers.ts`; `src/lodge/views/offer-exports.ts`; `src/ui/decisions.tsx`; `tests/hiring-offers.test.mjs` |  |
 | `HIRE-001` | Verified Willow, BambooHR and ADP handoff | target | partial | `src/lodge/views/offer-exports.ts`; `tests/hiring-candidates.test.mjs` | Accepted-outcome HR handoff file exists; connected Willow/BambooHR/ADP creation, signature gate and verified readback are absent. |
-| `HIRE-002` | Checkr consent, results and employer decisions | target | missing |  | Not implemented; the complete acceptance journey remains to be built and proven. |
+| `HIRE-002` | Checkr consent, results and employer decisions | target | partial | `tests/hiring-offers.test.mjs` — HIRE-002 local background authorization; `tests/background-authorization-flow.mjs` — checkBackgroundAuthorization; `tests/background-authorization-browser.mjs` — backgroundAuthorizationPage; `tests/portability.test.mjs` — LDG-015 actual seed restore policy | Native optional employer-reviewed disclosure and authorization versions, candidate agreement, refusal, unanswered state and withdrawal history are local evidence only, not submitted to or approved by Checkr and never provider permission or legal-sufficiency proof. Human owner and hiring admin custody, native candidate identity and session binding, exact application-language review, replay protection, access export, holds, erasure and historical restore are implemented. Authorized Checkr test and production accounts remain unavailable: actual approved disclosure and consent, invitations and consented orders, pending, completed and disputed reconciliation, failures and identity ambiguity, restricted provider reports and retention, employer-reviewed adverse-action notices, waits and evidence, and the complete original connected acceptance remain unproved. Production package, API, app and legal confirmations, HIRE-007 conditional-offer order refusal and OPS-003 isolated trials, exact activation and rollback remain required. The conservative existing human owner and admin boundary supplies no new compliance grant or agent access; no pending identity or compliance boundary is released. |
 | `HIRE-003` | Verified Gusto handoff | target | missing |  | No Gusto connection exists; hires leave Lodge only as a handoff file. |
 | `HIRE-004` | Verified Rippling handoff | target | missing |  | No Rippling connection exists; hires leave Lodge only as a handoff file. |
 | `HIRE-005` | Paylocity, Justworks, Paycom and UKG handoff | target | missing |  | No connection to these HR and payroll systems exists. |

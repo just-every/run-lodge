@@ -1,3 +1,4 @@
+import { BackgroundAuthorization } from '../background-check-authorization'
 import { TakeHome } from '../take-home'
 import { References } from '../references'
 import { useState } from 'react'
@@ -41,7 +42,7 @@ export function ApplicationPanel({ app, w, mutate, close }: { app: D; close: () 
       {tab === 'Notes' && <Notes app={app} w={w} mutate={mutate} />}
       {tab === 'Interviews' && <Interviews app={app} v={v} w={w} mutate={mutate} />}
       {tab === 'Scorecards' && <><TakeHome app={app} w={w} mutate={mutate} /><Scorecards app={app} v={v} w={w} mutate={mutate} /><Debriefs app={app} v={v} w={w} mutate={mutate} /><div className="document-and-scorecard">{app.blind ? <BlindResume app={app} /> : <DocumentViewer documents={applicationDocuments(app, w)} />}<ScorecardForm app={app} v={v} w={w} mutate={mutate} /></div></>}
-      {tab === 'Decisions' && <><References app={app} w={w} mutate={mutate} /><Offers app={app} v={v} w={w} mutate={mutate} /><Messages app={app} w={w} mutate={mutate} /></>}
+      {tab === 'Decisions' && <><BackgroundAuthorization app={app} w={w} /><References app={app} w={w} mutate={mutate} /><Offers app={app} v={v} w={w} mutate={mutate} /><Messages app={app} w={w} mutate={mutate} /></>}
       {tab === 'References' && <References app={app} w={w} mutate={mutate} />}
       {tab === 'Documents' && (app.blind ? <BlindResume app={app} /> : <Documents app={app} w={w} mutate={mutate} />)}
     </div>

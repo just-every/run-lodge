@@ -42,6 +42,7 @@ import { boardViews } from '../records/board-views'
 import { mergeRule, sourceOf } from '../records/sources'
 import { boardSettings, publicSettings } from '../records/job-board'
 import { internalBoard, internalNotices } from '../records/internal'
+import { authorizationView } from '../background-checks/authorization'
 import { fairChanceView } from '../records/fair-chance'
 import { eventsView } from '../records/events'
 import { intakeView } from '../resumes/intake'
@@ -252,6 +253,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     messages, messageTemplates: messageTemplatesView(s, a), offers, approvals,
     restricted: isCompliance(a) ? s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) }) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.
+    backgroundAuthorizations: authorizationView(s, a),
     fairChance: admin ? fairChanceView(s, a, appIds) : null,
     holds: admin ? s.all('hold').filter(h => !(h.candidate && hiddenCandidate(h.candidate)) && !(h.vacancy && hiddenVacancy(h.vacancy))) : [],
     retention: admin ? (r => ({ due: r.due.filter(x => !hiddenCandidate(x.candidate)), held: r.held.filter(x => !hiddenCandidate(x.candidate)) }))(retentionReview(s)) : null,
@@ -272,7 +274,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
       members: admin ? s.all('source-member') : [],
     },
     coordination: coordination(s, a),
-    audit: admin ? s.all('audit').filter(e => !concealed(e.record ?? '')).sort((x, y) => y.at.localeCompare(x.at)).slice(0, 300) : [],
+    audit: admin ? s.all('audit').filter(e => !(a.agent && e.action.startsWith('background-authorization-')) && !concealed(e.record ?? '')).sort((x, y) => y.at.localeCompare(x.at)).slice(0, 300) : [],
   }))
   // Field projection strips restricted custom fields and embedded hiring records.
   // Restore only the independently authorized document metadata, never that hiring data.

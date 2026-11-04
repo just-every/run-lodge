@@ -48,6 +48,7 @@ import { boardKey, jobBoard, revokeBoardKey, rotateBoardKey } from './records/jo
 import { event, eventApply, eventCapture, eventCost, eventStatus } from './records/events'
 import { bulkApply, bulkPreview } from './records/bulk'
 import { applyInternal, internalPolicy, reportsTo, vacancyInternal } from './records/internal'
+import { reviewAuthorization } from './background-checks/authorization'
 import { fairChancePlaces, fairChanceStep } from './records/fair-chance'
 import { assignReviewers, clearSpamFlag, markSpam, move, reopen, unmarkSpam } from './records/pipeline'
 import { availability, cancel, interview, reply, schedule } from './records/interviews'
@@ -87,6 +88,7 @@ export const commands: Record<string, Command> = {
   'candidate-update-policy': configureCandidateUpdates,
   'sourcing-brief': sourcingBrief,
   'coordination-discover': discoverCoordinationCase, 'coordination-case': coordinationCaseAction,
+  'background-authorization-review': reviewAuthorization,
   'take-home-assign': assignTakeHome, 'take-home-extend': extendTakeHome, 'take-home-grade': gradeTakeHome, 'take-home-release': releaseTakeHome,
   'delay-trial-preview': previewDelayTrial, 'delay-trial-activate': activateDelayTrial, 'delay-trial-run': runDelayTrial, 'delay-trial-compare': compareDelayTrial, 'delay-trial-rollback': rollbackDelayTrial,
   'reference-questionnaire': referenceQuestionnaire, 'reference-record': recordReference,
