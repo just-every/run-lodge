@@ -36,7 +36,7 @@ export function vacancyHistory(w: Workspace, id: string) {
     interviews: forApp(w.interviews), scorecards: forApp(w.scorecards), debriefs: forApp(w.debriefs), applicationEmails: forApp(w.applicationEmails), messages: forApp(w.messages), offers: forApp(w.offers),
     teamNotes: w.teamNotes.filter(n => appIds.has(n.application) || (candidateIds.has(n.candidate) && !n.application)),
     activity: w.activity.filter(e => appIds.has(e.application) || (e.kind === 'note' && candidateIds.has(e.candidate) && !e.application)),
-    restricted: forApp(w.restricted), holds: w.holds.filter(h => h.vacancy === id || candidateIds.has(h.candidate)),
+    selfIdentification: forApp(w.selfIdentification.responses), restricted: forApp(w.restricted), holds: w.holds.filter(h => h.vacancy === id || candidateIds.has(h.candidate)),
     importedHistory: { notes: forApp(w.importedHistory.notes), ratings: forApp(w.importedHistory.ratings), messages: forApp(w.importedHistory.messages) },
     audit: w.audit.filter(e => e.record === 'vacancy:' + id || [...appIds].some(x => e.record === 'application:' + x)),
   }
@@ -107,7 +107,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
     'handoff-exception': byApp(view.handoffExceptions.cases),
     interview: byApp(view.interviews), scorecard: byApp(view.scorecards), debrief: byApp(view.debriefs), 'interview-note': byApp(view.notes),
     'team-note': view.teamNotes.filter(n => n.candidate === id), activity: view.activity.filter(e => e.candidate === id),
-    'application-email': byApp(view.applicationEmails), message: messages, offer: offers, receipt: byApp(view.receipts), monitoring: byApp(view.restricted), 'fair-chance-record': byApp(view.fairChance?.records ?? []),
+    'application-email': byApp(view.applicationEmails), message: messages, offer: offers, receipt: byApp(view.receipts), monitoring: byApp(view.restricted), 'self-id-response': byApp(view.selfIdentification.responses), 'fair-chance-record': byApp(view.fairChance?.records ?? []),
     approval: view.approvals.filter(r => subjectIds.has(r.subjectId)), document: documents,
     'resume-extraction': view.resumeExtractions.filter(r => r.candidate === id),
     'blind-identity': s.all('blind-identity').filter(r => r.candidate === id),

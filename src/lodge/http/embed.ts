@@ -1,3 +1,4 @@
+import { publicSelfIdentification } from '../records/self-identification'
 import { recoveryUi } from '../careers/recovery-copy'
 import { uiCopy } from '../languages/copy'
 import { legacyListing } from '../move-in/legacy-links'
@@ -136,7 +137,7 @@ embedPages.get('/embed/jobs/:slug', async c => {
   const values = c.req.query(), campaign = campaignOf(values)
   const back = query(Object.fromEntries(FILTERS.concat(CAMPAIGN).filter(k => values[k]).map(k => [k, values[k]])))
   const v: Data = { ...shownJob(s, l), slug: l.slug }
-  return page(v.title, `<p><a href="/embed/jobs${esc(back)}">${l.post && l.post.language !== 'en' ? '← ' + esc(uiCopy(l.post).back) : '← All open roles'}</a></p>${form(v, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), `/embed/jobs/${l.slug}`, campaign, cpraFor(s, l))}`, 200, embed, l.post?.language ?? 'en')
+  return page(v.title, `<p><a href="/embed/jobs${esc(back)}">${l.post && l.post.language !== 'en' ? '← ' + esc(uiCopy(l.post).back) : '← All open roles'}</a></p>${form(v, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), `/embed/jobs/${l.slug}`, campaign, cpraFor(s, l), publicSelfIdentification(s, l.v, l.post))}`, 200, embed, l.post?.language ?? 'en')
 })
 
 embedPages.post('/embed/jobs/:slug', async c => {

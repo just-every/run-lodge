@@ -1,3 +1,4 @@
+import { publicSelfIdentification } from './self-identification'
 import { publicPay } from './pay-transparency'
 import { uiCopy } from '../languages/copy'
 import type { State } from '../core/state'
@@ -145,6 +146,7 @@ export function boardJob(s: State, l: Listing, origin: string, token: string, co
       { name: 'talentPool', label: 'You may contact me about other suitable roles while you keep my details', type: 'yes-no', required: false },
     ].map(f => ({ ...f, label: copy ? copy[f.name === 'accommodation' ? 'accommodation' : f.name] : f.label })),
     questions: jobForm(s, v, l.post).map((q: Data) => ({ id: q.question, text: q.text, type: q.type, required: !!q.required, options: q.options ?? [], ...(q.optionLabels ? { optionLabels: q.optionLabels } : {}), help: q.help || null, ...(q.type === 'file' ? { maxBytes: MAX_DOCUMENT_BYTES } : {}) })),
+    selfIdentification: publicSelfIdentification(s, v, l.post),
     voluntaryQuestions: [{ id: 'monitoring', text: translated ? tr.monitoring : 'How do you describe your gender?', options: MONITORING_OPTIONS, ...(translated ? { optionLabels: tr.monitoringOptions } : {}), required: false, note: translated ? copy!.monitoringHelp : 'Kept apart from the application and never shown to the people assessing it.' }],
     privacyNotice: { version: notice.version, text: translated ? tr.notice : notice.text },
     // PRIV-001: a California job carries the CPRA notice; submit its version as cpraNoticeVersion.

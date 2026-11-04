@@ -1,3 +1,4 @@
+import { selfIdentificationView } from '../records/self-identification'
 import { handoffView } from '../agents/handoff-exceptions'
 import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
@@ -250,6 +251,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     candidateUpdates: candidateUpdatesView(s, a),
     sourcingBriefs: sourcingBriefs(s, a),
     messages, messageTemplates: messageTemplatesView(s, a), offers, approvals,
+    selfIdentification: selfIdentificationView(s, a),
     restricted: isCompliance(a) ? s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) }) : [],
     // HIRE-007: fair-chance places and records are restricted material: the owner and hiring admins (people, not agents) only.
     fairChance: admin ? fairChanceView(s, a, appIds) : null,
@@ -288,6 +290,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     }
     view.vacancies = s.all('vacancy').filter(v => isCompliance(a) && (v.compliancePeople ?? []).includes(scope(a))).map(v => ({ id: v.id, title: v.title, stages: [], rubrics: [], plan: [], manages: false, permissions: [], compliance: true }))
     view.documents = complianceDocuments
+    view.selfIdentification = selfIdentificationView(s, a)
     view.restricted = s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) })
   }
   return view

@@ -1357,3 +1357,7 @@ test('CAL-002 native interview-day drafts explain constraints and fence human su
 test('Native take-home custody, candidate identity, deadlines and independent grading survive replay and erasure', async () => {
   await (await import('./take-home-flow.mjs')).checkTakeHome()
 })
+
+test('Reviewed voluntary self-identification stays separate across native intake, revocation and erasure', async () => {
+  await (await import('./self-identification-flow.mjs')).checkSelfIdentification()
+})

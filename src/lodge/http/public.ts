@@ -1,3 +1,4 @@
+import { publicSelfIdentification, selfIdentificationFields, selfIdentificationInput } from '../records/self-identification'
 import { recoveryUi } from '../careers/recovery-copy'
 import { draftTools } from '../careers/draft'
 import { receiptRecoveryCode, recoverReceipt } from '../careers/receipt'
@@ -127,9 +128,9 @@ export const cpraFor = (s: Parameters<typeof cpraNotice>[0], l: Listing) => inCa
 export const cpraSection = (n: Data) => `<details><summary>California applicant privacy notice (version ${esc(n.version)})</summary>${n.intro ? paragraphs(n.intro) : ''}<dl>${n.categories.map((c: Data) => `<dt>${esc(c.category)}</dt><dd>${esc(c.collected)} Used for: ${esc(c.purposes)} ${esc(c.retention)}</dd>`).join('')}</dl><p>${esc(n.saleStatement)}</p><p>You may ask to see, correct or delete your information at <a href="/privacy-requests">/privacy-requests</a>.</p></details>
 <input type="hidden" name="cpraNoticeVersion" value="${esc(n.version)}">`
 
-export function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = [], action = `/jobs/${v.slug}`, hidden: Record<string, string> = {}, cpra: Data | null = null) {
+export function form(v: Data, business: Data, error = '', values: Data = {}, questions: Data[] = [], action = `/jobs/${v.slug}`, hidden: Record<string, string> = {}, cpra: Data | null = null, selfIdentification: Data[] = []) {
   hidden = { ...hidden, submissionKey: values.submissionKey || crypto.randomUUID() }
-  if (v.language && v.language !== 'en') return translatedForm(v, business, error, values, questions, action, hidden, cpra, questionFields)
+  if (v.language && v.language !== 'en') return translatedForm(v, business, error, values, questions, action, hidden, cpra, questionFields, undefined, selfIdentification)
   const notice = business.notices.at(-1)
   const pay = !v.payTransparency && v.compensation ? payRange(v.compensation) : ''
   const field = (name: string, label: string, type = 'text', extra = '') => `<label>${label}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
@@ -149,6 +150,7 @@ ${questions.length ? `<fieldset><legend>Questions from the employer</legend>${qu
 <label>Cover note (optional)<textarea name="coverNote" rows="5" maxlength="8000">${esc(values.coverNote)}</textarea></label>
 <label>Adjustments you need (optional)<textarea name="accommodation" rows="3" maxlength="4000">${esc(values.accommodation)}</textarea></label>
 <fieldset><legend>Voluntary equal-opportunity question (optional)</legend><p>How do you describe your gender? Your answer is kept apart from your application and never shown to the people assessing it.</p><label>Answer<select name="monitoring">${MONITORING_OPTIONS.map(o => `<option${values.monitoring === o ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label></fieldset>
+${selfIdentificationFields(selfIdentification)}
 <details><summary>Privacy notice (version ${esc(notice.version)})</summary>${paragraphs(notice.text)}</details>
 <input type="hidden" name="noticeVersion" value="${esc(notice.version)}">
 ${cpra ? cpraSection(cpra) : ''}
@@ -199,7 +201,7 @@ publicPages.get('/jobs/:slug', async c => {
   const shown = shownJob(s, l)
   const alternatives = listings(s, 'careers').filter(x => x.v.id === l.v.id)
   const languages = alternatives.length > 1 ? `<nav aria-label="${esc(shown.language && shown.language !== 'en' ? uiCopy(l.post!).language : 'Language')}">${alternatives.map(x => `<a href="/jobs/${esc(x.slug)}" lang="${esc(x.post?.language ?? 'en')}">${esc(new Intl.DisplayNames([x.post?.language ?? 'en'], { type: 'language' }).of(x.post?.language ?? 'en'))}</a>`).join(' · ')}</nav>` : ''
-  return page(shown.title, languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)), 200, undefined, shown.language ?? 'en')
+  return page(shown.title, languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l), publicSelfIdentification(s, l.v, l.post)), 200, undefined, shown.language ?? 'en')
 })
 
 publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
@@ -235,7 +237,7 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
     const resume = await upload(data.get('resume'))
     // A resume restored from a saved draft is held to the same type and size rules as one chosen just now.
     if (resume) requireThat(RESUME_TYPES[resume.name.split('.').pop()?.toLowerCase() ?? ''] !== undefined, `Resumes may be ${Object.keys(RESUME_TYPES).join(', ')} files`)
-    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given, customValues: submittedCustomFields(v, values) } as any, door, l.post)
+    const { receipt, accommodationContact } = await submit(s, v, { ...values, noticeVersion: values.noticeVersion, cpraNoticeVersion: values.cpraNoticeVersion, consent: values.consent, resume, answers: given, selfIdentification: selfIdentificationInput(values, publicSelfIdentification(s, v, l.post)), customValues: submittedCustomFields(v, values) } as any, door, l.post)
     const copy = receipt.language !== 'en' ? uiCopy(l.post!) : SOURCE_UI
     const code = await receiptRecoveryCode(s, receipt, copy)
     await save(c.env.DB, s, null)
@@ -243,7 +245,7 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     const shown: Data = { ...shownJob(s, l), customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }
-    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden, cpraFor(s, l)), error.status, embed, shown.language ?? 'en')
+    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden, cpraFor(s, l), publicSelfIdentification(s, v, l.post)), error.status, embed, shown.language ?? 'en')
   }
 }
 

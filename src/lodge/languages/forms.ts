@@ -1,3 +1,4 @@
+import { selfIdentificationFields } from '../records/self-identification'
 import { times } from '../core/time'
 import { draftTools } from '../careers/draft'
 import { requireThat, type Data } from '../core/types'
@@ -28,7 +29,7 @@ export type TranslatedQuestions = (questions: Data[], values: Data, copy: Record
 
 /** Shared translated scaffold; notices, questions and custom labels retain employer-authored translations. */
 export function translatedForm(v: Data, business: Data, error: string, values: Data, questions: Data[], action: string,
-  hidden: Record<string, string>, cpra: Data | null, questionFields: TranslatedQuestions, copy: Record<string, string> = uiCopy(v)) {
+  hidden: Record<string, string>, cpra: Data | null, questionFields: TranslatedQuestions, copy: Record<string, string> = uiCopy(v), selfIdentification: Data[] = []) {
   const tr = v.translation, notice = business.notices.at(-1)
   const m = (key: string, substitutions: Data = {}) => message(copy, key, substitutions)
   const field = (name: string, key: string, type = 'text', extra = '') => `<label>${m(key)}<input name="${name}" type="${type}" value="${esc(values[name])}" ${extra}></label>`
@@ -66,6 +67,7 @@ ${custom}${questions.length ? `<fieldset><legend>${m('questions')}</legend>${que
 <label>${m('coverNote')}<textarea name="coverNote" rows="5" maxlength="8000">${esc(values.coverNote)}</textarea></label>
 <label>${m('accommodation')}<textarea name="accommodation" rows="3" maxlength="4000">${esc(values.accommodation)}</textarea></label>
 <fieldset><legend>${m('monitoring')}</legend><p>${esc(tr.monitoring)}</p><p>${m('monitoringHelp')}</p><label>${m('answer')}<select name="monitoring">${MONITORING_OPTIONS.map((o, i) => `<option value="${esc(o)}"${values.monitoring === o ? ' selected' : ''}>${esc(tr.monitoringOptions[i])}</option>`).join('')}</select></label></fieldset>
+${selfIdentificationFields(selfIdentification)}
 <details><summary>${m('notice', { version: notice.version })}</summary>${paragraphs(tr.notice)}</details><input type="hidden" name="noticeVersion" value="${esc(notice.version)}">${california}
 <label><input type="checkbox" name="consent" value="yes" required> ${m(cpra ? 'consentCalifornia' : 'consent', { version: notice.version, californiaVersion: cpra?.version })}</label>
 <label><input type="checkbox" name="talentPool" value="yes"${values.talentPool === 'yes' ? ' checked' : ''}> ${m('talentPool')}</label>

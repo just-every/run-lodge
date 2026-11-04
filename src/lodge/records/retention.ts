@@ -69,6 +69,7 @@ export function candidateRecords(s: State, candidateId: string) {
     'survey-response': byApp('survey-response'), 'survey-invitation': byApp('survey-invitation'), 'survey-consent': byApp('survey-consent'), 'survey-stop': byApp('survey-stop'), 'survey-receipt': byApp('survey-receipt'),
     'crm-enrollment': byApp('crm-enrollment'), 'crm-reply': byApp('crm-reply'), 'crm-pool': s.scan('crm-pool').filter(p => p.candidates?.some((id: string) => candidateIds.has(id))), 'hiring-reminder': byApp('hiring-reminder'), 'capture-mail': byApp('capture-mail'), 'application-email': byApp('application-email'), 'application-submission': byApp('application-submission'),
     'candidate-email-change': byApp('candidate-email-change'),
+    'self-id-response': byApp('self-id-response'),
     'reference-questionnaire': byApp('reference-questionnaire'), 'reference-record': byApp('reference-record'),
     'interview-day': byApp('interview-day'), 'coordination-case': byApp('coordination-case'),
     'handoff-exception': byApp('handoff-exception'),

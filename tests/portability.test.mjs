@@ -1,3 +1,4 @@
+import { questionnaireInput, optionalForm, syntheticAddress } from './self-identification-flow.mjs'
 import { seedTakeHome, file as assessmentFile, original as assessmentOriginal } from './take-home-flow.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -34,6 +35,13 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   const form = new FormData()
   for (const [key,value] of Object.entries({ name: 'Public archive applicant', email: 'public@example.test', consent: 'yes', noticeVersion: '1', accommodation: 'Accessible room', monitoring: 'Prefer not to say' })) form.append(key,value)
   assert.equal((await src.send('/jobs/' + publicVacancy.slug, form)).status, 200)
+  const selfIdQuestionnaire = await src.command('self-identification-questionnaire', questionnaireInput(vacancy.id))
+  const selfIdForm = optionalForm({ name: 'Synthetic voluntary archive applicant', email: syntheticAddress('archive'), consent: 'yes', noticeVersion: '1',
+   ['sid-' + selfIdQuestionnaire.id + '-version']: '1', ['sid-' + selfIdQuestionnaire.id + '-consent']: 'yes', ['sid-' + selfIdQuestionnaire.id + '-q1']: 'Synthetic response one' })
+  assert.equal((await src.send('/jobs/' + publicVacancy.slug, selfIdForm)).status, 200)
+  const selfIdResponse = (await src.state()).selfIdentification.responses.find(r => r.questionnaire === selfIdQuestionnaire.id)
+  assert.ok(selfIdResponse)
+  await src.command('self-identification-questionnaire', questionnaireInput(vacancy.id, 'eeo', { version: 1, notice: 'Synthetic later notice' }))
   const doc = await src.command('document', { candidate: candidate.id, name: 'resume.txt', kind: 'resume', mediaType: 'text/plain', base64: Buffer.from('ORIGINAL-ARCHIVE-DOCUMENT').toString('base64') })
   // CRM-005: both pending originals and accepted, subsequently merged people travel.
   const agency = await src.command('agency', { name: 'Archive Recruiting', email: 'archive-agency@example.test' })
@@ -108,6 +116,13 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   }
   const removeAgency = (items, kind, id) => items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id), 1)
   const mutations = [
+   ['missing self-identification application', (_d,_b,items) => changeAgency(items, 'self-id-response', selfIdResponse.id, { application: 'missing-application' })],
+   ['wrong self-identification job', (_d,_b,items) => changeAgency(items, 'self-id-response', selfIdResponse.id, { vacancy: 'missing-vacancy' })],
+   ['missing self-identification questionnaire', (_d,_b,items) => removeAgency(items, 'self-id-questionnaire', selfIdQuestionnaire.id)],
+   ['altered self-identification snapshot', (_d,_b,items) => changeAgency(items, 'self-id-response', selfIdResponse.id, { versions: selfIdResponse.versions.map(v => ({ ...v, form: { ...v.form, notice: 'Synthetic altered notice' } })) })],
+   ['unreviewed self-identification version', (_d,_b,items) => changeAgency(items, 'self-id-response', selfIdResponse.id, { versions: selfIdResponse.versions.map(v => ({ ...v, formVersion: 999 })) })],
+   ['answered without voluntary consent', (_d,_b,items) => changeAgency(items, 'self-id-response', selfIdResponse.id, { versions: selfIdResponse.versions.map(v => ({ ...v, consent: false })) })],
+
    ['missing take-home assignment', (_d,_b,items) => removeAgency(items, 'take-home', assessment.app.id)],
    ['missing take-home application', (_d,_b,items) => changeAgency(items, 'take-home', assessment.app.id, { application: 'missing-application' })],
    ['wrong take-home candidate', (_d,_b,items) => changeAgency(items, 'take-home', assessment.app.id, { candidate: candidate.id })],
@@ -207,6 +222,7 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   assert.equal(createHash('sha256').update(download.text).digest('hex'), doc.sha256)
   assert.equal((await dst.send('/api/lodge/agency/file/' + pendingFile.id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
   assert.equal((await dst.send('/api/lodge/download/document/' + accepted.files[0].id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
+  assert.deepEqual((await dst.state(owner)).selfIdentification.responses, [selfIdResponse], 'restricted response and exact earlier reviewed notice survive restore')
   const restoredAssessment = (await dst.state(owner)).takeHomes
   assert.equal(restoredAssessment.assignments.find(r => r.id === assessment.app.id).versions[0].instructions, 'Synthetic archive instructions')
   assert.equal(restoredAssessment.assignments.find(r => r.id === assessment.app.id).candidate, assessmentSurvivor.id)
