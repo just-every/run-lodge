@@ -150,6 +150,12 @@ export async function checkHandoffPreviews() {
     assert.equal((await read(row)).status, 404)
     assert.equal((await send('/api/lodge/command/handoff-preview', await input(f.offers[0]), h.owner)).status, 404)
     assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM l_records WHERE kind='handoff-preview' AND instr(value,?)>0").bind(f.people[0].candidate.id).first()).n, 0)
+    const survivor = (await run('candidate', { name: 'Synthetic Lodge merged hire', email: f.people[2].candidate.email, source: 'Direct', consentBasis: 'manual' })).candidate
+    await run('review-duplicate', { keep: survivor.id, other: f.people[2].candidate.id, decision: 'merge', reason: 'Human confirmed the same signed hire' })
+    const mergedPreview = await read(native)
+    assert.equal(mergedPreview.status, 200)
+    assert.equal(mergedPreview.value.snapshot.candidate, f.people[2].candidate.id, 'frozen identity is never rewritten by a merge')
+    assert.equal(mergedPreview.value.stale, true); assert.equal(mergedPreview.value.reviewValid, false)
     assert.equal(outbound, 0, 'preparation and review make zero HRIS calls')
     console.log('PROBE HIRE-001 mapping: native and attested signed hires -> exact USD values, selected original digests, incomplete preview and human review')
     console.log('PROBE HIRE-001 fences: unsigned, declined, stale terms, missing originals, restricted selections and revoked authority -> refusal; replay and restart -> one frozen record')
@@ -178,6 +184,7 @@ export async function checkHandoffPreviews() {
       return { id, finalize: () => target.imports.finalize(id, { contentHash: content.digest(), archiveHash: whole.digest() }) }
     }
     for (const mutate of [
+      copy => { const row = copy.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'handoff-preview').row; const value = JSON.parse(row.value); value.candidate = value.snapshot.candidate = f.people[1].candidate.id; row.value = JSON.stringify(value) },
       copy => { const index = copy.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'handoff-mapping'); copy.splice(index, 1) },
       copy => { const row = copy.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'handoff-preview').row; row.value = JSON.stringify({ ...JSON.parse(row.value), application: 'synthetic-missing-application' }) },
       copy => { const row = copy.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'handoff-preview').row; const value = JSON.parse(row.value); value.snapshot.documents[0].sha256 = '0'.repeat(64); row.value = JSON.stringify(value) },
@@ -191,9 +198,11 @@ export async function checkHandoffPreviews() {
     const valid = await restore(); await valid.finalize()
     const restoredOwner = await dst.signIn(owner), restored = (await dst.state(restoredOwner)).handoffPreviews.records.find(r => r.id === native.id)
     assert.equal(restored.review, null); assert.equal(restored.reviewValid, false)
+    assert.equal(restored.snapshot.candidate, f.people[2].candidate.id)
+    assert.equal((await dst.state(restoredOwner)).applications.find(app => app.id === native.application).candidate, survivor.id)
     assert.deepEqual([restored.complete, restored.employeeCreated, restored.creationAuthorized], [false, false, false])
     assert.equal((await dst.send('/api/lodge/handoff-preview/' + native.id, undefined, h.owner)).status, 401, 'source session does not travel')
-    console.log('PROBE HIRE-001 archive: invalid relationships, changed digests and completion claims refused before publication; valid restore retains historical preview without live review or creation authority')
+    console.log('PROBE HIRE-001 archive: invalid relationships, changed digests and completion claims refused before publication; valid merged-lineage restore retains the frozen original identity without live review or creation authority')
   } finally { if (!closed) await h.close(); await dst?.close() }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) { await checkHandoffPreviews(); console.log('Employee mapping preview sanity journey passed') }
