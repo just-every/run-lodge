@@ -143,7 +143,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "df6caa52ca74a194ba603f7e134907880173d574aee83114c429dad37c994a9e",
+      "sha256": "702dc416a91e347d6ab2012eb2ac16b97dc136a0a2d5ff7e9faba3df50250b05",
       "executable": false
     },
     "agent-surface.json": {
@@ -207,7 +207,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "85543819bfd6aa40cdf98d5be59ed7c1bb90c4f2f9558471e5bc3097c062c00a",
+      "sha256": "991e5471048bb5ee79f4120fd99ed143239c3e7507356795a8f096c92fd73b8f",
       "executable": false
     },
     "docs/coding-agents.md": {
@@ -4443,7 +4443,7 @@
       "executable": false
     },
     "src/ui/interviews.tsx": {
-      "sha256": "9da04e3b359c5971bd40ae2416db463d33d2da2315ca0b17682849f589a54a27",
+      "sha256": "4972b989bc722c39a385fcea662f0c62d0b3f2608bd8901478f11aae649b74c7",
       "executable": false
     },
     "src/ui/job-board.tsx": {
