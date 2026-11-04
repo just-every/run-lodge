@@ -54,7 +54,7 @@ function stateOf(s: State, row: Data): Data {
   if (!same(row.assignment, assignment(s, row))) return { status: 'review-required', reason: 'Interview, rubric or assignments changed', confirmation: null }
   if (!row.owner || !ownsCurrently(s, row.owner, app.id)) return { status: 'review-required', reason: row.owner ? 'Recruiter lost current authority' : 'Human ownership required', confirmation: null }
   if (!preparerCurrent(s, row)) return { status: 'review-required', reason: 'Preparing agent or principal lost authority', confirmation: null }
-  if (row.reviewRequired) return { status: 'review-required', reason: row.reason, confirmation: null }
+  if (row.reviewRequired || row.status === 'stopped') return { status: 'review-required', reason: row.status === 'stopped' ? 'Stopped source changed; review current feedback assignment' : row.reason, confirmation: null }
   const card = submittedFeedback(s, app, iv, row.panellist)
   if (card) return { status: 'completed', reason: 'Confirmed native feedback submission', confirmation: { scorecard: card.id, submittedAt: card.submittedAt } }
   return { status: 'open', reason: 'Required native feedback is not submitted', confirmation: null }
@@ -77,7 +77,7 @@ export function syncCoordinationCases(s: State) {
   for (const original of s.all(KIND)) {
     const next = stateOf(s, original)
     if (original.status !== next.status || original.reason !== next.reason || !same(original.confirmation, next.confirmation)) {
-      history(s, null, { ...original, ...next, reviewRequired: next.status === 'review-required' || original.reviewRequired === true }, next.status, { reason: next.reason, confirmation: next.confirmation })
+      history(s, null, { ...original, ...next, reviewRequired: next.status === 'review-required' || next.status === 'stopped' || original.reviewRequired === true }, next.status, { reason: next.reason, confirmation: next.confirmation })
     }
   }
 }

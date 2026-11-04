@@ -1183,7 +1183,7 @@
       "executable": false
     },
     "src/lodge/agents/coordination-cases.ts": {
-      "sha256": "efbfd33f7cae86607854eb737b107e1ca6655ca3304c31f9bb14ef48c6018741",
+      "sha256": "042e42b88f9dc2fc3914017208ca0e9c85afc197d712d596c68cb6639a750f3d",
       "executable": false
     },
     "src/lodge/agents/coordination.ts": {
@@ -4835,7 +4835,7 @@
       "executable": false
     },
     "tests/coordination-case-flow.mjs": {
-      "sha256": "4439a1285fe8fd8441cbe52612facf0292f24f2960fb77d5fbbf6106457f2847",
+      "sha256": "4a578690775f936028c4ba21286748694ef2903693f296d5f90d9912f48e91f4",
       "executable": false
     },
     "tests/crm-browser.mjs": {
