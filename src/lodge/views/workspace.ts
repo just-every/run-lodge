@@ -1,3 +1,4 @@
+import { jobPostingSource } from '../careers/job-posting'
 import { handoffView } from '../agents/handoff-exceptions'
 import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
@@ -105,7 +106,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     if (managesVacancy(a, v)) {
       const approval = latestApproval(s, 'vacancy', v.id)
       const version = await versionOf(s, 'vacancy', v)
-      vacancies.push({ ...v, manages: true, permissions: [...permissionsOn(s, a, v)], version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
+      vacancies.push({ ...v, posts: await Promise.all((v.posts ?? []).map(async (p: Data) => ({ ...p, jobPostingSource: await jobPostingSource(s, v, p) }))), manages: true, permissions: [...permissionsOn(s, a, v)], version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
     } else {
       // Panel members see the role, its stages and the rubric they score against.
       const sources = teamOf(v, 'sourcers').includes(scope(a))
