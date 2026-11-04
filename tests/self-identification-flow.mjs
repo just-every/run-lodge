@@ -51,8 +51,10 @@ export async function checkSelfIdentification() {
     const controls = (q, value = 'Synthetic response one', version = 1) => ({ ['sid-' + q.id + '-version']: String(version), ['sid-' + q.id + '-consent']: 'yes', ['sid-' + q.id + '-q1']: value })
     const htmlFields = value => Object.assign({}, ...configs.map(q => controls(q, value)))
     const hostedInput = { ...fields('hosted'), ...htmlFields(), submissionKey: 'synthetic-lodge-hosted-1' }
-    const host = await send('/jobs/' + job.slug, optionalForm(hostedInput))
-    assert.equal(host.status, 200, host.text)
+    const firstSubmissions = await Promise.all([send('/jobs/' + job.slug, optionalForm(hostedInput)), send('/jobs/' + job.slug, optionalForm(hostedInput))])
+    assert.ok(firstSubmissions.every(r => [200, 409].includes(r.status)))
+    const host = firstSubmissions.find(r => r.status === 200)
+    assert.ok(host, 'one concurrent initial submission completes')
     const receipt = host.text.match(/LDG-[A-F0-9]{8}/)[0]
     assert.equal((await send('/jobs/' + job.slug, optionalForm(hostedInput))).text.match(/LDG-[A-F0-9]{8}/)[0], receipt)
     const concurrentReplay = await Promise.all([send('/jobs/' + job.slug, optionalForm(hostedInput)), send('/jobs/' + job.slug, optionalForm(hostedInput))])

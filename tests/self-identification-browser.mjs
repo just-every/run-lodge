@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { browserWidths } from './browser-widths.mjs'
 import { iconTooltips } from './icon-tooltips.mjs'
-import { api, current, session } from './browser-journey.mjs'
+import { current, session } from './browser-journey.mjs'
 import { questionnaireInput, selfIdentificationJob, syntheticAddress } from './self-identification-flow.mjs'
 
 /** Configure through built Settings, apply on the public form and inspect restricted custody. */
@@ -73,7 +73,7 @@ export async function selfIdentificationPage(browser, { root, origin, run, evide
       await page.screenshot({ path: evidence + '/self-identification-restricted-' + width + '.png', fullPage: true })
     } catch (error) {
       await page.screenshot({ path: evidence + '/self-identification-failure-' + width + '.png', fullPage: true })
-      console.error('Self-identification browser errors:', errors, (await page.locator('body').innerText()).slice(0,2000))
+      console.error('Self-identification browser errors:', errors)
       throw error
     } finally { await publicContext.close(); await owner.context.close() }
   }

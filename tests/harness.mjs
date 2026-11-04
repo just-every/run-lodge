@@ -48,6 +48,7 @@ export async function harness({ claim = true, bindings = {}, outboundService, cl
     ...(outboundService ? { outboundService } : {}),
     bindings: { AUTH_ORIGIN: origin, AUTH_LOCAL: 'true', OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: 'local-test-secret-not-production-0123456789', SETUP_TOKEN, TEST_CLOCK: clock ?? '', MAIL_PROVIDER: 'development', MAIL_FROM: 'Lodge <lodge@example.test>', ...bindings },
   }
+  if (clock) workerOptions.bindings.TEST_CLOCK = new Date(Math.max(Date.parse(clock), Date.now())).toISOString()
   const runtimeOptions = () => ({ ...convertV4MiniflareOptions(workerOptions), unsafeTriggerHandlers: inbound, resourcePersistencePath: dir })
   let mf = new Miniflare(runtimeOptions())
   try {
@@ -56,7 +57,12 @@ export async function harness({ claim = true, bindings = {}, outboundService, cl
       await db.batch(unstable_splitSqlQuery(await readFile('migrations/core/' + file, 'utf8')).map(sql => db.prepare(sql)))
 
     /** One HTTP request through the Worker; JSON bodies by default, a cookie for the person. */
+    let currentClock = clock
     async function send(path, body, cookie = '', extra = {}) {
+      // D1 fences native sessions against its real clock. Mint through the real
+      // auth door before restoring a past business-event clock, as cohortFixture does.
+      const restoreClock = currentClock && (path.startsWith('/auth/') || path === '/api/lodge/invite') && Date.parse(currentClock) < Date.now()
+      if (restoreClock) await mf.dispatchFetch(origin + '/__test/clock', { method: 'POST', body: JSON.stringify({ at: new Date().toISOString() }) })
       const init = { method: body === undefined ? 'GET' : 'POST', redirect: 'manual', headers: { origin, cookie, ...(body !== undefined && !(body instanceof FormData) ? { 'content-type': 'application/json' } : {}), ...extra } }
       if (body instanceof FormData) {
         // Encode the multipart body exactly as a browser would, boundary included.
@@ -64,13 +70,17 @@ export async function harness({ claim = true, bindings = {}, outboundService, cl
         init.headers['content-type'] = encoded.headers.get('content-type')
         init.body = new Uint8Array(await encoded.arrayBuffer())
       } else if (body !== undefined) init.body = JSON.stringify(body)
-      const r = await mf.dispatchFetch(origin + path, init)
+      let r
+      try { r = await mf.dispatchFetch(origin + path, init) } finally {
+        if (restoreClock) await mf.dispatchFetch(origin + '/__test/clock', { method: 'POST', body: JSON.stringify({ at: currentClock }) })
+      }
       const text = await r.text()
       let value; try { value = JSON.parse(text) } catch { value = text }
       return { status: r.status, value, text, headers: r.headers, cookie: r.headers.getSetCookie?.().map(c => c.split(';')[0]).join('; ') }
     }
     const owner = claim ? (await send('/auth/bootstrap', { token: SETUP_TOKEN, displayName: 'Olive Owner' })).cookie : null
     if (claim) assert.ok(owner, 'the owner claimed the installation')
+    if (clock) await send('/__test/clock', { at: clock })
 
     async function command(op, body, cookie = owner, status = 200) {
       const r = await send('/api/lodge/command/' + op, body, cookie)
@@ -109,7 +119,8 @@ export async function harness({ claim = true, bindings = {}, outboundService, cl
       if (options.devIdentity !== undefined) workerOptions.script = (await workerBundle(liveMail, options.devIdentity)).outputFiles[0].text
       Object.assign(workerOptions.bindings, options.bindings ?? {})
       mf = new Miniflare(runtimeOptions()); db = await mf.getD1Database('DB')
-    }, async setTime(at) { assert.ok(clock, 'enable the test clock explicitly'); assert.equal((await send('/__test/clock', { at })).status, 200) }, send, command, state, member, signIn, async close() { await mf.dispose(); await rm(dir, { recursive: true, force: true }) } }
+      if (currentClock) await send('/__test/clock', { at: currentClock })
+    }, async setTime(at) { assert.ok(clock, 'enable the test clock explicitly'); assert.equal((await send('/__test/clock', { at })).status, 200); currentClock = at }, send, command, state, member, signIn, async close() { await mf.dispose(); await rm(dir, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose(); await rm(dir, { recursive: true, force: true })
     throw error
