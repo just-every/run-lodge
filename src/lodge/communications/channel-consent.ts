@@ -29,14 +29,15 @@ export function reviewChannelNotice(s: State, a: Actor, b: Data) {
 }
 
 export function changeChannelNumber(s: State, a: Actor, candidate: Data, b: Data) {
-  const record = s.find('channel-number', candidate.id), versions = record?.versions ?? []
+  const channel = oneOf(b.channel, CHANNELS, 'Channel'), id = channelId(candidate.id, channel)
+  const record = s.find('channel-number', id), versions = record?.versions ?? []
   requireThat(Number(b.version) === versions.length, 'Your channel number changed; reload before saving', 409)
   const number = text(b.number, 'Number with country code', 16)
   requireThat(/^\+[1-9]\d{7,14}$/.test(number), 'Use + followed by the country code and number')
   if (versions.at(-1)?.number === number && !record?.restored) return record
   const version = { version: versions.length + 1, number, by: a.id, at: now(), ownership: 'unverified' }
   s.audit(a, 'channel-number-changed', 'candidate:' + candidate.id)
-  return s.put('channel-number', candidate.id, { candidate: candidate.id, versions: [...versions, version], restored: false })
+  return s.put('channel-number', id, { candidate: candidate.id, channel, versions: [...versions, version], restored: false })
 }
 
 function timeZone(value: unknown) {
@@ -68,7 +69,7 @@ export async function chooseChannel(s: State, a: Actor, candidate: Data, app: Da
     requireThat(app.status === 'active' && !app.candidateWithdrawnAt, 'This application is closed', 409)
     const notice = s.find('channel-notice', id), current = notice?.versions.at(-1)
     requireThat(current && !notice?.restored && current.language === (app.language ?? 'en') && Number(b.noticeVersion) === current.version, 'The reviewed channel wording changed or is unavailable; reload', 409)
-    const profile = s.find('channel-number', candidate.id), number = profile?.versions.at(-1)
+    const profile = s.find('channel-number', channelId(candidate.id, channel)), number = profile?.versions.at(-1)
     requireThat(number && !profile?.restored && Number(b.numberVersion) === number.version, 'Your channel number changed or is unavailable; enter it and choose again', 409)
     if (decision === 'consent') requireThat(candidate.contactPreference?.preference !== 'none', 'Your global no-contact preference takes priority', 409)
     const zone = timeZone(b.zone), start = clock(b.start, 'Window start'), end = clock(b.end, 'Window end')
@@ -82,7 +83,7 @@ export async function chooseChannel(s: State, a: Actor, candidate: Data, app: Da
 
 export function channelStatus(s: State, app: Data, channel: string) {
   const record = s.find('channel-consent', channelId(app.id, channel)), last = record?.history.at(-1)
-  const candidate = s.find('candidate', app.candidate), profile = s.find('channel-number', app.candidate)
+  const candidate = s.find('candidate', app.candidate), profile = s.find('channel-number', channelId(app.candidate, channel))
   const number = profile?.versions.at(-1), notice = s.find('channel-notice', channelId(app.id, channel)), wording = notice?.versions.at(-1)
   let reason = 'No explicit channel permission'
   if (last) reason = last.decision === 'withdraw' ? 'Channel permission withdrawn' : last.decision === 'refuse' ? 'Channel permission refused' : 'Fresh permission required'

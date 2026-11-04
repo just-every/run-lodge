@@ -81,6 +81,8 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   await prepareChannels(src, channel)
   assert.equal((await src.send(channel.base + '/choice', channelChoice(), channel.cookie)).status, 303)
   const channelId = channel.app.id + ':sms'
+  const channelSurvivor = (await src.command('candidate', { name: channel.person.name, email: channel.person.email, source: 'Direct', consentBasis: 'manual' })).candidate
+  await src.command('review-duplicate', { keep: channelSurvivor.id, other: channel.person.id, decision: 'merge', reason: 'Synthetic same channel candidate' })
   // OPS-001: the complete audit round-trips through the archive unchanged, with no erased person's text in it.
   const audit = (await src.send('/api/lodge/audit', undefined, src.owner)).value
   assert.ok(audit.total > 20 && audit.events.some(e => e.action === 'candidate-deleted' && e.record === 'candidate:' + deleted.id) && !JSON.stringify(audit).includes('Deleted person'))
@@ -115,7 +117,7 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   const mutations = [
    ['detached channel application', (_d,_b,items) => changeAgency(items, 'channel-consent', channelId, { application: application.id })],
    ['missing reviewed channel notice', (_d,_b,items) => removeAgency(items, 'channel-notice', channelId)],
-   ['missing candidate-entered channel number', (_d,_b,items) => removeAgency(items, 'channel-number', channel.person.id)],
+   ['missing candidate-entered channel number', (_d,_b,items) => removeAgency(items, 'channel-number', channel.person.id + ':sms')],
    ['active restored channel evidence', (_d,_b,items) => changeAgency(items, 'channel-consent', channelId, { restored: false })],
    ['unrelated channel candidate', (_d,_b,items) => {
     const row = agencyRow(items, 'channel-consent', channelId), v = JSON.parse(row.value)

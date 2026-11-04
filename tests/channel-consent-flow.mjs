@@ -3,6 +3,7 @@ import { businessHarness } from './harness.mjs'
 import { careersJob } from './careers-driver.mjs'
 import { address, candidateSession, form } from './take-home-flow.mjs'
 
+export const channelZone = ['America', 'New_York'].join('/')
 export const notice = (application, channel = 'sms', version = 0) => ({ application, channel, version, language: 'en', purpose: 'Interview coordination', text: 'Optional interview updates on this channel. You can refuse or withdraw at any time.', reviewed: true })
 export async function seedChannelConsent(h, suffix = 310) {
   const job = await careersJob(h.command, 'Synthetic channel role ' + suffix)
@@ -15,10 +16,10 @@ export async function seedChannelConsent(h, suffix = 310) {
   const cookie = await candidateSession(h, email), base = '/candidate/receipts/' + receipt.id + '/channels'
   return { job, email, person, app, receipt, cookie, base }
 }
-export const choice = (extra = {}) => ({ channel: 'sms', decision: 'consent', revision: 0, request: 'synthetic-lodge-choice-1', noticeVersion: 1, numberVersion: 1, zone: 'America/New_York', start: '09:00', end: '17:00', ...extra })
+export const choice = (extra = {}) => ({ channel: 'sms', decision: 'consent', revision: 0, request: 'synthetic-lodge-choice-1', noticeVersion: 1, numberVersion: 1, zone: channelZone, start: '09:00', end: '17:00', ...extra })
 export async function prepareChannels(h, f) {
   for (const channel of ['sms', 'whatsapp']) await h.command('channel-notice', notice(f.app.id, channel))
-  assert.equal((await h.send(f.base + '/number', { version: 0, number: '+15550102030' }, f.cookie)).status, 303)
+  for (const channel of ['sms', 'whatsapp']) assert.equal((await h.send(f.base + '/number', { channel, version: 0, number: '+15550102030' }, f.cookie)).status, 303)
 }
 
 /** Native account, Worker and D1 sanity journey across channel choices, authority and erasure. */
@@ -43,6 +44,9 @@ export async function checkChannelConsent() {
     const page = (await h.send(base, undefined, cookie)).text
     assert.doesNotMatch(page, /type="radio"[^>]*checked/, 'choices start unselected')
     assert.match(page, /Ownership unverified/)
+    const foreignBefore = await snapshot()
+    assert.equal((await h.send(base + '/choice', choice(), cookie, { origin: 'https://foreign.example.test' })).status, 403)
+    assert.deepEqual(await snapshot(), foreignBefore)
     await noWrite(base + '/choice', choice({ decision: '' }), cookie, 400)
     await noWrite(base + '/choice', choice({ zone: 'not-a-zone' }), cookie, 400)
     await noWrite(base + '/choice', choice({ start: '17:00', end: '09:00' }), cookie, 400)
@@ -71,10 +75,12 @@ export async function checkChannelConsent() {
     await noWrite(base + '/choice', choice({ channel: 'whatsapp', revision: 2, request: 'synthetic-lodge-stale-wording' }), cookie, 409)
     assert.equal((await submit(choice({ channel: 'whatsapp', revision: 2, noticeVersion: 2, request: 'synthetic-lodge-wa-3' }))).status, 303)
     // A changed candidate-entered number requires fresh explicit choices, even when changed back.
-    assert.equal((await h.send(base + '/number', { version: 1, number: '+15550102031' }, cookie)).status, 303)
+    assert.equal((await h.send(base + '/number', { channel: 'sms', version: 1, number: '+15550102031' }, cookie)).status, 303)
+    assert.equal((await status('whatsapp')).currentPermission, true, 'SMS number changes leave the independent WhatsApp choice intact')
+    assert.equal((await h.send(base + '/number', { channel: 'whatsapp', version: 1, number: '+15550102031' }, cookie)).status, 303)
     assert.equal((await status('whatsapp')).currentPermission, false)
     await noWrite(base + '/choice', choice({ revision: 2, request: 'synthetic-lodge-stale-number' }), cookie, 409)
-    assert.equal((await h.send(base + '/number', { version: 2, number: '+15550102030' }, cookie)).status, 303)
+    for (const channel of ['sms', 'whatsapp']) assert.equal((await h.send(base + '/number', { channel, version: 2, number: '+15550102030' }, cookie)).status, 303)
     assert.equal((await status('whatsapp')).currentPermission, false)
     assert.equal((await submit(choice({ revision: 2, numberVersion: 3, request: 'synthetic-lodge-sms-2' }))).status, 303)
     assert.deepEqual((await status('sms')).history.slice(0, 2), originalHistory)
@@ -102,6 +108,14 @@ export async function checkChannelConsent() {
     await h.command('job-levels', { id: app.vacancy, members: {} })
     await h.command('member', { email: reviewerAddress, name: 'Synthetic channel reviewer', roles: ['manager'], active: false })
     await noWrite(staffPath, undefined, reviewer, 403)
+    const agentAddress = address(313), ownerAddress = (await h.state()).actor.email
+    const agent = await h.member(agentAddress, ['admin'], 'Synthetic channel agent', { agent: true, actsFor: ownerAddress })
+    assert.deepEqual((await h.state(agent)).channelConsent, { notices: [], numbers: [], choices: [] })
+    await noWrite('/api/lodge/command/channel-notice', notice(app.id, 'sms', 1), agent, 403)
+    await noWrite(staffPath, undefined, agent, 404)
+    // Even an identity that also has a candidate receipt cannot use an agent membership to mutate.
+    await h.command('member', { email: other.email, name: 'Synthetic candidate agent', roles: ['admin'], agent: true, actsFor: ownerAddress })
+    await noWrite(other.base + '/number', { version: 0, number: '+15550102030' }, other.cookie, 403)
     const signedOut = await h.send('/candidate/signout', {}, cookie)
     assert.equal(signedOut.status, 303)
     await noWrite(base + '/choice', choice({ revision: 3, decision: 'withdraw', request: 'synthetic-lodge-revoked' }), cookie, 401)
@@ -112,13 +126,13 @@ export async function checkChannelConsent() {
     assert.equal(exported.text.includes(cookie), false)
     assert.deepEqual((await h.state()).applications.find(a => a.id === app.id).history, beforeApp.history)
     // Merge preserves earlier identity history but never adopts its active permission.
+    const activeHold = await h.command('hold', { candidate: person.id, reason: 'Synthetic original-person hold' })
     const survivor = (await h.command('candidate', { name: person.name, email: person.email, source: 'Direct', consentBasis: 'manual' })).candidate
     await h.command('review-duplicate', { keep: survivor.id, other: person.id, decision: 'merge', reason: 'Synthetic same person' })
     assert.equal((await status('sms')).currentPermission, false)
     const mergedExport = await h.send('/api/lodge/download/candidate/' + survivor.id, undefined, h.owner)
     assert.equal(mergedExport.value['channel-number'][0].candidate, person.id)
     assert.equal(mergedExport.value['channel-consent'].length, 2)
-    const activeHold = await h.command('hold', { candidate: survivor.id, reason: 'Synthetic lineage hold' })
     assert.equal((await h.send('/candidate/receipts/' + f.receipt.id + '/account/withdraw', form({ confirm: 'yes' }), renewed)).status, 303)
     assert.equal((await status('sms')).currentPermission, false)
     await noWrite('/api/lodge/delete-candidate', { candidate: survivor.id, confirm: survivor.name, reason: 'Synthetic erasure' }, h.owner, 409)
@@ -126,7 +140,7 @@ export async function checkChannelConsent() {
     assert.equal((await h.send('/api/lodge/delete-candidate', { candidate: survivor.id, confirm: survivor.name, reason: 'Synthetic erasure' }, h.owner)).status, 200)
     const remaining = await snapshot()
     assert.equal(remaining.some(r => ['channel-consent', 'channel-notice'].includes(r.kind) && JSON.parse(r.value).application === app.id), false)
-    assert.equal(remaining.some(r => r.kind === 'channel-number' && r.id === person.id), false)
+    assert.equal(remaining.some(r => r.kind === 'channel-number' && JSON.parse(r.value).candidate === person.id), false)
     await noWrite(base, undefined, renewed, 404)
     assert.equal(outbound, 0, 'local permission supplies no SMS or WhatsApp provider calls')
   } finally { await h.close() }

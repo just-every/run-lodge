@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "9c10032adb03379f5fd144419e4a5d9e048a8dec8aef96a3c3a6ccb47163f9b9",
+      "sha256": "bec2be4fdf1e44165c465f999dcd66f53fb58a3a58dfc72969389248e120b8d3",
       "executable": false
     },
     "DEMO.md": {
@@ -947,7 +947,7 @@
       "executable": false
     },
     "scripts/installer/channel-consent-policy.mjs": {
-      "sha256": "55facd7145c84e5977b3ffe732bc53c3ad7c51bf1dedaca97982736e711b5f89",
+      "sha256": "e19346ae19e2a1c3f3fb0fcdd0ce065dafa57019f07e3a8c9efa1bc433da657e",
       "executable": false
     },
     "scripts/installer/local.mjs": {
@@ -1319,7 +1319,7 @@
       "executable": false
     },
     "src/lodge/communications/channel-consent.ts": {
-      "sha256": "d4b0544652f7ddf41c6ec26e5e404da0bf0e3687cf238d273c98286cb3a39c2e",
+      "sha256": "96d94a7c5ef0d8301e6fffe76ff172cc82554ed9efd7b7e1990d34b92fa7f77f",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -1555,7 +1555,7 @@
       "executable": false
     },
     "src/lodge/http/channel-consent.ts": {
-      "sha256": "eb2403290c2bb6ab634800faece5a43d53410616c85dc9424ba223b1997210d9",
+      "sha256": "294f32711ddbccb49966af1c38f63881e384c78e3db235965400f0ffd62c93b9",
       "executable": false
     },
     "src/lodge/http/embed.ts": {
@@ -4827,11 +4827,11 @@
       "executable": false
     },
     "tests/channel-consent-browser.mjs": {
-      "sha256": "129d0ff1023063c43715fbb70299159204aa62e9c90aa81d3f2619bbdfbfc878",
+      "sha256": "894d1026da3af1211aeecf93ab47f86bec6c78bfc1edd18fabbe5c2698561fcc",
       "executable": false
     },
     "tests/channel-consent-flow.mjs": {
-      "sha256": "d9b165e4a60e45df83b7fb4a8ac0baf9f4b8df576ddc75189fbf3cca427ce9e8",
+      "sha256": "738055f6f5f0b02bbad35efb710a1c6cd0d0ea0eca37c2fa62650c9d7ed43d95",
       "executable": false
     },
     "tests/clause-browser.mjs": {
@@ -5103,7 +5103,7 @@
       "executable": false
     },
     "tests/portability.test.mjs": {
-      "sha256": "ee375d724390906c3e4fdfdfee3da9be12d418ea115d8363ae075d27c40339fc",
+      "sha256": "64d3952496106de5a5c284a5c0d8efb1e381b88839c269bc359712d004de485b",
       "executable": false
     },
     "tests/posts-page.mjs": {

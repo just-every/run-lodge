@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { mkdir } from 'node:fs/promises'
 import { businessHarness } from './harness.mjs'
-import { seedChannelConsent } from './channel-consent-flow.mjs'
+import { seedChannelConsent, channelZone } from './channel-consent-flow.mjs'
 import { iconTooltips } from './icon-tooltips.mjs'
 
 /** Real candidate and employer pages. Behavior is asserted at 1440; proof includes both widths. */
@@ -18,6 +18,7 @@ export async function channelConsentPage(browser, { evidence }) {
     }
     candidate = await context(f.cookie); employer = await context(h.owner)
     const page = await candidate.newPage(), staff = await employer.newPage(), errors = []
+    for (const p of [page, staff]) { p.setDefaultTimeout(15000); p.setDefaultNavigationTimeout(20000) }
     for (const p of [page, staff]) p.on('pageerror', e => errors.push(e.message))
     const shot = async (p, state) => {
       await iconTooltips(p)
@@ -29,12 +30,14 @@ export async function channelConsentPage(browser, { evidence }) {
       }
       await p.setViewportSize({ width: 1440, height: 1000 })
     }
+    console.log('Channel browser: candidate account')
     await page.goto(h.origin + '/candidate/receipts/' + f.receipt.id + '/account')
     await page.getByRole('link', { name: 'SMS and WhatsApp preferences', exact: true }).click()
     await page.getByRole('heading', { name: 'SMS and WhatsApp preferences', exact: true }).waitFor()
     assert.equal(await page.locator('input[type=radio]').count(), 0, 'no unreviewed choices are offered')
     await shot(page, 'unreviewed')
     const staffPath = '/candidate/employer/' + f.app.id + '/channels'
+    console.log('Channel browser: employer review')
     await staff.goto(h.origin + staffPath)
     for (const channel of ['SMS', 'WhatsApp']) {
       const panel = staff.getByRole('region', { name: channel + ' review', exact: true })
@@ -45,14 +48,17 @@ export async function channelConsentPage(browser, { evidence }) {
       await staff.getByRole('heading', { name: 'Channel consent settings', exact: true }).waitFor()
     }
     await page.reload()
-    await page.getByLabel('Number with country code', { exact: true }).fill('+15550102030')
-    await page.getByRole('button', { name: 'Save channel number', exact: true }).click()
+    for (const channel of ['SMS', 'WhatsApp']) {
+      const panel = page.getByRole('region', { name: channel + ' permission', exact: true })
+      await panel.getByLabel('Number with country code', { exact: true }).fill('+15550102030')
+      await panel.getByRole('button', { name: 'Save ' + channel + ' number', exact: true }).click()
+    }
     await page.getByRole('button', { name: 'Save SMS choice', exact: true }).waitFor()
     assert.equal(await page.locator('input[type=radio]:checked').count(), 0, 'both choices remain unselected')
     await shot(page, 'unselected')
     const choose = async (channel, consent) => {
       const panel = page.getByRole('region', { name: channel + ' permission', exact: true })
-      await panel.getByLabel('Time zone', { exact: true }).fill('America/New_York')
+      await panel.getByLabel('Time zone', { exact: true }).fill(channelZone)
       await panel.getByLabel('Daily contact window starts', { exact: true }).fill('09:00')
       await panel.getByLabel('Daily contact window ends', { exact: true }).fill('17:00')
       await panel.getByLabel(consent ? 'I give permission for this channel and purpose.' : 'I refuse permission for this channel.', { exact: true }).check()
