@@ -4967,7 +4967,7 @@
       "executable": false
     },
     "tests/harness.mjs": {
-      "sha256": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
+      "sha256": "b37faafb52507260b2992379b5bf58db424c14cc90295b00b264226defc0342d",
       "executable": false
     },
     "tests/hiring-candidates.test.mjs": {
@@ -5195,11 +5195,11 @@
       "executable": false
     },
     "tests/self-identification-browser.mjs": {
-      "sha256": "f92ffd50775acbe9bf50cf33ded2a4dc903814295e44a129091de403a2e15103",
+      "sha256": "6c497f4cdeb8e7411e79ecb1d1e111b5ecced624ec423b61a468258d59212ad9",
       "executable": false
     },
     "tests/self-identification-flow.mjs": {
-      "sha256": "5a6037c2726b80111050e6fea6b8639b82eefc0fffcff49117f4eec76c32b68f",
+      "sha256": "a6b01814139543cc1f6fa0382d2fd43b617bea651a58468594852d573ca39d88",
       "executable": false
     },
     "tests/site/site.test.mjs": {
