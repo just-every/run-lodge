@@ -131,6 +131,13 @@ export async function deleteCandidate(s: State, a: Actor, b: Data) {
   requireThat(!c.imported && !Object.values(records).flat().some(r => r.imported), 'This person came from an import whose original files still hold their data. Undo that import if nothing changed, or keep the record until imported erasure is available (IMPORTING.md).', 409)
   await suppressErasedCapture(s, [c, ...records.candidate])
   for (const m of records['capture-mail']) for (const f of m.attachments) s.drop('blob', f.id)
+  // Keep only opaque request-key hashes so replay cannot recreate an erased intake.
+  for (const row of records['application-submission']) s.put('erased-intake', 'form:' + row.id, {})
+  const receiptIds = new Set(records.receipt.map(r => r.id))
+  for (const row of s.scan('board-idempotency').filter(r => receiptIds.has(r.receipt))) {
+    s.put('erased-intake', 'board:' + row.id, {})
+    s.remove('board-idempotency', row.id)
+  }
   const counts: Record<string, number> = {}
   for (const [kind, rows] of Object.entries(records)) {
     counts[kind] = rows.length

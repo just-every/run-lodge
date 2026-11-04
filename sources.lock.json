@@ -159,7 +159,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "08724e7512b8869e7fcbc78f8f869ee82640adde08a783dac3ef6d8529b579c0",
+      "sha256": "b549470bcc9e3059c55bf57c71c0668d85526e9f51d6613a33f7a084fd6c3911",
       "executable": false
     },
     "base-copies.json": {
@@ -963,7 +963,7 @@
       "executable": false
     },
     "scripts/installer/self-identification-policy.mjs": {
-      "sha256": "a5674fd59c7dda71d5cb51a072babc7c08b7f3debb0b871128259dfd963d9acf",
+      "sha256": "e1346c85a14f51fb1c7e0ba21b7ae07a2c2bdefc894b7c0ba3d2943c38f64a57",
       "executable": false
     },
     "scripts/installer/ui/background.svg": {
@@ -1447,7 +1447,7 @@
       "executable": false
     },
     "src/lodge/enterprise/http.ts": {
-      "sha256": "87941c12f476c54d48bac3c40b784d7b9640e7baa023754bb87d61d06a03fc10",
+      "sha256": "74eefc44fa19d0fa619a0f7331f12381d0c347b0aee548fc0d5658e0d8ee7805",
       "executable": false
     },
     "src/lodge/enterprise/saml-xml.ts": {
@@ -1739,7 +1739,7 @@
       "executable": false
     },
     "src/lodge/records/intake.ts": {
-      "sha256": "ad3162622619d0698dbea0a2529dd8c1b8656ec656a8eee144ffc2b2d9f0eb2b",
+      "sha256": "d0862c9c6ce5e01c425ef0f7f9a0c405486b4cd22139622991d6670eec0c7b97",
       "executable": false
     },
     "src/lodge/records/internal.ts": {
@@ -1751,7 +1751,7 @@
       "executable": false
     },
     "src/lodge/records/job-board.ts": {
-      "sha256": "7e7f7c7a41a831aba53e9af3b4c6cc556f604838e0e7c1a1e107be0bffe86dd5",
+      "sha256": "2a5b0f089040999e2d2897093525370f0550885a5623b74bc6f719bf7e1f1eb2",
       "executable": false
     },
     "src/lodge/records/kickoffs.ts": {
@@ -1819,7 +1819,7 @@
       "executable": false
     },
     "src/lodge/records/retention.ts": {
-      "sha256": "dd0bd5eff0e5b09e8e7af6352649522a9e1fa6aec43fd0e65378b4353f0eab7a",
+      "sha256": "2db065f1026658a88641950f646124bfdef9e8e5194349f9a958e91ad0f7efb7",
       "executable": false
     },
     "src/lodge/records/reviews.ts": {
@@ -1835,7 +1835,7 @@
       "executable": false
     },
     "src/lodge/records/self-identification.ts": {
-      "sha256": "664e0c66d8a8f4801dc90e1260bf52be86f1a2bdf936ee4e977d0efd111c3561",
+      "sha256": "5bf60ba79df9403f7e3396a348a400e1ded0cf0c2d3a0d0e4d2359afc9ce4209",
       "executable": false
     },
     "src/lodge/records/sources.ts": {
@@ -5091,7 +5091,7 @@
       "executable": false
     },
     "tests/portability.test.mjs": {
-      "sha256": "f3342e97f71f77e5825716b60011a6ad1c35e5662a8e3ecdcdf95bcb9170eba8",
+      "sha256": "0381ddfdd0fd7e7be1bab2ff7d2b46c033653086483d5072daa1eb3100ad90a3",
       "executable": false
     },
     "tests/posts-page.mjs": {
@@ -5195,11 +5195,11 @@
       "executable": false
     },
     "tests/self-identification-browser.mjs": {
-      "sha256": "04a5bd8883ff6d152a0082746b253c77013a70fbe2f75d46c1cc38d5ff85417a",
+      "sha256": "f92ffd50775acbe9bf50cf33ded2a4dc903814295e44a129091de403a2e15103",
       "executable": false
     },
     "tests/self-identification-flow.mjs": {
-      "sha256": "e71024c1ef2dafbffc273029647a61915dcedd21d8019310bcba94dfb5f8453c",
+      "sha256": "5a6037c2726b80111050e6fea6b8639b82eefc0fffcff49117f4eec76c32b68f",
       "executable": false
     },
     "tests/site/site.test.mjs": {

@@ -116,6 +116,7 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   }
   const removeAgency = (items, kind, id) => items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id), 1)
   const mutations = [
+   ['altered original intake path', (_d,_b,items) => changeAgency(items, 'self-id-response', selfIdResponse.id, { originalIntakePath: 'Changed intake' })],
    ['missing self-identification application', (_d,_b,items) => changeAgency(items, 'self-id-response', selfIdResponse.id, { application: 'missing-application' })],
    ['wrong self-identification job', (_d,_b,items) => changeAgency(items, 'self-id-response', selfIdResponse.id, { vacancy: 'missing-vacancy' })],
    ['missing self-identification questionnaire', (_d,_b,items) => removeAgency(items, 'self-id-questionnaire', selfIdQuestionnaire.id)],

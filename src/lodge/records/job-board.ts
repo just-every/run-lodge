@@ -222,6 +222,7 @@ export async function idempotencyId(caller: string, key: string | undefined) {
 
 export function earlierReceipt(s: State, id: string | null) {
   if (!id) return null
+  requireThat(!s.find('erased-intake', 'board:' + id), 'This submission was erased; start a new application instead of replaying it', 410)
   const cutoff = new Date(Date.now() - IDEMPOTENCY_HOURS * 3600_000).toISOString()
   for (const row of s.all('board-idempotency')) if (row.at < cutoff) s.drop('board-idempotency', row.id)
   const row = s.find('board-idempotency', id)
