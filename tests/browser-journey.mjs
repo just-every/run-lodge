@@ -50,6 +50,8 @@ export async function journey(browser, root, origin, width, evidence) {
     for (const as of ['manager', 'approver', 'interviewer']) s[as] = await session(browser, root, origin, as, width)
     const { manager, approver, interviewer } = s
     const title = `Site supervisor ${width}`, person = `Dana Whitfield ${width}`
+    // Keep scheduled interviews ahead of the live browser clock so the calendar door remains visible.
+    const futureDate = days => new Date(Date.now() + days * 86400000).toISOString().slice(0, 10)
 
     // Manager: the vacancy, its rubric and plan, then an approval request.
     await tab(manager.page, 'Vacancies')
@@ -112,8 +114,8 @@ export async function journey(browser, root, origin, width, evidence) {
     // A select's accessible name includes its chosen option, so pick the plan field by name.
     await manager.page.locator('select[name="planItem"]').selectOption({ index: 1 })
     await manager.page.getByLabel('Interviewers (emails, comma separated)').fill('interviewer@dev.localhost')
-    await manager.page.getByLabel('Proposed time 1').fill('2026-11-03T10:00')
-    await manager.page.getByLabel('Proposed time 2').fill('2026-11-04T10:00')
+    await manager.page.getByLabel('Proposed time 1').fill(futureDate(7) + 'T10:00')
+    await manager.page.getByLabel('Proposed time 2').fill(futureDate(8) + 'T10:00')
     await manager.page.getByRole('button', { name: 'Propose interview' }).click(); await saved(manager.page)
     await manager.page.getByLabel('Confirmed time').selectOption({ index: 2 })
     await manager.page.getByRole('button', { name: 'Schedule', exact: true }).click()
@@ -163,7 +165,7 @@ export async function journey(browser, root, origin, width, evidence) {
     await manager.page.getByRole('button', { name: 'Release feedback to the panel' }).click(); await saved(manager.page)
     await record(manager.page, 'Decisions')
     await manager.page.getByText('Prepare an offer', { exact: true }).click()
-    await manager.page.getByLabel('Start date').fill('2026-12-01')
+    await manager.page.getByLabel('Start date').fill(futureDate(30))
     await manager.page.getByLabel('Pay', { exact: true }).fill('100000')
     await manager.page.getByRole('button', { name: 'Save offer' }).click(); await saved(manager.page)
     await manager.page.getByLabel('Approver').selectOption('approver@dev.localhost')
