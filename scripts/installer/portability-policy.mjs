@@ -56,6 +56,7 @@ export async function validateStaged({ read }) {
   }
   if (row.kind === 'handoff-preview') {
    const app = reference('application', value.application), offer = reference('offer', value.offer), frozen = value.snapshot;
+   reference('handoff-mapping', app.vacancy);
    refuse(offer.application === app.id && value.candidate === app.candidate && value.vacancy === app.vacancy);
    refuse(frozen && frozen.offer === value.offer && frozen.application === app.id && frozen.candidate === app.candidate && frozen.vacancy === app.vacancy);
    refuse(value.review === null && value.complete === false && value.employeeCreated === false && value.creationAuthorized === false);

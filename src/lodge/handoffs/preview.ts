@@ -71,7 +71,7 @@ async function snapshot(s: State, a: Actor, offerId: string, selected: string[])
   requireThat(values.payCurrency === 'USD', 'Only approved USD compensation is supported', 409)
   const fields = mapping.fields.map((m: Data) => ({ ...m, label: MAPPING_FIELDS[m.source as keyof typeof MAPPING_FIELDS], value: values[m.source], missing: !m.target || missing(values[m.source]) }))
   // Permission definition edits invalidate review even when a grant stays present.
-  for (const level of s.scan('permission-level')) sources.push(source(s, 'permission-level', level.id))
+  for (const kind of ['permission-level', 'department']) for (const record of s.scan(kind)) sources.push(source(s, kind, record.id))
   const unique = [...new Map(sources.map(r => [r.kind + ':' + r.id, r])).values()].sort((x, y) => (x.kind + x.id).localeCompare(y.kind + y.id))
   return { offer: offer.id, application: app.id, candidate: person.id, vacancy: job.id, name: person.name, destination: mapping.destination,
     tenant: mapping.tenant, tenantVerified: false, schemaValidated: false, contingencies: { declared: offer.contingencies || '', status: 'unknown' },

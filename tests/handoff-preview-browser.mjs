@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url'
 import { api, current, session } from './browser-journey.mjs'
 import { iconTooltips } from './icon-tooltips.mjs'
 import { handoffAddress } from './handoff-exception-flow.mjs'
-import { mappingFields, previewFixture } from './handoff-preview-flow.mjs'
+import { previewFixture } from './handoff-preview-flow.mjs'
 
 /** One desktop sanity journey; the changed states are captured at both release widths. */
 export async function handoffPreviewPage(browser, { root, origin, evidence, ownerEmail }) {
@@ -32,7 +32,7 @@ export async function handoffPreviewPage(browser, { root, origin, evidence, owne
     await page.goto(origin + '/app?settings=handoff')
     const settings = page.getByRole('region', { name: 'Employee mapping settings', exact: true })
     await settings.getByLabel('Mapping job', { exact: true }).selectOption(f.job.id)
-    await settings.getByLabel('Declared destination', { exact: true }).selectOption('bamboohr')
+    await settings.locator('select[name="destination"]').selectOption('bamboohr')
     await settings.getByLabel('Declared tenant identifier', { exact: true }).fill('synthetic-lodge-browser-tenant')
     await settings.getByLabel('Job manager destination field', { exact: true }).fill('')
     await settings.getByRole('button', { name: 'Save employee mapping', exact: true }).click()
@@ -59,7 +59,7 @@ export async function handoffPreviewPage(browser, { root, origin, evidence, owne
     await frozen.getByRole('heading', { name: 'BambooHR · Human reviewed; creation not authorized', exact: true }).waitFor()
     await capture('employee-mapping-reviewed')
     await run('field-values', { application: f.people[0].application.id, values: { [f.customField]: 'Changed cost centre' } })
-    await page.reload(); await page.getByRole('tab', { name: 'Decisions', exact: true }).click()
+    await page.goto(origin + '/app?application=' + f.people[0].application.id); await page.getByRole('tab', { name: 'Decisions', exact: true }).click()
     await panel.getByRole('heading', { name: 'BambooHR · Sources changed; prepare again', exact: true }).waitFor()
     assert.equal(await panel.getByRole('button', { name: 'Record human mapping review', exact: true }).count(), 0)
     await capture('employee-mapping-stale')

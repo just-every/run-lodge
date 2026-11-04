@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "dd77e5301d183478ee4a7192385f0b79548906fe4241adc2458e68b4dd639279",
+      "sha256": "4556833480a49512527316e404cab1785d33ef3546b913dab94096dbf78feadc",
       "executable": false
     },
     "DEMO.md": {
@@ -951,7 +951,7 @@
       "executable": false
     },
     "scripts/installer/portability-policy.mjs": {
-      "sha256": "5e9c7b85e400384ce8b5b0ac91458bf56153de09b6b2068f7ca111818ce325ce",
+      "sha256": "f81a497ffdbc3e6b0c480d07d6d9a365ff9f7928de6ab2d82383f7da712e5cd3",
       "executable": false
     },
     "scripts/installer/referral-policy.mjs": {
@@ -1523,7 +1523,7 @@
       "executable": false
     },
     "src/lodge/handoffs/preview.ts": {
-      "sha256": "a83aa9e0d62d73d2d55e9e7a0ffc806a684823172a586c33fea3f61f596aeb2a",
+      "sha256": "52b9f431ac6497e60d551927bc66864c9f1b4aa0eb64489977df949914199154",
       "executable": false
     },
     "src/lodge/http/api.ts": {
@@ -4979,11 +4979,11 @@
       "executable": false
     },
     "tests/handoff-preview-browser.mjs": {
-      "sha256": "f3d4545179d6d78d07cdb00ce090675b8a2c84a5c446f6a02436b6a0bd1df0e1",
+      "sha256": "ec6dc921db2f6704b2c4a026db752fe4094d59b63260bb7faf71b0283b45ac8a",
       "executable": false
     },
     "tests/handoff-preview-flow.mjs": {
-      "sha256": "5c8de896c45c98cc27049c3b064f0b1b700461f795d843a30ee6b5365b72d809",
+      "sha256": "6b2facca5129f98ae2bf5907bc42143b9237341b4e43592e47459167b808a177",
       "executable": false
     },
     "tests/harness.mjs": {
