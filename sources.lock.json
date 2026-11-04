@@ -5195,7 +5195,7 @@
       "executable": false
     },
     "tests/self-identification-browser.mjs": {
-      "sha256": "6c497f4cdeb8e7411e79ecb1d1e111b5ecced624ec423b61a468258d59212ad9",
+      "sha256": "5393653370d78176059216735eb9f679296f519e8d9090f84c51415428f91a5b",
       "executable": false
     },
     "tests/self-identification-flow.mjs": {
