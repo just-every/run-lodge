@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "bc747cdfcd0af938cf0f81826ff9e0768a4e469d30392db38e12e1f162c1674b",
+      "sha256": "cfcb5a5611ae2c4c9e5924bf4284c9044d3983cd0e771046ee7db98098535699",
       "executable": false
     },
     "DEMO.md": {
@@ -1300,6 +1300,10 @@
     },
     "src/lodge/careers/host.ts": {
       "sha256": "0bf2d698c17b8e91063a39ef81ffeab12eefed966e6bb5955b9d2ab65d7b06ba",
+      "executable": false
+    },
+    "src/lodge/careers/job-posting.ts": {
+      "sha256": "f146ebc32ef3cdc3f50951865db2aff1886db5e5f5ad72215a710e4b691864bd",
       "executable": false
     },
     "src/lodge/careers/receipt.ts": {
@@ -5004,6 +5008,14 @@
     },
     "tests/interview-day-flow.mjs": {
       "sha256": "0502c5e11e8aad7722f7483e1fbcb2da5d5dcdbe37233308fb7f97ce5a22af43",
+      "executable": false
+    },
+    "tests/job-posting-browser.mjs": {
+      "sha256": "44004a9d701f5c4fdbd396bf5ba9c9f9249460d029446f11ad320ea6a12f0c53",
+      "executable": false
+    },
+    "tests/job-posting-flow.mjs": {
+      "sha256": "63c2395a1e6a6790b333462a80de95311e2cdab9b0eae1e6443990db5a96aefa",
       "executable": false
     },
     "tests/language-fixtures.mjs": {

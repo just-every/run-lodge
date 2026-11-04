@@ -53,7 +53,7 @@ export async function reviewJobPosting(s: State, a: Actor, b: Data) {
   if (b.selected === true) {
     const source = await jobPostingSource(s, v, p)
     requireThat(b.source === source, 'Listing sources changed; reload and review the current post', 409)
-    jobPosting = { ...metadata(s, v, p, b), selected: true, source, reviewedBy: a.email, reviewedAt: now() }
+    jobPosting = { ...metadata(s, v, p, b), selected: true, source, reviewedBy: a.email, reviewedMemberRevision: s.revisionOf('member', a.email), reviewedAt: now() }
   }
   const result = s.put('vacancy', v.id, { ...v, posts: v.posts.map((x: Data) => x.id === p.id ? { ...x, jobPosting } : x) })
   s.audit(a, 'job-posting-reviewed', 'vacancy:' + v.id, { post: p.id, selected: jobPosting.selected })
@@ -66,7 +66,7 @@ export async function jobPosting(s: State, l: Listing, origin: string): Promise<
   if (!p || !review?.selected || v.status !== 'open' || p.status !== 'live' || v.imported || v.confidential || v.internalOnly || !p.destinations.includes('careers')) return null
   if (payProblems(s, v).length || !await approvedNow(s, 'vacancy', v) || review.source !== await jobPostingSource(s, v, p)) return null
   const member = s.find('member', review.reviewedBy)
-  if (!member?.active || member.agent || !managesVacancy(member as Actor, v) || !can(s, member as Actor, v, 'settings')) return null
+  if (!member?.active || member.agent || review.reviewedMemberRevision !== s.revisionOf('member', review.reviewedBy) || !managesVacancy(member as Actor, v) || !can(s, member as Actor, v, 'settings')) return null
   try { metadata(s, v, p, review) } catch { return null }
   const pay = publicPay(s, v, p), ranges = pay.ranges
   // One JobPosting cannot truthfully attach different salaries to its locations.
