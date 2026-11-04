@@ -1,3 +1,4 @@
+import { freeFeedPage } from './free-feed-browser.mjs'
 import { handoffExceptionPage } from './handoff-exception-browser.mjs'
 import { candidateUpdatePage } from './candidate-update-browser.mjs'
 import { sourcingProposalPage } from './sourcing-proposal-browser.mjs'
@@ -99,6 +100,7 @@ try {
   for (const [as, roles, name] of PERSONAS) await api(owner.context, server.origin, 'member', { email: `${as}@dev.localhost`, name, roles })
 
   await applicationEmailWorkspace(browser, root, server.origin, resolve(evidence, 'application-emails'))
+  await freeFeedPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'free-feeds'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await takeHomePage(browser, { root, origin: server.origin, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await interviewDayPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await cohortReportPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })

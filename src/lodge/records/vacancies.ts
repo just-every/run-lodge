@@ -200,7 +200,7 @@ export async function publish(s: State, a: Actor, b: Data) {
   // PRIV-001: a California job publishes only once the owner has adopted the CPRA notice.
   if (inCalifornia(s, v)) requireCpraNotice(s)
   const slug = v.slug ?? `${v.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || 'role'}-${uid().slice(0, 6)}`
-  const record = s.put('vacancy', v.id, { ...v, status: 'open', slug, publishedAt: now(), noticeVersion: business.notices.at(-1).version })
+  const record = s.put('vacancy', v.id, { ...v, status: 'open', slug, publishedAt: now(), firstPublishedAt: v.firstPublishedAt ?? v.publishedAt ?? now(), noticeVersion: business.notices.at(-1).version })
   s.audit(a, 'vacancy-published', 'vacancy:' + v.id, { slug })
   return record
 }

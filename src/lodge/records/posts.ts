@@ -91,7 +91,7 @@ export function postStatus(s: State, a: Actor, b: Data) {
     if (!v.confidential && !v.internalOnly && post.destinations.some((d: string) => d === 'careers' || d === 'embed')) publishRecoveryUi(s, post)
   }
   requireThat(status !== 'paused' || post.status === 'live', 'Only a live post pauses', 409)
-  const record = s.put('vacancy', v.id, { ...v, posts: v.posts.map((p: Data) => p.id === post.id ? { ...p, status, history: [...p.history, { status, by: a.email, at: now() }] } : p) })
+  const record = s.put('vacancy', v.id, { ...v, posts: v.posts.map((p: Data) => p.id === post.id ? { ...p, status, ...(status === 'live' ? { firstPublishedAt: p.firstPublishedAt ?? now() } : {}), history: [...p.history, { status, by: a.email, at: now() }] } : p) })
   s.audit(a, 'post-' + status, 'vacancy:' + v.id, { post: post.id })
   return record
 }

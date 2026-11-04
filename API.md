@@ -1120,3 +1120,39 @@ are withheld, and candidate erasure removes their case history and packets.
 This native door sends no notice and establishes no connected booking, reply,
 calendar or mailbox completion. Existing communications grants, scorecard
 release controls and human hiring decisions remain required.
+
+
+## Native free job-board XML
+
+`GET /careers/feeds/linkedin.xml` and `GET /careers/feeds/indeed.xml` return
+uncached XML. They perform no outbound provider calls. Human administrators
+configure each job or post under Settings. The `free-feed` command takes
+`vacancy`, optional `post`, `board` (`linkedin` or `indeed`), current `version`
+and the exact `source` token from its workspace `freeFeedSettings` entry for that vacancy and target. Enabling
+requires `reviewed: true`, an explicit employer name and HTTPS website, a
+public feed contact, and a supplied city, US state and country for every approved
+office. LinkedIn also requires the employer's actual numeric Company ID and a
+job description of at least 100 characters. No ID, address, provider enrollment
+or employer authority is inferred. An optional current human member receives
+explicitly configured CRM credit. Disabling needs only the current version.
+
+Each configuration preserves earlier versions. Changed content or pay rules
+withhold the entry until reviewed again. Only currently approved, opted-in,
+public, noninternal jobs and live selected posts are served. A feed post also
+needs its hosted careers destination. Paused or closed posts and unpublished
+or closed jobs disappear on the next response. Indeed has one stable reference
+per post and office, with the job's requisition ID shared across those entries.
+LinkedIn uses one stable post ID and its reviewed alternate locations. Unequal
+location pay ranges remain separate in description text; no common salary is
+invented. Both feeds use the shared approved USD pay and benefits text.
+
+Feed URLs open the hosted job details and application with a declared `feed`
+source code. Successful intake automatically registers the named job-board
+source, preserves the post and optional CRM credit, and labels the provenance
+`declared-feed-link` with `verifiedProviderReferral: false`. Anyone can copy a
+link; this establishes no verified board origin. Existing submission-key replay
+protection remains in effect. A native served-entry receipt supports the state
+“Feed served, listing not confirmed”; readiness alone does not establish serving.
+LinkedIn Company Page, Indeed and Glassdoor listings, provider acceptance,
+refresh cycles, remote removal and status reconciliation still require their
+actual employer authorizations and provider proof.

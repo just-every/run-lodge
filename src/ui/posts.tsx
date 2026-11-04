@@ -65,14 +65,14 @@ export function Posts({ v, w, mutate }: { v: D } & Pick<PageProps, 'w' | 'mutate
 
 /** Feed configuration stays under Settings and uses the existing labelled form components. */
 export function FreeFeedSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>) {
-  const jobs: D[] = w.vacancies.filter((v: D) => v.freeFeedTargets && !v.imported && v.status !== 'closed')
+  const jobs: D[] = w.vacancies.filter((v: D) => w.freeFeedSettings?.some((x: D) => x.vacancy === v.id) && !v.imported && v.status !== 'closed')
   if (w.actor.agent || !(w.actor.owner || w.actor.roles.includes('admin'))) return null
   return <section aria-label="Free job-board feeds" className="card">
     <h2>Free job-board feeds</h2>
     <p>Serve employer-selected native XML. Provider enrollment, Company Page permission, acceptance and remote listings require separate authorization. Feed links record declared source only.</p>
     <p><a href="/careers/feeds/linkedin.xml">LinkedIn XML</a> · <a href="/careers/feeds/indeed.xml">Indeed XML</a></p>
     {jobs.map(v => <details key={v.id}><summary>Feed settings for {v.title}</summary>
-      {v.freeFeedTargets.map((target: D) => <details key={target.post ?? 'job'}><summary>{target.post ? 'Post: ' : 'Job: '}{target.title}</summary>
+      {w.freeFeedSettings.find((x: D) => x.vacancy === v.id).targets.map((target: D) => <details key={target.post ?? 'job'}><summary>{target.post ? 'Post: ' : 'Job: '}{target.title}</summary>
         <p>{target.content.description}</p><p style={{ whiteSpace: 'pre-line' }}>{target.content.pay}</p><p>Employment type: {target.content.employmentType}</p>
         {target.boards.map((item: D) => {
           const c = item.config ?? {}, post = v.posts?.find((p: D) => p.id === target.post)

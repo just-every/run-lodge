@@ -60,7 +60,7 @@ export async function checkFreeFeeds() {
     let first = await open('Synthetic operations', [a, b]), second = await open('Synthetic field team', [a])
     const configure = async (v, post, board, overrides = {}, cookie) => {
       const job = (await state()).vacancies.find(x => x.id === v.id)
-      const target = job.freeFeedTargets.find(x => x.post === post)
+      const target = (await state()).freeFeedSettings.find(x => x.vacancy === job.id).targets.find(x => x.post === post)
       const current = target.boards.find(x => x.board === board).config
       return send('/api/lodge/command/free-feed', { vacancy: v.id, post, board, source: target.source, version: current?.version ?? 0, enabled: true, reviewed: true,
         companyName: 'Synthetic Lodge Employer', companyUrl: 'https://www.example.test', companyId: '123456789', posterEmail: ownerEmail,
@@ -74,6 +74,8 @@ export async function checkFreeFeeds() {
     assert.equal((await configure(first, null, 'indeed', { source: 'stale-source' })).status, 409)
     assert.equal((await configure(first, null, 'indeed', {}, manager)).status, 403)
     assert.equal((await configure(first, null, 'indeed', { companyUrl: 'not a URL' })).status, 400)
+    const noDisclosure = (await state()).vacancies.find(v => v.id === first.id).freeFeeds
+    assert.equal(noDisclosure, undefined, 'rejected configuration attempts changed nothing')
     for (const v of [first, second]) for (const board of ['linkedin', 'indeed']) assert.equal((await configure(v, null, board)).status, 200)
     const linkedin = await feed('linkedin'), indeed = await feed('indeed')
     assert.equal(linkedin.length, 2)
@@ -90,7 +92,7 @@ export async function checkFreeFeeds() {
       assert.ok(content.includes(']]&gt;'), 'CDATA terminators remain exact literal description text')
     }
     assert.deepEqual(indeed.filter(j => value(j, 'requisitionid') === first.id).map(j => value(j, 'salary')).sort(), ['$60000 - $80000 per year', '$70000 - $90000 per year'])
-    assert.match((await state()).vacancies.find(v => v.id === first.id).freeFeedTargets[0].boards[0].status, /Feed served, listing not confirmed/)
+    assert.match((await state()).freeFeedSettings.find(v => v.vacancy === first.id).targets[0].boards[0].status, /Feed served, listing not confirmed/)
 
     // Two independent posts replace the job entry only on their selected destinations.
     first = await cmd('job-post', { vacancy: first.id, title: 'Synthetic Denver post', description: hostile, locations: [a.id], destinations: ['careers', 'linkedin', 'indeed'] })
@@ -158,13 +160,18 @@ export async function checkFreeFeeds() {
       for (const board of ['linkedin', 'indeed']) assert.ok(!(await feed(board)).some(j => value(j, 'title') === second.title))
       await cmd(op, { id: second.id, confidential: false, internalOnly: false })
     }
+    assert.equal((await configure(second, null, 'indeed', { enabled: false, reviewed: false, locations: [] })).status, 200)
+    assert.ok(!(await feed('indeed')).some(j => value(j, 'title') === second.title), 'explicit opt-out is immediate without re-review')
     await cmd('pay-rules', { rules: [{ place: 'Colorado', reviewedOn: '2026-01-01', benefitsRequired: true, rangeRequired: true }] })
     assert.equal((await feed('linkedin')).length, 0, 'changed pay rules invalidate current exact feed review')
     for (const board of ['linkedin', 'indeed']) assert.equal((await configure(first, p1.id, board)).status, 200)
+    const firstDate = value((await feed('indeed')).find(j => value(j, 'title') === 'Edited Denver post'), 'date')
+    await h.setTime('2026-11-05T12:00:00.000Z')
     await cmd('unpublish', { id: first.id, reason: 'Native feed removal' })
     assert.equal((await feed('linkedin')).length, 0)
     await cmd('publish', { id: first.id })
     assert.equal((await feed('linkedin')).length, 1)
+    assert.equal(value((await feed('indeed')).find(j => value(j, 'title') === 'Edited Denver post'), 'date'), firstDate, 'republishing preserves the original feed date')
     await cmd('close-vacancy', { id: first.id, reason: 'Role filled' })
     assert.equal((await feed('linkedin')).length, 0)
     assert.equal((await send('/jobs/' + p1.slug + '?feed=linkedin')).status, 404)

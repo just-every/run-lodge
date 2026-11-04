@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { requireAdmin, requireMember } from '../core/access'
+import { requireAdmin, requireMember, requireManages, requireCan } from '../core/access'
 import { canonical, email, list, now, oneOf, optionalText, requireThat, sha256, text, type Actor, type Data } from '../core/types'
 import { approvedNow, terms } from '../records/approvals'
 import { approvedOffices, listings, type Listing } from '../records/posts'
@@ -9,6 +9,7 @@ export const FREE_BOARDS = ['linkedin', 'indeed'] as const
 export type FreeBoard = typeof FREE_BOARDS[number]
 export const FEED_NAMES = { linkedin: 'LinkedIn Limited Listing', indeed: 'Indeed (organic)' }
 export const feedPath = (board: FreeBoard) => '/careers/feeds/' + board + '.xml'
+const xmlSafe = (value: unknown): boolean => typeof value === 'string' ? cleanXml(value) : value && typeof value === 'object' ? Object.values(value).every(xmlSafe) : true
 const last = (v: Data, post: string | null, board: FreeBoard) => (v.freeFeeds ?? []).find((x: Data) => x.post === post && x.board === board)?.versions.at(-1)
 const postOf = (v: Data, id: string | null) => id ? (v.posts ?? []).find((p: Data) => p.id === id) : null
 const cleanXml = (value: string) => !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffe\uffff]/u.test(value) && !/[\uD800-\uDFFF]/u.test(value)
@@ -26,6 +27,8 @@ export async function configureFreeFeed(s: State, a: Actor, b: Data) {
   requireThat(!a.agent, 'A human administrator must review free feed configuration', 403)
   const v = s.get('vacancy', b.vacancy), postId = b.post ? text(b.post, 'Post', 64) : null
   requireThat(!v.imported && v.status !== 'closed', 'Choose a current native job', 409)
+  requireManages(a, v)
+  requireCan(s, a, v, 'settings')
   const post = postOf(v, postId)
   requireThat(!postId || post && post.status !== 'closed', 'Choose a current post', 404)
   const board = oneOf(b.board, FREE_BOARDS, 'Free board'), current = last(v, postId, board)
@@ -48,9 +51,10 @@ export async function configureFreeFeed(s: State, a: Actor, b: Data) {
     requireThat(companyUrl.protocol === 'https:' && !companyUrl.username && !companyUrl.password, 'Employer website must use HTTPS without credentials')
     const companyId = optionalText(b.companyId, 'LinkedIn Company ID', 40)
     requireThat(board !== 'linkedin' || /^[1-9][0-9]*$/.test(companyId), 'Supply the employer’s actual numeric LinkedIn Company ID; Lodge cannot invent or verify it')
+    if (b.creditWho) requireThat(!requireMember(s, email(b.creditWho, 'Credited member')).agent, 'Choose a current human for CRM credit')
     const credit = b.creditWho ? { kind: oneOf(b.creditKind, ['sourcer', 'recruiter'] as const, 'Credit kind'), who: requireMember(s, email(b.creditWho, 'Credited member')).email } : null
     fields = { source: b.source, companyName: text(b.companyName, 'Employer name', 200), companyUrl: companyUrl.href, companyId, posterEmail: email(b.posterEmail, 'Public feed contact'), locations, credit }
-    requireThat(cleanXml(canonical(fields)) && cleanXml(description) && cleanXml(post?.title ?? v.title) && cleanXml(publicPay(s, v, post).text), 'Remove unsupported XML control characters from feed content')
+    requireThat(xmlSafe(fields) && cleanXml(description) && cleanXml(post?.title ?? v.title) && cleanXml(publicPay(s, v, post).text), 'Remove unsupported XML control characters from feed content')
   }
   const version = { ...current, ...fields, version: (current?.version ?? 0) + 1, enabled: b.enabled === true, reviewedBy: a.email, reviewedAt: now() }
   const all: Data[] = v.freeFeeds ?? []
@@ -120,13 +124,13 @@ export async function renderFreeFeed(s: State, board: FreeBoard, origin: string,
     const common = tag('title', l.title) + tag('company', c.companyName) + tag('description', description)
     if (board === 'linkedin') {
       const ranges = pay.ranges, equal = ranges.length && ranges.every(r => r.min === ranges[0].min && r.max === ranges[0].max && r.period === ranges[0].period)
-      const salary = equal && period[ranges[0].period] ? '<salaries><salary><lowEnd>' + tag('amount', ranges[0].min / 100) + tag('currencyCode', 'USD') + '</lowEnd><highEnd>' + tag('amount', ranges[0].max / 100) + tag('currencyCode', 'USD') + '</highEnd>' + tag('period', period[ranges[0].period]) + tag('type', 'BASE_SALARY') + '</salary></salaries>' : ''
+      const salary = equal && Number.isInteger(ranges[0].min / 100) && Number.isInteger(ranges[0].max / 100) && period[ranges[0].period] ? '<salaries><salary><lowEnd>' + tag('amount', ranges[0].min / 100) + tag('currencyCode', 'USD') + '</lowEnd><highEnd>' + tag('amount', ranges[0].max / 100) + tag('currencyCode', 'USD') + '</highEnd>' + tag('period', period[ranges[0].period]) + tag('type', 'BASE_SALARY') + '</salary></salaries>' : ''
       jobs.push('<job>' + tag('partnerJobId', e.id) + common + tag('applyUrl', url.href) + tag('companyId', c.companyId) + tag('posterEmail', c.posterEmail) + tag('location', c.locations.map((x: Data) => `${x.city}, ${x.state}, ${x.country}`).join('; ')) + '<alternateLocations>' + c.locations.map((x: Data) => tag('alternateLocation', `${x.city}, ${x.state}, ${x.country}`)).join('') + '</alternateLocations>' + (type[v.employmentType] ? tag('jobtype', type[v.employmentType]) : '') + tag('workplaceTypes', ({ onsite: 'On-site', hybrid: 'Hybrid', remote: 'Remote' } as Data)[v.workMode]) + salary + '</job>')
     } else for (const loc of c.locations) {
       const id = (await sha256(e.id + ':' + loc.officeId)).slice(0, 32)
       const range = pay.ranges.find(r => r.location === s.get('office', loc.officeId).name)
       const salary = range ? `$${range.min / 100} - $${range.max / 100} per ${range.period}` : ''
-      jobs.push('<job>' + common + tag('date', v.publishedAt) + tag('referencenumber', id) + tag('requisitionid', v.id) + tag('url', url.href) + tag('sourcename', c.companyName) + tag('city', loc.city) + tag('state', loc.state) + tag('country', loc.country) + (loc.postalCode ? tag('postalcode', loc.postalCode) : '') + (loc.streetAddress ? tag('streetaddress', loc.streetAddress) : '') + tag('email', c.posterEmail) + tag('salary', salary) + tag('jobtype', v.employmentType.replace('-', '')) + '</job>')
+      jobs.push('<job>' + common + tag('date', l.post?.firstPublishedAt ?? v.firstPublishedAt ?? v.publishedAt) + tag('referencenumber', id) + tag('requisitionid', v.id) + tag('url', url.href) + tag('sourcename', c.companyName) + tag('city', loc.city) + tag('state', loc.state) + tag('country', loc.country) + (loc.postalCode ? tag('postalcode', loc.postalCode) : '') + (loc.streetAddress ? tag('streetaddress', loc.streetAddress) : '') + tag('email', c.posterEmail) + tag('salary', salary) + tag('jobtype', v.employmentType.replace('-', '')) + '</job>')
     }
   }
   const publisher = board === 'indeed' ? tag('publisher', 'Lodge') + tag('publisherurl', origin) : tag('publisher', 'Lodge') + tag('publisherUrl', origin) + tag('lastBuildDate', new Date().toUTCString()) + tag('expectedJobCount', jobs.length)

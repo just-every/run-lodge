@@ -107,7 +107,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     if (managesVacancy(a, v)) {
       const approval = latestApproval(s, 'vacancy', v.id)
       const version = await versionOf(s, 'vacancy', v)
-      vacancies.push({ ...v, ...(feeds ? { freeFeedTargets: await freeFeedView(s, v, feeds) } : {}), manages: true, permissions: [...permissionsOn(s, a, v)], version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
+      vacancies.push({ ...v, manages: true, permissions: [...permissionsOn(s, a, v)], version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
     } else {
       // Panel members see the role, its stages and the rubric they score against.
       const sources = teamOf(v, 'sourcers').includes(scope(a))
@@ -191,6 +191,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     sandboxes: sandboxesView(s, a), providerSetup: admin && !a.agent ? await providerSummary(s) : null,
     members: s.all('member').map(m => admin ? m : { email: m.email, name: m.name, roles: m.roles, active: m.active }),
     referrals: !a.agent && s.find('business', 'main') ? referralsView(s, a, env ?? ({} as Bindings)) : null, referralReviews: employerReferrals(s, a),
+    freeFeedSettings: feeds ? await Promise.all(vacancies.filter(v => v.manages && !v.imported && v.status !== 'closed').map(async v => ({ vacancy: v.id, targets: await freeFeedView(s, s.get('vacancy', v.id), feeds) }))) : [],
     vacancies, agencies: employerAgencies(s, a),
     // Kickoffs: admins see all; a manager sees their own and those behind the jobs they run.
     kickoffs: s.all('kickoff').filter(k => admin || k.author === scope(a) || managed.some(v => v.id === k.vacancy)),
