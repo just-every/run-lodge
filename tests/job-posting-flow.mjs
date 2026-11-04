@@ -1,0 +1,165 @@
+import assert from 'node:assert/strict'
+import { businessHarness } from './harness.mjs'
+
+export const structuredMetadata = offices => ({
+  selected: true, organizationUrl: 'https://synthetic-lodge.example/employer', datePosted: '2026-01-15', validThrough: '2099-12-31',
+  locations: offices.map((o, i) => ({ officeId: o.id, streetAddress: `${100 + i} Synthetic Street`, addressLocality: i ? 'New York' : 'Denver', addressRegion: i ? 'NY' : 'CO', postalCode: i ? '10001' : '80202', addressCountry: 'US' })),
+})
+
+export function postingData(html) {
+  const scripts = [...html.matchAll(/<script type="application\/ld\+json">([^]*?)<\/script>/g)]
+  return scripts.map(x => JSON.parse(x[1]))
+}
+
+export async function checkJobPosting(t) {
+  let outbound = 0
+  const h = await businessHarness({ clock: '2026-11-04T12:00:00Z', outboundService: () => { outbound++; return new Response('No provider access', { status: 503 }) } })
+  t.after(() => h.close())
+  const { command: cmd, send, state, owner } = h
+  const email = (await state()).actor.email
+  const offices = [await cmd('office', { name: 'Denver, CO' }), await cmd('office', { name: 'New York, NY' })]
+  const ranges = offices.map((o, i) => ({ officeId: o.id, compensation: { currency: 'USD', min: 1950 + i * 100, max: 2575 + i * 100, period: 'hour' } }))
+  let job = await cmd('vacancy', { title: 'Synthetic operations role', description: 'Run safe sites.', officeId: offices[0].id, locations: [offices[1].id], payRanges: ranges, employmentType: 'part-time', headcount: 1, manager: email, benefits: 'Health coverage & bonus.' })
+  job = await cmd('rubric', { id: job.id, criteria: [{ name: 'Safety', description: 'Recorded relevant work' }] })
+  job = await cmd('interview-plan', { id: job.id, plan: [{ name: 'Work discussion', stage: job.stages[1].id }] })
+  const approve = async () => {
+    const asked = await cmd('request-vacancy-approval', { id: job.id, approver: email })
+    await cmd('decide-approval', { id: asked.id, decision: 'approved', version: asked.version, reason: 'Employer reviewed exact terms' })
+  }
+  await approve(); job = await cmd('publish', { id: job.id })
+  const original = await send('/jobs/' + job.slug)
+  assert.deepEqual(postingData(original.text), [], 'publication alone never opts in')
+  const title = 'Synthetic </script><script>globalThis.injected=true</script> & supervisor'
+  const description = 'Run <safe> sites & train staff.\n\nNo hidden claims. \u2028 \u2029'
+  let result = await cmd('job-post', { vacancy: job.id, title, description, locations: [offices[0].id], destinations: ['careers', 'embed', 'api'] })
+  const id = result.posts.at(-1).id
+  let post = result.posts.at(-1)
+  const current = async () => (await state()).vacancies.find(v => v.id === job.id)
+  const review = async (extra = {}, selectedPost = id, cookie = owner) => {
+    const p = (await current()).posts.find(p => p.id === selectedPost)
+    return cmd('job-posting-review', { vacancy: job.id, post: p.id, source: p.jobPostingSource, ...structuredMetadata(offices.filter(o => p.locations.includes(o.id))), ...extra }, cookie)
+  }
+  const page = async (p = post) => send('/jobs/' + p.slug + '?source=synthetic-lodge-1')
+  const absent = async (label, p = post) => assert.deepEqual(postingData((await page(p)).text), [], label)
+  await cmd('post-status', { vacancy: job.id, post: id, status: 'live' })
+  await absent('a live post requires explicit structured selection')
+  const snapshot = (await current()).posts[0].jobPostingSource
+  assert.equal((await send('/api/lodge/command/job-posting-review', { vacancy: job.id, post: id, source: snapshot, ...structuredMetadata([]) }, owner)).status, 400, 'free-text office names cannot substitute for supplied addresses')
+  await absent('incomplete review creates no markup')
+  assert.equal((await send('/api/lodge/command/job-posting-review', { vacancy: job.id, post: id, source: snapshot, ...structuredMetadata(offices.slice(0, 1)), organizationUrl: 'javascript:alert(1)' }, owner)).status, 400)
+  assert.equal((await send('/api/lodge/command/job-posting-review', { vacancy: job.id, post: id, source: snapshot, ...structuredMetadata(offices.slice(0, 1)) })).status, 401)
+  await review()
+  let response = await page(), [data] = postingData(response.text)
+  assert.equal(response.status, 200)
+  assert.equal(response.headers.get('cache-control'), 'no-store')
+  assert.equal(data['@type'], 'JobPosting')
+  assert.equal(data.title, title)
+  assert.equal(data.description, '<p>Run &lt;safe&gt; sites &amp; train staff.</p><p>No hidden claims.</p>')
+  assert.equal(data.employmentType, 'PART_TIME')
+  assert.equal(data.hiringOrganization.name, 'Example Builders')
+  assert.equal(data.datePosted, '2026-01-15')
+  assert.equal(data.validThrough, '2099-12-31T23:59:59Z')
+  assert.equal(data.url, h.origin + '/jobs/' + post.slug)
+  assert.ok(response.text.includes(`<link rel="canonical" href="${data.url}">`))
+  assert.deepEqual(data.baseSalary, { '@type': 'MonetaryAmount', currency: 'USD', value: { '@type': 'QuantitativeValue', minValue: 19.5, maxValue: 25.75, unitText: 'HOUR' } })
+  assert.deepEqual(data.jobLocation, [{ '@type': 'Place', name: 'Denver, CO', address: { '@type': 'PostalAddress', streetAddress: '100 Synthetic Street', addressLocality: 'Denver', addressRegion: 'CO', postalCode: '80202', addressCountry: 'US' } }])
+  assert.ok(response.text.includes('<h1>Synthetic &lt;/script&gt;&lt;script&gt;globalThis.injected=true&lt;/script&gt; &amp; supervisor</h1>'))
+  assert.ok(response.text.includes('Run &lt;safe&gt; sites &amp; train staff.'))
+  assert.ok(response.text.includes('Pay for Denver, CO: $19.50–$25.75 an hour'))
+  assert.ok(response.text.includes('Health coverage &amp; bonus.'))
+  assert.ok(response.text.includes('Part-time'))
+  assert.ok(!response.text.includes('<script>globalThis.injected=true</script>'))
+  const script = response.text.match(/<script type="application\/ld\+json">([^]*?)<\/script>/)[1]
+  assert.ok(!/[<>&\u2028\u2029]/.test(script), 'hostile source text stays inert script data')
+  assert.deepEqual(postingData((await send('/jobs')).text), [], 'only job detail pages carry markup')
+  assert.deepEqual(postingData((await send('/embed/jobs/' + post.slug)).text), [], 'embed is not a second indexed detail')
+  await h.restart()
+  assert.equal(postingData((await page()).text)[0].identifier.value, id, 'review survives restart')
+
+  // A post edit invalidates the saved review, and a stale review cannot bless it.
+  await cmd('job-post', { vacancy: job.id, post: id, title, description: 'Changed visible description', locations: [offices[0].id], destinations: ['careers'] })
+  await absent('changed post invalidates review immediately')
+  assert.equal((await send('/api/lodge/command/job-posting-review', { vacancy: job.id, post: id, source: snapshot, ...structuredMetadata(offices.slice(0, 1)) }, owner)).status, 409)
+  await review()
+  assert.equal(postingData((await page()).text)[0].description, '<p>Changed visible description</p>')
+  await cmd('job-post', { vacancy: job.id, post: id, title, description: 'Changed visible description', locations: [offices[0].id], destinations: ['api'] })
+  await absent('a post without the careers destination has no markup')
+  await cmd('job-post', { vacancy: job.id, post: id, title, description: 'Changed visible description', locations: [offices[0].id], destinations: ['careers'] })
+  await review()
+  const reviewerEmail = 'synthetic-lodge-reviewer' + email.slice(email.indexOf(String.fromCharCode(64)))
+  const reviewer = await h.member(reviewerEmail, ['admin'], 'Synthetic reviewer')
+  await review({}, id, reviewer)
+  assert.equal(postingData((await page()).text).length, 1, 'a current human administrator can review')
+  await cmd('member', { email: reviewerEmail, name: 'Synthetic reviewer', roles: ['admin'], active: false })
+  await absent('revoked reviewer authority removes markup')
+  const revoked = await send('/api/lodge/command/job-posting-review', { vacancy: job.id, post: id, selected: false }, reviewer)
+  assert.ok([401, 403].includes(revoked.status), 'revoked session cannot replay a review')
+  await cmd('member', { email: reviewerEmail, name: 'Synthetic reviewer', roles: ['admin'], active: true })
+  await absent('reactivation cannot resurrect an old review')
+  await review()
+  await review({ selected: false }); await absent('explicit deselection removes markup')
+  await review()
+  await cmd('post-status', { vacancy: job.id, post: id, status: 'paused' }); await absent('pause removes markup')
+  await cmd('post-status', { vacancy: job.id, post: id, status: 'live' })
+  await cmd('vacancy-privacy', { id: job.id, confidential: true, publicTitle: 'Neutral role' })
+  await absent('confidential listing discloses no structured metadata')
+  await cmd('vacancy-privacy', { id: job.id, confidential: false })
+  await cmd('vacancy-internal', { id: job.id, internalOnly: true }); await absent('internal-only job has no markup')
+  await cmd('vacancy-internal', { id: job.id, internalOnly: false })
+  await review()
+  await cmd('unpublish', { id: job.id, reason: 'Change current terms' }); await absent('unpublication removes markup')
+  job = await cmd('vacancy', { ...await current(), description: 'New source terms' })
+  await approve(); job = await cmd('publish', { id: job.id })
+  await absent('republishing changed terms requires new structured review')
+  await review()
+  await cmd('pay-rules', { rules: [{ place: 'Colorado', reviewedOn: '2026-01-15', rangeRequired: true, benefitsRequired: true }] })
+  await absent('changed current legal review invalidates structured review')
+  await review()
+  await cmd('business', { ...(await state()).business, name: 'Renamed employer', privacyNotice: 'Synthetic notice', accommodationContact: (await state()).business.accommodationContact })
+  await absent('employer changes invalidate review')
+  await review()
+
+  // Different location amounts are never collapsed into an invented shared salary.
+  result = await cmd('job-post', { vacancy: job.id, title: 'Both locations', description: 'Visible multi-location role', locations: offices.map(o => o.id), destinations: ['careers'] })
+  const multi = result.posts.at(-1)
+  await cmd('post-status', { vacancy: job.id, post: multi.id, status: 'live' }); await review({}, multi.id)
+  await absent('unequal location salaries withhold markup', multi)
+  const multiPage = await page(multi)
+  assert.ok(multiPage.text.includes('$19.50–$25.75') && multiPage.text.includes('$20.50–$26.75'))
+  await cmd('unpublish', { id: job.id, reason: 'Equalize reviewed pay' })
+  job = await cmd('vacancy', { ...await current(), payRanges: offices.map(o => ({ officeId: o.id, compensation: ranges[0].compensation })) })
+  await approve(); job = await cmd('publish', { id: job.id }); await review({}, multi.id)
+  const [equal] = postingData((await page(multi)).text)
+  assert.equal(equal.jobLocation.length, 2)
+  assert.equal(equal.baseSalary.value.minValue, 19.5)
+  await h.setTime('2100-01-01T00:00:00Z'); await absent('expired closing date removes markup', multi)
+  await h.setTime('2026-11-04T12:00:00Z')
+
+  // Existing pay rules can make a previously reviewed listing unsafe without a post edit.
+  await cmd('unpublish', { id: job.id, reason: 'Review benefits' })
+  await cmd('pay-rules', { rules: [] })
+  job = await cmd('vacancy', { ...await current(), benefits: '' })
+  await approve(); job = await cmd('publish', { id: job.id }); await review({}, multi.id)
+  assert.equal(postingData((await page(multi)).text).length, 1)
+  await cmd('pay-rules', { rules: [{ place: 'Colorado', reviewedOn: '2026-01-15', rangeRequired: true, benefitsRequired: true }] })
+  await absent('failed current pay rules remove the public listing and markup', multi)
+  await cmd('pay-rules', { rules: [] })
+  // Remote eligibility is explicitly supplied; no address is inferred from an office label.
+  await cmd('unpublish', { id: job.id, reason: 'Review remote work' })
+  job = await cmd('vacancy', { ...await current(), workMode: 'remote', employmentType: 'contract', payRanges: offices.map(o => ({ officeId: o.id, compensation: { currency: 'USD', min: 6000050, max: 8000075, period: 'year' } })) })
+  await approve(); job = await cmd('publish', { id: job.id })
+  const remoteSource = (await current()).posts.find(p => p.id === multi.id).jobPostingSource
+  assert.equal((await send('/api/lodge/command/job-posting-review', { vacancy: job.id, post: multi.id, source: remoteSource, ...structuredMetadata([]) }, owner)).status, 400, 'remote scope cannot be inferred')
+  await review({ remoteCountry: 'US' }, multi.id)
+  const [remote] = postingData((await page(multi)).text)
+  assert.equal(remote.jobLocationType, 'TELECOMMUTE')
+  assert.deepEqual(remote.applicantLocationRequirements, { '@type': 'Country', name: 'United States' })
+  assert.equal(remote.jobLocation, undefined)
+  assert.equal(remote.employmentType, 'CONTRACTOR')
+  assert.deepEqual(remote.baseSalary.value, { '@type': 'QuantitativeValue', minValue: 60000.5, maxValue: 80000.75, unitText: 'YEAR' })
+  assert.ok((await page(multi)).text.includes('$60,000.50–$80,000.75 a year'))
+  await cmd('post-status', { vacancy: job.id, post: multi.id, status: 'closed' }); await absent('post closure removes markup', multi)
+  await cmd('close-vacancy', { id: job.id, reason: 'Finished' }); await absent('job closure removes markup')
+  assert.equal(outbound, 0, 'native markup performs zero board or provider calls')
+  console.log('PROBE ATTR-002 native markup: actual Worker job detail -> reviewed exact content, cents, locations, canonical URL and hostile text; all exclusions withheld; outbound=0')
+}

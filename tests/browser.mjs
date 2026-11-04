@@ -1,3 +1,4 @@
+import { jobPostingPage } from './job-posting-browser.mjs'
 import { handoffExceptionPage } from './handoff-exception-browser.mjs'
 import { candidateUpdatePage } from './candidate-update-browser.mjs'
 import { sourcingProposalPage } from './sourcing-proposal-browser.mjs'
@@ -189,6 +190,7 @@ try {
   // Every main screen the owner uses, the Lobby, sign-in and the public job list, at both widths.
   for (const width of browserWidths) await screens(browser, root, server.origin, width, evidence)
 
+  await jobPostingPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'job-posting') })
   await payWorkspace(browser, root, server.origin, resolve(evidence, 'pay-transparency'))
   const before = await current(owner.context, server.origin)
   await owner.context.close(); await browser.close(); browser = undefined
