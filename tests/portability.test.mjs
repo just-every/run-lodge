@@ -1,3 +1,4 @@
+import { seedChannelConsent, prepareChannels, choice as channelChoice } from './channel-consent-flow.mjs'
 import { seedTakeHome, file as assessmentFile, original as assessmentOriginal } from './take-home-flow.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -76,6 +77,10 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   assert.equal(appCredential.status, 200, appCredential.text)
   const appToken = appCredential.value.token
   const appHash = createHash('sha256').update(appToken).digest('hex')
+  const channel = await seedChannelConsent(src, 319)
+  await prepareChannels(src, channel)
+  assert.equal((await src.send(channel.base + '/choice', channelChoice(), channel.cookie)).status, 303)
+  const channelId = channel.app.id + ':sms'
   // OPS-001: the complete audit round-trips through the archive unchanged, with no erased person's text in it.
   const audit = (await src.send('/api/lodge/audit', undefined, src.owner)).value
   assert.ok(audit.total > 20 && audit.events.some(e => e.action === 'candidate-deleted' && e.record === 'candidate:' + deleted.id) && !JSON.stringify(audit).includes('Deleted person'))
@@ -108,6 +113,19 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   }
   const removeAgency = (items, kind, id) => items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id), 1)
   const mutations = [
+   ['detached channel application', (_d,_b,items) => changeAgency(items, 'channel-consent', channelId, { application: application.id })],
+   ['missing reviewed channel notice', (_d,_b,items) => removeAgency(items, 'channel-notice', channelId)],
+   ['missing candidate-entered channel number', (_d,_b,items) => removeAgency(items, 'channel-number', channel.person.id)],
+   ['active restored channel evidence', (_d,_b,items) => changeAgency(items, 'channel-consent', channelId, { restored: false })],
+   ['unrelated channel candidate', (_d,_b,items) => {
+    const row = agencyRow(items, 'channel-consent', channelId), v = JSON.parse(row.value)
+    v.history[0].candidate = candidate.id; row.value = JSON.stringify(v)
+   }],
+   ['altered channel consent wording', (_d,_b,items) => {
+    const row = agencyRow(items, 'channel-consent', channelId), v = JSON.parse(row.value)
+    v.history[0].noticeText = 'Altered historical wording'; row.value = JSON.stringify(v)
+   }],
+
    ['missing take-home assignment', (_d,_b,items) => removeAgency(items, 'take-home', assessment.app.id)],
    ['missing take-home application', (_d,_b,items) => changeAgency(items, 'take-home', assessment.app.id, { application: 'missing-application' })],
    ['wrong take-home candidate', (_d,_b,items) => changeAgency(items, 'take-home', assessment.app.id, { candidate: candidate.id })],
@@ -207,6 +225,15 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   assert.equal(createHash('sha256').update(download.text).digest('hex'), doc.sha256)
   assert.equal((await dst.send('/api/lodge/agency/file/' + pendingFile.id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
   assert.equal((await dst.send('/api/lodge/download/document/' + accepted.files[0].id, undefined, owner)).text, 'AGENCY-FROZEN-ORIGINAL')
+  const restoredChannels = (await dst.state(owner)).channelConsent
+  const restoredChoice = restoredChannels.choices.find(c => c.application === channel.app.id)
+  assert.equal(restoredChoice.history[0].decision, 'consent')
+  assert.equal(restoredChoice.currentPermission, false)
+  assert.equal(restoredChoice.messagingAuthorized, false)
+  assert.equal((await dst.send(channel.base, undefined, channel.cookie)).status, 401)
+  const channelSession = await dst.signIn(channel.person.email)
+  assert.match((await dst.send(channel.base, undefined, channelSession)).text, /Restored history/)
+  assert.equal((await dst.send(channel.base + '/choice', channelChoice({ revision: 1, request: 'synthetic-lodge-restored' }), channelSession)).status, 409)
   const restoredAssessment = (await dst.state(owner)).takeHomes
   assert.equal(restoredAssessment.assignments.find(r => r.id === assessment.app.id).versions[0].instructions, 'Synthetic archive instructions')
   assert.equal(restoredAssessment.assignments.find(r => r.id === assessment.app.id).candidate, assessmentSurvivor.id)

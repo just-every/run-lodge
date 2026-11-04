@@ -1,3 +1,4 @@
+import { validateChannelConsent } from './channel-consent-policy.mjs';
 import { validateAssessments } from './assessment-policy.mjs';
 import { validateReferralRecords } from './referral-policy.mjs';
 import { createHash } from 'node:crypto';
@@ -30,6 +31,7 @@ export async function validateStaged({ read }) {
   refuse(typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256) && createHash('sha256').update(bytes).digest('hex') === value.sha256);
  };
  validateAssessments({ rows, get, reference, refuse });
+ validateChannelConsent({ rows, get, reference, refuse });
  validateCandidateLineage(rows.filter(row => row.kind === 'candidate').map(row => get(row.kind, row.id)), refuse);
  const referralFiles = validateReferralRecords({ rows, get, reference, refuse, original });
  const agencyFiles = validateAgencyRecords({ rows, get, reference, refuse, original });
@@ -102,6 +104,9 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && ['channel-number', 'channel-notice', 'channel-consent'].includes(row.kind)) {
+   return { ...row, value: JSON.stringify({ ...JSON.parse(row.value), restored: true }) };
+  }
   if (table === 'l_records' && row.kind === 'proposal') {
    const value = JSON.parse(row.value);
    if (value.workflow === 'feedback-coordination') return { ...row, value: JSON.stringify({ ...value, status: 'withheld' }) };

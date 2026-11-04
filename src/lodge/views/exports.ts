@@ -32,6 +32,7 @@ export function vacancyHistory(w: Workspace, id: string) {
     references: { questionnaires: forApp(w.references.questionnaires), records: forApp(w.references.records) },
     interviewDays: forApp(w.scheduling.drafts), coordinationCases: forApp(w.coordination.cases),
     handoffExceptions: forApp(w.handoffExceptions.cases),
+    channelConsent: { notices: forApp(w.channelConsent.notices), choices: forApp(w.channelConsent.choices), numbers: w.channelConsent.numbers.filter(n => candidateIds.has(n.candidate)) },
     takeHomes: { assignments: forApp(w.takeHomes.assignments), submissions: forApp(w.takeHomes.submissions), grades: forApp(w.takeHomes.grades) },
     interviews: forApp(w.interviews), scorecards: forApp(w.scorecards), debriefs: forApp(w.debriefs), applicationEmails: forApp(w.applicationEmails), messages: forApp(w.messages), offers: forApp(w.offers),
     teamNotes: w.teamNotes.filter(n => appIds.has(n.application) || (candidateIds.has(n.candidate) && !n.application)),
@@ -94,6 +95,8 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
   }
   const body = {
     captures, agencySubmissions, referrals,
+    'channel-consent': byApp(view.channelConsent.choices), 'channel-notice': byApp(view.channelConsent.notices),
+    'channel-number': view.channelConsent.numbers.filter(n => [id, ...mergedCandidates(view.mergedCandidates, id).map(c => c.id)].includes(n.candidate)),
     sourcingPackets: view.proposals.filter(p => p.workflow === 'sourcing-research' && p.candidate === id),
     nurtureSequences: s.all('crm-enrollment').filter(e => e.candidate === id), nurtureReplies: s.all('crm-reply').filter(reply => reply.candidate === id),
     hiringReminders: s.all('hiring-reminder').filter(reminder => appIds.has(reminder.application)),
@@ -142,6 +145,7 @@ export function bulkExport(w: Workspace, ids: string[]) {
       documents: w.documents.filter(d => d.application === id || (d.candidate === application.candidate && !d.application)),
       references: { questionnaires: forApp(w.references.questionnaires), records: forApp(w.references.records) },
       interviewDays: forApp(w.scheduling.drafts), coordinationCases: forApp(w.coordination.cases),
+      channelConsent: { notices: forApp(w.channelConsent.notices), choices: forApp(w.channelConsent.choices), numbers: w.channelConsent.numbers.filter(n => n.candidate === application.candidate) },
       takeHomes: { assignments: forApp(w.takeHomes.assignments), submissions: forApp(w.takeHomes.submissions), grades: forApp(w.takeHomes.grades) },
       interviews: forApp(w.interviews), scorecards: forApp(w.scorecards), applicationEmails: forApp(w.applicationEmails), messages: forApp(w.messages), offers: forApp(w.offers),
       teamNotes: w.teamNotes.filter(n => n.application === id || (n.candidate === application.candidate && !n.application)),

@@ -1357,3 +1357,7 @@ test('CAL-002 native interview-day drafts explain constraints and fence human su
 test('Native take-home custody, candidate identity, deadlines and independent grading survive replay and erasure', async () => {
   await (await import('./take-home-flow.mjs')).checkTakeHome()
 })
+
+test('COM-003 native separate channel choices preserve authority, history and erasure without messaging', async () => {
+  await (await import('./channel-consent-flow.mjs')).checkChannelConsent()
+})

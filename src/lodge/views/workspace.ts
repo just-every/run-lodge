@@ -1,3 +1,4 @@
+import { channelView } from '../communications/channel-consent'
 import { handoffView } from '../agents/handoff-exceptions'
 import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
@@ -209,6 +210,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     tasks,
     references: referenceView(s, a, appIds),
     takeHomes: assessmentView(s, a),
+    channelConsent: channelView(s, a),
     // SCREEN-001: the question library, for admins who keep it and managers who attach it.
     questions: library(s, a),
     // REQ-002: job templates, for the admins who keep them and the managers who start jobs from them.
