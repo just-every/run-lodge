@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "dd77e5301d183478ee4a7192385f0b79548906fe4241adc2458e68b4dd639279",
+      "sha256": "cb8369b2e94a4c441bde39e3833cae93673e15076cc6bb95ba00d4fc3e1efd1b",
       "executable": false
     },
     "DEMO.md": {
@@ -212,6 +212,10 @@
     },
     "docs/coding-agents.md": {
       "sha256": "3114db213a8689164a56c654ed9502f4d9640aedc1de1c8527b837bed01ae496",
+      "executable": false
+    },
+    "docs/contract/ATTR-015-rubric.md": {
+      "sha256": "dd50ceb4e866a0eade359e267d35cd70a171ad792f82f355a8ae3236980b821d",
       "executable": false
     },
     "docs/evidence/attr-001-cloudflare-domain.json": {
@@ -771,7 +775,7 @@
       "executable": false
     },
     "RULINGS.md": {
-      "sha256": "df30696ffbe52dad9add90c8af18e535670a675d1eb7303456a8230ca5b2e19c",
+      "sha256": "c4ff584356042a476039506d42ea77572050f43e172b3fe01ef5098c04fc2bee",
       "executable": false
     },
     "RUN-LOCALLY.md": {
