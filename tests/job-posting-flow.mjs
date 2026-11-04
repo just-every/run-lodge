@@ -91,6 +91,32 @@ export async function checkJobPosting(t) {
   await absent('a post without the careers destination has no markup')
   await cmd('job-post', { vacancy: job.id, post: id, title, description: 'Changed visible description', locations: [offices[0].id], destinations: ['careers'] })
   await review()
+  // Current place grants must mean the same thing for review and public rendering.
+  const settingsLevel = await cmd('permission-level', { name: 'Synthetic structured review', permissions: ['settings'] })
+  await cmd('member-org', { email: outsiderEmail, grantOffices: [offices[0].id], grantLevels: { [offices[0].id]: settingsLevel.id } })
+  await review({}, id, outsider)
+  const grantOnlyMarkup = postingData((await page()).text).length
+  await cmd('hiring-team', { id: job.id, hiringManagers: [outsiderEmail] })
+  await review({}, id, outsider)
+  const namedInitialMarkup = postingData((await page()).text).length
+  const reviewedPosts = (await current()).posts
+  const reviewedSource = reviewedPosts.find(p => p.id === id).jobPostingSource
+  await cmd('permission-level', { id: settingsLevel.id, name: settingsLevel.name, permissions: [] })
+  const permissions = (await state(outsider)).vacancies.find(v => v.id === job.id).permissions
+  const reviewCommandStatus = (await send('/api/lodge/command/job-posting-review', { vacancy: job.id, post: id, selected: false }, outsider)).status
+  const markupAfterRevocation = postingData((await page()).text).length
+  const currentPosts = (await current()).posts
+  const sourceUnchanged = currentPosts.find(p => p.id === id).jobPostingSource === reviewedSource
+  console.log('PROBE A ' + JSON.stringify({ grantOnlyReviewStatus: 200, grantOnlyMarkup, namedInitialMarkup, revokedSettings: !permissions.includes('settings'), reviewCommandStatus, markupAfterRevocation, sourceUnchanged }))
+  assert.equal(grantOnlyMarkup, 1, 'an office-authorized manager review emits native markup')
+  assert.equal(namedInitialMarkup, 1, 'a named manager with granted settings can review')
+  assert.ok(!permissions.includes('settings'), 'the current granted level lost settings')
+  assert.equal(reviewCommandStatus, 403, 'revoked settings cannot replay a review')
+  assert.deepEqual(currentPosts, reviewedPosts, 'a refused review changes no post')
+  assert.ok(sourceUnchanged, 'revocation is checked even without a listing source edit')
+  assert.equal(markupAfterRevocation, 0, 'revoked granted settings suppress markup for a named manager')
+  await cmd('hiring-team', { id: job.id })
+  await review()
   const reviewerEmail = 'synthetic-lodge-reviewer' + email.slice(email.indexOf(String.fromCharCode(64)))
   const reviewer = await h.member(reviewerEmail, ['admin'], 'Synthetic reviewer')
   await review({}, id, reviewer)

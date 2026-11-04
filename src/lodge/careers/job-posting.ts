@@ -1,4 +1,5 @@
 import type { State } from '../core/state'
+import { grantsOf } from '../core/store'
 import { can, managesVacancy, requireCan, requireManages } from '../core/access'
 import { canonical, date, list, now, requireThat, sha256, text, type Actor, type Data } from '../core/types'
 import { approvedNow, latestApproval, terms } from '../records/approvals'
@@ -66,7 +67,9 @@ export async function jobPosting(s: State, l: Listing, origin: string): Promise<
   if (!p || !review?.selected || v.status !== 'open' || p.status !== 'live' || v.imported || v.confidential || v.internalOnly || !p.destinations.includes('careers')) return null
   if (payProblems(s, v).length || !await approvedNow(s, 'vacancy', v) || review.source !== await jobPostingSource(s, v, p)) return null
   const member = s.find('member', review.reviewedBy)
-  if (!member?.active || member.agent || review.reviewedMemberRevision !== s.revisionOf('member', review.reviewedBy) || !managesVacancy(member as Actor, v) || !can(s, member as Actor, v, 'settings')) return null
+  if (!member?.active || member.agent || review.reviewedMemberRevision !== s.revisionOf('member', review.reviewedBy)) return null
+  const reviewer = { ...member, grants: grantsOf(s, member) } as Actor
+  if (!managesVacancy(reviewer, v) || !can(s, reviewer, v, 'settings')) return null
   try { metadata(s, v, p, review) } catch { return null }
   const pay = publicPay(s, v, p), ranges = pay.ranges
   // One JobPosting cannot truthfully attach different salaries to its locations.
