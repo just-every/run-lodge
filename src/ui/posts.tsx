@@ -27,7 +27,7 @@ function PostForm({ v, w, post, mutate }: { v: D; w: D; post?: D; mutate: PagePr
       {offices.map(id => <Check key={id} name={'at-' + id} label={w.offices?.find((o: D) => o.id === id)?.name ?? id} defaultChecked={post ? post.locations.includes(id) : offices.length === 1} />)}</fieldset>
     <fieldset className="wide"><legend>Where it appears</legend>
       {WHERE.map(([k, label]) => <Check key={k} name={'on-' + k} label={label} defaultChecked={post ? post.destinations.includes(k) : ['careers', 'embed', 'api'].includes(k)} />)}
-      <small>Native feeds also need separate human-reviewed opt-in under Settings and a hosted careers destination. Spanish posts need an employer-reviewed translation before going live.</small></fieldset>
+      <small>Native feeds also need separate human-reviewed opt-in under Settings. Spanish posts need an employer-reviewed translation before going live.</small></fieldset>
     {extra.length > 0 && <fieldset className="wide"><legend>Extra questions on this post</legend>
       {extra.map(q => <Check key={q.id} name={'ask-' + q.id} label={q.versions.at(-1).text} defaultChecked={post?.questions?.some((x: D) => x.question === q.id)} />)}</fieldset>}
   </Form>

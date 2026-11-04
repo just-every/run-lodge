@@ -159,7 +159,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "9bfe6ffaff6f6cfd7b801d3d2c89ba9152dcf216c0e973a9bdd7ffdc5a4d9b78",
+      "sha256": "6100c47a53f8c49cf8222a2725bb93dd5ccb8f6df040ebea1b77c97474977835",
       "executable": false
     },
     "base-copies.json": {
@@ -1431,7 +1431,7 @@
       "executable": false
     },
     "src/lodge/distribution/free-feeds.ts": {
-      "sha256": "9051d829b0aa61c82cad9f40507c0d165131be609d2103332674f3373d9fa3d8",
+      "sha256": "ac52a713cfd66509ec775dd6a15ba27033e4771c9512f7cd4deaaefb4fd655b5",
       "executable": false
     },
     "src/lodge/enterprise/audit.ts": {
@@ -4551,7 +4551,7 @@
       "executable": false
     },
     "src/ui/posts.tsx": {
-      "sha256": "1fd7b935c02a13befafa7ffd8cb988a49af04d6956a69ce64b77fc46cc08176b",
+      "sha256": "3edbc60f358a55959f70eec3b51999a6553618b539e3652e625077c5032876dd",
       "executable": false
     },
     "src/ui/proposals.tsx": {
@@ -4951,11 +4951,11 @@
       "executable": false
     },
     "tests/free-feed-browser.mjs": {
-      "sha256": "0c4b39c6bc2f7f6e2366841fd0ba7ea1593d2ea5f5eac9fe5d9a389b91cdd7ef",
+      "sha256": "96db1fb6435c316c21d1c354a107a408203f306df814d6da487d775d3bfe49fa",
       "executable": false
     },
     "tests/free-feed-flow.mjs": {
-      "sha256": "6891fb319826778f6ca1e775fce74bed0a375c9df6ecfc4ad88ab9665fb03ae3",
+      "sha256": "8b860ba98b364b55d0955624b64aa1a9b6659341d459d9a5c9221e74219d2512",
       "executable": false
     },
     "tests/further-language-page.mjs": {

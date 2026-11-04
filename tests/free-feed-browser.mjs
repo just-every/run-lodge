@@ -43,6 +43,7 @@ export async function freeFeedPage(browser, { root, origin, evidence, ownerEmail
     const posts = page.getByRole('region', { name: 'Job posts', exact: true })
     await posts.getByText('Add a post', { exact: true }).click()
     await posts.getByLabel('Post title', { exact: true }).fill(postTitle)
+    await posts.getByLabel('On the hosted careers page', { exact: true }).uncheck()
     await posts.getByLabel('In the LinkedIn native feed', { exact: true }).check()
     await posts.getByLabel('In the Indeed native feed', { exact: true }).check()
     await capture('feed-post-destinations')

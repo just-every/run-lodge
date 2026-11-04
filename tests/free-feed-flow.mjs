@@ -97,12 +97,14 @@ export async function checkFreeFeeds() {
     // Two independent posts replace the job entry only on their selected destinations.
     first = await cmd('job-post', { vacancy: first.id, title: 'Synthetic Denver post', description: hostile, locations: [a.id], destinations: ['careers', 'linkedin', 'indeed'] })
     const p1 = first.posts.at(-1)
-    first = await cmd('job-post', { vacancy: first.id, title: 'Synthetic New York post', description: hostile, locations: [b.id], destinations: ['careers', 'linkedin', 'indeed'] })
+    first = await cmd('job-post', { vacancy: first.id, title: 'Synthetic New York post', description: hostile, locations: [b.id], destinations: ['linkedin', 'indeed'] })
     const p2 = first.posts.at(-1)
     for (const p of [p1, p2]) {
       await cmd('post-status', { vacancy: first.id, post: p.id, status: 'live' })
       for (const board of ['linkedin', 'indeed']) assert.equal((await configure(first, p.id, board)).status, 200)
     }
+    assert.equal((await send('/jobs/' + p2.slug)).status, 404, 'feed-only posts stay off the careers list')
+    assert.equal((await send('/jobs/' + p2.slug + '?feed=linkedin')).status, 200, 'a selected feed post has its own hosted application even without the careers-list destination')
     const posts = await feed('linkedin')
     assert.equal(posts.length, 3)
     assert.ok(!posts.some(j => value(j, 'title') === 'Synthetic operations'))

@@ -1138,8 +1138,7 @@ explicitly configured CRM credit. Disabling needs only the current version.
 
 Each configuration preserves earlier versions. Changed content or pay rules
 withhold the entry until reviewed again. Only currently approved, opted-in,
-public, noninternal jobs and live selected posts are served. A feed post also
-needs its hosted careers destination. Paused or closed posts and unpublished
+public, noninternal jobs and live selected posts are served. A feed-only post retains its own hosted application without joining the careers list. Paused or closed posts and unpublished
 or closed jobs disappear on the next response. Indeed has one stable reference
 per post and office, with the job's requisition ID shared across those entries.
 LinkedIn uses one stable post ID and its reviewed alternate locations. Unequal

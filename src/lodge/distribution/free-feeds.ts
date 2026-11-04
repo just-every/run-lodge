@@ -72,7 +72,6 @@ export async function feedEntries(s: State, board: FreeBoard): Promise<FeedEntry
     const v = s.get('vacancy', listing.v.id), post = listing.post
     const config = last(v, post?.id ?? null, board)
     if (!config?.enabled || v.confidential || v.internalOnly || !await approvedNow(s, 'vacancy', v)) continue
-    if (post && !post.destinations.includes('careers')) continue
     const source = await feedSource(s, v, post)
     if (config.source !== source) continue
     if (config.credit && !s.find('member', config.credit.who)?.active) continue
