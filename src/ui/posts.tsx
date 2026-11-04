@@ -33,6 +33,32 @@ function PostForm({ v, w, post, mutate }: { v: D; w: D; post?: D; mutate: PagePr
   </Form>
 }
 
+function StructuredPosting({ v, post, w, mutate }: { v: D; post: D; w: D; mutate: PageProps['mutate'] }) {
+  const review = post.jobPosting ?? {}
+  const offices: D[] = post.locations.map((id: string) => ({ id, name: w.offices?.find((o: D) => o.id === id)?.name ?? id, address: review.locations?.find((x: D) => x.officeId === id) ?? {} }))
+  return <details><summary>Google job structured data for “{post.title}”</summary>
+    <p>Optional native markup for this careers post. This does not confirm a Google listing or distribution. Supply actual dates and locations; unequal location pay ranges need separate posts.</p>
+    <p>{review.selected ? review.source === post.jobPostingSource ? 'Employer review recorded; markup is served only while this public listing and its pay remain eligible.' : 'Sources changed. Review again; markup is withheld.' : 'Structured data is off.'}</p>
+    <Form label="Save structured data review" onSubmit={x => mutate('job-posting-review', {
+      vacancy: v.id, post: post.id, source: post.jobPostingSource, selected: x.selected,
+      organizationUrl: x.organizationUrl, datePosted: x.datePosted, validThrough: x.validThrough,
+      remoteCountry: x.remoteUS ? 'US' : '',
+      locations: offices.map(o => ({ officeId: o.id, streetAddress: x['street-' + o.id], addressLocality: x['city-' + o.id], addressRegion: x['state-' + o.id], postalCode: x['postal-' + o.id], addressCountry: 'US' })),
+    })}>
+      <Check name="selected" label="The employer reviewed these current sources and selects this public post for structured data" defaultChecked={review.selected} />
+      <Field label="Employer website (HTTPS)" name="organizationUrl" required={false} defaultValue={review.organizationUrl} />
+      <Field label="Actual original posting date" name="datePosted" type="date" required={false} defaultValue={review.datePosted} />
+      <Field label="Application closing date" name="validThrough" type="date" required={false} defaultValue={review.validThrough} />
+      {v.workMode === 'remote' ? <Check name="remoteUS" label="This remote role accepts applicants in the United States" defaultChecked={review.remoteCountry === 'US'} /> : offices.map(o => <fieldset className="wide" key={o.id}><legend>US postal address for {o.name}</legend>
+        <Field label={'Street address for ' + o.name} name={'street-' + o.id} required={false} defaultValue={o.address.streetAddress} />
+        <Field label={'City for ' + o.name} name={'city-' + o.id} required={false} defaultValue={o.address.addressLocality} />
+        <Field label={'State for ' + o.name} name={'state-' + o.id} required={false} defaultValue={o.address.addressRegion} />
+        <Field label={'Postal code for ' + o.name} name={'postal-' + o.id} required={false} defaultValue={o.address.postalCode} />
+      </fieldset>)}
+    </Form>
+  </details>
+}
+
 export function Posts({ v, w, mutate }: { v: D } & Pick<PageProps, 'w' | 'mutate'>) {
   const posts: D[] = v.posts ?? []
   const live = !v.imported && v.status !== 'closed'
@@ -54,6 +80,7 @@ export function Posts({ v, w, mutate }: { v: D } & Pick<PageProps, 'w' | 'mutate
         <Form label="Close post" compact onSubmit={() => mutate('post-status', { vacancy: v.id, post: p.id, status: 'closed' })} />
       </div>
       <PostForm v={v} w={w} post={p} mutate={mutate} />
+      <StructuredPosting v={v} post={p} w={w} mutate={mutate} />
       {p.language !== 'en' && <PostTranslation v={v} w={w} post={p} mutate={mutate} />}
     </details>)}
     {live && v.manages && (offices.length

@@ -1,3 +1,4 @@
+import { jobPosting, serializeJobPosting } from '../careers/job-posting'
 import { recoveryUi } from '../careers/recovery-copy'
 import { draftTools } from '../careers/draft'
 import { receiptRecoveryCode, recoverReceipt } from '../careers/receipt'
@@ -54,10 +55,10 @@ const paragraphs = (v: string) => esc(v).split(/\n{2,}/).map(p => `<p>${p.replac
  * may be framed only by the origins the admin listed, and loads the one script
  * that tells the host page its height.
  */
-export async function page(title: string, body: string, status = 200, embed?: { ancestors: string[] }, language = 'en') {
+export async function page(title: string, body: string, status = 200, embed?: { ancestors: string[] }, language = 'en', structuredHead = '') {
   const frame = await themeFrame(theme)
   const ancestors = embed?.ancestors.length ? embed.ancestors.join(' ') : "'none'"
-  return new Response(`<!doctype html><html lang="${esc(language)}"${frame.htmlClass}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(branding.name)}</title>${fontHead}${frame.head}<link rel="stylesheet" href="/lodge-public.css">${embed ? '<script src="/embed/frame.js" defer></script>' : ''}<script src="/careers-form.js" defer></script></head><body><main class="lodge-public${embed ? ' embedded' : ''}">${embed ? '' : frame.brand}${body}</main></body></html>`, {
+  return new Response(`<!doctype html><html lang="${esc(language)}"${frame.htmlClass}><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · ${esc(branding.name)}</title>${fontHead}${frame.head}${structuredHead}<link rel="stylesheet" href="/lodge-public.css">${embed ? '<script src="/embed/frame.js" defer></script>' : ''}<script src="/careers-form.js" defer></script></head><body><main class="lodge-public${embed ? ' embedded' : ''}">${embed ? '' : frame.brand}${body}</main></body></html>`, {
     status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'strict-origin', 'x-content-type-options': 'nosniff', 'content-security-policy': `default-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors ${ancestors}; script-src 'self'; ${frame.policy}` },
   })
 }
@@ -199,7 +200,9 @@ publicPages.get('/jobs/:slug', async c => {
   const shown = shownJob(s, l)
   const alternatives = listings(s, 'careers').filter(x => x.v.id === l.v.id)
   const languages = alternatives.length > 1 ? `<nav aria-label="${esc(shown.language && shown.language !== 'en' ? uiCopy(l.post!).language : 'Language')}">${alternatives.map(x => `<a href="/jobs/${esc(x.slug)}" lang="${esc(x.post?.language ?? 'en')}">${esc(new Intl.DisplayNames([x.post?.language ?? 'en'], { type: 'language' }).of(x.post?.language ?? 'en'))}</a>`).join(' · ')}</nav>` : ''
-  return page(shown.title, languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)), 200, undefined, shown.language ?? 'en')
+  const structured = await jobPosting(s, l, runtimeBindings(c.env).AUTH_ORIGIN)
+  const markup = structured ? `<script type="application/ld+json">${serializeJobPosting(structured)}</script><link rel="canonical" href="${esc(structured.url)}">` : ''
+  return page(shown.title, languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)), 200, undefined, shown.language ?? 'en', markup)
 })
 
 publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
