@@ -962,6 +962,10 @@
       "sha256": "7bd4e291b926f9744cf262a2bb119502fe7506a8f142a67409c0b32293c949f9",
       "executable": false
     },
+    "scripts/installer/self-identification-policy.mjs": {
+      "sha256": "a5674fd59c7dda71d5cb51a072babc7c08b7f3debb0b871128259dfd963d9acf",
+      "executable": false
+    },
     "scripts/installer/ui/background.svg": {
       "sha256": "b234f98362d278ad8fb176ede8a88b8bd66d016147ab758ecb81a096c7115d26",
       "executable": false
@@ -1828,6 +1832,10 @@
     },
     "src/lodge/records/scorecards.ts": {
       "sha256": "4d04c019d9e31c393f6451c8b27cdc14c4acf855735fa8fd45809ebef332a480",
+      "executable": false
+    },
+    "src/lodge/records/self-identification.ts": {
+      "sha256": "664e0c66d8a8f4801dc90e1260bf52be86f1a2bdf936ee4e977d0efd111c3561",
       "executable": false
     },
     "src/lodge/records/sources.ts": {
@@ -4602,6 +4610,10 @@
       "sha256": "a59728f68f5dcc6219341d9ead9850b3aa1ad7b17837528b79321f6fd8af44fd",
       "executable": false
     },
+    "src/ui/self-identification.tsx": {
+      "sha256": "a96288bca570b4bdd21174ea5f4a78d3f2028545eed2529f8986d9cf0856f466",
+      "executable": false
+    },
     "src/ui/shared.tsx": {
       "sha256": "3f3e5eda8459d51334660b98365b843c04e84153b446826701878d25026f6b10",
       "executable": false
@@ -5180,6 +5192,14 @@
     },
     "tests/security.test.mjs": {
       "sha256": "b1fa77dc9f383b6f37fecdaec6023f89bab0e335c337420fffe7cb69b3d485aa",
+      "executable": false
+    },
+    "tests/self-identification-browser.mjs": {
+      "sha256": "04a5bd8883ff6d152a0082746b253c77013a70fbe2f75d46c1cc38d5ff85417a",
+      "executable": false
+    },
+    "tests/self-identification-flow.mjs": {
+      "sha256": "e71024c1ef2dafbffc273029647a61915dcedd21d8019310bcba94dfb5f8453c",
       "executable": false
     },
     "tests/site/site.test.mjs": {
