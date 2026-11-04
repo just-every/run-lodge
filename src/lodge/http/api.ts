@@ -1,3 +1,4 @@
+import { previewRead } from '../handoffs/preview'
 import { handoffEvidence } from '../agents/handoff-exceptions'
 import { candidateUpdatesView } from '../agents/candidate-updates'
 import { sourcingEvidence } from '../agents/sourcing'
@@ -148,6 +149,10 @@ api.get('/api/lodge/sourcing-evidence', async c => {
 })
 
 const delayInput = (c: C) => ({ vacancy: c.req.query('vacancy'), from: c.req.query('from'), to: c.req.query('to'), timeZone: c.req.query('timeZone') })
+api.get('/api/lodge/handoff-preview/:id', async c => {
+  const { state, actor } = await context(c)
+  return c.json(await previewRead(state, actor, c.req.param('id')))
+})
 api.get('/api/lodge/handoff-preflight/:id', async c => {
   const { state, actor } = await context(c)
   return c.json(await handoffEvidence(state, actor, c.req.param('id')))

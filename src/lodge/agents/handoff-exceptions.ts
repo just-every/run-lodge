@@ -11,7 +11,7 @@ const same = (x: unknown, y: unknown) => canonical(x) === canonical(y)
 const source = (s: State, kind: string, id: string) => { s.get(kind, id); return { kind, id, revision: s.revisionOf(kind, id) } }
 const human = (s: State, a: Actor) => a.agent ? delayHuman(s, scope(a)) : a
 
-function allowed(s: State, a: Actor, offer: Data) {
+export function handoffAllowed(s: State, a: Actor, offer: Data) {
   const app = s.find('application', offer.application), job = app && s.find('vacancy', app.vacancy), person = app && s.find('candidate', app.candidate)
   const reader = human(s, a)
   return !!reader && !!app && !!job && !!person && !person.deleted && !person.mergedInto && !app.imported && !job.imported
@@ -38,7 +38,7 @@ export function configureHandoff(s: State, a: Actor, b: Data) {
 /** Read stored originals internally; return only authorized metadata and computed digests to agents. */
 export async function handoffEvidence(s: State, a: Actor, id: string): Promise<Data> {
   const offer = s.find('offer', id)
-  requireThat(offer && allowed(s, a, offer), 'Handoff preflight not found', 404)
+  requireThat(offer && handoffAllowed(s, a, offer), 'Handoff preflight not found', 404)
   const app = s.get('application', offer.application), job = s.get('vacancy', app.vacancy), person = s.get('candidate', app.candidate)
   requireThat(offer.status === 'accepted' && app.status === 'hired', 'Choose a recorded accepted offer', 409)
   const policy = s.get('handoff-policy', job.id, 'handoff settings')
@@ -81,12 +81,12 @@ export async function handoffEvidence(s: State, a: Actor, id: string): Promise<D
 function provenance(s: State, a: Actor, p: Data) {
   const agent = s.find('member', p.proposedBy), principal = delayHuman(s, p.proposedFor), reviewer = delayHuman(s, p.approver), offer = s.find('offer', p.handoff.offer)
   return !!agent?.active && agent.agent && agent.actsFor === p.proposedFor && !!principal && !!reviewer && !!offer
-    && [a, principal, reviewer].every(reader => allowed(s, reader, offer))
+    && [a, principal, reviewer].every(reader => handoffAllowed(s, reader, offer))
 }
 export const canSeeHandoffProposal = (s: State, a: Actor, p: Data) => provenance(s, a, p)
 function ownership(s: State, b: Data, offer: Data) {
   const owner = text(b.owner, 'Named human owner').toLowerCase(), person = delayHuman(s, owner)
-  requireThat(person && allowed(s, person, offer), 'The named human owner needs current offer, contact and document authority', 403)
+  requireThat(person && handoffAllowed(s, person, offer), 'The named human owner needs current offer, contact and document authority', 403)
   const deadline = text(b.deadline, 'Deadline', 40)
   requireThat(/^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(deadline) && Number.isFinite(Date.parse(deadline)), 'Use an exact deadline with a time zone')
   const nextAction = text(b.nextAction, 'Next action', 2000)
@@ -158,14 +158,14 @@ export async function handoffView(s: State, a: Actor) {
   const jobs = s.all('vacancy').filter(job => managesVacancy(a, job) && can(s, a, job, 'offers') && can(s, a, job, 'contact'))
   const policies: Data[] = jobs.flatMap(job => { const p = s.find('handoff-policy', job.id); return p ? [{ ...p, revision: s.revisionOf('handoff-policy', p.id) }] : [] })
   const preflights: Data[] = []
-  for (const offer of s.all('offer').filter(o => o.status === 'accepted' && allowed(s, a, o))) {
+  for (const offer of s.all('offer').filter(o => o.status === 'accepted' && handoffAllowed(s, a, o))) {
     const app = s.get('application', offer.application)
     if (policies.some(p => p.vacancy === app.vacancy)) preflights.push(await handoffEvidence(s, a, offer.id))
   }
   const cases = s.all('handoff-exception').filter(c => provenance(s, a, c.provenance)).map(c => {
     const fresh = preflights.find(p => p.offer === c.offer), owner = delayHuman(s, c.owner)
     return { ...c, revision: s.revisionOf('handoff-exception', c.id), stale: !fresh || !same(fresh, c.evidence),
-      reviewRequired: !owner || !allowed(s, owner, s.get('offer', c.offer)), overdue: c.status === 'owned' && c.deadline <= now() }
+      reviewRequired: !owner || !handoffAllowed(s, owner, s.get('offer', c.offer)), overdue: c.status === 'owned' && c.deadline <= now() }
   })
   return { policies, preflights, cases, fields: HANDOFF_FIELDS }
 }

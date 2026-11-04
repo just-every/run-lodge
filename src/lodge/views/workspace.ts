@@ -1,4 +1,5 @@
 import { itinerarySettings } from '../candidate/itinerary'
+import { previewsView } from '../handoffs/preview'
 import { handoffView } from '../agents/handoff-exceptions'
 import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
@@ -249,6 +250,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     cutovers: a.owner && !a.agent ? s.all('cutover').sort((x, y) => y.at.localeCompare(x.at)) : [],
     applicationEmails: s.all('application-email').filter(m => applications.some(app => app.id === m.application && canSeeContact(s, a, s.get('candidate', app.candidate)))),
     handoffExceptions: await handoffView(s, a),
+    handoffPreviews: await previewsView(s, a),
     candidateUpdates: candidateUpdatesView(s, a),
     sourcingBriefs: sourcingBriefs(s, a),
     messages, messageTemplates: messageTemplatesView(s, a), offers, approvals,

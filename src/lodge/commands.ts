@@ -1,4 +1,5 @@
 import { reviewItinerary } from './candidate/itinerary'
+import { configureMapping, preparePreview, reviewPreview } from './handoffs/preview'
 import { configureHandoff, updateHandoff } from './agents/handoff-exceptions'
 import { configureCandidateUpdates } from './agents/candidate-updates'
 import { sourcingBrief } from './agents/sourcing'
@@ -84,6 +85,7 @@ export type Command = (s: State, a: Actor, b: Data) => Data | Promise<Data>
  * which check the actor's current Lodge role and record scope themselves.
  */
 export const commands: Record<string, Command> = {
+  'handoff-mapping': configureMapping, 'handoff-preview': preparePreview, 'handoff-preview-review': reviewPreview,
   'handoff-policy': configureHandoff, 'handoff-progress': updateHandoff,
   'candidate-update-policy': configureCandidateUpdates,
   'sourcing-brief': sourcingBrief,
