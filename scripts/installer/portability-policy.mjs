@@ -50,6 +50,22 @@ export async function validateStaged({ read }) {
 
  for (const row of rows) {
   const value = get(row.kind, row.id);
+  if (row.kind === 'handoff-mapping') {
+   const job = reference('vacancy', value.vacancy);
+   refuse(value.id === job.id && ['willow', 'bamboohr', 'adp'].includes(value.destination) && Array.isArray(value.fields));
+  }
+  if (row.kind === 'handoff-preview') {
+   const app = reference('application', value.application), offer = reference('offer', value.offer), frozen = value.snapshot;
+   refuse(offer.application === app.id && value.candidate === app.candidate && value.vacancy === app.vacancy);
+   refuse(frozen && frozen.offer === value.offer && frozen.application === app.id && frozen.candidate === app.candidate && frozen.vacancy === app.vacancy);
+   refuse(value.review === null && value.complete === false && value.employeeCreated === false && value.creationAuthorized === false);
+   refuse(frozen.complete === false && frozen.employeeCreated === false && frozen.creationAuthorized === false && frozen.schemaValidated === false && frozen.tenantVerified === false);
+   refuse(Array.isArray(frozen.documents) && frozen.documents.length > 0 && Array.isArray(value.history) && Array.isArray(frozen.sources));
+   for (const file of frozen.documents) {
+    const doc = reference('document', file.id);
+    refuse(doc.candidate === app.candidate && (!doc.application || doc.application === app.id) && file.sha256 === doc.sha256);
+   }
+  }
   if (row.kind === 'weekly-report') refuse(value.enabled === false && value.status === 'withheld');
   if (row.kind === 'weekly-report-attempt') reference('weekly-report', value.schedule);
   if (row.kind === 'analysis-schedule') reference('analysis-chart', value.chart);
@@ -102,6 +118,10 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'handoff-preview') {
+   const value = JSON.parse(row.value);
+   return { ...row, value: JSON.stringify({ ...value, review: null, complete: false, employeeCreated: false, creationAuthorized: false }) };
+  }
   if (table === 'l_records' && row.kind === 'proposal') {
    const value = JSON.parse(row.value);
    if (value.workflow === 'feedback-coordination') return { ...row, value: JSON.stringify({ ...value, status: 'withheld' }) };

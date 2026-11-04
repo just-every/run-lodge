@@ -1,3 +1,4 @@
+import { HandoffPreview } from './handoff-preview'
 import { EsignPanel } from './esign'
 import { OfferDocument, OfferForm } from './offer-form'
 import type { PageProps } from './app'
@@ -47,6 +48,7 @@ export function Offers({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: Pag
       {o.terms && <p className="pre">{o.terms}</p>}
       <OfferDocument offer={o} app={app} v={v} w={w} mutate={mutate} />
       <EsignPanel offer={o} app={app} w={w} mutate={mutate} />
+      <HandoffPreview offer={o} app={app} w={w} mutate={mutate} />
       <p><a href={`/api/lodge/download/packet/${o.id}`}>Approval packet (JSON)</a>{o.status === 'accepted' && <> · <a href={`/api/lodge/download/handoff/${o.id}`}>HR handoff (JSON)</a></>}</p>
       {o.status === 'draft' && <>
         {!o.approvedNow && o.document && <Form label="Request document approval" compact onSubmit={() => mutate('request-offer-approval', { id: o.id })}><p>Routed to {person(w, o.rangeWarning ? o.document.exceptionApprover : o.document.normalApprover)}{o.rangeWarning ? ' for the compensation exception' : ''}.</p></Form>}

@@ -4,8 +4,9 @@ import { pathToFileURL } from 'node:url'
 import { businessHarness } from './harness.mjs'
 
 export const handoffAddress = n => ['synthetic-lodge-handoff-' + n, 'example.test'].join('@')
-export async function handoffJob(run, ownerEmail, manager = ownerEmail, suffix = '', offerApprover = ownerEmail, approve = run) {
+export async function handoffJob(run, ownerEmail, manager = ownerEmail, suffix = '', offerApprover = ownerEmail, approve = run, configure = async () => {}) {
   let job = await run('vacancy', { title: 'Synthetic Lodge handoff' + suffix, location: 'Denver, CO', manager, headcount: 3, compensation: { currency: 'USD', min: 6000000, max: 8000000, period: 'year' } })
+  await configure(job)
   await run('rubric', { id: job.id, criteria: [{ name: 'Planning', description: 'Describes a safe work plan' }] })
   await run('interview-plan', { id: job.id, plan: [{ name: 'Work review', stageName: 'Interview' }] })
   const approval = await run('request-vacancy-approval', { id: job.id, approver: ownerEmail })
