@@ -1,3 +1,4 @@
+import { authorizationReview, authorizationPath } from './background-authorization-flow.mjs'
 import { seedTakeHome, file as assessmentFile, original as assessmentOriginal } from './take-home-flow.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -64,6 +65,9 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   const assessmentSubmission = assessmentView.submissions.find(r => r.assessment === assessment.app.id)
   await src.command('take-home-grade', { application: assessment.app.id, version: 1, rubricVersion: assessment.app.rubricVersion, ratings: {}, evidence: {}, recommendation: 'yes', takeaways: 'Synthetic private archived judgment' }, assessment.ivy)
   const assessmentGrade = (await src.state(assessment.ivy)).takeHomes.grades[0]
+  await src.command('background-authorization-review', authorizationReview(assessment.app))
+  const authorizationAnswer = { version: 1, responseId: 'synthetic-lodge-archived-agreement', action: 'agreed', agreement: true }
+  assert.equal((await src.send(authorizationPath(assessment.receipt), authorizationAnswer, assessment.cookie)).status, 303)
   const assessmentSurvivor = (await src.command('candidate', { name: 'Synthetic merged assessment applicant', email: assessment.person.email, source: 'Direct', consentBasis: 'manual' })).candidate
   await src.command('review-duplicate', { keep: assessmentSurvivor.id, other: assessment.person.id, decision: 'merge', reason: 'Synthetic same person' })
   const people=[]
@@ -108,6 +112,12 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   }
   const removeAgency = (items, kind, id) => items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id), 1)
   const mutations = [
+   ['missing authorization application', (_d,_b,items) => changeAgency(items, 'background-authorization', assessment.app.id, { application: 'missing-application' })],
+   ['wrong authorization candidate', (_d,_b,items) => changeAgency(items, 'background-authorization', assessment.app.id, { candidate: candidate.id })],
+   ['active restored authorization', (_d,_b,items) => changeAgency(items, 'background-authorization', assessment.app.id, { historical: false })],
+   ['detached authorization version', (_d,_b,items) => { const r = agencyRow(items, 'background-authorization', assessment.app.id); const value = JSON.parse(r.value); value.history[0].version = 99; r.value = JSON.stringify(value) }],
+   ['missing employer review', (_d,_b,items) => { const r = agencyRow(items, 'background-authorization', assessment.app.id); const value = JSON.parse(r.value); value.versions[0].legalReview = ''; r.value = JSON.stringify(value) }],
+   ['wrong authorization identity', (_d,_b,items) => { const r = agencyRow(items, 'background-authorization', assessment.app.id); const value = JSON.parse(r.value); value.history[0].identity.candidate = candidate.id; r.value = JSON.stringify(value) }],
    ['missing take-home assignment', (_d,_b,items) => removeAgency(items, 'take-home', assessment.app.id)],
    ['missing take-home application', (_d,_b,items) => changeAgency(items, 'take-home', assessment.app.id, { application: 'missing-application' })],
    ['wrong take-home candidate', (_d,_b,items) => changeAgency(items, 'take-home', assessment.app.id, { candidate: candidate.id })],
@@ -217,6 +227,13 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   const restoredCandidate = await dst.signIn(assessment.person.email)
   assert.match((await dst.send(assessment.base, undefined, restoredCandidate)).text, /Submission received/)
   assert.equal((await dst.send(assessment.base + '/files/' + assessmentSubmission.files[0], undefined, restoredCandidate)).text, assessmentOriginal)
+  const restoredAuthorization = (await dst.state(owner)).backgroundAuthorizations.records.find(r => r.application === assessment.app.id)
+  assert.equal(restoredAuthorization.historical, true)
+  assert.equal(restoredAuthorization.state, 'agreed')
+  assert.match((await dst.send(authorizationPath(assessment.receipt), undefined, restoredCandidate)).text, /Historical restored evidence/)
+  assert.equal((await dst.send(authorizationPath(assessment.receipt), { ...authorizationAnswer, responseId: 'synthetic-lodge-restored-new-agreement' }, restoredCandidate)).status, 409, 'restored evidence cannot acquire fresh agreement or authorize an order')
+  assert.equal((await dst.send(authorizationPath(assessment.receipt), authorizationAnswer, restoredCandidate)).status, 409, 'merged historical identity cannot replay into fresh permission')
+  assert.equal((await dst.state(owner)).backgroundAuthorizations.records.find(r => r.application === assessment.app.id).history.length, 1)
   const restoredGrader = await dst.signIn(assessment.graders[0])
   assert.equal((await dst.state(restoredGrader)).takeHomes.grades.find(g => g.id === assessmentGrade.id).takeaways, assessmentGrade.takeaways)
   const employeeRestored = await dst.signIn('archive-employee@example.test')
