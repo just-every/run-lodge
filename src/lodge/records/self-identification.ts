@@ -88,7 +88,7 @@ export function validateSelfIdentification(s: State, job: Data, input: unknown, 
   })
 }
 
-/** Responses never become selection fields. Later submissions append rather than replacing earlier answers. */
+/** Responses never become selection fields. Captures retain their reviewed source despite later form edits. */
 export async function recordSelfIdentification(s: State, app: Data, responses: Data[], intakePath: string) {
   for (const response of responses) {
     const id = app.id + ':' + response.questionnaire, previous = s.find('self-id-response', id)
@@ -97,7 +97,7 @@ export async function recordSelfIdentification(s: State, app: Data, responses: D
     if (previous?.versions.some((v: Data) => v.digest === digest)) continue
     const at = now()
     s.put('self-id-response', id, { application: app.id, vacancy: app.vacancy, questionnaire: response.questionnaire,
-      originalIntakePath: previous?.originalIntakePath ?? app.intakePath ?? ({ 'Application page': 'Careers page', 'Careers page (embedded)': 'Careers page (embedded)', 'Careers page (API)': 'Careers page (API)' } as Record<string, string>)[app.source] ?? 'Original intake path not recorded',
+      originalIntakePath: previous?.originalIntakePath ?? app.intakePath ?? 'Original intake path not recorded',
       versions: [...(previous?.versions ?? []), { ...response, intakePath, digest, at, retainUntil: new Date(Date.parse(at) + response.form.retentionDays * 86400000).toISOString() }],
     })
   }

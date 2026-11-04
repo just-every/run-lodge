@@ -86,7 +86,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   // the answer never tells a caller whether that email applied before.
   const earlier = door.oncePerJob && s.scan('application').find(x => x.vacancy === vacancy.id && x.status === 'active' && s.find('candidate', x.candidate)?.email === address)
   if (earlier) {
-    await recordSelfIdentification(s, earlier, voluntaryResponses, door.path)
+    // Matching an email proves no identity or consent to change an earlier response.
     return { receipt: await repeat(s, vacancy, earlier, door, notice.version, post, cpra?.version), accommodationContact: business.accommodationContact }
   }
   const candidate = s.put('candidate', uid(), {

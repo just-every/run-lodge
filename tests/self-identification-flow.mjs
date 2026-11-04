@@ -93,7 +93,12 @@ export async function checkSelfIdentification() {
     assert.equal((await send('/jobs/' + job.slug, optionalForm({ ...fields('stale-hosted'), ...htmlFields() }))).status, 409)
     assert.equal((await send(boardBase + '/applications', { ...fields('board'), selfIdentification: { [edited.id]: { version: 2, consent: true, answers: { q1: '__declined__' } } } })).status, 201)
     const revised = (await readResponses()).find(r => r.application === apiApp && r.questionnaire === edited.id)
-    assert.deepEqual(revised.versions.map(v => [v.formVersion, v.noticeVersion, v.state]), [[1, 1, 'answered'], [2, 2, 'declined']])
+    assert.deepEqual(revised.versions.map(v => [v.formVersion, v.noticeVersion, v.state]), [[1, 1, 'answered']], 'an unverified email repeat cannot alter earlier protected responses or claim new consent')
+    const nextVersion = await send(boardBase + '/applications', { ...fields('next-reviewed-version'), selfIdentification: { [edited.id]: { version: 2, consent: true, answers: { q1: '__declined__' } } } }, '', { 'cf-connecting-ip': 'synthetic-lodge-next-version' })
+    assert.equal(nextVersion.status, 201)
+    const nextApplication = (await state()).receipts.find(r => r.id === nextVersion.value.receipt).application
+    const nextResponse = (await readResponses()).find(r => r.application === nextApplication && r.questionnaire === edited.id)
+    assert.deepEqual([nextResponse.versions[0].formVersion, nextResponse.versions[0].noticeVersion, nextResponse.versions[0].state, nextResponse.versions[0].form.notice], [2, 2, 'declined', 'Synthetic second reviewed notice'])
     assert.equal(revised.versions[0].form.notice, configs[0].versions[0].notice)
     await run('self-identification-questionnaire', questionnaireInput(job.id, 'eeo', { version: 2, enabled: false }))
     assert.equal((await send(boardBase + '/applications', fields('disabled'))).status, 201, 'disabled review leaves application open')

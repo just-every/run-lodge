@@ -1147,3 +1147,9 @@ creates no new role, grant or delegated reporting authority. Authorized candidat
 access exports retain this restricted custody. Legal holds refuse erasure; erasure
 removes linked responses, and restoration validates their application and reviewed
 questionnaire relationships before publishing records.
+
+A repeat matched only by email never changes an earlier voluntary response or
+claims consent for it. New applications retain their own reviewed form version;
+editing a questionnaire never rewrites responses already collected. If original
+intake provenance was not recorded, Lodge labels it unknown rather than inferring
+it from an editable source name.

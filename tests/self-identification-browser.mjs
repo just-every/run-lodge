@@ -67,6 +67,7 @@ export async function selfIdentificationPage(browser, { root, origin, run, evide
         const app = state.applications.find(a => a.candidateName === 'Synthetic browser applicant ' + width)
         const response = state.selfIdentification.responses.find(r => r.application === app.id)
         assert.equal(response.versions[0].state, 'answered')
+        assert.ok((await restrictedJob.innerText()).includes(app.id), 'restricted response identifies its own application')
         assert.equal(JSON.stringify(app).includes('Synthetic response one'), false)
         assert.deepEqual(app.answers ?? [], [])
       }
