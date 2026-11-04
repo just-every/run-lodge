@@ -56,7 +56,10 @@ export async function checkHandoffPreviews() {
     const extra = await run('document', { application: f.people[0].application.id, name: 'employment.txt', kind: 'other', mediaType: 'text/plain', base64: extraBytes.toString('base64') })
     const restricted = await run('document', { application: f.people[0].application.id, name: 'restricted.txt', kind: 'right-to-work', mediaType: 'text/plain', base64: Buffer.from('Synthetic restricted record').toString('base64') })
     const before = await state(), offersBefore = before.offers, appsBefore = before.applications
-    let row = await prepare(f.offers[0], [extra.id])
+    const creation = await Promise.all([1, 2].map(async () => send('/api/lodge/command/handoff-preview', await input(f.offers[0], [extra.id]), h.owner)))
+    assert.ok(creation.some(r => r.status === 200) && creation.every(r => [200, 409].includes(r.status)))
+    let row = creation.find(r => r.status === 200).value
+    for (const result of creation.filter(r => r.status === 200)) assert.equal(result.value.id, row.id)
     const values = Object.fromEntries(row.snapshot.fields.map(f => [f.target, f.value]))
     assert.deepEqual(Object.fromEntries(Object.entries(values).filter(([key]) => key !== 'originals')), {
       legal_name: 'Synthetic Lodge hire 0', personal_email: handoffAddress(0), job_title: 'Synthetic Lodge handoff', manager_reference: owner,
@@ -106,6 +109,16 @@ export async function checkHandoffPreviews() {
     await run('job-levels', { id: f.job.id, members: {}, roles: {} })
     assert.equal((await read(row)).value.reviewValid, false, 'restoring grants cannot resurrect old review')
     row = await prepare(f.offers[0], [extra.id]); await review(row)
+    await run('member', { email: reviewerEmail, name: 'Synthetic Lodge mapping reviewer', roles: ['manager'], active: false })
+    assert.ok([401, 403].includes((await read(row, reader)).status), 'deactivated reader session exposes no snapshot')
+    assert.equal((await read(row)).status, 404)
+    await run('member', { email: reviewerEmail, name: 'Synthetic Lodge mapping reviewer', roles: ['manager'], active: true })
+    assert.equal((await read(row)).value.reviewValid, false, 'member reactivation does not revive review')
+    for (const destination of ['bamboohr', 'adp']) {
+      await run('handoff-mapping', { ...(await mapping()), destination, fields: mappingFields })
+      row = await prepare(f.offers[0], [extra.id]); await review(row)
+      assert.equal(row.snapshot.destination, destination)
+    }
     const native = await prepare(f.offers[2]); assert.equal(native.snapshot.signature.kind, 'native'); assert.equal(native.snapshot.documents.length, 2)
     for (const doc of native.snapshot.documents) {
       const blob = JSON.parse((await h.db.prepare("SELECT value FROM l_records WHERE kind='blob' AND id=?").bind(doc.id).first()).value)
@@ -117,6 +130,11 @@ export async function checkHandoffPreviews() {
     assert.equal((await send('/api/lodge/command/handoff-preview', await input(f.offers[2]), h.owner)).status, 409)
     assert.equal((await read(native)).value.reviewValid, false)
     await h.db.prepare('INSERT INTO l_records (kind,id,revision,value) VALUES (?,?,?,?)').bind(originalBlob.kind, originalBlob.id, originalBlob.revision, originalBlob.value).run()
+    const originalDoc = await h.db.prepare("SELECT * FROM l_records WHERE kind='document' AND id=?").bind(originalBlob.id).first()
+    await h.db.prepare("DELETE FROM l_records WHERE kind='document' AND id=?").bind(originalDoc.id).run()
+    assert.equal((await send('/api/lodge/command/handoff-preview', await input(f.offers[2]), h.owner)).status, 404)
+    assert.equal((await read(native)).status, 404, 'missing signature record exposes no preview')
+    await h.db.prepare('INSERT INTO l_records (kind,id,revision,value) VALUES (?,?,?,?)').bind(originalDoc.kind, originalDoc.id, originalDoc.revision, originalDoc.value).run()
     const originalOffer = await h.db.prepare("SELECT value FROM l_records WHERE kind='offer' AND id=?").bind(f.offers[2].id).first()
     const staleOffer = { ...JSON.parse(originalOffer.value), startDate: '2037-12-08' }
     await h.db.prepare("UPDATE l_records SET value=? WHERE kind='offer' AND id=?").bind(JSON.stringify(staleOffer), f.offers[2].id).run()
@@ -160,6 +178,7 @@ export async function checkHandoffPreviews() {
       return { id, finalize: () => target.imports.finalize(id, { contentHash: content.digest(), archiveHash: whole.digest() }) }
     }
     for (const mutate of [
+      copy => { const index = copy.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'handoff-mapping'); copy.splice(index, 1) },
       copy => { const row = copy.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'handoff-preview').row; row.value = JSON.stringify({ ...JSON.parse(row.value), application: 'synthetic-missing-application' }) },
       copy => { const row = copy.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'handoff-preview').row; const value = JSON.parse(row.value); value.snapshot.documents[0].sha256 = '0'.repeat(64); row.value = JSON.stringify(value) },
       copy => { const row = copy.find(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === 'handoff-preview').row; row.value = JSON.stringify({ ...JSON.parse(row.value), complete: true }) },

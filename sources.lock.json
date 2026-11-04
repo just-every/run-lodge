@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "51e4a0e9c06b8c6312aaf02d00d062e755573244c27ebd8fc984432a4de78831",
+      "sha256": "66c84cbb3e4e7d72a6542d2412b07c535deafb0e69c96e492ec352770a1cf13f",
       "executable": false
     },
     "DEMO.md": {
@@ -951,7 +951,7 @@
       "executable": false
     },
     "scripts/installer/portability-policy.mjs": {
-      "sha256": "5e9c7b85e400384ce8b5b0ac91458bf56153de09b6b2068f7ca111818ce325ce",
+      "sha256": "f81a497ffdbc3e6b0c480d07d6d9a365ff9f7928de6ab2d82383f7da712e5cd3",
       "executable": false
     },
     "scripts/installer/referral-policy.mjs": {
@@ -1516,6 +1516,10 @@
     },
     "src/lodge/fields/values.ts": {
       "sha256": "3a282e2f30a938145539d6074323f689fca665341a552870e3ec2a2329af72af",
+      "executable": false
+    },
+    "src/lodge/handoffs/preview.ts": {
+      "sha256": "52b9f431ac6497e60d551927bc66864c9f1b4aa0eb64489977df949914199154",
       "executable": false
     },
     "src/lodge/http/api.ts": {
@@ -4414,6 +4418,10 @@
       "sha256": "4a2cbba1e7dc0068e72feab0a40477a3cc3de686fc9dc087e599ce6bf5a600dc",
       "executable": false
     },
+    "src/ui/handoff-preview.tsx": {
+      "sha256": "f7b29615341800dfbb657ae62088cfecbbbc5483e6cc045f651c6ae6288e7b80",
+      "executable": false
+    },
     "src/ui/hiring-views.tsx": {
       "sha256": "20adbd59246e8cbed340b399a05403a56280131911da0a9313b55bfdea301525",
       "executable": false
@@ -4952,6 +4960,14 @@
     },
     "tests/handoff-exception-flow.mjs": {
       "sha256": "9ef5d4490edda9f4e0f0ce8a564756b8744251eedfd8cb90f6930cad8fe93243",
+      "executable": false
+    },
+    "tests/handoff-preview-browser.mjs": {
+      "sha256": "ec6dc921db2f6704b2c4a026db752fe4094d59b63260bb7faf71b0283b45ac8a",
+      "executable": false
+    },
+    "tests/handoff-preview-flow.mjs": {
+      "sha256": "6b2facca5129f98ae2bf5907bc42143b9237341b4e43592e47459167b808a177",
       "executable": false
     },
     "tests/harness.mjs": {
