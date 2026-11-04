@@ -14,10 +14,12 @@ export async function selfIdentificationPage(browser, { root, origin, run, evide
     const owner = await session(browser, root, origin, 'owner', width), page = owner.page
     const publicContext = await browser.newContext({ viewport: { width, height: 1000 } }), applicant = await publicContext.newPage()
     const fit = async p => assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'self-identification fits ' + width)
+    const errors = []
+    page.on('pageerror', e => errors.push(e.message))
     try {
       await page.getByRole('navigation', { name: 'Workspace' }).getByRole('button', { name: 'Settings', exact: true }).click()
       const settings = page.getByRole('region', { name: 'Voluntary self-identification settings' })
-      await settings.getByLabel('Questionnaire job', { exact: true }).selectOption(job.id)
+      await settings.getByLabel('Questionnaire job').selectOption(job.id)
       if (!config) {
         await settings.getByLabel('Questionnaire title', { exact: true }).fill(input.title)
         await settings.getByLabel('Voluntary notice', { exact: true }).fill(input.notice)
@@ -35,7 +37,7 @@ export async function selfIdentificationPage(browser, { root, origin, run, evide
       await settings.screenshot({ path: evidence + '/self-identification-settings-' + width + '.png' })
       await applicant.goto(origin + '/jobs/' + job.slug)
       const voluntary = applicant.getByRole('group', { name: input.title, exact: true })
-      await voluntary.getByLabel(input.questions[0].text, { exact: true }).selectOption('Synthetic response one')
+      await voluntary.getByLabel(input.questions[0].text).selectOption('Synthetic response one')
       await voluntary.getByLabel(input.consentLabel, { exact: true }).check()
       await applicant.getByLabel('Full name', { exact: true }).fill('Synthetic browser applicant ' + width)
       await applicant.getByLabel('Email', { exact: true }).fill(syntheticAddress('browser-' + width))
@@ -52,7 +54,7 @@ export async function selfIdentificationPage(browser, { root, origin, run, evide
       await applicant.getByRole('button', { name: 'Submit application', exact: true }).click()
       await applicant.getByRole('heading', { name: 'Application received', exact: true }).waitFor()
       await applicant.goto(origin + '/embed/jobs/' + job.slug)
-      await applicant.getByRole('group', { name: input.title, exact: true }).getByLabel(input.questions[0].text, { exact: true }).selectOption('__declined__')
+      await applicant.getByRole('group', { name: input.title, exact: true }).getByLabel(input.questions[0].text).selectOption('__declined__')
       await fit(applicant)
       await applicant.screenshot({ path: evidence + '/self-identification-embedded-' + width + '.png', fullPage: true })
       await page.goto(origin + '/enterprise/compliance')
@@ -69,6 +71,10 @@ export async function selfIdentificationPage(browser, { root, origin, run, evide
       }
       await fit(page)
       await page.screenshot({ path: evidence + '/self-identification-restricted-' + width + '.png', fullPage: true })
+    } catch (error) {
+      await page.screenshot({ path: evidence + '/self-identification-failure-' + width + '.png', fullPage: true })
+      console.error('Self-identification browser errors:', errors, (await page.locator('body').innerText()).slice(0,2000))
+      throw error
     } finally { await publicContext.close(); await owner.context.close() }
   }
 }

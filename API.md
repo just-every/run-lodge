@@ -1120,3 +1120,30 @@ are withheld, and candidate erasure removes their case history and packets.
 This native door sends no notice and establishes no connected booking, reply,
 calendar or mailbox completion. Existing communications grants, scorecard
 release controls and human hiring decisions remain required.
+
+### Optional US self-identification collection
+
+A board job detail includes `selfIdentification`, an array of currently enabled,
+employer-reviewed questionnaires in that exact post language. An empty array leaves
+ordinary applications available. Lodge supplies no fallback questionnaire language
+and makes no legal-compliance or filing claim. The employer records review of legal
+applicability, the exact notice, language and retention before enabling a version.
+
+Each questionnaire includes its `id`, `kind`, `version`, `noticeVersion`, `notice`,
+consent and choice labels, and `questions` with stable per-version question ids and
+answer choices. Submit optional `selfIdentification` keyed by questionnaire id.
+Each entry has `version`, a boolean `consent`, and `answers` keyed by question id.
+An answer is one of the published choices, `__declined__` for an explicit decline,
+or an empty string for unanswered. Answers and explicit declines require voluntary
+consent; omitting the entire optional object still allows a valid application.
+A stale submitted version is refused with 409; reload and review, or omit the
+optional responses. A missing or disabled review never requires optional answers.
+
+Responses preserve the exact form and notice, recorded review, consent, original
+intake path and earlier response versions apart from selection. They do not enter
+screening, scoring, ordinary search, agent views, notification text or saved
+application drafts. Existing human job-scoped compliance access applies; this door
+creates no new role, grant or delegated reporting authority. Authorized candidate
+access exports retain this restricted custody. Legal holds refuse erasure; erasure
+removes linked responses, and restoration validates their application and reviewed
+questionnaire relationships before publishing records.

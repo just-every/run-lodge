@@ -19,6 +19,7 @@ export function validateSelfIdentification({ rows, get, reference, refuse }) {
     const r = get(row.kind, row.id), app = reference('application', r.application), q = reference('self-id-questionnaire', r.questionnaire);
     refuse(r.vacancy === app.vacancy && q.vacancy === app.vacancy && r.id === app.id + ':' + q.id && Array.isArray(r.versions) && r.versions.length > 0);
     refuse(!reference('candidate', app.candidate).deleted);
+    refuse(typeof r.originalIntakePath === 'string' && !!r.originalIntakePath && (!app.intakePath || r.originalIntakePath === app.intakePath));
     for (const v of r.versions) {
       const form = forms.get(q.id + ':' + v.formVersion);
       refuse(!!form && v.questionnaire === q.id && v.language === q.language && v.language === (app.language ?? 'en') && v.noticeVersion === form.noticeVersion);

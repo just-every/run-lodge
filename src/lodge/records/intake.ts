@@ -60,6 +60,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const submissionKey = input.submissionKey ? text(input.submissionKey, 'Submission key', 100) : ''
   const submissionId = submissionKey ? await sha256(canonical({ vacancy: vacancy.id, post: post?.id ?? '', path: door.path, submissionKey })) : ''
   const submissionDigest = submissionId ? await sha256(canonical(input)) : ''
+  if (submissionId) requireThat(!s.find('erased-intake', 'form:' + submissionId), 'This submission was erased; start a new application instead of replaying it', 410)
   const previous = submissionId ? s.find('application-submission', submissionId) : null
   if (previous) {
     requireThat(previous.digest === submissionDigest, 'This submission changed; reload the application form', 409)
@@ -95,7 +96,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
   const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
-  const application = startApplication(s, null, candidate, vacancy, door.source, { language: post?.language ?? 'en', ...(post?.translation?.ui ? { languageUi: post.translation.ui } : {}), coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
+  const application = startApplication(s, null, candidate, vacancy, door.source, { intakePath: door.path, language: post?.language ?? 'en', ...(post?.translation?.ui ? { languageUi: post.translation.ui } : {}), coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await stored('resume', () => storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume!.name, mediaType: input.resume!.mediaType, base64: input.resume!.base64, kind: 'resume', source: door.source }))
   if (answered.length) {
     for (const x of answered) if (x.type === 'file') {
