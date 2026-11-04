@@ -47,7 +47,7 @@ function clockBindings(env: Bindings): Bindings {
   if (!fixture) return env
   if (testNow === undefined) setClock(fixture)
   const DB = new Proxy(env.DB, { get(target, key) {
-    if (key === 'prepare') return (sql: string) => target.prepare(sql.replace(/\bunixepoch\(\)/g, '(' + Math.floor(testNow! / 1000) + ')'))
+    if (key === 'prepare') return (sql: string) => target.prepare(sql.replace(/\bunixepoch\(\s*\)/gi, '(' + Math.floor(testNow! / 1000) + ')'))
     const value = Reflect.get(target, key, target)
     return typeof value === 'function' ? value.bind(target) : value
   } })
