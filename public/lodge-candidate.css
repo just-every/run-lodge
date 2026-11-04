@@ -8,3 +8,5 @@ html.rer-themed main.candidate-area .candidate-signout button{justify-self:start
  html.rer-themed main.candidate-area > dl dt{padding:14px 0 4px;border-bottom:0}
  html.rer-themed main.candidate-area > dl dd{margin:0;padding:0 0 14px}
 }
+/* Preserve employer-authored disclosure and authorization paragraphs at reading width. */
+html.rer-themed main.candidate-area .pre{white-space:pre-wrap;overflow-wrap:anywhere}

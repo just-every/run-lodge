@@ -14,8 +14,8 @@ export async function backgroundAuthorizationPage(browser, { root, origin, evide
   const capture = async (page, name) => {
     await iconTooltips(page)
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), name + ' fits the test width')
-    const sizes = await page.locator('main input,main textarea,main button,main p,main label').evaluateAll(nodes => nodes.filter(n => n.checkVisibility()).map(n => parseFloat(getComputedStyle(n).fontSize)))
-    assert.ok(sizes.every(n => n >= 13), 'visible form and everyday text is at least 13px')
+    const small = await page.locator('main input,main textarea,main button,main p,main label').evaluateAll(nodes => nodes.filter(n => n.checkVisibility() && parseFloat(getComputedStyle(n).fontSize) < 13).map(n => ({ size: getComputedStyle(n).fontSize, tag: n.tagName, className: n.className, text: n.textContent.slice(0, 90) })))
+    assert.deepEqual(small, [], 'visible form and everyday text is at least 13px')
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1000 })
       await page.screenshot({ path: evidence + '/background-authorization-' + name + '-' + width + '.png', fullPage: true })

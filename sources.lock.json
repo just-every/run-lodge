@@ -619,11 +619,11 @@
       "executable": false
     },
     "public/lodge-candidate.css": {
-      "sha256": "d9d2013f3ca13fc10fa0d34bdc847566d71d809ffb992fbb3b445c52101c5e3d",
+      "sha256": "b759d0cd056e01d312ab8748739a34e7b910f9721b1ee5b18c1d9e002626cf80",
       "executable": false
     },
     "public/lodge-pipeline.css": {
-      "sha256": "1eba9ce2631c522d2d328ff865a582d50594721024582ae0f313de3dc8d68454",
+      "sha256": "4a69a20938916edf9fc093cba69b5cbfd0c59d2e877d305ba0b047c87a7ed54a",
       "executable": false
     },
     "public/lodge-public.css": {
@@ -4759,11 +4759,11 @@
       "executable": false
     },
     "tests/background-authorization-browser.mjs": {
-      "sha256": "82b97085eca9311bbb44a2dfb47cac960c89147b4f8ca21a5bb828bfb18aaca8",
+      "sha256": "403f6f0056dcb6ad72c190e49231717227de21002c329e93266607f0bade0cdc",
       "executable": false
     },
     "tests/background-authorization-flow.mjs": {
-      "sha256": "797a30e85bdee13b6f9ca5ec5d6b023047446ff6122439b7c2e2eb7e33d0d2af",
+      "sha256": "f1bef394118bcf5a1bea650277328281f2a581116c9910ed8424e6ebe4ab34a4",
       "executable": false
     },
     "tests/blind-driver.mjs": {
