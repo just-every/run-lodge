@@ -1,3 +1,4 @@
+import { validateSelfIdentification } from './self-identification-policy.mjs';
 import { validateAssessments } from './assessment-policy.mjs';
 import { validateReferralRecords } from './referral-policy.mjs';
 import { createHash } from 'node:crypto';
@@ -30,6 +31,7 @@ export async function validateStaged({ read }) {
   refuse(typeof value.sha256 === 'string' && /^[a-f0-9]{64}$/.test(value.sha256) && createHash('sha256').update(bytes).digest('hex') === value.sha256);
  };
  validateAssessments({ rows, get, reference, refuse });
+ validateSelfIdentification({ rows, get, reference, refuse });
  validateCandidateLineage(rows.filter(row => row.kind === 'candidate').map(row => get(row.kind, row.id)), refuse);
  const referralFiles = validateReferralRecords({ rows, get, reference, refuse, original });
  const agencyFiles = validateAgencyRecords({ rows, get, reference, refuse, original });

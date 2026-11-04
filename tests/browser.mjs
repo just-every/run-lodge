@@ -1,3 +1,4 @@
+import { selfIdentificationPage } from './self-identification-browser.mjs'
 import { handoffExceptionPage } from './handoff-exception-browser.mjs'
 import { candidateUpdatePage } from './candidate-update-browser.mjs'
 import { sourcingProposalPage } from './sourcing-proposal-browser.mjs'
@@ -109,6 +110,7 @@ try {
   await sourcingProposalPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'sourcing'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await coordinationCasePage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'feedback-cases'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await delayAnalysisPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence: resolve(evidence, 'delays'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
+  await selfIdentificationPage(browser, { root, origin: server.origin, run: (op, body) => api(owner.context, server.origin, op, body), evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await referencePage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'references'), ownerEmail: 'owner@example.test' })
 
   for (const width of browserWidths) result.journeys.push(await journey(browser, root, server.origin, width, evidence))

@@ -1,3 +1,4 @@
+import { validateSelfIdentification, recordSelfIdentification } from './self-identification'
 import { queueApplicationEmail } from '../communications/queue'
 import { requireTranslation } from '../languages/posts'
 import type { State } from '../core/state'
@@ -26,7 +27,7 @@ export const APPLICATIONS_PER_HOUR = 60
 export interface Door { source: string; path: string; entry: string; campaign?: Data; oncePerJob?: boolean }
 export const APPLICATION_PAGE: Door = { source: 'Application page', path: 'Careers page', entry: 'Application page' }
 
-export interface Submission { submissionKey?: unknown; name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; customValues?: Data; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
+export interface Submission { selfIdentification?: unknown; submissionKey?: unknown; name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; customValues?: Data; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
 
 /** What the careers page shows of a job: a confidential one appears only under its neutral title, without its department; an internal-only one (ATTR-005) never. */
 export function publicPosting(v: Data): Data | null {
@@ -76,13 +77,17 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const fields = candidateFields({ name: about('name', () => text(input.name, 'Full name', 160)), email: address, phone: about('phone', () => optionalText(input.phone, 'Phone', 40)), location: about('location', () => optionalText(input.location, 'Location', 160)) })
   // SCREEN-001: each answer keeps the question version the applicant was shown.
   const answered = answers(s, vacancy, input.answers ?? {}, post)
+  const voluntaryResponses = validateSelfIdentification(s, vacancy, input.selfIdentification, post)
   const talentPool = input.talentPool === 'yes'
   ensureSource(s, door.entry, 'careers-site')
   // ATTR-009: one email applies to a job once through the board API. A repeat adds
   // no application; it gets its own receipt and is recorded on the earlier one, so
   // the answer never tells a caller whether that email applied before.
   const earlier = door.oncePerJob && s.scan('application').find(x => x.vacancy === vacancy.id && x.status === 'active' && s.find('candidate', x.candidate)?.email === address)
-  if (earlier) return { receipt: await repeat(s, vacancy, earlier, door, notice.version, post, cpra?.version), accommodationContact: business.accommodationContact }
+  if (earlier) {
+    await recordSelfIdentification(s, earlier, voluntaryResponses, door.path)
+    return { receipt: await repeat(s, vacancy, earlier, door, notice.version, post, cpra?.version), accommodationContact: business.accommodationContact }
+  }
   const candidate = s.put('candidate', uid(), {
     ...fields, language: post?.language ?? 'en', ...(post?.translation?.ui ? { languageUi: post.translation.ui } : {}), source: door.source, createdAt: now(), retainUntil: retentionUntil(s),
     consent: { basis: 'application', noticeVersion: notice.version, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), talentPool, at: now(), recordedBy: 'applicant' },
@@ -102,6 +107,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
     // SCREEN-002: the job's rules run on the objective answers, as on every intake path.
     evaluate(s, s.get('application', application.id), door.path)
   }
+  await recordSelfIdentification(s, application, voluntaryResponses, door.path)
   const accommodation = optionalText(input.accommodation, 'Accommodation request', 4000)
   const monitoring = typeof input.monitoring === 'string' && MONITORING_OPTIONS.includes(input.monitoring) && input.monitoring !== 'Prefer not to say' ? input.monitoring : ''
   if (accommodation) s.put('monitoring', uid(), { application: application.id, type: 'accommodation', answer: accommodation, at: now() })
