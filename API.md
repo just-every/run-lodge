@@ -1131,7 +1131,13 @@ configure each job or post under Settings. The `free-feed` command takes
 and the exact `source` token from its workspace `freeFeedSettings` entry for that vacancy and target. Enabling
 requires `reviewed: true`, an explicit employer name and HTTPS website, a
 public feed contact, and a supplied city, US state and country for every approved
-office. LinkedIn also requires the employer's actual numeric Company ID and a
+office. For fully remote jobs, a US country-only location is also accepted:
+leave both city and state blank, or put `remote` in either or both with the other
+blank. Never mix `remote` with a real city or state. Indeed receives city
+`remote`, a blank state and `remotetype` of `Fully remote`; LinkedIn receives
+the country-only location and its `Remote` workplace type. Hybrid jobs retain
+their physical location and Indeed receives `Hybrid remote`.
+LinkedIn also requires the employer's actual numeric Company ID and a
 job description of at least 100 characters. No ID, address, provider enrollment
 or employer authority is inferred. An optional current human member receives
 explicitly configured CRM credit. Disabling needs only the current version.

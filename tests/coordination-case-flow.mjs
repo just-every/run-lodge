@@ -60,6 +60,8 @@ export async function checkCoordinationCases() {
     assert.equal((await send('/api/lodge/command/decide-proposal', { id: packet.id, decision: 'approved', reason: 'Stale approval' }, manager)).status, 409)
     assert.equal((await send('/api/lodge/command/coordination-case', { id: row.id, sources: staleSources, action: 'stop', reason: 'Stale stop' })).status, 409)
     const currentPacket = await cmd('propose', caseProposal(await read(), managerEmail, recruiterEmail), agent)
+    assert.equal((await send('/api/lodge/command/decide-proposal', { id: currentPacket.id, decision: 'approved', reason: 'Agent asserted its own approval' }, agent)).status, 403)
+    assert.equal((await read()).owner, managerEmail, 'an agent cannot apply its own proposed ownership')
     await approve(currentPacket)
     row = await read()
     assert.deepEqual([row.status, row.owner, row.nextAction], ['open', recruiterEmail, currentPacket.input.nextAction])
@@ -70,6 +72,13 @@ export async function checkCoordinationCases() {
     await checkCaseRestore(h, row.id)
     await h.restart()
     assert.equal((await read()).owner, recruiterEmail, 'ownership and progress survive Worker restart')
+    await cmd('move', { application: app.id, to: 'withdrawn', reason: 'Candidate paused their application', closeReason: 'other-offer' })
+    assert.deepEqual([(await read()).status, (await read()).confirmation], ['stopped', null])
+    await h.restart()
+    await cmd('reopen', { application: app.id, to: h.job.stages[0].id, reason: 'Candidate resumes their application' })
+    assert.deepEqual([(await read()).status, (await read()).confirmation], ['review-required', null], 'an unfinished case remains paused after reopening and restart')
+    await act({ action: 'assign', owner: recruiterEmail, nextAction: 'Review resumed missing feedback', deadline: '2030-10-08T12:00:00.000Z' })
+    assert.equal((await read()).status, 'open')
     await h.setTime('2030-10-09T12:00:00.000Z')
     assert.equal((await read()).overdue, true, 'overdue remains visibly unresolved')
     const beforeRefusals = await read()
@@ -87,6 +96,9 @@ export async function checkCoordinationCases() {
     await cmd('scorecard', { application: app.id, recommendation: 'yes', takeaways: 'Application-only feedback', submit: true }, panel)
     await act({ action: 'reconcile' })
     assert.equal((await read()).status, 'open', 'application-only feedback cannot complete this interview case')
+    await cmd('scorecard', { application: app.id, interview: iv.id, recommendation: 'yes', takeaways: 'Another author cannot satisfy the responsible panellist', submit: true })
+    await act({ action: 'reconcile' })
+    assert.equal((await read()).status, 'open', 'another author on the exact interview cannot complete this panellist’s case')
     const draft = await cmd('scorecard', { application: app.id, interview: iv.id, recommendation: 'yes', takeaways: 'Private native feedback', submit: false }, panel)
     assert.equal((await read()).status, 'open', 'a draft is not a submission')
     await cmd('scorecard', { application: app.id, interview: iv.id, recommendation: 'yes', takeaways: 'Private native feedback', submit: true }, panel)
@@ -98,6 +110,25 @@ export async function checkCoordinationCases() {
     await h.restart()
     assert.equal((await read()).status, 'completed')
     await h.setTime('2030-10-09T12:00:00.000Z')
+
+    // A reopened application needs fresh case review, even when old feedback exists.
+    await cmd('move', { application: app.id, to: 'withdrawn', reason: 'Candidate withdrew', closeReason: 'other-offer' })
+    assert.deepEqual([(await read()).status, (await read()).confirmation], ['stopped', null])
+    await h.restart()
+    await h.setTime('2030-10-09T12:00:00.000Z')
+    await cmd('reopen', { application: app.id, to: h.job.stages[0].id, reason: 'Candidate explicitly resumes the application' })
+    assert.deepEqual([(await read()).status, (await read()).confirmation], ['review-required', null], 'reopening cannot silently revive the old feedback-case completion')
+    await act({ action: 'reconcile' })
+    assert.deepEqual([(await read()).status, (await read()).confirmation], ['review-required', null], 'factual reconciliation cannot replace renewed human ownership review')
+    await act({ action: 'assign', owner: recruiterEmail, nextAction: 'Review feedback for the reopened application', deadline: '2030-10-10T12:00:00.000Z' })
+    assert.equal((await read()).status, 'completed', 'fresh human review permits readback of the genuine current submission')
+
+    await cmd('member', { email: panellist, name: 'Responsible panellist', roles: ['approver'], active: true })
+    assert.deepEqual([(await read()).status, (await read()).confirmation], ['review-required', null], 'a panellist losing review authority invalidates completion')
+    await cmd('member', { email: panellist, name: 'Responsible panellist', roles: ['interviewer'], active: true })
+    assert.deepEqual([(await read()).status, (await read()).confirmation], ['review-required', null], 'restoring panel authority alone cannot revive completion')
+    await act({ action: 'assign', owner: recruiterEmail, nextAction: 'Review restored panellist authority', deadline: '2030-10-10T12:00:00.000Z' })
+    assert.equal((await read()).status, 'completed')
 
     // A changed assignment invalidates prior local completion until human review.
     await cmd('assign-reviewers', { application: app.id, reviewers: [panellist] })
@@ -142,6 +173,11 @@ export async function checkCoordinationCases() {
     assert.ok(stored.every(r => !r.value.includes(app.id) && !r.value.includes(iv.id)), 'erasure removes retained case history and related proposals')
     assert.equal((await send('/api/lodge/command/coordination-discover', { application: app.id, interview: second.id, panellist })).status, 404, 'replay cannot resurrect an erased case')
     assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM rer_mail_development_outbox').first()).n, mailBefore, 'native coordination creates no outbound notices')
+    await h.setTime('2030-11-01T12:00:00.000Z')
+    const expiredSnapshot = (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
+    assert.equal((await send('/api/lodge/state')).status, 401, 'expired native sessions cannot read coordination')
+    assert.equal((await send('/api/lodge/command/coordination-discover', { application: app.id, interview: second.id, panellist })).status, 401, 'the pinned clock still enforces native session expiry')
+    assert.deepEqual((await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results, expiredSnapshot, 'expired-session replay changes no records')
   } finally { await h.close() }
 }
 

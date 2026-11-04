@@ -40,31 +40,27 @@ function setClock(at: string) {
     static now() { return testNow! }
   } as DateConstructor
 }
-// Keep the SQL authority clock on the same pinned instant as the fixture's
-// JavaScript clock. Production still evaluates the unmodified SQLite guard.
-let fixtureDatabase: D1Database | undefined
-function fixtureBindings(env: Bindings): Bindings {
+// D1's transaction guards must observe the same fixture clock as native auth.
+// Keep the real statements and batches; substitute only SQLite's wall clock.
+function clockBindings(env: Bindings): Bindings {
   const fixture = (env as any).TEST_CLOCK
   if (!fixture) return env
   if (testNow === undefined) setClock(fixture)
-  fixtureDatabase ??= new Proxy(env.DB, {
-    get(target, key) {
-      if (key === 'prepare') return (sql: string) => target.prepare(sql.replace(/\bunixepoch\s*\(\s*\)/gi, '(' + Math.floor(Date.now() / 1000) + ')'))
-      const value = Reflect.get(target, key, target)
-      return typeof value === 'function' ? value.bind(target) : value
-    },
-  })
-  return { ...env, DB: fixtureDatabase }
+  const DB = new Proxy(env.DB, { get(target, key) {
+    if (key === 'prepare') return (sql: string) => target.prepare(sql.replace(/\bunixepoch\(\)/g, '(' + Math.floor(testNow! / 1000) + ')'))
+    const value = Reflect.get(target, key, target)
+    return typeof value === 'function' ? value.bind(target) : value
+  } })
+  return { ...env, DB }
 }
 export default {
-  email: (message: ForwardableEmailMessage, env: Bindings) => lodgeEmail(message, fixtureBindings(env)),
-  scheduled: (controller: ScheduledController, env: Bindings) => scheduledRun(controller, fixtureBindings(env)),
+  email: (message: ForwardableEmailMessage, env: Bindings) => lodgeEmail(message, clockBindings(env)),
+  scheduled: (controller: ScheduledController, env: Bindings) => scheduledRun(controller, clockBindings(env)),
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
+    env = clockBindings(env)
     const fixture = (env as any).TEST_CLOCK
-    if (fixture && testNow === undefined) setClock(fixture)
     if (fixture && new URL(request.url).pathname === '/__test/clock') { setClock((await request.json() as any).at); return Response.json({ ok: true }) }
-    const bindings = fixtureBindings(env)
-    return afterWrite(request, await route(request, bindings, execution), bindings) },
+    return afterWrite(request, await route(request, env, execution), env) },
 }
 
 async function route(request: Request, env: Bindings, execution: ExecutionContext) {

@@ -4,6 +4,7 @@ import { canonical, email, list, now, oneOf, optionalText, requireThat, sha256, 
 import { approvedNow, terms } from '../records/approvals'
 import { approvedOffices, listings, type Listing } from '../records/posts'
 import { publicPay } from '../records/pay-transparency'
+import { translationReady } from '../languages/posts'
 
 export const FREE_BOARDS = ['linkedin', 'indeed'] as const
 export type FreeBoard = typeof FREE_BOARDS[number]
@@ -13,6 +14,10 @@ const xmlSafe = (value: unknown): boolean => typeof value === 'string' ? cleanXm
 const last = (v: Data, post: string | null, board: FreeBoard) => (v.freeFeeds ?? []).find((x: Data) => x.post === post && x.board === board)?.versions.at(-1)
 const postOf = (v: Data, id: string | null) => id ? (v.posts ?? []).find((p: Data) => p.id === id) : null
 const cleanXml = (value: string) => !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffe\uffff]/u.test(value) && !/[\uD800-\uDFFF]/u.test(value)
+const US_STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ')
+const remotePlace = (value: string) => !value || value.toLowerCase() === 'remote'
+const nationwide = (loc: Data) => remotePlace(loc.city) && remotePlace(loc.state)
+const validLocation = (v: Data, loc: Data) => loc.country === 'US' && (v.workMode === 'remote' && nationwide(loc) || !!loc.city && !remotePlace(loc.city) && US_STATES.includes(loc.state))
 
 /** Exact source review excludes lifecycle flags, so pausing and closing remove entries without erasing earlier review. */
 export async function feedSource(s: State, v: Data, post: Data | null) {
@@ -41,10 +46,10 @@ export async function configureFreeFeed(s: State, a: Actor, b: Data) {
     requireThat(description?.trim().length >= (board === 'linkedin' ? 100 : 1), board === 'linkedin' ? 'LinkedIn requires at least 100 characters of job description' : 'Add the approved job description')
     const offices: string[] = post?.locations ?? approvedOffices(v)
     requireThat(offices.length > 0 && (board !== 'linkedin' || offices.length <= 7), 'Choose approved offices; LinkedIn supports up to seven locations')
-    const locations = list(b.locations, 'Feed locations', 21, (x: any) => ({ officeId: text(x?.officeId, 'Approved office', 64), city: text(x?.city, 'City', 120), state: text(x?.state, 'US state abbreviation', 2).toUpperCase(), country: text(x?.country, 'Country', 2).toUpperCase(), postalCode: optionalText(x?.postalCode, 'Postal code', 20), streetAddress: optionalText(x?.streetAddress, 'Street address', 200) }))
+    const locations = list(b.locations, 'Feed locations', 21, (x: any) => ({ officeId: text(x?.officeId, 'Approved office', 64), city: optionalText(x?.city, 'City', 120), state: optionalText(x?.state, 'US state abbreviation or remote', 6).toUpperCase(), country: text(x?.country, 'Country', 2).toUpperCase(), postalCode: optionalText(x?.postalCode, 'Postal code', 20), streetAddress: optionalText(x?.streetAddress, 'Street address', 200) }))
     requireThat(locations.length === offices.length && new Set(locations.map(x => x.officeId)).size === offices.length && offices.every(id => locations.some(x => x.officeId === id)), 'Supply one explicit location for every selected approved office')
-    const states = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ')
-    requireThat(locations.every(x => x.country === 'US' && states.includes(x.state)), 'This native feed supports explicitly supplied US locations')
+    requireThat(locations.every(x => validLocation(v, x)), 'Supply a US city and state, or country-only metadata for a remote job; never mix remote with a real city or state')
+    for (const loc of locations) if (nationwide(loc)) { loc.city = ''; loc.state = '' }
     const rawUrl = text(b.companyUrl, 'Employer website', 500)
     requireThat(/^https:\/\/[^\s]+$/.test(rawUrl) && URL.canParse(rawUrl), 'Enter an absolute HTTPS employer website URL')
     const companyUrl = new URL(rawUrl)
@@ -72,6 +77,7 @@ export async function feedEntries(s: State, board: FreeBoard): Promise<FeedEntry
     const v = s.get('vacancy', listing.v.id), post = listing.post
     const config = last(v, post?.id ?? null, board)
     if (!config?.enabled || v.confidential || v.internalOnly || !await approvedNow(s, 'vacancy', v)) continue
+    if (!config.locations.every((loc: Data) => validLocation(v, loc))) continue
     const source = await feedSource(s, v, post)
     if (config.source !== source) continue
     if (config.credit && !s.find('member', config.credit.who)?.active) continue
@@ -96,12 +102,16 @@ export function feedDoor(entry: FeedEntry, board: FreeBoard) {
 export async function freeFeedView(s: State, v: Data, entries: Record<FreeBoard, FeedEntry[]>) {
   const receipts = s.get('business', 'main').freeFeedServed ?? {}
   const targets = [null, ...(v.posts ?? []).filter((p: Data) => p.status !== 'closed')]
-  return Promise.all(targets.map(async (post: Data | null) => ({ post: post?.id ?? null, title: post?.title ?? v.title, source: await feedSource(s, v, post), content: { description: post?.description ?? v.description, pay: publicPay(s, v, post).text, employmentType: v.employmentType },
+  return Promise.all(targets.map(async (post: Data | null) => {
+    // Unreviewed translations remain editable without projecting applicant-facing pay or a review token.
+    const ready = !post || translationReady(s, v, post)
+    return { post: post?.id ?? null, title: post?.title ?? v.title, source: ready ? await feedSource(s, v, post) : null, content: { description: post?.description ?? v.description, pay: ready ? publicPay(s, v, post).text : '', employmentType: v.employmentType },
     boards: FREE_BOARDS.map(board => {
       const config = last(v, post?.id ?? null, board), entry = entries[board].find(e => e.listing.v.id === v.id && (e.listing.post?.id ?? null) === (post?.id ?? null))
       const served = entry && receipts[board]?.entries.some((e: Data) => e.id === entry.id && e.version === config.version && e.source === entry.source)
       return { board, config: config ?? null, status: !config?.enabled ? 'Off' : !entry ? 'Withheld; review current content, publication and destinations' : served ? 'Feed served, listing not confirmed' : 'Ready to serve; listing not confirmed', path: feedPath(board) }
-    }) })))
+    }) }
+  }))
 }
 
 export const xmlText = (value: unknown) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
@@ -124,12 +134,14 @@ export async function renderFreeFeed(s: State, board: FreeBoard, origin: string,
     if (board === 'linkedin') {
       const ranges = pay.ranges, equal = ranges.length && ranges.every(r => r.min === ranges[0].min && r.max === ranges[0].max && r.period === ranges[0].period)
       const salary = equal && Number.isInteger(ranges[0].min / 100) && Number.isInteger(ranges[0].max / 100) && period[ranges[0].period] ? '<salaries><salary><lowEnd>' + tag('amount', ranges[0].min / 100) + tag('currencyCode', 'USD') + '</lowEnd><highEnd>' + tag('amount', ranges[0].max / 100) + tag('currencyCode', 'USD') + '</highEnd>' + tag('period', period[ranges[0].period]) + tag('type', 'BASE_SALARY') + '</salary></salaries>' : ''
-      jobs.push('<job>' + tag('partnerJobId', e.id) + common + tag('applyUrl', url.href) + tag('companyId', c.companyId) + tag('posterEmail', c.posterEmail) + tag('location', c.locations.map((x: Data) => `${x.city}, ${x.state}, ${x.country}`).join('; ')) + '<alternateLocations>' + c.locations.map((x: Data) => tag('alternateLocation', `${x.city}, ${x.state}, ${x.country}`)).join('') + '</alternateLocations>' + (type[v.employmentType] ? tag('jobtype', type[v.employmentType]) : '') + tag('workplaceTypes', ({ onsite: 'On-site', hybrid: 'Hybrid', remote: 'Remote' } as Data)[v.workMode]) + salary + '</job>')
+      const location = (x: Data) => nationwide(x) ? x.country : `${x.city}, ${x.state}, ${x.country}`
+      jobs.push('<job>' + tag('partnerJobId', e.id) + common + tag('applyUrl', url.href) + tag('companyId', c.companyId) + tag('posterEmail', c.posterEmail) + tag('location', c.locations.map(location).join('; ')) + '<alternateLocations>' + c.locations.map((x: Data) => tag('alternateLocation', location(x))).join('') + '</alternateLocations>' + (type[v.employmentType] ? tag('jobtype', type[v.employmentType]) : '') + tag('workplaceTypes', ({ onsite: 'On-site', hybrid: 'Hybrid', remote: 'Remote' } as Data)[v.workMode]) + salary + '</job>')
     } else for (const loc of c.locations) {
       const id = (await sha256(e.id + ':' + loc.officeId)).slice(0, 32)
       const range = pay.ranges.find(r => r.location === s.get('office', loc.officeId).name)
       const salary = range ? `$${range.min / 100} - $${range.max / 100} per ${range.period}` : ''
-      jobs.push('<job>' + common + tag('date', l.post?.firstPublishedAt ?? v.firstPublishedAt ?? v.publishedAt) + tag('referencenumber', id) + tag('requisitionid', v.id) + tag('url', url.href) + tag('sourcename', c.companyName) + tag('city', loc.city) + tag('state', loc.state) + tag('country', loc.country) + (loc.postalCode ? tag('postalcode', loc.postalCode) : '') + (loc.streetAddress ? tag('streetaddress', loc.streetAddress) : '') + tag('email', c.posterEmail) + tag('salary', salary) + tag('jobtype', v.employmentType.replace('-', '')) + '</job>')
+      const remoteType = ({ remote: 'Fully remote', hybrid: 'Hybrid remote' } as Data)[v.workMode]
+      jobs.push('<job>' + common + tag('date', l.post?.firstPublishedAt ?? v.firstPublishedAt ?? v.publishedAt) + tag('referencenumber', id) + tag('requisitionid', v.id) + tag('url', url.href) + tag('sourcename', c.companyName) + tag('city', nationwide(loc) ? 'remote' : loc.city) + tag('state', loc.state) + tag('country', loc.country) + (loc.postalCode ? tag('postalcode', loc.postalCode) : '') + (loc.streetAddress ? tag('streetaddress', loc.streetAddress) : '') + (remoteType ? tag('remotetype', remoteType) : '') + tag('email', c.posterEmail) + tag('salary', salary) + tag('jobtype', v.employmentType.replace('-', '')) + '</job>')
     }
   }
   const publisher = board === 'indeed' ? tag('publisher', 'Lodge') + tag('publisherurl', origin) : tag('publisher', 'Lodge') + tag('publisherUrl', origin) + tag('lastBuildDate', new Date().toUTCString()) + tag('expectedJobCount', jobs.length)

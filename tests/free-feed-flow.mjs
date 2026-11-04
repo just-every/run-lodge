@@ -18,7 +18,11 @@ function xml(response, board) {
   const rows = Array.from(doc.getElementsByTagName('job'))
   const required = board === 'linkedin' ? ['partnerJobId', 'title', 'description', 'company', 'companyId', 'applyUrl', 'posterEmail', 'location'] : ['title', 'date', 'referencenumber', 'requisitionid', 'url', 'company', 'sourcename', 'city', 'state', 'country', 'email', 'description', 'salary', 'jobtype']
   for (const job of rows) {
-    for (const field of required) assert.ok(value(job, field).trim(), 'Required ' + board + ' field: ' + field)
+    const nationwide = board === 'indeed' && value(job, 'remotetype') === 'Fully remote' && value(job, 'city') === 'remote'
+    for (const field of required) {
+      if (nationwide && field === 'state') assert.equal(value(job, field), '', 'a nationwide remote location has no invented state')
+      else assert.ok(value(job, field).trim(), 'Required ' + board + ' field: ' + field)
+    }
     const url = new URL(value(job, board === 'linkedin' ? 'applyUrl' : 'url'))
     assert.equal(url.searchParams.get('feed'), board)
     assert.equal(url.searchParams.get('source'), board === 'indeed' ? 'Indeed' : 'LinkedIn')
@@ -30,7 +34,7 @@ function xml(response, board) {
     } else {
       assert.ok(Number.isFinite(Date.parse(value(job, 'date'))))
       assert.equal(value(job, 'country'), 'US')
-      assert.match(value(job, 'state'), /^[A-Z]{2}$/)
+      if (!nationwide) assert.match(value(job, 'state'), /^[A-Z]{2}$/)
     }
   }
   const ids = rows.map(j => value(j, board === 'linkedin' ? 'partnerJobId' : 'referencenumber'))
@@ -49,8 +53,8 @@ export async function checkFreeFeeds() {
     const manager = await h.member(managerEmail, ['manager'], 'Synthetic Lodge Manager')
     const a = await cmd('office', { name: 'Denver, CO' }), b = await cmd('office', { name: 'New York City, NY' })
     const hostile = 'Maintain safe operations and carefully document every job-related decision. Work with the team to plan clear schedules and communicate progress. Hostile text: <script>alert("x")</script> & ]]> remains literal.'
-    const open = async (title, offices) => {
-      let v = await cmd('vacancy', { title, description: hostile, officeId: offices[0].id, locations: offices.slice(1).map(x => x.id), headcount: 1, compensation: RANGE, benefits: 'Health & bonus <reviewed>', payRanges: offices.map((o, i) => ({ officeId: o.id, compensation: { currency: 'USD', min: 6000000 + i * 1000000, max: 8000000 + i * 1000000, period: 'year' } })), manager: ownerEmail })
+    const open = async (title, offices, extra = {}) => {
+      let v = await cmd('vacancy', { title, description: hostile, officeId: offices[0].id, locations: offices.slice(1).map(x => x.id), headcount: 1, compensation: RANGE, benefits: 'Health & bonus <reviewed>', payRanges: offices.map((o, i) => ({ officeId: o.id, compensation: { currency: 'USD', min: 6000000 + i * 1000000, max: 8000000 + i * 1000000, period: 'year' } })), manager: ownerEmail, ...extra })
       await cmd('rubric', { id: v.id, criteria: RUBRIC })
       await cmd('interview-plan', { id: v.id, plan: [{ name: 'Safety', stageName: 'Interview' }] })
       const approval = await cmd('request-vacancy-approval', { id: v.id, approver: ownerEmail })
@@ -177,6 +181,55 @@ export async function checkFreeFeeds() {
     await cmd('close-vacancy', { id: first.id, reason: 'Role filled' })
     assert.equal((await feed('linkedin')).length, 0)
     assert.equal((await send('/jobs/' + p1.slug + '?feed=linkedin')).status, 404)
+
+    // An incomplete language draft stays editable and never enters a public feed.
+    const french = await cmd('job-post', { vacancy: second.id, title: 'Synthetic French draft', description: 'Description française', language: 'fr', locations: [a.id], destinations: ['careers', 'linkedin', 'indeed'] })
+    const draft = french.posts.at(-1)
+    const draftState = await send('/api/lodge/state', undefined, h.owner)
+    assert.equal(draftState.status, 200, draftState.text)
+    const settings = draftState.value.freeFeedSettings.find(x => x.vacancy === second.id).targets.find(x => x.post === draft.id)
+    assert.equal(settings.source, null, 'a missing translation supplies no feed review token')
+    assert.equal(settings.content.pay, '', 'a draft never substitutes source-language applicant pay')
+    await cmd('job-post', { vacancy: second.id, post: draft.id, title: 'Edited French draft', description: 'Description française modifiée', language: 'fr', locations: [a.id], destinations: ['careers', 'linkedin', 'indeed'] })
+    assert.equal((await send('/api/lodge/command/post-status', { vacancy: second.id, post: draft.id, status: 'live' }, h.owner)).status, 409)
+    assert.equal((await configure(second, draft.id, 'linkedin')).status, 409)
+    for (const board of ['linkedin', 'indeed']) assert.ok(!(await feed(board)).some(j => value(j, 'title') === 'Edited French draft'))
+    await cmd('post-status', { vacancy: second.id, post: draft.id, status: 'closed' })
+    console.log('PROBE ATTR-003 French draft: untranslated post -> workspace HTTP 200, draft edits save, publication and feed opt-in refused with HTTP 409')
+
+    const remoteOffice = await cmd('office', { name: 'Remote US' })
+    const remote = await open('Synthetic nationwide remote job', [remoteOffice], { workMode: 'remote' })
+    const location = (city = '', state = '', officeId = remoteOffice.id) => [{ officeId, city, state, country: 'US' }]
+    for (const board of ['linkedin', 'indeed']) {
+      assert.equal((await configure(remote, null, board, { locations: location('Remote', 'NY') })).status, 400, 'remote cannot be combined with a real state')
+      assert.equal((await configure(remote, null, board, { locations: location('Denver', 'remote') })).status, 400, 'remote cannot be combined with a real city')
+      assert.equal((await configure(second, null, board, { locations: location('', '', a.id) })).status, 400, 'onsite jobs still require a real city and state')
+    }
+    assert.equal((await state()).vacancies.find(v => v.id === remote.id).freeFeeds, undefined, 'invalid remote metadata creates no configuration')
+    let remoteId
+    for (const [city, region] of [['Remote', 'Remote'], ['remote', ''], ['', 'REMOTE'], ['', '']]) {
+      for (const board of ['linkedin', 'indeed']) {
+        assert.equal((await configure(remote, null, board, { locations: location(city, region) })).status, 200)
+        const row = (await feed(board)).find(j => value(j, 'title') === remote.title)
+        assert.ok(row, 'the approved nationwide job is served')
+        if (board === 'indeed') {
+          assert.deepEqual(['city', 'state', 'country', 'remotetype', 'salary'].map(tag => value(row, tag)), ['remote', '', 'US', 'Fully remote', '$60000 - $80000 per year'])
+          remoteId ??= value(row, 'referencenumber')
+          assert.equal(value(row, 'referencenumber'), remoteId, 'equivalent reviewed remote metadata keeps its job identifier')
+        } else {
+          assert.equal(value(row, 'location'), 'US')
+          assert.equal(value(row, 'alternateLocation'), 'US')
+          assert.equal(value(row, 'workplaceTypes'), 'Remote')
+        }
+        const url = new URL(value(row, board === 'indeed' ? 'url' : 'applyUrl'))
+        const page = await send(url.pathname + url.search)
+        assert.equal(page.status, 200)
+        assert.ok(page.text.includes('Remote US'))
+      }
+    }
+    await cmd('close-vacancy', { id: remote.id, reason: 'Remote role filled' })
+    for (const board of ['linkedin', 'indeed']) assert.ok(!(await feed(board)).some(j => value(j, 'title') === remote.title))
+    console.log('PROBE ATTR-003 nationwide remote: documented remote and country-only US metadata -> HTTP 200, Indeed Fully remote marker and LinkedIn US location; Remote, NY -> HTTP 400 without mutation')
     await h.setTime('2027-01-01T12:00:00.000Z')
     assert.equal((await send('/api/lodge/command/free-feed', { vacancy: second.id, board: 'linkedin', enabled: true }, h.owner)).status, 401, 'a genuinely expired native session cannot revive or change feed configuration')
     assert.equal((await feed('linkedin')).length, 0, 'an expired credential changes no public entry')
