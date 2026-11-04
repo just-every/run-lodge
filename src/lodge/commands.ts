@@ -1,3 +1,4 @@
+import { configureFreeFeed } from './distribution/free-feeds'
 import { configureHandoff, updateHandoff } from './agents/handoff-exceptions'
 import { configureCandidateUpdates } from './agents/candidate-updates'
 import { sourcingBrief } from './agents/sourcing'
@@ -108,7 +109,7 @@ export const commands: Record<string, Command> = {
   'pay-rules': payRules, business, member, 'vacancy-compliance': vacancyCompliance,
   kickoff, 'vacancy-from-kickoff': vacancyFromKickoff, vacancy, 'vacancy-stages': stages, rubric, 'interview-plan': plan, 'interview-kit': kit, 'request-vacancy-approval': requestVacancyApproval, publish, unpublish, 'close-vacancy': close, 'vacancy-privacy': privacy, 'hiring-team': team,
   'job-template': jobTemplate, 'vacancy-from-template': vacancyFromTemplate, 'clone-vacancy': cloneVacancy,
-  'job-post': jobPost, 'post-translation': postTranslation, 'post-status': postStatus, 'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening, question, 'job-questions': jobQuestions,
+  'free-feed': configureFreeFeed, 'job-post': jobPost, 'post-translation': postTranslation, 'post-status': postStatus, 'request-opening': requestOpening, opening: editOpening, 'close-opening': closeOpening, question, 'job-questions': jobQuestions,
   department, office, 'delete-org': deleteOrg, 'member-org': memberOrg,
   'screening-rule': screeningRule, 'approve-auto-reject': approveAutoReject, 'preview-rule': previewRule, 'apply-rule': applyRule, 'decide-rule-matches': decideRuleMatches,
   'decide-approval': decide,

@@ -1,3 +1,4 @@
+import { freeFeedView, feedEntries } from '../distribution/free-feeds'
 import { handoffView } from '../agents/handoff-exceptions'
 import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
@@ -100,12 +101,13 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
   const pooled = (v: Data) => !v.imported && v.status !== 'closed' && (teamOf(v, 'sourcers').includes(scope(a)) || teamOf(v, 'interviewers').includes(scope(a))) && cleared(a, v, 'confidential')
   const visibleVacancyIds = new Set([...managed.map(v => v.id), ...applications.map(x => x.vacancy), ...s.all('vacancy').filter(pooled).map(v => v.id)])
 
+  const feeds = !a.agent && admin ? { linkedin: await feedEntries(s, 'linkedin'), indeed: await feedEntries(s, 'indeed') } : null
   const vacancies: Data[] = []
   for (const v of s.all('vacancy').filter(v => visibleVacancyIds.has(v.id))) {
     if (managesVacancy(a, v)) {
       const approval = latestApproval(s, 'vacancy', v.id)
       const version = await versionOf(s, 'vacancy', v)
-      vacancies.push({ ...v, manages: true, permissions: [...permissionsOn(s, a, v)], version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
+      vacancies.push({ ...v, ...(feeds ? { freeFeedTargets: await freeFeedView(s, v, feeds) } : {}), manages: true, permissions: [...permissionsOn(s, a, v)], version, missing: missingTerms(v), approval: approval ?? null, approvedNow: approval?.status === 'approved' && approval.version === version, funnel: funnel(v, applications) })
     } else {
       // Panel members see the role, its stages and the rubric they score against.
       const sources = teamOf(v, 'sourcers').includes(scope(a))

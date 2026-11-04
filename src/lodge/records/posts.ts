@@ -21,7 +21,7 @@ import { attachable } from './questions'
 // internal-only job (ATTR-005) lists nowhere.
 
 /** Where a post can appear today. Each board joins this list with its own clause (ATTR-002, ATTR-003, ATTR-006). */
-export const DESTINATIONS = ['careers', 'embed', 'api'] as const
+export const DESTINATIONS = ['careers', 'embed', 'api', 'linkedin', 'indeed'] as const
 export type Destination = typeof DESTINATIONS[number]
 
 /** The offices a job was approved for: its office and the other approved offices in its LDG-001 terms. */

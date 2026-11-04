@@ -7,6 +7,7 @@ import { storeDocument } from './documents'
 import { inCalifornia, requireCpraNotice } from './privacy'
 import { answers, type Answer } from './questions'
 import { evaluate } from './rules'
+import type { SOURCE_TYPES } from './sources'
 import { ensureSource } from './sources'
 
 // Flow 3: the public application page. The applicant sees the privacy notice
@@ -23,7 +24,7 @@ export const APPLICATIONS_PER_HOUR = 60
  * SCREEN-002 rules name, the CRM-008 entry the door keeps, and for the board API
  * (ATTR-009) its campaign and the rule that one email applies to a job once.
  */
-export interface Door { source: string; path: string; entry: string; campaign?: Data; oncePerJob?: boolean }
+export interface Door { source: string; path: string; entry: string; campaign?: Data; oncePerJob?: boolean; entryType?: typeof SOURCE_TYPES[number]; provenance?: Data; credit?: Data | null }
 export const APPLICATION_PAGE: Door = { source: 'Application page', path: 'Careers page', entry: 'Application page' }
 
 export interface Submission { submissionKey?: unknown; name: unknown; email: unknown; phone?: unknown; location?: unknown; coverNote?: unknown; noticeVersion: unknown; cpraNoticeVersion?: unknown; consent: unknown; talentPool?: unknown; accommodation?: unknown; monitoring?: unknown; customValues?: Data; resume?: { name: string; mediaType: string; base64: string } | null; answers?: Record<string, Answer> }
@@ -77,7 +78,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   // SCREEN-001: each answer keeps the question version the applicant was shown.
   const answered = answers(s, vacancy, input.answers ?? {}, post)
   const talentPool = input.talentPool === 'yes'
-  ensureSource(s, door.entry, 'careers-site')
+  ensureSource(s, door.entry, door.entryType ?? 'careers-site')
   // ATTR-009: one email applies to a job once through the board API. A repeat adds
   // no application; it gets its own receipt and is recorded on the earlier one, so
   // the answer never tells a caller whether that email applied before.
@@ -90,7 +91,7 @@ export async function submit(s: State, vacancy: Data, input: Submission, door: D
   const coverNote = optionalText(input.coverNote, 'Cover note', 8000)
   const fingerprint = await sha256(canonical({ name: fields.name.toLowerCase().replace(/\s+/g, ' '), phone: fields.phone.replace(/\D/g, ''), coverNote, resume: input.resume?.base64 ?? null }))
   const likelySpam = likelySpamReasons(s, vacancy, fields.email, fingerprint)
-  const application = startApplication(s, null, candidate, vacancy, door.source, { language: post?.language ?? 'en', ...(post?.translation?.ui ? { languageUi: post.translation.ui } : {}), coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
+  const application = startApplication(s, null, candidate, vacancy, door.source, { language: post?.language ?? 'en', ...(post?.translation?.ui ? { languageUi: post.translation.ui } : {}), coverNote, fingerprint, customValues: input.customValues ?? {}, ...(cpra ? { cpraNoticeVersion: cpra.version } : {}), ...(post ? { post: post.id, postTitle: post.title } : {}), ...(door.campaign ? { campaign: door.campaign } : {}), ...(door.provenance ? { sourceProvenance: door.provenance, credit: door.credit ?? null } : {}), ...(likelySpam.length ? { likelySpam: { reasons: likelySpam, at: now() } } : {}) })
   if (input.resume) await stored('resume', () => storeDocument(s, { candidate: candidate.id, application: application.id, name: input.resume!.name, mediaType: input.resume!.mediaType, base64: input.resume!.base64, kind: 'resume', source: door.source }))
   if (answered.length) {
     for (const x of answered) if (x.type === 'file') {

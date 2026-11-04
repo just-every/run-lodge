@@ -1,3 +1,4 @@
+import { FreeFeedSettings } from './posts'
 import { HandoffSettings } from './handoff-exceptions'
 import { CandidateUpdateSettings } from './candidate-updates'
 import { SourcingSettings } from './sourcing-proposals'
@@ -111,7 +112,7 @@ export function App() {
         {!kit && tab === 'Proposals' && <Proposals {...props} />}
         {!kit && tab === 'Retention' && <Retention {...props} />}
         {!kit && tab === 'Move in' && <MoveIn {...props} />}
-        {!kit && tab === 'Settings' && <div className="page wide"><TakeHomeSettings {...props} /><MessageTemplates {...props} /><CandidateUpdateSettings {...props} /><HandoffSettings {...props} /><SourcingSettings {...props} /><ReferenceSettings {...props} /><DelayTrialSettings {...props} /><InterviewPoolSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
+        {!kit && tab === 'Settings' && <div className="page wide"><FreeFeedSettings {...props} /><TakeHomeSettings {...props} /><MessageTemplates {...props} /><CandidateUpdateSettings {...props} /><HandoffSettings {...props} /><SourcingSettings {...props} /><ReferenceSettings {...props} /><DelayTrialSettings {...props} /><InterviewPoolSettings {...props} />{admin && !actor.agent && <Integrations />}</div>}
         {!kit && tab === 'People' && <People {...props} />}
         {!kit && tab === 'Audit' && <Audit {...props} />}
         {!kit && tab === 'Workflow sandbox' && <WorkflowSandbox {...props} />}

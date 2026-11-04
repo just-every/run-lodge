@@ -1357,3 +1357,7 @@ test('CAL-002 native interview-day drafts explain constraints and fence human su
 test('Native take-home custody, candidate identity, deadlines and independent grading survive replay and erasure', async () => {
   await (await import('./take-home-flow.mjs')).checkTakeHome()
 })
+
+test('ATTR-003 native free feeds preserve reviewed current listings and declared click-through intake', async () => {
+  await (await import('./free-feed-flow.mjs')).checkFreeFeeds()
+})

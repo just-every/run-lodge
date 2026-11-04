@@ -1,3 +1,5 @@
+import { freeFeeds } from './free-feeds'
+import { feedListing, feedDoor, type FreeBoard } from '../distribution/free-feeds'
 import { recoveryUi } from '../careers/recovery-copy'
 import { draftTools } from '../careers/draft'
 import { receiptRecoveryCode, recoverReceipt } from '../careers/receipt'
@@ -44,6 +46,7 @@ export async function careersDocument(c: C, next: () => Promise<void>) {
   c.res = new Response(html, { status: c.res.status, headers: c.res.headers })
 }
 publicPages.use('*', careersDocument)
+publicPages.route('/careers/feeds', freeFeeds)
 
 const theme = { href: '/rer-theme.css', productName: branding.name, accentColor: branding.primaryColor }
 export const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))
@@ -194,12 +197,13 @@ publicPages.post('/jobs/receipt', async c => recoverPage(c, await load(c.env.DB)
 
 publicPages.get('/jobs/:slug', async c => {
   const s = await load(c.env.DB)
-  const l = listingBySlug(s, 'careers', c.req.param('slug'))
+  const entry = c.req.query('feed') ? await feedListing(s, c.req.query('feed'), c.req.param('slug')) : null
+  const l = c.req.query('feed') ? entry?.listing : listingBySlug(s, 'careers', c.req.param('slug'))
   if (!l) return notFound()
   const shown = shownJob(s, l)
   const alternatives = listings(s, 'careers').filter(x => x.v.id === l.v.id)
   const languages = alternatives.length > 1 ? `<nav aria-label="${esc(shown.language && shown.language !== 'en' ? uiCopy(l.post!).language : 'Language')}">${alternatives.map(x => `<a href="/jobs/${esc(x.slug)}" lang="${esc(x.post?.language ?? 'en')}">${esc(new Intl.DisplayNames([x.post?.language ?? 'en'], { type: 'language' }).of(x.post?.language ?? 'en'))}</a>`).join(' · ')}</nav>` : ''
-  return page(shown.title, languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)), 200, undefined, shown.language ?? 'en')
+  return page(shown.title, languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), entry ? '/jobs/' + l.slug + '?feed=' + c.req.query('feed') : undefined, undefined, cpraFor(s, l)), 200, undefined, shown.language ?? 'en')
 })
 
 publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))
@@ -219,7 +223,9 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   if (!within) return page('Too many applications', '<h1>Too many applications from this connection</h1><p>Please try again in an hour.</p>', 429, embed)
   const s = await load(c.env.DB)
   // ATTR-012: the slug names the job's own page or one of its live posts on this destination.
-  const l = listingBySlug(s, embed ? 'embed' : 'careers', c.req.param('slug') ?? '')
+  const entry = !embed && c.req.query('feed') ? await feedListing(s, c.req.query('feed'), c.req.param('slug') ?? '') : null
+  const l = !embed && c.req.query('feed') ? entry?.listing : listingBySlug(s, embed ? 'embed' : 'careers', c.req.param('slug') ?? '')
+  if (entry) door = feedDoor(entry, c.req.query('feed') as FreeBoard)
   if (!l) return embed ? page('Not found', '<h1>This role is not available</h1>', 404, embed) : notFound()
   const v = s.get('vacancy', l.v.id)
   const data = await formBody(c)
@@ -243,7 +249,7 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   } catch (error) {
     if (!(error instanceof Fault)) throw error
     const shown: Data = { ...shownJob(s, l), customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }
-    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, embed?.action, embed?.hidden, cpraFor(s, l)), error.status, embed, shown.language ?? 'en')
+    return page(shown.title, form(shown, s.get('business', 'main'), error.message, values, questions, entry ? '/jobs/' + l.slug + '?feed=' + c.req.query('feed') : embed?.action, embed?.hidden, cpraFor(s, l)), error.status, embed, shown.language ?? 'en')
   }
 }
 
