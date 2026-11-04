@@ -1282,6 +1282,10 @@
       "sha256": "8fb8d36f97a95e3f5962697fd11c45ce7b5552e547823acfd134b2f9fda40c64",
       "executable": false
     },
+    "src/lodge/candidate/itinerary.ts": {
+      "sha256": "c25d6c82fa9296897f32fcb448f9a005d50f277f0b3362c22dacc370ad6f932b",
+      "executable": false
+    },
     "src/lodge/careers/brand.ts": {
       "sha256": "82cc014007839f8f45e8c27fccceeba2c5b48e45faa9c46305b2072a073b8117",
       "executable": false
@@ -1311,7 +1315,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "e74f3bf3a8cf443101300e3722c67b9f94ef2bcaa1951109f580babeb8747be7",
+      "sha256": "5fd41640211efee57d66745b1b3ac4ccd848335359842bdb2fc6da8b85ff8585",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -1539,7 +1543,7 @@
       "executable": false
     },
     "src/lodge/http/candidate-pages.ts": {
-      "sha256": "9a7fc3514c2e6952a718e7cbb5bc45b5d277d061341cced7789178813121b18c",
+      "sha256": "5ec8f4e37c94515f9d1e0dbb645d64c9d8b8b552ddae85ca9ee1d5d8f46bd18a",
       "executable": false
     },
     "src/lodge/http/capture-pages.ts": {
@@ -2031,7 +2035,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "467f6c28a578be157564ec4a87fb6f4fd991258c640c569bc2988148497c0f4f",
+      "sha256": "b7d5ef943f6801d45da53add41acdcc1c64fa493e784d3d6116ea38b5f3dba06",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -4311,7 +4315,7 @@
       "executable": false
     },
     "src/ui/app.tsx": {
-      "sha256": "a8a0717eb5ba5eeb2db6ab9b5c13a117fed63db78ede6014a2ba0ae61221735a",
+      "sha256": "4d9a3fd32a115a11038dc77d4436de4abf8447b19101240dd93926020b3c0870",
       "executable": false
     },
     "src/ui/applications.tsx": {
@@ -4328,6 +4332,10 @@
     },
     "src/ui/blind-review.tsx": {
       "sha256": "0bceb5e18de98fd21c61b4146f15477850553cf839ee95c1cf7232fd5d9cedbb",
+      "executable": false
+    },
+    "src/ui/candidate-itinerary.tsx": {
+      "sha256": "7a23bb8576817c559ca5a1dc0bc620d902cb4d121d78fa2574aa9075cd5992fb",
       "executable": false
     },
     "src/ui/candidate-updates.tsx": {
@@ -4435,7 +4443,7 @@
       "executable": false
     },
     "src/ui/interviews.tsx": {
-      "sha256": "3338f0d8a733feafb3d54095f84ab0ac07e245217c9fe2ee5c8ed293b799c235",
+      "sha256": "9da04e3b359c5971bd40ae2416db463d33d2da2315ca0b17682849f589a54a27",
       "executable": false
     },
     "src/ui/job-board.tsx": {
@@ -4778,6 +4786,10 @@
       "sha256": "79f09f23048c9466019ecee99472db3d2f8bd91fe613509d26c71dc1d028e51b",
       "executable": false
     },
+    "tests/candidate-itinerary-flow.mjs": {
+      "sha256": "41a993ebaca455e7bd851ea3f80051774efeb953ebab03320971804c43371c1a",
+      "executable": false
+    },
     "tests/candidate-update-browser.mjs": {
       "sha256": "f437c4350ff0fd3ca385f9bf91aa19201afadd3c232fabc6216cb1b294367668",
       "executable": false
@@ -4959,7 +4971,7 @@
       "executable": false
     },
     "tests/hiring-candidates.test.mjs": {
-      "sha256": "b51ae575db0ddc2200531b6f5b63e8014ad9261090d1608f369f882a39bbfeea",
+      "sha256": "3cbd2a2a38e0e9232c247979ac7f035f2ca77e9875151466f58840f85cc9b901",
       "executable": false
     },
     "tests/hiring-fixture.mjs": {
