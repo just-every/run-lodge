@@ -1,5 +1,6 @@
 import type { State } from '../core/state'
 import { can, canSeeApplication, managesVacancy, requireApplication, requireCan } from '../core/access'
+import { blindFor } from '../core/blind'
 import { canonical, integer, now, oneOf, requireThat, sha256, text, type Actor, type Data } from '../core/types'
 import { mergedCandidates } from '../records/candidate-lineage'
 
@@ -9,7 +10,7 @@ export const channelId = (application: string, channel: string) => application +
 /** Native human contact authority only; this record never authorizes a provider operation. */
 export function canReviewChannels(s: State, a: Actor, app: Data) {
   const job = s.find('vacancy', app.vacancy)
-  return !a.agent && !!job && canSeeApplication(s, a, app) && managesVacancy(a, job) && can(s, a, job, 'contact')
+  return !a.agent && !!job && canSeeApplication(s, a, app) && managesVacancy(a, job) && can(s, a, job, 'contact') && !blindFor(s, a, app)
 }
 
 export function reviewChannelNotice(s: State, a: Actor, b: Data) {

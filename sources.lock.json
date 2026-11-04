@@ -1319,7 +1319,7 @@
       "executable": false
     },
     "src/lodge/communications/channel-consent.ts": {
-      "sha256": "96d94a7c5ef0d8301e6fffe76ff172cc82554ed9efd7b7e1990d34b92fa7f77f",
+      "sha256": "1e8d61861fec42417b7e338f7878ff000bb3d8d4468884b6948082ea69da12c4",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -4831,7 +4831,7 @@
       "executable": false
     },
     "tests/channel-consent-flow.mjs": {
-      "sha256": "738055f6f5f0b02bbad35efb710a1c6cd0d0ea0eca37c2fa62650c9d7ed43d95",
+      "sha256": "dfb6f4c27c8b65b0ecd5bafec0c40cfe7d0c05abf1be8a8a288efd9f95a255bf",
       "executable": false
     },
     "tests/clause-browser.mjs": {
