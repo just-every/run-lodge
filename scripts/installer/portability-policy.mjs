@@ -57,8 +57,12 @@ export async function validateStaged({ read }) {
   if (row.kind === 'handoff-preview') {
    const app = reference('application', value.application), offer = reference('offer', value.offer), frozen = value.snapshot;
    reference('handoff-mapping', app.vacancy);
-   refuse(offer.application === app.id && value.candidate === app.candidate && value.vacancy === app.vacancy);
-   refuse(frozen && frozen.offer === value.offer && frozen.application === app.id && frozen.candidate === app.candidate && frozen.vacancy === app.vacancy);
+   refuse(offer.application === app.id && value.vacancy === app.vacancy);
+   refuse(frozen && frozen.offer === value.offer && frozen.application === app.id && frozen.candidate === value.candidate && frozen.vacancy === app.vacancy);
+   // The frozen identity remains original after a human-confirmed candidate merge.
+   let person = reference('candidate', value.candidate);
+   while (person.mergedInto) person = reference('candidate', person.mergedInto);
+   refuse(person.id === app.candidate);
    refuse(value.review === null && value.complete === false && value.employeeCreated === false && value.creationAuthorized === false);
    refuse(frozen.complete === false && frozen.employeeCreated === false && frozen.creationAuthorized === false && frozen.schemaValidated === false && frozen.tenantVerified === false);
    refuse(Array.isArray(frozen.documents) && frozen.documents.length > 0 && Array.isArray(value.history) && Array.isArray(frozen.sources));

@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "4556833480a49512527316e404cab1785d33ef3546b913dab94096dbf78feadc",
+      "sha256": "38e10f3d196dfac935c4a0fa1fd90c2a6368ecf708117a79e025196ccf80bb03",
       "executable": false
     },
     "DEMO.md": {
@@ -951,7 +951,7 @@
       "executable": false
     },
     "scripts/installer/portability-policy.mjs": {
-      "sha256": "f81a497ffdbc3e6b0c480d07d6d9a365ff9f7928de6ab2d82383f7da712e5cd3",
+      "sha256": "a5dd2707266f669f0031f4f3d682b33e61bb9f69192e9e7f5dfa56a9a85f3a6c",
       "executable": false
     },
     "scripts/installer/referral-policy.mjs": {
@@ -4983,7 +4983,7 @@
       "executable": false
     },
     "tests/handoff-preview-flow.mjs": {
-      "sha256": "6b2facca5129f98ae2bf5907bc42143b9237341b4e43592e47459167b808a177",
+      "sha256": "3c4c70fc89ed3205deeccf771ec86e3792e0c5dd13e5629bf39adf57dd0b4ce5",
       "executable": false
     },
     "tests/harness.mjs": {
