@@ -40,14 +40,31 @@ function setClock(at: string) {
     static now() { return testNow! }
   } as DateConstructor
 }
+// Keep the SQL authority clock on the same pinned instant as the fixture's
+// JavaScript clock. Production still evaluates the unmodified SQLite guard.
+let fixtureDatabase: D1Database | undefined
+function fixtureBindings(env: Bindings): Bindings {
+  const fixture = (env as any).TEST_CLOCK
+  if (!fixture) return env
+  if (testNow === undefined) setClock(fixture)
+  fixtureDatabase ??= new Proxy(env.DB, {
+    get(target, key) {
+      if (key === 'prepare') return (sql: string) => target.prepare(sql.replace(/\bunixepoch\s*\(\s*\)/gi, '(' + Math.floor(Date.now() / 1000) + ')'))
+      const value = Reflect.get(target, key, target)
+      return typeof value === 'function' ? value.bind(target) : value
+    },
+  })
+  return { ...env, DB: fixtureDatabase }
+}
 export default {
-  email: lodgeEmail,
-  scheduled: scheduledRun,
+  email: (message: ForwardableEmailMessage, env: Bindings) => lodgeEmail(message, fixtureBindings(env)),
+  scheduled: (controller: ScheduledController, env: Bindings) => scheduledRun(controller, fixtureBindings(env)),
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
     const fixture = (env as any).TEST_CLOCK
     if (fixture && testNow === undefined) setClock(fixture)
     if (fixture && new URL(request.url).pathname === '/__test/clock') { setClock((await request.json() as any).at); return Response.json({ ok: true }) }
-    return afterWrite(request, await route(request, env, execution), env) },
+    const bindings = fixtureBindings(env)
+    return afterWrite(request, await route(request, bindings, execution), bindings) },
 }
 
 async function route(request: Request, env: Bindings, execution: ExecutionContext) {

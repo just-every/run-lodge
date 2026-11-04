@@ -4955,7 +4955,7 @@
       "executable": false
     },
     "tests/free-feed-flow.mjs": {
-      "sha256": "8b860ba98b364b55d0955624b64aa1a9b6659341d459d9a5c9221e74219d2512",
+      "sha256": "2d0f7c98ad9aca9f97b627858139481785d8a6ca4911fdc391296d47c2a18f4e",
       "executable": false
     },
     "tests/further-language-page.mjs": {
@@ -5039,7 +5039,7 @@
       "executable": false
     },
     "tests/lodge-worker.ts": {
-      "sha256": "c1ec04e59a88391ee63232332b0a09544c24a0a19aef33e394c9de957ee9f2c5",
+      "sha256": "2506d0369582e7767178ad2deded6663f464472902fff14e1baf8982bc9b63a4",
       "executable": false
     },
     "tests/mail-edge.mjs": {
