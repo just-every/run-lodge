@@ -37,6 +37,22 @@ export async function checkLanguages() {
     const { job, q, en, es } = await languageJob(cmd, approve, 'owner@example.test')
     await cmd('post-status', { vacancy: job.id, post: es.id, status: 'live' }, h.owner, 409)
     const tr = spanishText(q)
+    const unsafeTranslations = [
+      { text: 'Your current salary?' },
+      { help: 'Please state your previous pay.' },
+      { options: ['Weekdays', 'Based on prior earnings'] },
+    ].map(change => ({ ...tr, questions: { [q.id]: { ...tr.questions[q.id], ...change } } }))
+    for (const translation of unsafeTranslations) {
+      const before = (await h.state()).vacancies.find(v => v.id === job.id)
+      for (const reviewed of [false, true]) {
+        for (const [op, fields] of [['post-translation', { post: es.id }], ['job-post', { title: 'Synthetic Lodge translation', language: 'es', locations: [job.officeId], destinations: ['careers', 'embed', 'api'] }]]) {
+          const refused = await h.send('/api/lodge/command/' + op, { vacancy: job.id, ...fields, translation: { ...translation, reviewed } }, h.owner)
+          assert.equal(refused.status, 400)
+          assert.match(refused.value.error, /salary-history/i)
+        }
+      }
+      assert.deepEqual((await h.state()).vacancies.find(v => v.id === job.id), before, 'unsafe translation drafts and reviews leave the job unchanged')
+    }
     await cmd('post-translation', { vacancy: job.id, post: es.id, translation: { ...tr, reviewed: false } })
     await cmd('post-status', { vacancy: job.id, post: es.id, status: 'live' }, h.owner, 409)
     await cmd('post-translation', { vacancy: job.id, post: es.id, translation: tr })
@@ -64,6 +80,29 @@ export async function checkLanguages() {
     assert.equal(embedded.status, 200); assert.match(embedded.text, /<html lang="es"/); assert.match(embedded.text, /Enviar solicitud/)
     const apiReceipt = await h.send('/api/board/v1/warehouse/jobs/' + es.id + '/applications', { name: 'María Vidal', email: 'maria@example.test', noticeVersion: 1, consent: true, answers: { [q.id]: 'Weekends' } })
     assert.equal(apiReceipt.status, 201); assert.equal(apiReceipt.value.language, 'es'); assert.equal(apiReceipt.value.message, 'Solicitud recibida')
+    const original = JSON.parse((await h.db.prepare("SELECT value FROM l_records WHERE kind='vacancy' AND id=?").bind(job.id).first()).value)
+    for (const translation of unsafeTranslations) {
+      const stored = structuredClone(original)
+      Object.assign(stored.posts.find(p => p.id === es.id).translation.questions[q.id], translation.questions[q.id])
+      await h.db.prepare("UPDATE l_records SET value=?,revision=? WHERE kind='vacancy' AND id=?").bind(JSON.stringify(stored), crypto.randomUUID(), job.id).run()
+      try {
+        const before = await h.state()
+        for (const path of ['/jobs/' + es.slug, '/embed/jobs/' + es.slug, '/api/board/v1/warehouse/jobs/' + es.id]) {
+          const read = await h.send(path)
+          assert.equal(read.status, 404, 'previously reviewed unsafe translations are not served')
+          assert.ok(!/current salary|previous pay|prior earnings/i.test(read.text))
+          const refused = await h.send(path + (path.startsWith('/api/') ? '/applications' : ''), path.startsWith('/api/') ? { name: 'Synthetic Lodge', email: ['synthetic-lodge-' + crypto.randomUUID(), 'example.test'].join('@'), noticeVersion: 1, consent: true, answers: { [q.id]: 'Weekdays' } } : values())
+          assert.equal(refused.status, 404, 'unsafe translated intake cannot accept a stale form')
+        }
+        const after = await h.state()
+        assert.deepEqual(after.applications, before.applications)
+        assert.deepEqual(after.candidates, before.candidates)
+        assert.deepEqual(after.receipts, before.receipts)
+        assert.equal((await h.send('/jobs/' + en.slug)).status, 200, 'the safe English post remains available')
+      } finally {
+        await h.db.prepare("UPDATE l_records SET value=?,revision=? WHERE kind='vacancy' AND id=?").bind(JSON.stringify(original), crypto.randomUUID(), job.id).run()
+      }
+    }
     await checkLanguageMail(h, app, job)
     // A further language uses the same review and publishing mechanism, with no source-language fallback.
     let frenchJob = await cmd('job-post', { vacancy: job.id, title: 'Agent d’entrepôt', description: 'Chargez les marchandises en toute sécurité.', language: 'fr', locations: [job.officeId], destinations: ['careers', 'embed', 'api'] })

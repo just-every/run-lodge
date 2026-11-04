@@ -1595,7 +1595,7 @@
       "executable": false
     },
     "src/lodge/languages/posts.ts": {
-      "sha256": "d528aa645345487d4aef091b5859d5f610f4b16a49f524c74761b58c7b470348",
+      "sha256": "0391dd1219e28790667ca132fa6851a25247dafd77e5b94dbdc857f2d030c018",
       "executable": false
     },
     "src/lodge/languages/signing-mail.ts": {
@@ -1803,7 +1803,7 @@
       "executable": false
     },
     "src/lodge/records/posts.ts": {
-      "sha256": "f65b5b790eb4f62d01a0f6963f3f3d81b41df662a7e0e6b719b971f1c01b15a6",
+      "sha256": "4d3ffcfa876a9db04b4a90e8ee41cdeebecbe2ae71f98375b3c2d23844b91a6e",
       "executable": false
     },
     "src/lodge/records/privacy.ts": {
@@ -1811,7 +1811,7 @@
       "executable": false
     },
     "src/lodge/records/questions.ts": {
-      "sha256": "9157d644aac28428651fcd60d934da1af78b7db15bb47e660b9e8e194e8f62ef",
+      "sha256": "e5abf109de86e72d93f421d7834b654931719412d046ebb79d9632fbfe72fd36",
       "executable": false
     },
     "src/lodge/records/rejections.ts": {
@@ -5027,7 +5027,7 @@
       "executable": false
     },
     "tests/languages-driver.mjs": {
-      "sha256": "d239ef1edff5b20e17e66ee43d85f34df326590d4a725562b03703fe7ace4f5f",
+      "sha256": "fe25e43722b8164a94acd643ca2d6410c4b3c02bc31f976bfd6bbca6afab9229",
       "executable": false
     },
     "tests/languages-mail.mjs": {
@@ -5083,11 +5083,11 @@
       "executable": false
     },
     "tests/pay-transparency-browser.mjs": {
-      "sha256": "d18d5631cac05eeeccc5a34a802252820dc725879e91f8376fe0ee3ab65fb128",
+      "sha256": "b90d032dc0cf84929173146f579f7083d69dd5bcad924d7a8d5c3e5f83de99a2",
       "executable": false
     },
     "tests/pay-transparency-flow.mjs": {
-      "sha256": "9bffd74c82302763070de33b5c2cc9992ef000c3496391ca554f4f064bda8e18",
+      "sha256": "852349e182fc1b9bd1c4c4d26ce114ccdf16c256f1c88043915fa41614c4ba35",
       "executable": false
     },
     "tests/portability-cli.mjs": {

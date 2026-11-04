@@ -19,6 +19,13 @@ const CHOICES: readonly QuestionType[] = ['single-choice', 'multiple-choice']
 // ATTR-004 retains the existing refusal everywhere, including every configured ban jurisdiction.
 const SALARY_HISTORY = /\b((salary|pay|wage|compensation|earnings) history|(current|previous|prior|past|last) (salary|pay|wage|wages|compensation|earnings)|how much (do|did) you (make|earn|get paid))\b/i
 
+/** Check every applicant-facing part, including stored versions and translated labels. */
+export const salaryHistoryQuestion = (q: Data) => [q.text, q.help, ...(q.options ?? [])].some(value => typeof value === 'string' && SALARY_HISTORY.test(value))
+
+export function requireSalarySafeQuestion(q: Data) {
+  requireThat(!salaryHistoryQuestion(q), 'Salary-history questions are refused, including help text and choice labels')
+}
+
 function allowed(value: string, label: string) {
   const trait = protectedTerm(value), salary = value.match(SALARY_HISTORY)?.[0]
   requireThat(!trait, `${label} asks about “${trait}”, a protected trait; Lodge does not ask it`)
@@ -34,6 +41,7 @@ export function question(s: State, a: Actor, b: Data) {
   const options = CHOICES.includes(type) ? list(b.options, 'Choices', 20, (x, i) => allowed(text(x, `Choice ${i + 1}`, 120), `Choice ${i + 1}`)) : []
   if (CHOICES.includes(type)) requireThat(options.length >= 2 && new Set(options.map(o => o.toLowerCase())).size === options.length, 'Give at least two different choices')
   const version = { text: wording, type, options, objective: OBJECTIVE.includes(type), required: b.required !== false, help: optionalText(b.help, 'Help text', 500), by: a.email, at: now() }
+  requireSalarySafeQuestion(version)
   if (b.id) {
     const current = s.get('question', b.id)
     const n = current.versions.length + 1
@@ -54,6 +62,7 @@ export function attachable(s: State, v: Data, value: unknown) {
   const attached = list(value, 'Screening questions', 20, (x: any) => {
     const q = s.get('question', x?.question, 'question')
     allowed(currentVersion(q).text, 'The question')
+    requireSalarySafeQuestion(currentVersion(q))
     // HIRE-007: at a fair-chance place criminal history waits until after a conditional offer.
     if (place) requireThat(!CRIMINAL_HISTORY.test(currentVersion(q).text), `${place.place} is a fair-chance place: criminal-history questions wait until after a conditional offer`)
     return { question: q.id as string, required: x.required === undefined ? currentVersion(q).required : x.required === true }
@@ -82,6 +91,8 @@ export function jobForm(s: State, v: Data, post?: Data | null) {
     const q = s.find('question', x.question)
     if (!q || (fairChance && CRIMINAL_HISTORY.test(currentVersion(q).text))) return []
     const source = currentVersion(q), translated = post?.language !== 'en' && post?.translation?.questions?.[q.id]
+    // Older records get the same guard at read and submission time, without changing answered history.
+    if (salaryHistoryQuestion(source) || (translated && salaryHistoryQuestion(translated))) return []
     return [{ question: q.id, required: x.required, ...source, ...(translated ? { sourceText: source.text, text: translated.text, help: translated.help, optionLabels: translated.options, language: post!.language } : {}) }]
   })
 }

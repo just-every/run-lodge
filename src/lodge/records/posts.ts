@@ -1,6 +1,6 @@
 import { payProblems, publicPay } from './pay-transparency'
 import { publishRecoveryUi } from '../careers/recovery-copy'
-import { requireTranslation, translationReady, translationSource, languageTag } from '../languages/posts'
+import { requireTranslation, requireSafeTranslation, translationReady, translationSource, languageTag } from '../languages/posts'
 import { canonical } from '../core/types'
 import type { State } from '../core/state'
 import { requireCan, requireManages } from '../core/access'
@@ -68,6 +68,7 @@ export function jobPost(s: State, a: Actor, b: Data) {
   const post: Data = current ? { ...current, ...fields, updatedAt: now(), updatedBy: a.email } : { id: uid().slice(0, 8), slug: slugOf(fields.title), ...fields, status: 'draft', history: [], createdBy: a.email, createdAt: now() }
   if (b.translation !== undefined) {
     requireThat(b.translation && typeof b.translation === 'object' && !Array.isArray(b.translation) && canonical(b.translation).length <= 100000, 'Send translation text, at most 100 KB')
+    requireSafeTranslation(b.translation)
     post.translation = { ...b.translation, source: translationSource(s, v, post), reviewedBy: b.translation.reviewed === true ? a.email : null, reviewedAt: now() }
   }
   if (post.status === 'live') requireTranslation(s, v, post)
@@ -139,6 +140,7 @@ export function postTranslation(s: State, a: Actor, b: Data) {
   const p = (v.posts ?? []).find((x: Data) => x.id === b.post)
   requireThat(p && p.status !== 'closed' && p.language !== 'en', 'Choose a translated post', 404)
   requireThat(b.translation && typeof b.translation === 'object' && !Array.isArray(b.translation) && canonical(b.translation).length <= 100000, 'Send translation text, at most 100 KB')
+  requireSafeTranslation(b.translation)
   const post = { ...p, translation: { ...b.translation, source: translationSource(s, v, p), reviewedBy: b.translation.reviewed === true ? a.email : null, reviewedAt: now() } }
   if (post.status === 'live') requireTranslation(s, v, post)
   if (post.status === 'live' && !v.confidential && !v.internalOnly && post.destinations.some((d: string) => d === 'careers' || d === 'embed')) publishRecoveryUi(s, post)
