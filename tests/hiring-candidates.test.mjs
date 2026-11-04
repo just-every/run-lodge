@@ -1357,3 +1357,7 @@ test('CAL-002 native interview-day drafts explain constraints and fence human su
 test('Native take-home custody, candidate identity, deadlines and independent grading survive replay and erasure', async () => {
   await (await import('./take-home-flow.mjs')).checkTakeHome()
 })
+
+test('CAL-004 reviewed native candidate itineraries preserve scope, current times and private calendar bytes', async () => {
+  await (await import('./candidate-itinerary-flow.mjs')).checkCandidateItinerary()
+})

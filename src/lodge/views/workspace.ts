@@ -1,3 +1,4 @@
+import { itinerarySettings } from '../candidate/itinerary'
 import { handoffView } from '../agents/handoff-exceptions'
 import { candidateUpdatesView, canSeeCandidateUpdate } from '../agents/candidate-updates'
 import { sourcingBriefs, staleSourcing } from '../agents/sourcing'
@@ -160,7 +161,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     const manages = !!vacancy && managesVacancy(a, vacancy)
     const cards = s.all('scorecard').filter(c => c.application === app.id)
     return {
-      ...app, manages, candidateName: s.all('candidate').find(c => c.id === app.candidate)?.name ?? 'Unknown', history: history(s, app.id),
+      ...app, candidateItinerary: undefined, manages, candidateName: s.all('candidate').find(c => c.id === app.candidate)?.name ?? 'Unknown', history: history(s, app.id),
       // The source applications' stage histories travel with a transfer; their scorecards stay with their own job's panel.
       earlier: transferredFrom(s, app).map(x => ({ application: x.id, vacancy: x.vacancy, title: s.find('vacancy', x.vacancy)?.title ?? '', history: history(s, x.id) })),
       panel: manages ? panel(s, app).map(p => ({ email: p, submitted: cards.some(c => c.author === p && c.status === 'submitted') })) : undefined,
@@ -192,6 +193,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     vacancies, agencies: employerAgencies(s, a),
     // Kickoffs: admins see all; a manager sees their own and those behind the jobs they run.
     kickoffs: s.all('kickoff').filter(k => admin || k.author === scope(a) || managed.some(v => v.id === k.vacancy)),
+    candidateItineraries: (await Promise.all(applications.map(app => itinerarySettings(s, a, app)))).filter(Boolean),
     applications: projected,
     candidates,
     resumeIntakes: intakeView(s, a),

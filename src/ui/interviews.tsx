@@ -25,6 +25,7 @@ export function Interviews({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate:
     : w.coordination.missingScorecards.some((m: D) => m.interview === iv.id) ? 'awaiting scorecards' : 'held'
   return <section className="card">
     <h3>Interviews</h3>
+    {w.candidateItineraries?.some((c: D) => c.application === app.id) && <p><a href={'/app?settings=candidate-itinerary&application=' + app.id}>Candidate itinerary settings</a></p>}
     {app.manages && v && <InterviewDay app={app} v={v} w={w} mutate={mutate} />}
     {!list.length && <p className="empty">No interviews planned.</p>}
     {list.map((iv: D) => <article key={iv.id} className="card">
