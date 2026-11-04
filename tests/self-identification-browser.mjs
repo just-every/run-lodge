@@ -58,9 +58,10 @@ export async function selfIdentificationPage(browser, { root, origin, run, evide
       await fit(applicant)
       await applicant.screenshot({ path: evidence + '/self-identification-embedded-' + width + '.png', fullPage: true })
       await page.goto(origin + '/enterprise/compliance')
-      await page.getByRole('heading', { name: 'US self-identification', exact: true }).waitFor()
-      await page.locator('summary').filter({ hasText: input.title }).first().click()
-      await page.getByText('Synthetic response one', { exact: true }).first().waitFor()
+      const restrictedJob = page.locator('section').filter({ has: page.getByRole('heading', { name: job.title, exact: true }) })
+      await restrictedJob.getByRole('heading', { name: 'US self-identification', exact: true }).waitFor()
+      await restrictedJob.locator('summary').filter({ hasText: input.title }).first().click()
+      await restrictedJob.getByText('Synthetic response one', { exact: true }).first().waitFor()
       if (width === 1440) {
         const state = await current(owner.context, origin)
         const app = state.applications.find(a => a.candidateName === 'Synthetic browser applicant ' + width)
