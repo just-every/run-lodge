@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "51e4a0e9c06b8c6312aaf02d00d062e755573244c27ebd8fc984432a4de78831",
+      "sha256": "5d3863999a74df7fe5e022ac9f50895355818b788d7bb39aeb6e4c79d9f11e9b",
       "executable": false
     },
     "DEMO.md": {
@@ -5067,7 +5067,7 @@
       "executable": false
     },
     "tests/pay-transparency-browser.mjs": {
-      "sha256": "b90d032dc0cf84929173146f579f7083d69dd5bcad924d7a8d5c3e5f83de99a2",
+      "sha256": "68e9d42d4ecffe19946d84f6270218424a2d355fe6f91293b687ab169bb8b0e4",
       "executable": false
     },
     "tests/pay-transparency-flow.mjs": {

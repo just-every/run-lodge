@@ -71,7 +71,7 @@ export async function payWorkspace(browser, root, origin, evidence) {
       const questionForm = screening.locator('form').filter({ has: page.getByRole('button', { name: 'Add to the library', exact: true }) })
       const questionText = 'What compensation do you seek for this role ' + runId + ' ' + width + '?'
       await questionForm.getByLabel('Question text', { exact: true }).fill(questionText)
-      await questionForm.getByLabel('Answer type', { exact: true }).selectOption('number')
+      await questionForm.locator('select[name="type"]').selectOption('number')
       await questionForm.getByLabel('Help for applicants', { exact: true }).fill('Please state your current salary.')
       await questionForm.getByRole('button', { name: 'Add to the library', exact: true }).click()
       await questionForm.getByRole('alert').filter({ hasText: /salary-history/i }).waitFor()
