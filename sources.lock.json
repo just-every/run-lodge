@@ -4959,7 +4959,7 @@
       "executable": false
     },
     "tests/harness.mjs": {
-      "sha256": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
+      "sha256": "3a018fe14b253e3f7e9ecc4aa2fedfe9c0513ef0fa534f58e7f6712720b99ebb",
       "executable": false
     },
     "tests/hiring-candidates.test.mjs": {

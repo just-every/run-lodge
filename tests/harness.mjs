@@ -25,7 +25,17 @@ function workerBundle(liveMail = false, devIdentity = false) {
     import { withDevIdentity } from './src/modules/operator-auth/dev/index.mjs'
     export default withDevIdentity(worker, { config: authConfig })
   `, resolveDir: root, loader: 'ts' } } : { entryPoints: ['tests/lodge-worker.ts'] }
-  if (!bundles.has(cacheKey)) bundles.set(cacheKey, build({ ...entry, bundle: true, write: false, format: 'esm', platform: 'neutral', mainFields: ['module', 'main'], banner: { js: 'import { createRequire } from "node:module"; const require = createRequire("/");' }, conditions: ['workerd', 'worker', 'browser'], plugins: liveMail ? [] : [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }], external: ['node:*', ...builtinModules], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
+  if (!bundles.has(cacheKey)) bundles.set(cacheKey, build({ ...entry, bundle: true, write: false, format: 'esm', platform: 'neutral', mainFields: ['module', 'main'], banner: { js: 'import { createRequire } from "node:module"; const require = createRequire("/");' }, conditions: ['workerd', 'worker', 'browser'], plugins: [{ name: 'native-auth-clock', setup(build) {
+      // Business fixtures freeze Date, but the native session fence uses D1 time.
+      // Anchor authentication to D1 time and retain forward fixture advances for
+      // session expiry and rate limits. Historical business dates cannot age it.
+      build.onLoad({ filter: /[/\\]src[/\\]auth\.server\.ts$/ }, async ({ path }) => {
+        const source = await readFile(path, 'utf8')
+        const factory = 'createOperatorAuth({ db: env.DB,'
+        if (!source.includes(factory)) throw new Error('Native authentication clock adapter needs its factory')
+        return { contents: 'const nativeAuthNow = Date.now; let nativeAuthStart: number | undefined;\n' + source.replace(factory, 'createOperatorAuth({ clock: () => { nativeAuthStart ??= nativeAuthNow(); return (env as any).TEST_CLOCK ? nativeAuthStart + Math.max(0, Date.now() - Date.parse((env as any).TEST_CLOCK)) : nativeAuthNow() }, db: env.DB,'), loader: 'ts' }
+      })
+    } }, ...(!liveMail ? [{ name: 'mail-network-edge', setup(build) { build.onResolve({ filter: /mail\.server\.mjs$/ }, () => ({ path: join(root, 'tests/mail-edge.mjs') })) } }] : [])], external: ['node:*', ...builtinModules], loader: { '.css': 'text' }, target: 'es2023', logLevel: 'error' }))
   return bundles.get(cacheKey)
 }
 
