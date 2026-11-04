@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "bc747cdfcd0af938cf0f81826ff9e0768a4e469d30392db38e12e1f162c1674b",
+      "sha256": "dd811575b9168886399b6e01f72886d7fdb2a0d70df4ac5114335daf45436dc9",
       "executable": false
     },
     "DEMO.md": {
@@ -1283,7 +1283,7 @@
       "executable": false
     },
     "src/lodge/candidate/itinerary.ts": {
-      "sha256": "c25d6c82fa9296897f32fcb448f9a005d50f277f0b3362c22dacc370ad6f932b",
+      "sha256": "69b61c9315484200cc30b46219628fb297e89c4bcecbeacf55aa690774bc25b6",
       "executable": false
     },
     "src/lodge/careers/brand.ts": {
@@ -4335,7 +4335,7 @@
       "executable": false
     },
     "src/ui/candidate-itinerary.tsx": {
-      "sha256": "7a23bb8576817c559ca5a1dc0bc620d902cb4d121d78fa2574aa9075cd5992fb",
+      "sha256": "4ddf2e7a556353cafdb8facc6858866e3b934da520d09e3f2b56461466ca3434",
       "executable": false
     },
     "src/ui/candidate-updates.tsx": {
@@ -4767,7 +4767,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "e955354b18248229bacb0e29f00f2994977bed0c3516f76d18b3a5c2e044181b",
+      "sha256": "d0acd3c90a451a2bbc6dc7560fd59274a7158dfa3fb74610e9ec80838271db73",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
@@ -4786,8 +4786,12 @@
       "sha256": "79f09f23048c9466019ecee99472db3d2f8bd91fe613509d26c71dc1d028e51b",
       "executable": false
     },
+    "tests/candidate-itinerary-browser.mjs": {
+      "sha256": "a57e16739c024d7658d8873bc0f54fb4b30a78b9361957a9381ede2b8cac3281",
+      "executable": false
+    },
     "tests/candidate-itinerary-flow.mjs": {
-      "sha256": "41a993ebaca455e7bd851ea3f80051774efeb953ebab03320971804c43371c1a",
+      "sha256": "ae22c59e347c198b6484f133e7bb47c0aaf60fa61e2b2bf124877267e97b3304",
       "executable": false
     },
     "tests/candidate-update-browser.mjs": {
@@ -4823,7 +4827,7 @@
       "executable": false
     },
     "tests/clause-browser.mjs": {
-      "sha256": "c0b39edc2b38e7cb469aabe3ecff1904e3882a8d87f03c144244011c784bedac",
+      "sha256": "a3cb21dae857167a4f408e28ac3ff61add3860480e5b358836d671b7103c5c3e",
       "executable": false
     },
     "tests/cohort-report-browser.mjs": {

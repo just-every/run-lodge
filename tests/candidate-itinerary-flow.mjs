@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { businessHarness } from './harness.mjs'
 import { careersJob } from './careers-driver.mjs'
+import { languageJob, spanishText } from './languages-driver.mjs'
 import { address, candidateSession, form } from './take-home-flow.mjs'
 
 export async function itineraryFixture() {
@@ -27,6 +28,7 @@ export async function itineraryFixture() {
     const foreign = await h.command('interview', { application: other.id, planItem: job.plan[0].id, participants: panellists, slots: ['2027-03-16T16:00:00.000Z'], location: 'Synthetic private other application' })
     await h.command('schedule', { interview: foreign.id, slot: 0 })
     const proposed = await h.command('interview', { application: app.id, planItem: job.plan[0].id, participants: panellists, slots: ['2027-03-18T16:00:00.000Z'], location: 'Synthetic not scheduled' })
+    await h.command('scorecard', { application: app.id, interview: interviews[0].id, ratings: {}, evidence: {}, takeaways: 'Synthetic private feedback remains internal', submit: false }, staff[0])
     const cookie = await candidateSession(h, candidateEmail), otherCookie = await candidateSession(h, otherEmail)
     const path = '/candidate/receipts/' + receipt.id + '/itinerary'
     const settings = async () => (await h.state()).candidateItineraries.find(r => r.application === app.id)
@@ -75,7 +77,7 @@ export async function checkCandidateItinerary() {
     assert.deepEqual(events.map(e => [e.DTSTART, e.DTEND, e.STATUS]), [['20270314T063000Z', '20270314T070000Z', 'CONFIRMED'], ['20270314T073000Z', '20270314T081500Z', 'CONFIRMED'], ['20270314T150000Z', '20270314T160000Z', 'CONFIRMED']])
     const ids = events.map(e => e.UID)
     for (const bytes of [page.text, la.text, cal.text]) {
-      for (const hidden of [...panellists, f.foreign.id, 'Synthetic private other application', 'Synthetic not scheduled', '/app?kit', 'ATTENDEE', 'ORGANIZER', 'scorecard', 'feedback', 'Synthetic interviewer 2']) assert.ok(!bytes.includes(hidden), 'private field excluded: ' + hidden)
+      for (const hidden of [...panellists, f.foreign.id, 'Synthetic private other application', 'Synthetic not scheduled', '/app?kit', 'ATTENDEE', 'ORGANIZER', 'scorecard', 'feedback', 'Synthetic private feedback remains internal', 'Synthetic interviewer 2']) assert.ok(!bytes.includes(hidden), 'private field excluded: ' + hidden)
     }
     for (const suffix of ['', '/calendar.ics']) {
       await noWrite(() => read(suffix, otherCookie), 404)
@@ -107,6 +109,55 @@ export async function checkCandidateItinerary() {
     changed = parseCalendar(cancelled.text)
     assert.equal(changed.find(e => e.UID.startsWith(interviews[2].id)).STATUS, 'CANCELLED')
     assert.ok(!cancelled.text.includes('Synthetic internal cancellation detail'))
+    const adminAddress = address(716), admin = await h.member(adminAddress, ['admin'], 'Synthetic sharing reviewer')
+    await h.command('candidate-itinerary-review', await f.reviewInput(), admin)
+    assert.equal((await read()).status, 200)
+    await h.command('member', { email: adminAddress, name: 'Synthetic sharing reviewer', roles: ['admin'], active: false })
+    await unavailable()
+    await h.command('candidate-itinerary-review', await f.reviewInput())
+    assert.equal((await read()).status, 200, 'a new current human review is required after reviewer revocation')
+
+    // A concurrent exact review has one winner, rather than two silently divergent projections.
+    const concurrent = await f.reviewInput(), beforeVersion = concurrent.version
+    const results = await Promise.all([h.send('/api/lodge/command/candidate-itinerary-review', concurrent, h.owner), h.send('/api/lodge/command/candidate-itinerary-review', concurrent, h.owner)])
+    assert.deepEqual(results.map(r => r.status).sort(), [200, 409])
+    assert.equal((await f.settings()).version, beforeVersion + 1)
+    const escaped = await f.reviewInput()
+    escaped.sessions[0].title = 'Synthetic <script>alert(1)</script>; ' + 'Seguridad ééé '.repeat(9) + '\r\nSUMMARY:Injected'
+    escaped.sessions[0].location = 'Synthetic room, floor 2; east\nUse main entrance'
+    await h.command('candidate-itinerary-review', escaped)
+    const escapedPage = await read(), escapedCal = await read('/calendar.ics')
+    assert.ok(escapedPage.text.includes('&lt;script&gt;'))
+    assert.ok(!escapedPage.text.includes('<script>alert(1)</script>'))
+    const escapedEvents = parseCalendar(escapedCal.text)
+    assert.equal(escapedEvents.length, 3)
+    assert.equal(escapedEvents.filter(e => e.SUMMARY === 'Injected').length, 0)
+    assert.ok(escapedCal.text.replace(/\r\n[ \t]/g, '').includes('floor 2\\; east\\nUse main entrance'))
+
+    // A real Spanish intake retains its own reviewed language and has no English fallback review.
+    const ownerEmail = (await h.state()).actor.email
+    const approve = request => h.command('decide-approval', { id: request.id, version: request.version, decision: 'approved', reason: 'Synthetic language proof' })
+    const localized = await languageJob(h.command, approve, ownerEmail)
+    await h.command('post-translation', { vacancy: localized.job.id, post: localized.es.id, translation: spanishText(localized.q) })
+    await h.command('post-status', { vacancy: localized.job.id, post: localized.es.id, status: 'live' })
+    const esEmail = address(715)
+    assert.equal((await h.send('/jobs/' + localized.es.slug, form({ name: 'Synthetic Spanish candidate', email: esEmail, noticeVersion: '1', consent: 'yes', ['q-' + localized.q.id]: 'Weekdays' }))).status, 200)
+    const spanish = await h.state(), esApp = spanish.applications.find(a => a.candidate === spanish.candidates.find(c => c.email === esEmail).id), esReceipt = spanish.receipts.find(r => r.application === esApp.id)
+    const esInterview = await h.command('interview', { application: esApp.id, planItem: localized.job.plan[0].id, participants: panellists, slots: ['2027-03-17T15:00:00.000Z'] })
+    await h.command('schedule', { interview: esInterview.id, slot: 0 })
+    const esConfig = (await h.state()).candidateItineraries.find(r => r.application === esApp.id)
+    const esReview = { application: esApp.id, enabled: true, reviewed: true, source: esConfig.source, version: esConfig.version, language: 'es', copy: esConfig.copy, sessions: [{ interview: esInterview.id, title: 'Conversación de seguridad', location: 'Sala norte', panel: [] }] }
+    await noWrite(() => h.send('/api/lodge/command/candidate-itinerary-review', { ...esReview, language: 'en' }, h.owner), 400)
+    await h.command('candidate-itinerary-review', esReview)
+    const esCookie = await candidateSession(h, esEmail), esPath = '/candidate/receipts/' + esReceipt.id + '/itinerary'
+    const esPage = await h.send(esPath + '?zone=Europe%2FMadrid', undefined, esCookie)
+    assert.equal(esPage.status, 200)
+    assert.match(esPage.text, /<html lang="es"/)
+    for (const value of ['Tu itinerario de entrevistas', 'Conversación de seguridad', 'Programada', 'minutos', 'Sala norte']) assert.ok(esPage.text.includes(value), value)
+    const esEvents = parseCalendar((await h.send(esPath + '/calendar.ics', undefined, esCookie)).text)
+    assert.equal(esEvents[0].SUMMARY, 'Conversación de seguridad')
+    assert.match(esEvents[0].DESCRIPTION, /Programada/)
+
     // Exact review cannot be replayed to overwrite a later disable, including across restart.
     const beforeDisable = await f.reviewInput()
     await h.command('candidate-itinerary-review', { application: app.id, enabled: false, version: beforeDisable.version })
@@ -134,6 +185,7 @@ export async function checkCandidateItinerary() {
     assert.equal(f.outbound(), 0, 'native sharing and downloads make zero outbound provider requests')
     console.log('PROBE CAL-004 review: native HTTP sessions and independent sharing -> three reviewed sessions only; self-scheduling alone refused')
     console.log('PROBE CAL-004 projection: candidate HTTP page and parsed ICS -> DST times, durations, approved names, no panel addresses or internal fields')
+    console.log('PROBE CAL-004 language: Spanish public intake and exact human review -> Spanish page and parsed calendar; wrong-language review refused')
     console.log('PROBE CAL-004 changes: native reschedule and cancellation -> stale review refused; current reviewed calendar state and stable identities')
     console.log('PROBE CAL-004 lifecycle: wrong identity, signout, disable, withdrawal, erasure and restart -> access refused; zero outbound requests')
   } finally { await h.close() }

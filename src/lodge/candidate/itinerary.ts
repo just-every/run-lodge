@@ -1,5 +1,5 @@
 import type { State } from '../core/state'
-import { canSeeContact, isAdmin, managesVacancy, requireAdmin, requireApplication, requireManages } from '../core/access'
+import { canSeeApplication, canSeeContact, isAdmin, managesVacancy, requireAdmin, requireApplication, requireManages } from '../core/access'
 import { canonical, list, now, requireThat, sha256, text, type Actor, type Data } from '../core/types'
 
 /** Every word in the candidate projection is reviewed separately from booking permission. */
@@ -28,7 +28,7 @@ async function source(s: State, app: Data) {
     s.find('member', id)
     return { id, revision: s.revisionOf('member', id) }
   }) }))
-  return sha256(canonical({ application: app.id, candidate: app.candidate, identity: { id: c.id, email: c.email, name: c.name }, status: app.status, language: app.language ?? 'en', interviews }))
+  return sha256(canonical({ application: app.id, candidate: app.candidate, identity: { id: c.id, email: c.email, name: c.name, revision: s.revisionOf('candidate', c.id) }, status: app.status, language: app.language ?? 'en', interviews }))
 }
 
 const eligible = (iv: Data) => !!iv.start && ['scheduled', 'cancelled'].includes(iv.status) && !iv.imported
@@ -92,7 +92,7 @@ export async function ownItinerary(s: State, app: Data) {
   const review = app.candidateItinerary
   requireThat(app.status === 'active' && !app.imported && review?.enabled && review.language === (app.language ?? 'en'), 'This page is not available', 404)
   const author = s.find('member', review.by), v = s.get('vacancy', app.vacancy)
-  requireThat(author?.active && !author.agent && isAdmin(author as Actor) && managesVacancy(author as Actor, v), 'This page is not available', 404)
+  requireThat(author?.active && !author.agent && isAdmin(author as Actor) && managesVacancy(author as Actor, v) && canSeeApplication(s, author as Actor, app) && canSeeContact(s, author as Actor, candidate(s, app)), 'This page is not available', 404)
   requireThat(review.source === await source(s, app), 'This page is not available', 404)
   const shared = review.sessions.map((item: Data) => {
     const iv = s.get('interview', item.interview)
