@@ -114,8 +114,12 @@ export async function journey(browser, root, origin, width, evidence) {
     // A select's accessible name includes its chosen option, so pick the plan field by name.
     await manager.page.locator('select[name="planItem"]').selectOption({ index: 1 })
     await manager.page.getByLabel('Interviewers (emails, comma separated)').fill('interviewer@dev.localhost')
-    await manager.page.getByLabel('Proposed time 1').fill(futureDate(7) + 'T10:00')
-    await manager.page.getByLabel('Proposed time 2').fill(futureDate(8) + 'T10:00')
+    // Use the UI's own clock, with a week's margin and an unambiguous local hour
+    // so both choices stay upcoming across midnight, DST and the end of the year.
+    const proposedTimes = await manager.page.evaluate(() => [7, 8].map(days =>
+      new Date(Date.now() + days * 86400000).toISOString().slice(0, 10) + 'T10:00'))
+    await manager.page.getByLabel('Proposed time 1').fill(proposedTimes[0])
+    await manager.page.getByLabel('Proposed time 2').fill(proposedTimes[1])
     await manager.page.getByRole('button', { name: 'Propose interview' }).click(); await saved(manager.page)
     await manager.page.getByLabel('Confirmed time').selectOption({ index: 2 })
     await manager.page.getByRole('button', { name: 'Schedule', exact: true }).click()

@@ -4779,7 +4779,7 @@
       "executable": false
     },
     "tests/browser-journey.mjs": {
-      "sha256": "9d61ba74927d2ea3cd47e1cb7fd2d1f2f4914a24cfe8edec8752c51779523acc",
+      "sha256": "4707cfb9120697b898f3ee0dd5e1e670f4ac65d36b962f95f8492dcee4e4cd4e",
       "executable": false
     },
     "tests/browser-runtime.mjs": {
