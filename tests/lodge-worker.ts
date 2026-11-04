@@ -40,14 +40,26 @@ function setClock(at: string) {
     static now() { return testNow! }
   } as DateConstructor
 }
+/** Keep D1's expiry fences on the same controlled clock as native auth and hiring records.
+ * Production uses the real D1 binding; this adapter exists only in the test Worker. */
+function timedEnvironment(env: Bindings): Bindings {
+  if (!(env as any).TEST_CLOCK || testNow === undefined) return env
+  const DB = new Proxy(env.DB, { get(target, property) {
+    if (property === 'prepare') return (sql: string) => target.prepare(sql.replace(/\bunixepoch\(\s*\)/gi, `unixepoch('${new RealDate(testNow!).toISOString()}')`))
+    const value = Reflect.get(target, property)
+    return typeof value === 'function' ? value.bind(target) : value
+  } })
+  return { ...env, DB }
+}
 export default {
-  email: lodgeEmail,
-  scheduled: scheduledRun,
+  email: (message: Parameters<typeof lodgeEmail>[0], env: Bindings) => lodgeEmail(message, timedEnvironment(env)),
+  scheduled: (event: ScheduledController, env: Bindings) => scheduledRun(event, timedEnvironment(env)),
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
     const fixture = (env as any).TEST_CLOCK
     if (fixture && testNow === undefined) setClock(fixture)
     if (fixture && new URL(request.url).pathname === '/__test/clock') { setClock((await request.json() as any).at); return Response.json({ ok: true }) }
-    return afterWrite(request, await route(request, env, execution), env) },
+    const controlled = timedEnvironment(env)
+    return afterWrite(request, await route(request, controlled, execution), controlled) },
 }
 
 async function route(request: Request, env: Bindings, execution: ExecutionContext) {

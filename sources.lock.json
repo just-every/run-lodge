@@ -5039,7 +5039,7 @@
       "executable": false
     },
     "tests/lodge-worker.ts": {
-      "sha256": "c1ec04e59a88391ee63232332b0a09544c24a0a19aef33e394c9de957ee9f2c5",
+      "sha256": "6aa9f45f3d1d04508b6793e534d0fad41ccab354b631b367b85d28dbc60bbbd2",
       "executable": false
     },
     "tests/mail-edge.mjs": {
