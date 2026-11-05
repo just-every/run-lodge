@@ -47,3 +47,7 @@ export function recordName(w: D, ref: string) {
 
 /** The chip tone of an approval, offer or proposal status, the same everywhere. */
 export const tone = (status: string): 'good' | 'warn' | 'neutral' => ['approved', 'accepted', 'applied', 'submitted'].includes(status) ? 'good' : status === 'pending' ? 'warn' : 'neutral'
+
+/** Signed preparation labels survive deactivation; absent history stays unknown. */
+export const preparer = (w: D, draft: D) => draft.preparation?.label ??
+  ((draft.proposedByAgent ?? draft.preparedByAgent) ? 'Agent attribution unavailable' : person(w, draft.proposedBy ?? draft.preparedBy))

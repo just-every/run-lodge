@@ -1,3 +1,4 @@
+import { preparer } from './names'
 import { useEffect, useState } from 'react'
 import type { PageProps } from './app'
 import { call, Check, Field, Form, Table, type D } from './shared'
@@ -85,7 +86,7 @@ export function DelayAnalysis({ w, follow }: Pick<PageProps, 'w' | 'follow'>) {
 
 export function DelayDraft({ p, w, mutate, follow }: Pick<PageProps, 'w' | 'mutate' | 'follow'> & { p: D }) {
   return <article className="card delay-analysis" aria-label="Delay diagnosis draft">
-    <p className="eyebrow">Agent-authored diagnosis draft · {p.status}</p>
+    <p>Prepared by {preparer(w, p)}</p><p className="eyebrow">Agent-authored diagnosis draft · {p.status}</p>
     <h2>{p.summary}</h2>
     <p>Observational evidence only. Accepting records review of this draft; a sandbox trial and production activation require separate review. No hiring decision or configuration changes here.</p>
     {p.findings.map((f: D, i: number) => <section key={i}><h3>{f.kind === 'hypothesis' ? 'Uncertain hypothesis' : 'Observation'}</h3><p>{f.text}</p><details><summary>Finding citations</summary>{f.citations.map((c: D, index: number) => <p key={index}>{c.kind} <code>{c.id}</code> · Revision <code>{c.revision}</code>{c.observation !== undefined && <> · Observation {c.observation + 1}: {c.observationKind} at {c.at}</>}</p>)}</details></section>)}

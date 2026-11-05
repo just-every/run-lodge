@@ -103,6 +103,16 @@ function checkStatements(s: State, a: Actor, app: Data, raw: unknown) {
   return { statements, criteria: facts.criteria }
 }
 
+/** A retained brief grants no access to the released evidence it quotes. */
+export function canSeeDebrief(view: { applications: Data[]; scorecards: Data[] }, brief: Data) {
+  const app = view.applications.find(app => app.id === brief.application)
+  return app?.manages === true && app.feedbackReleased === true && brief.statements.every((statement: Data) =>
+    statement.citations.every((citation: Data) => {
+      const card = view.scorecards.find(card => card.id === citation.scorecard && card.application === app.id)
+      return card && (citation.field === 'takeaways' ? typeof card.takeaways === 'string' : typeof card.evidence?.[citation.criterion] === 'string')
+    }))
+}
+
 /** Prepare a brief (an agent for the manager, or a person who runs the job). It changes no hiring record. */
 export function debrief(s: State, a: Actor, b: Data) {
   const { app, vacancy } = released(s, a, b)
@@ -119,6 +129,10 @@ function draftBrief(s: State, a: Actor, id: unknown) {
   const brief = s.find('debrief', id)
   if (!brief) throw new Fault(404, 'Debrief brief not found')
   released(s, a, { application: brief.application })
+  requireThat(brief.statements.every((statement: Data) => statement.citations.every((citation: Data) => {
+    const card = s.find('scorecard', citation.scorecard)
+    return card && card.application === brief.application && canSeeScorecard(s, a, card)
+  })), 'Debrief brief not found', 404)
   requireThat(brief.status === 'draft', 'This brief was already kept; prepare a new one', 409)
   return brief
 }

@@ -1,5 +1,5 @@
 import type { PageProps } from './app'
-import { person } from './names'
+import { person, preparer } from './names'
 import { when } from './format'
 import { Check, Form, Status, type D } from './shared'
 import { MentionBox } from './notifications'
@@ -10,6 +10,8 @@ const STAGE = (v: D | undefined, id: string) => v?.stages?.find((s: D) => s.id =
 /** One feed line in words: what happened to the candidate, by whom. Scorecards show as submitted, never their content. */
 function line(e: D, w: D) {
   const v = w.vacancies.find((x: D) => x.id === w.applications.find((a: D) => a.id === e.application)?.vacancy)
+  if (e.kind === 'proposal-prepared' || e.kind === 'debrief-prepared') return preparer(w, { ...e, preparedBy: e.actor }) + ' prepared a ' + (e.kind === 'proposal-prepared' ? 'proposal' : 'debrief') + ' for human review'
+  if (e.kind === 'proposal-decided' || e.kind === 'debrief-decided') return person(w, e.actor) + ' ' + e.status + ' the ' + (e.kind === 'proposal-decided' ? 'proposal' : 'debrief')
   if (e.kind === 'stage') return `${person(w, e.actor)} moved ${STAGE(v, e.from)} → ${STAGE(v, e.to)}: ${e.reason}`
   if (e.kind === 'email') return `${person(w, e.actor)} ${e.state} an email: ${e.subject}`
   if (e.kind === 'interview') return `${e.title.split(':')[0]} ${e.status}${e.start ? ' for ' + when(e.start) : ''}`

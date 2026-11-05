@@ -1,3 +1,4 @@
+import { proposalApplications } from './proposals'
 import { captureList } from '../records/capture'
 import { surveyReport } from '../surveys/records'
 import { staffSeesReferral } from '../referrals/access'
@@ -26,6 +27,7 @@ export function vacancyHistory(w: Workspace, id: string) {
     format: 'lodge-vacancy-history-1', exportedAt: now(), exportedBy: w.actor.email,
     vacancy, approvals: w.approvals.filter(x => x.subjectId === id || forApp(w.offers).some(o => o.id === x.subjectId) || forApp(w.messages).some(m => m.id === x.subjectId)),
     applications, candidates: w.candidates.filter(c => candidateIds.has(c.id)),
+    proposals: w.proposals.filter(p => proposalApplications(w, p).some(app => app.vacancy === id) || p.sources?.some((source: Data) => source.kind === 'vacancy' && source.id === id)),
     sourcingPackets: w.proposals.filter(p => p.workflow === 'sourcing-research' && p.vacancy === id),
     resumeExtractions: w.resumeExtractions.filter(r => candidateIds.has(r.candidate)),
     documents: w.documents.filter(d => appIds.has(d.application) || (candidateIds.has(d.candidate) && !d.application)),
@@ -94,6 +96,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
   }
   const body = {
     captures, agencySubmissions, referrals,
+    proposal: view.proposals.filter(p => proposalApplications(view, p).some(app => app.candidate === id)),
     sourcingPackets: view.proposals.filter(p => p.workflow === 'sourcing-research' && p.candidate === id),
     nurtureSequences: s.all('crm-enrollment').filter(e => e.candidate === id), nurtureReplies: s.all('crm-reply').filter(reply => reply.candidate === id),
     hiringReminders: s.all('hiring-reminder').filter(reminder => appIds.has(reminder.application)),
@@ -144,6 +147,7 @@ export function bulkExport(w: Workspace, ids: string[]) {
       references: { questionnaires: forApp(w.references.questionnaires), records: forApp(w.references.records) },
       interviewDays: forApp(w.scheduling.drafts), coordinationCases: forApp(w.coordination.cases),
       takeHomes: { assignments: forApp(w.takeHomes.assignments), submissions: forApp(w.takeHomes.submissions), grades: forApp(w.takeHomes.grades) },
+      proposals: w.proposals.filter(p => proposalApplications(w, p).some(app => app.id === id)), debriefs: forApp(w.debriefs),
       interviews: forApp(w.interviews), scorecards: forApp(w.scorecards), applicationEmails: forApp(w.applicationEmails), messages: forApp(w.messages), offers: forApp(w.offers),
       teamNotes: w.teamNotes.filter(n => n.application === id || (n.candidate === application.candidate && !n.application)),
       activity: w.activity.filter(e => e.application === id),
