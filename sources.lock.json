@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "e3aa8986052dec0d386b4d996abfd2074a2f76fdf7fbd3547347fc1e8ecf2297",
+      "sha256": "c2028e3e7b781e95c8cefffe22d4bb97416004777f8d7c926be3154a82a0503b",
       "executable": false
     },
     "DEMO.md": {
@@ -4715,7 +4715,7 @@
       "executable": false
     },
     "tests/agent-prompts-flow.mjs": {
-      "sha256": "89f376a7db09a45c25997ef5577d5a3a435dc9271bc1fc3d81b7e040eae3c277",
+      "sha256": "525e4aaa043992f4030d0b20a0fd5e534454c00262e6f43df403ef2c425739e5",
       "executable": false
     },
     "tests/agents.test.mjs": {
