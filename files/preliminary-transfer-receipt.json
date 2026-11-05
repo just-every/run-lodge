@@ -1,0 +1,126 @@
+{
+  "destination": "/tmp/sx-lodge-c-f41-transfer-check/work/sx-lodge-c-f41/reports/just-every/run-lodge",
+  "files": [
+    {
+      "blob": "5915805b36035017109e69150c35a72ba68a2a9b",
+      "bytes": 1918,
+      "path": "PLAN.md",
+      "sha256": "b31ded3eb570e0d1849f5bbd8511c07c454c905168af5a1c43611a3055d9a7de"
+    },
+    {
+      "blob": "d061254135c0201b95f8b8b437ec7db1f6590adf",
+      "bytes": 618,
+      "path": "PROBES.txt",
+      "sha256": "6e41afba6b9268de3d8c198ab91c15becd2a8f0c3ed5ca40654a49d7e5daa8b8"
+    },
+    {
+      "blob": "fe47e5d0ca5a070774253e8e7249125f0d60b374",
+      "bytes": 13406,
+      "path": "REPORT.md",
+      "sha256": "87f65004729de9e23a5c6f273fbbc44d151184541525f040d2fb5347e820fbef"
+    },
+    {
+      "blob": "38e8493d8c629584f02902b235780222e9950b3c",
+      "bytes": 972,
+      "path": "browser-receipt.json",
+      "sha256": "24bc4d580929aa14d1ca9b580e16242b1b663ad9b2fec8cefa49e359de09710f"
+    },
+    {
+      "blob": "59ad66c449aba2c4106fe7eab4b3c3199beb0cae",
+      "bytes": 682400,
+      "path": "browser/agents-1440.png",
+      "sha256": "280a824be057cd2d54c6c3c812fc7756e3ec394390c17834c43ae450e68c53c3"
+    },
+    {
+      "blob": "420e0fe6aaaddb5c52163c1b8673864f3142cd17",
+      "bytes": 633281,
+      "path": "browser/agents-390.png",
+      "sha256": "6540340072be99ed2c73f6749683744678e00933ab70f6717c1c12c91e895e72"
+    },
+    {
+      "blob": "3acfc681e8a1efb172caa0c0093fa4e0925440c6",
+      "bytes": 225,
+      "path": "ci-discovery.json",
+      "sha256": "62688f924f0647bdc3f77a6ac6247ef243820574a8fe786e3457550b4ca10a2e"
+    },
+    {
+      "blob": "6478168158eac9f2a1e39e0070e580e2edf54886",
+      "bytes": 175,
+      "path": "ci-final.json",
+      "sha256": "6340608b6949960711df00c5d178222473a91a6ed30c821779471f7c187a91e6"
+    },
+    {
+      "blob": "5957cab1286972d88e67d97dc58ac01fd0ff13f8",
+      "bytes": 214289,
+      "path": "lock-check.log",
+      "sha256": "d846954f3636a36594d26da4a2515e108df7f3b8c61691ad1e08dc36c26f20d9"
+    },
+    {
+      "blob": "93276df93c2bffe1e30d5a667631d4e6fda05c76",
+      "bytes": 1145,
+      "path": "main-ci.json",
+      "sha256": "d9657a5262903c53646c4c3293e93fbce1290ef620ba44a20c88b942104c50cc"
+    },
+    {
+      "blob": "bea7156531d313ea4534716430df70f9d0d0bfa5",
+      "bytes": 1764,
+      "path": "mechanical-receipt.json",
+      "sha256": "ecbaaf1dc3c24db3cafbc717388ab8c8b244d416b0c683ad363e2cc20c32b9a9"
+    },
+    {
+      "blob": "9452d90e4a626f4e74f43edda390c57101d16974",
+      "bytes": 893,
+      "path": "product-push.log",
+      "sha256": "532c362c4377cd7c98e46b911f7b73525abd17b4f4fdb9f48db044985f29f0a3"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "rer-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "f2282c637e94ad0d798e67b70eab5f486503376c",
+      "bytes": 1007,
+      "path": "resource-baseline.log",
+      "sha256": "1a45df7a808304c5e71287294d1c7503c87aa097ca1ecdb60e323c0334313e5c"
+    },
+    {
+      "blob": "a01b20e1fa51805044364d6599f8ed9fb4a16b77",
+      "bytes": 1007,
+      "path": "resource-check.log",
+      "sha256": "c07a042a07e134a2ea62a97191ae8471f9002ac06a32d6aeff20796f6d1641c6"
+    },
+    {
+      "blob": "6066b9639dc44502b693fd645a74a4a5f71e9312",
+      "bytes": 420,
+      "path": "resource-receipt.json",
+      "sha256": "15f4e3423d4f9c1f6be597a53da4f36c42156e355147133458273264bb2d707f"
+    },
+    {
+      "blob": "b375bb9ab1d0808313acdf90e315e880c978b87f",
+      "bytes": 228,
+      "path": "typecheck.log",
+      "sha256": "6bf79f79afe9b7af88087a9d99e32942594d8303144879e08b645f1013a53478"
+    },
+    {
+      "blob": "5dac1187355650c98f3917a40a30ae51a4c45de0",
+      "bytes": 673,
+      "path": "verify-receipt.json",
+      "sha256": "4ba8ffa0015fed1558c9c3e0805ae5254dcdb3e9995b2026c9d5a72cc635b67d"
+    },
+    {
+      "blob": "c7532f4c02aa8318d3a559e7df849d4487800725",
+      "bytes": 38410,
+      "path": "verify.log",
+      "sha256": "a7460e2cf2b6c44ec423c7c542333ddd6a8e0df6f1437228b7b3ed23f1df1137"
+    }
+  ],
+  "head": "55d30af7cd6ba65577c14ca40330b492f884ffac",
+  "manifest_sha256": "e1b8cc3e6bd128f5c92e3daf26799189518f3eee59578175f4f7acb4b5d8b0e4",
+  "product_branch": "cloud/sx-lodge-c-f41",
+  "product_head": "148a562f1929c2475e22c5a14effb51c0689e708",
+  "ref": "refs/heads/evidence/sx-lodge-c-f41",
+  "repository": "just-every/run-lodge",
+  "status": "restored"
+}

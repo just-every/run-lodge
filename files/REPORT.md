@@ -61,7 +61,7 @@ The initial exploratory assertion expected an approved proposal, while the nativ
 | --- | --- | --- |
 | 1 | FAIL for whole-clause DONE | R2, R5 and the explicitly omitted broader surface remain. Scoped metadata outcomes run in the named public-door journey. |
 | 2 | PASS for the bounded slice | Actual populated native fixtures; supported reads and preparations succeed; unsafe reads and replay attempts refuse or remain unchanged, lines 71 to 202. |
-| 3 | PENDING branch result | Exact-SHA push Verify 42113396601 runs the resource journey in the security shard and production conformance in rer-verify. Local exact-SHA conformance passed 675 of 675 points. Final CI status is recorded separately below. |
+| 3 | PASS for the bounded proof | Exact-SHA push Verify 42113396601 completed successfully, running the resource journey in the security shard and production conformance in rer-verify. Local exact-SHA conformance also passed 675 of 675 points. |
 | 4 | PASS | Both actual runtime receipts bind 148a562f1929c2475e22c5a14effb51c0689e708; no product edits followed. |
 | 5 | PASS | The original Base duty and acceptance remain directly in BASE-AGENT-003; no receiving duty or scope rewrite was introduced. |
 | 6 | FAIL for literal DONE metadata; expected mechanical handoff | The partial Gap preserves every missing obligation. Touched generation and check pass, then generated views are restored as required. The old global Judged from line is retained; no DONE provenance or freshness claim is made. |
@@ -77,10 +77,12 @@ Product push succeeded on its first attempt using the required guard. All three 
 
 Cloud-side publication scanning was not run under the cloud exemption. Exact-tree scan state: commit=148a562f1929c2475e22c5a14effb51c0689e708; complete=unestablished; historyScanned=unestablished; findings=unknown. The Mac lander must perform the full scan and Run site check. No READY or evidence transfer claims those gates are waived.
 
-Complete non-secret packet files are explicitly selected for the separate evidence branch. No credential file, environment dump, private gate material or symlink is selected. Report transfer never means product DONE, acceptance or landing.
+The first evidence publication was independently fetched into isolated temporary Git storage, verifying all 19 file hashes and the product SHA; its actual receipt is preliminary-transfer-receipt.json. The final packet additionally includes consolidated receipts and the latest exact-SHA CI state. Complete non-secret packet files are explicitly selected for the separate evidence branch. No credential file, environment dump, private gate material or symlink is selected. Report transfer never means product DONE, acceptance or landing.
 
 ## Exact-SHA workflow state
 
-The candidate push started Verify run 42113396601 on 148a562f1929c2475e22c5a14effb51c0689e708. At the latest permitted REST poll it was in progress with no conclusion. No rerun or dispatch was requested. Run URL: https://github.com/just-every/run-lodge/actions/runs/42113396601. The final terminal report will state the observed result or preserve PUSHED custody if the check remains running. CI does not establish DONE for the omitted outcomes.
+The candidate push started Verify run 42113396601 on 148a562f1929c2475e22c5a14effb51c0689e708. The final permitted REST poll returned completed and success on that exact full SHA. No rerun or dispatch was requested. Run URL: https://github.com/just-every/run-lodge/actions/runs/42113396601. This green exact-SHA result supports READY custody for the bounded partial candidate. CI does not establish DONE for the omitted outcomes.
 
-The inherited pinned continuation had successful push Verify 42103598327 on bbccbbd2cc34a4704a4e99a1e5216c3892c7f2c9. The integration main fa86acb87c727b709390836e35203f60cd5f54fb had successful Verify 42100802613 and successful Run site 42100802146. Those runs are context only; they are never substituted for the candidate's own result. Four GitHub calls have been used: continuation discovery, candidate discovery, main discovery and one candidate status poll; no logs were fetched.
+The inherited pinned continuation had successful push Verify 42103598327 on bbccbbd2cc34a4704a4e99a1e5216c3892c7f2c9. The integration main fa86acb87c727b709390836e35203f60cd5f54fb had successful Verify 42100802613 and successful Run site 42100802146. Those runs are context only; they are never substituted for the candidate's own result. Five GitHub calls were used: continuation discovery, candidate discovery, main discovery and two candidate status polls at least 300 seconds apart; no logs were fetched.
+
+Final custody: pushed product candidate, exact-SHA Verify success, unchanged partial counts. Product and evidence are separate refs. The full proof packet is retained outside the product clone, which is removed after both transfers succeed.

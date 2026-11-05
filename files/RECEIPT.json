@@ -1,0 +1,80 @@
+{
+  "head": "148a562f1929c2475e22c5a14effb51c0689e708",
+  "checks": [
+    {
+      "name": "resource sanity journey",
+      "receipt": "resource-receipt.json",
+      "exit": 0
+    },
+    {
+      "name": "normal production Verify core path",
+      "receipt": "verify-receipt.json",
+      "exit": 0,
+      "agent_conformance_passed": 675,
+      "agent_conformance_total": 675
+    },
+    {
+      "name": "mechanical checks",
+      "receipt": "mechanical-receipt.json",
+      "exit": 0
+    },
+    {
+      "name": "browser proof",
+      "receipt": "browser-receipt.json",
+      "widths": [
+        1440,
+        390
+      ],
+      "exit": 0
+    }
+  ],
+  "point_status": {
+    "R1": "met for declared types",
+    "R2": "partial; extra roles not adopted",
+    "R3": "met for current metadata surface",
+    "R4": "met for saved native drafts",
+    "R5": "unmet; shared Base byte budgets absent",
+    "R6": "met for current metadata text"
+  },
+  "product_push": {
+    "branch": "cloud/sx-lodge-c-f41",
+    "success": true,
+    "attempts": 1
+  },
+  "ci_run": 42113396601,
+  "publication_scan": {
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "owner": "Mac lander"
+  },
+  "run_site": {
+    "status": "pending landing",
+    "owner": "Mac lander"
+  },
+  "full_clause_done": false,
+  "new_test_registrations": 0,
+  "removed_or_weakened_assertions": 0,
+  "ci": {
+    "run_id": 42113396601,
+    "event": "push",
+    "conclusion": "success",
+    "head_sha": "148a562f1929c2475e22c5a14effb51c0689e708",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42113396601",
+    "status": "completed"
+  },
+  "ready": true,
+  "done_riders": {
+    "1": "fail for whole-clause DONE",
+    "2": "pass for bounded slice",
+    "3": "pass exact-SHA Verify",
+    "4": "pass exact candidate",
+    "5": "pass",
+    "6": "fail literal DONE metadata; expected view handoff",
+    "7": "pass",
+    "8": "pass for bounded slice",
+    "9": "pass",
+    "10": "pass",
+    "11": "pending Mac lander"
+  }
+}
