@@ -1,3 +1,4 @@
+import { currentJobPosting, jobPostingData, safeStructuredJson } from '../careers/job-posting'
 import { recoveryUi } from '../careers/recovery-copy'
 import { draftTools } from '../careers/draft'
 import { receiptRecoveryCode, recoverReceipt } from '../careers/receipt'
@@ -197,9 +198,12 @@ publicPages.get('/jobs/:slug', async c => {
   const l = listingBySlug(s, 'careers', c.req.param('slug'))
   if (!l) return notFound()
   const shown = shownJob(s, l)
+  const reviewed = await currentJobPosting(s, l)
+  const structured = reviewed ? `<script type="application/ld+json">${safeStructuredJson(jobPostingData(s, l, reviewed, runtimeBindings(c.env).AUTH_ORIGIN))}</script>` : ''
+  const details = reviewed ? `<section aria-label="Reviewed listing details"><h2>Listing details</h2><p>${esc(reviewed.employerName)} · <a href="${esc(reviewed.employerUrl)}">Employer website</a></p><p>Posted ${esc(reviewed.datePosted)} · Listing expires ${esc(reviewed.validThrough)}</p>${reviewed.addresses.map((x: Data) => `<p>${esc(s.get('office', x.officeId).name)}: ${esc([x.streetAddress, x.addressLocality, x.addressRegion, x.postalCode, x.addressCountry].join(', '))}</p>`).join('')}${l.v.workMode === 'remote' ? `<p>Remote applicant countries: ${esc(reviewed.applicantCountries.join(', '))}</p>` : ''}</section>` : ''
   const alternatives = listings(s, 'careers').filter(x => x.v.id === l.v.id)
   const languages = alternatives.length > 1 ? `<nav aria-label="${esc(shown.language && shown.language !== 'en' ? uiCopy(l.post!).language : 'Language')}">${alternatives.map(x => `<a href="/jobs/${esc(x.slug)}" lang="${esc(x.post?.language ?? 'en')}">${esc(new Intl.DisplayNames([x.post?.language ?? 'en'], { type: 'language' }).of(x.post?.language ?? 'en'))}</a>`).join(' · ')}</nav>` : ''
-  return page(shown.title, languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)), 200, undefined, shown.language ?? 'en')
+  return page(shown.title, structured + languages + form({ ...shown, customSchema: l.v.customSchema, stages: l.v.stages, slug: l.slug }, s.get('business', 'main'), '', {}, jobForm(s, l.v, l.post), undefined, undefined, cpraFor(s, l)) + details, 200, undefined, shown.language ?? 'en')
 })
 
 publicPages.post('/jobs/:slug', c => apply(c, APPLICATION_PAGE))

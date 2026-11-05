@@ -54,6 +54,7 @@ export function Posts({ v, w, mutate }: { v: D } & Pick<PageProps, 'w' | 'mutate
         <Form label="Close post" compact onSubmit={() => mutate('post-status', { vacancy: v.id, post: p.id, status: 'closed' })} />
       </div>
       <PostForm v={v} w={w} post={p} mutate={mutate} />
+      {v.jobPostingSettings?.some((x: D) => x.post === p.id) && <p><a href={'/app?settings=job-posting#job-posting-' + p.id}>Structured listing settings</a></p>}
       {p.language !== 'en' && <PostTranslation v={v} w={w} post={p} mutate={mutate} />}
     </details>)}
     {live && v.manages && (offices.length

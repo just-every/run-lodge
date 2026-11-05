@@ -1,4 +1,5 @@
 import { authorizationReview, authorizationPath } from './background-authorization-flow.mjs'
+import { structuredListings } from './office-job-posting-flow.mjs'
 import { seedTakeHome, file as assessmentFile, original as assessmentOriginal } from './take-home-flow.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -19,7 +20,8 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
  try {
   await src.command('business', BUSINESS)
   const { candidate } = await src.command('candidate', { name: 'Archive candidate', email: 'archive@example.test', source: 'Direct', consentBasis: 'manual' })
-  let vacancy = await src.command('vacancy', { title: 'Archive role', location: 'New York', headcount: 1, compensation: { currency: 'USD', min: 100, max: 200, period: 'year' } })
+  const listingOffice = await src.command('office', { name: 'Synthetic archive office' })
+  let vacancy = await src.command('vacancy', { title: 'Archive role', officeId: listingOffice.id, location: 'New York', headcount: 1, compensation: { currency: 'USD', min: 100, max: 200, period: 'year' } })
   vacancy = await src.command('rubric', { id: vacancy.id, criteria: [{ name: 'Experience', description: 'Previous work example' }] })
   vacancy = await src.command('interview-plan', { id: vacancy.id, plan: [{ name: 'Review', stageName: 'Interview' }] })
   const approval = await src.command('request-vacancy-approval', { id: vacancy.id, approver: 'owner@example.test' })
@@ -55,6 +57,13 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   const employee = await src.member('archive-employee@example.test', ['employee'], 'Archive Employee')
   const referral = await src.command('referral-submit', { vacancy: vacancy.id, name: 'Referral archive applicant', email: 'referral-archive@example.test', consentNote: 'Candidate agreed to sharing the resume', confirmed: true, resume: { name: 'referral.txt', mediaType: 'text/plain', base64: Buffer.from('REFERRAL-FROZEN-ORIGINAL').toString('base64') } }, employee)
   const referralFile = (await src.state(employee)).referrals.submissions.find(r => r.id === referral.id).files[0]
+
+  const listingJob = await src.command('job-post', { vacancy: vacancy.id, title: 'Synthetic archive listing', description: 'Synthetic approved operations.', locations: [listingOffice.id], destinations: ['careers'] })
+  const listingPost = listingJob.posts.at(-1)
+  await src.command('post-status', { vacancy: vacancy.id, post: listingPost.id, status: 'live' })
+  const listingSettings = (await src.state()).vacancies.find(v => v.id === vacancy.id).jobPostingSettings[0]
+  const listingReview = await src.command('review-job-posting', { vacancy: vacancy.id, post: listingPost.id, source: listingSettings.source, reviewed: true, metadata: { employerName: BUSINESS.name, employerUrl: 'https://employer.example.test/', datePosted: '2026-01-01', validThrough: '2099-12-31', employmentType: 'full-time', addresses: [{ officeId: listingOffice.id, streetAddress: '100 Synthetic Street', addressLocality: 'New York', addressRegion: 'NY', postalCode: '10001', addressCountry: 'US' }] } })
+  assert.equal(structuredListings((await src.send('/jobs/' + listingPost.slug)).text).length, 1)
 
   // Take-home versions, submissions, original bytes and unreleased grades round-trip together.
   const assessment = await seedTakeHome(src, 8)
@@ -112,6 +121,9 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   }
   const removeAgency = (items, kind, id) => items.splice(items.findIndex(i => i.kind === 'row' && i.table === 'l_records' && i.row.kind === kind && i.row.id === id), 1)
   const mutations = [
+   ['missing listing post', (_d,_b,items) => changeAgency(items, 'job-posting-review', listingReview.id, { post: 'missing-post' })],
+   ['missing listing reviewer', (_d,_b,items) => changeAgency(items, 'job-posting-review', listingReview.id, { reviewedBy: 'missing-reviewer' })],
+   ['active restored listing review', (_d,_b,items) => changeAgency(items, 'job-posting-review', listingReview.id, { enabled: true })],
    ['missing authorization application', (_d,_b,items) => changeAgency(items, 'background-authorization', assessment.app.id, { application: 'missing-application' })],
    ['wrong authorization candidate', (_d,_b,items) => changeAgency(items, 'background-authorization', assessment.app.id, { candidate: candidate.id })],
    ['active restored authorization', (_d,_b,items) => changeAgency(items, 'background-authorization', assessment.app.id, { historical: false })],
@@ -207,6 +219,12 @@ test('LDG-015 actual seed restore policy rejects broken records and lineage befo
   assert.equal((await target.imports.status(id)).phase, 'complete')
   // The restored owner is the same person and signs in with an ordinary emailed link.
   const owner = await dst.signIn('owner@example.test')
+  const restoredListing = (await dst.state(owner)).vacancies.find(v => v.id === vacancy.id).jobPostingSettings.find(x => x.post === listingPost.id)
+  assert.equal(restoredListing.review.enabled, false, 'restored metadata is historical until fresh human review')
+  assert.equal(restoredListing.review.metadata.addresses[0].streetAddress, '100 Synthetic Street')
+  const restoredListingPage = await dst.send('/jobs/' + listingPost.slug)
+  assert.equal(restoredListingPage.status, 200)
+  assert.deepEqual(structuredListings(restoredListingPage.text), [])
   assert.equal((await dst.db.prepare('SELECT COUNT(*) AS n FROM l_app_credentials').first()).n, 0)
   assert.equal((await dst.send('/api/integrations/v1/applications', undefined, '', { authorization: 'Bearer ' + appToken })).status, 401)
   assert.deepEqual((await dst.send('/api/lodge/integrations', undefined, owner)).value.credentials, [])

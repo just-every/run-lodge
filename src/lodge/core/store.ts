@@ -115,6 +115,13 @@ export function grantsOf(state: State, m: Data) {
   return { departments: [...departments], offices: [...(m.grantOffices ?? [])], levels }
 }
 
+/** Read-only authority for a saved human whose continuing approval a public page relies on. */
+export function currentHuman(state: State, email: string): Actor | null {
+  const member = state.find('member', email)
+  if (!member?.active || member.agent) return null
+  return { id: member.email, email: member.email, name: member.name, session: '', version: 0, owner: member.owner === true, roles: member.roles, agent: false, seePrivate: member.seePrivate === true, grants: member.owner ? undefined : grantsOf(state, member) }
+}
+
 /** Lodge capabilities come from the saved member record, never from the request body. */
 export function actorFor(session: Session, state: State): Actor {
   const owner = session.operator.role === 'owner'

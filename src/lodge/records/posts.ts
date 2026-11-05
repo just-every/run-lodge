@@ -128,7 +128,9 @@ export const listingById = (s: State, destination: Destination, id: string) => l
 
 /** The job as one listing shows it: the post's title, description and locations over the job's shared terms. */
 export function shownJob(s: State, l: Listing): Data {
-  const job = { ...publicPosting(l.v)!, payTransparency: publicPay(s, l.v, l.post).text }
+  const pay = publicPay(s, l.v, l.post), first = pay.ranges[0]
+  const shared = first && pay.ranges.every(r => r.currency === first.currency && r.min === first.min && r.max === first.max && r.period === first.period)
+  const job = { ...publicPosting(l.v)!, compensation: shared ? { currency: first.currency, min: first.min, max: first.max, period: first.period } : null, payTransparency: pay.text }
   if (!l.post) return job
   return { ...job, language: l.post.language, translation: l.post.translation, title: l.post.title, description: l.post.description, location: l.offices.map(id => s.find('office', id)?.name).filter(Boolean).join(' · ') }
 }

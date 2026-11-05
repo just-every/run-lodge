@@ -52,6 +52,12 @@ export async function validateStaged({ read }) {
 
  for (const row of rows) {
   const value = get(row.kind, row.id);
+  if (row.kind === 'job-posting-review') {
+   const job = reference('vacancy', value.vacancy);
+   refuse(row.id === value.vacancy + ':' + value.post && job.posts?.some(post => post.id === value.post));
+   reference('member', value.reviewedBy);
+   refuse(typeof value.source === 'string' && /^[a-f0-9]{64}$/.test(value.source) && value.enabled === false);
+  }
   if (row.kind === 'weekly-report') refuse(value.enabled === false && value.status === 'withheld');
   if (row.kind === 'weekly-report-attempt') reference('weekly-report', value.schedule);
   if (row.kind === 'analysis-schedule') reference('analysis-chart', value.chart);
@@ -104,6 +110,7 @@ export async function validateStaged({ read }) {
 export const policy = {
  product: 'just-every/hiring-lodge',
  exportRow(table, row) {
+  if (table === 'l_records' && row.kind === 'job-posting-review') return { ...row, value: JSON.stringify({ ...JSON.parse(row.value), enabled: false }) };
   if (table === 'l_records' && row.kind === 'background-authorization') return { ...row, value: JSON.stringify({ ...JSON.parse(row.value), historical: true }) };
   if (table === 'l_records' && row.kind === 'proposal') {
    const value = JSON.parse(row.value);

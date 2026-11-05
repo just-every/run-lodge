@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { checkOfficeJobPosting } from './office-job-posting-flow.mjs'
 import { createHash } from 'node:crypto'
 import { BUSINESS, harness } from './harness.mjs'
 import { RANGE, RUBRIC, hiringScenario } from './hiring-fixture.mjs'
@@ -1349,6 +1350,8 @@ test('Approved chosen-stage emails record outcomes without resending failures', 
 test('Application sender authentication and current approval fence automatic mail', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailSender(t))
 test('Restored application mail remains inert with receipts and duplicate protection retained', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailRestore(t))
 test('Per-job application email reviews remain isolated when another job changes', async t => (await import('./application-email-safety.mjs')).checkApplicationEmailIsolation(t))
+
+test('ATTR-015 current office authority controls reviewed native structured publication', checkOfficeJobPosting)
 
 test('ATTR-004 approved location pay, reviewed rules and salary-history refusals reach public doors', async t => (await import('./pay-transparency-flow.mjs')).checkPayTransparency(t))
 
