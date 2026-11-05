@@ -67,6 +67,13 @@ the manager still edits and keeps or discards a debrief in its native screen.
 Company policy review never replaces those decisions. The prompt supplies no
 connected provider capability or specialist-completion claim.
 
+The public MCP journey exercises proposal and debrief preparation under both
+autonomous and held company policies. In either case, preparation leaves a
+draft until the signed-in native human decides it; a policy review supplies no
+human-decision tool. Retrieving the prompt after those decisions or a Worker
+restart returns the same static guidance, without reading or changing hiring
+records.
+
 Run `pnpm exec rer verify` for the production-build conformance journey. It
 creates a disposable owner through native setup-token admission, finishes
 first-run and business setup, binds a native agent, and uses fresh native
