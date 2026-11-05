@@ -17,7 +17,7 @@ import { employerAgencies } from '../agency/views'
 import { fieldProjection, fieldResult } from './fields'
 import { blindResult } from '../core/blind'
 import { blindProjection } from './blind-review'
-import { canSeeProposal } from './proposals'
+import { canSeeProposal, sourceRecord } from './proposals'
 import type { State } from '../core/state'
 import { isCompliance, isComplianceOnly, canSeeCompliance, isAgency, cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy, can, permissionsOn, SEEDED_LEVELS } from '../core/access'
 import { requireThat, scope, type Actor, type Data } from '../core/types'
@@ -307,4 +307,12 @@ export async function workspace(s: State, a: Actor, env?: Bindings) {
 }
 
 export type Workspace = Awaited<ReturnType<typeof workspace>>
+
+/** Resource readers use current projected drafts, never raw retained packets. */
+export function workspaceResource(view: Workspace, kind: string, id: string): Data | undefined {
+  if (kind === 'proposal') return view.proposals.find((record: Data) => record.id === id)
+  if (kind === 'debrief') return view.debriefs.find((record: Data) => record.id === id)
+  return sourceRecord(view, kind, id)
+}
+
 export const visibleIds = (w: Workspace) => new Set<string>([...w.applications, ...w.candidates, ...w.vacancies, ...w.documents].map((r: Data) => r.id))

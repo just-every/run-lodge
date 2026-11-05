@@ -147,7 +147,7 @@
       "executable": false
     },
     "agent-surface.json": {
-      "sha256": "4866d0ffac9ce0955880e5f64a24a5e556ff52b36318e8c04b13ad8c03405a57",
+      "sha256": "bde69f35e8654ca3b80ae38b7e72fbcb1c46cd178d331311d314f22390af4752",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -155,7 +155,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "a930bd20e78bfe8aab76fcab90bae7eb07e5dfef06bc250c9ed41e8362e7645a",
+      "sha256": "b3b7b9e78cca41782ae2426ebfcd328165cb0a35ef20643cad1a7e0119e0a8c3",
       "executable": false
     },
     "API.md": {
@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "e3aa8986052dec0d386b4d996abfd2074a2f76fdf7fbd3547347fc1e8ecf2297",
+      "sha256": "9306f012086e6182f750c5335980baa108726e2943c975bead299457118f68dd",
       "executable": false
     },
     "DEMO.md": {
@@ -191,7 +191,7 @@
       "executable": false
     },
     "docs/agent-access.md": {
-      "sha256": "5a65217b0bb6ee1c6746b7ca517e87d74ae8337f9c5f3e43ec9c736b5abb5420",
+      "sha256": "acec438f0cffc5d0244fce551ab0ed2389ed39527124065fc2a70c98764ab859",
       "executable": false
     },
     "docs/applications.md": {
@@ -1167,11 +1167,11 @@
       "executable": false
     },
     "src/lodge/agent-door/context.ts": {
-      "sha256": "0a853d246acddb0781e1513231f39150a92a4ee9866d166d6548cba3b220e973",
+      "sha256": "75ce224002e3cd45606135e71439192c02691947ad410df4510b97d1b2aa9559",
       "executable": false
     },
     "src/lodge/agent-door/index.ts": {
-      "sha256": "967d76458b1f121dad1547a6e859d797c159ff8f46606701c0769c18bcf93964",
+      "sha256": "74038b4d1cc8f67f98daac901c4e4650d85c5b2f8b3bd9e1e0cbe600ac736025",
       "executable": false
     },
     "src/lodge/agent-door/people.ts": {
@@ -1182,12 +1182,16 @@
       "sha256": "4c9d22afee7afe9310b0c60a1b836281e06224e5c4c93c6dff1cd51cf3df24b2",
       "executable": false
     },
+    "src/lodge/agent-door/resources.ts": {
+      "sha256": "a8402f9a760212284aa563aa528d79dae9aff264eefcd1ccc1f4443d58910acb",
+      "executable": false
+    },
     "src/lodge/agent-door/team.ts": {
       "sha256": "5cd75e5d7f66a738990785f3f4db2f200db9c60f17d17536647bbcfdb23cb13c",
       "executable": false
     },
     "src/lodge/agent-door/tools.ts": {
-      "sha256": "ee3dcf0128925ad2bae44c4a41eaec0986d23d3736d864d07c64cdd0586e73c6",
+      "sha256": "ebb9e58cae040ef0a8c3425f84f5200780f5b4a07485c5ac334104d8853343cf",
       "executable": false
     },
     "src/lodge/agents/candidate-updates.ts": {
@@ -2039,7 +2043,7 @@
       "executable": false
     },
     "src/lodge/views/proposals.ts": {
-      "sha256": "66719526f2fd0acc73e26e6510b00a5816d1b51a38081810d41b1c632c73a902",
+      "sha256": "9afbd144b17020cb8c51947b31e8e87b782a18ec40c208cc847242cfaf877d84",
       "executable": false
     },
     "src/lodge/views/rejections-report.ts": {
@@ -2059,7 +2063,7 @@
       "executable": false
     },
     "src/lodge/views/workspace.ts": {
-      "sha256": "03a89e5efc19a05d5cda279947bff1b9d5e6eca2de3033568ff360f28ed66988",
+      "sha256": "d57583fda745d9c06ec66b9c11ae2403ffa8fa821d20e8f7ed80a4033af12bc3",
       "executable": false
     },
     "src/mail.server.d.mts": {
@@ -4711,11 +4715,15 @@
       "executable": false
     },
     "tests/agent-phase-fixtures.mjs": {
-      "sha256": "3000e4c0d5af78cc3f0b749370f5f93c321281e22f1b4bc5745c01480477f63e",
+      "sha256": "5162bebc547fda9cbb6b096059a8c26bda95a92ca51123cc1d339a88fcc0e3dd",
       "executable": false
     },
     "tests/agent-prompts-flow.mjs": {
       "sha256": "89f376a7db09a45c25997ef5577d5a3a435dc9271bc1fc3d81b7e040eae3c277",
+      "executable": false
+    },
+    "tests/agent-resource-flow.mjs": {
+      "sha256": "b30a2f48f35726c33cd55b3cd25a57aec1bddc6695545fe51ccc106991d6a50c",
       "executable": false
     },
     "tests/agents.test.mjs": {
@@ -5251,7 +5259,7 @@
       "executable": false
     },
     "tests/security.test.mjs": {
-      "sha256": "d3dbb552f92526948cb1dae38be93b2286735e555f4702a83c4b855c918ac9f4",
+      "sha256": "f5aabe4899860acb5f921a4a030ec2d2e83739870c475eb9b65376d00e29b441",
       "executable": false
     },
     "tests/site/site.test.mjs": {

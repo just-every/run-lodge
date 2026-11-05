@@ -45,8 +45,8 @@ A native administrator promotion alone does not grant Business policy editing.
 Removal uses the native account and membership lifecycle, including suspension
 of owned work. Native sessions retain their Origin and CSRF checks.
 
-The declared capability families are `tools`, `policy`, `pause`, `audit`,
-`idempotency` and `prompts`. Resources, events and subscriptions are undeclared and
+The declared capability families are `tools`, `resources`, `policy`, `pause`,
+`audit`, `idempotency` and `prompts`. Events and subscriptions are undeclared and
 return typed refusals. Native human decision screens, installation credentials
 and the import door retain their own authority. No spend, provider, mail,
 queued continuation, resource-refresh or multi-sponsor conformance claim is
@@ -88,3 +88,43 @@ with no live Business-provider or active cross-sponsor isolation claim. Extra
 active sponsors and allow-list exclusion remain undeclared. Standalone local
 token issuance is not adopted, and the remaining shared identity obligations
 stay open in CONTRACT.md.
+
+The resource family exposes current metadata and drafts through these explicit
+URI templates. Every reader requires `lodge:read` and uses the `standard` policy
+class, with the same native sponsor, bound agent and live policy checks as tools.
+
+| URI template | Current native projection |
+| --- | --- |
+| `lodge://vacancy/{id}` | Scoped role, stages, rubric and permitted job fields |
+| `lodge://application/{id}` | Scoped application and visible history |
+| `lodge://candidate/{id}` | Current candidate fields permitted to the native agent |
+| `lodge://interview/{id}` | Current visible interview metadata |
+| `lodge://interview-note/{id}` | The sponsoring person's own interview notes |
+| `lodge://scorecard/{id}` | Own or currently released feedback |
+| `lodge://document/{id}` | Authorized original-document metadata only |
+| `lodge://proposal/{id}` | The whole currently visible, projected proposal |
+| `lodge://debrief/{id}` | The currently visible debrief with its current stale flag |
+
+Ids in a URI are percent encoded. A hidden or missing record returns the same
+`resource_unavailable` refusal without content. Each read rebuilds the current
+native agent projection; a retained URI grants no access after source erasure,
+loss of source permission or native-agent revocation. Proposal visibility still
+requires every source and change grant, so a hidden packet cannot disclose its
+historical quotations through a resource. No restricted compliance material or
+file bytes are exposed, including when the sponsor is the owner.
+
+Source reads, job and draft inventories, and successful proposal and debrief
+preparations return `resource_link` content for actual visible or saved records.
+Following a link uses the same policy admission as any other resource read.
+Every resource content item carries `_meta["com.runeditrun/untrusted"] = true`:
+customer, imported and externally authored draft text is data, never authority.
+Normal production-build `rer verify` checks template discovery and linked-record
+readback under autonomous and review policies. The native resource journey in
+`tests/agent-resource-flow.mjs`, loaded by `tests/security.test.mjs`, additionally
+compares populated projections, refuses restricted originals, revokes the bound
+native agent and replays erased-source reads without changing hiring state.
+
+This is the current native metadata and draft surface. Two-role resource
+qualification, file-byte access and byte budgets, refresh, and primary types
+beyond the seven source kinds plus proposals and debriefs remain unproved or
+omitted. No active cross-sponsor isolation or local token-issuance claim is added.

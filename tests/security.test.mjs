@@ -15,10 +15,12 @@ import { commandBodies } from './security-commands.mjs'
 import { checkLevels } from './security-levels.mjs'
 import { checkOperations } from './operations-driver.mjs'
 import { checkAgentPrompts } from './agent-prompts-flow.mjs'
+import { checkAgentResources } from './agent-resource-flow.mjs'
 
 const snapshot = async h => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
 
 test('Recruiting coordinator prompt stays static and preserves native human review, policy, Pause and consent authority', checkAgentPrompts)
+test('BASE-AGENT-003 metadata resources and saved draft links preserve current native projection, revocation and erasure', checkAgentResources)
 
 test('OPS-003 selected workflow trials isolate production, bind reviewed deployment and rollback, and expose confirmed provider setup estimates', async () => {
  const h = await fixture()
