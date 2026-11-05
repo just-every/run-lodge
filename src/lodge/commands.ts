@@ -145,7 +145,7 @@ export async function run(s: State, a: Actor, op: string, body: Data) {
   if (!command) throw new Fault(404, 'Unknown action')
   if (a.agent && !AGENT_COMMANDS.has(op)) throw new Fault(403, 'Agent members propose changes; a person approves and applies them')
   const result = await command(s, a, body)
-  if (a.door && AGENT_COMMANDS.has(op)) {
+  if (a.door && AGENT_COMMANDS.has(op) && !s.original(op === 'propose' ? 'proposal' : 'debrief', result.id)) {
     const preparation = { agent: a.door.agent, sponsor: a.door.sponsor, label: a.door.label }
     return s.put(op === 'propose' ? 'proposal' : 'debrief', result.id, { ...result, preparation })
   }

@@ -1339,7 +1339,7 @@
       "executable": false
     },
     "src/lodge/commands.ts": {
-      "sha256": "0bf5552587dd85a993786e44330408ccfeeb7d9b6c64f91695133bf7b75f89ac",
+      "sha256": "f9872d729155fa0ed6ce8b8d2b17c6aaac4c9d736f8bb5f5498360d18917a083",
       "executable": false
     },
     "src/lodge/communications/content.ts": {
@@ -4351,7 +4351,7 @@
       "executable": false
     },
     "src/ui/audit.tsx": {
-      "sha256": "b5086728824085b2b67923a37101b8161e961770e80856de5ffd3cce3d675309",
+      "sha256": "a6a49f84731f9f26ff3ce82069cbe862d49923262753323f2092c9a4105e057b",
       "executable": false
     },
     "src/ui/background-check-authorization.tsx": {
@@ -4503,7 +4503,7 @@
       "executable": false
     },
     "src/ui/names.ts": {
-      "sha256": "1f3e26178796d3318530ab50584ebe0c942b841ccb0f34c288a04da68b5f483e",
+      "sha256": "9121adcf01c804084c59602e9f110a53768d8de4a3892a7bd6b78e542c26d1fc",
       "executable": false
     },
     "src/ui/notes.tsx": {
@@ -4543,7 +4543,7 @@
       "executable": false
     },
     "src/ui/pipeline/activity.tsx": {
-      "sha256": "a4c374a01dab7f0e2fb6a5c38e759a29ce628c5bad36394bd70dbe6b8f6ff5b7",
+      "sha256": "f7ff8d1d96ab70462b967fb10a40022ebb79096e85715daeb3a47c04628cade1",
       "executable": false
     },
     "src/ui/pipeline/board.tsx": {
@@ -4707,11 +4707,11 @@
       "executable": false
     },
     "tests/agent-attribution-browser.mjs": {
-      "sha256": "5e1de0ef2d8ee77cd4d805f463b41769d481e05d3e16acd4e330ac6947ca9b6a",
+      "sha256": "1ba5a0ef262053657a8f3feddeb7f3ee1ac815bdbef6bf7b82c844dc4060b3a7",
       "executable": false
     },
     "tests/agent-attribution-flow.mjs": {
-      "sha256": "8653e14cf45f9348daf888d7a18006412b06ef07c32bab14a1a9324856ff125a",
+      "sha256": "c0cbfa2471e954cecc189b166cfd203f1adfceefb3d76c0095bcf448ee12276d",
       "executable": false
     },
     "tests/agent-native-journey.mjs": {

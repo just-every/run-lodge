@@ -1,3 +1,4 @@
+import { candidateUpdateJob, updateProposal } from './candidate-update-flow.mjs'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { randomUUID, webcrypto } from 'node:crypto'
@@ -82,9 +83,34 @@ export async function attributionDrafts(f, phase = 'autonomous') {
     proposalArgs, debriefArgs, decisions: [proposal.decision, debrief.decision] }
 }
 
+async function checkDuplicateAttribution(f) {
+  const { h, c, email, persisted } = f
+  await c.adopt(autonomousPolicy())
+  const { job, status, rejection } = await candidateUpdateJob(h.command, email, email, ' attribution duplicates')
+  await h.command('candidate-update-policy', { vacancy: job.id, businessDays: 0, timeZone: 'UTC', statusTemplate: status.id, rejectionTemplate: rejection.id })
+  for (const legacy of [false, true]) {
+    const added = await h.command('candidate', { name: 'Synthetic Lodge duplicate ' + legacy, email: address('42-duplicate-' + legacy), source: 'Direct', consentBasis: 'manual', vacancy: job.id })
+    await h.command('move', { application: added.application.id, to: job.stages.find(stage => stage.name === 'Debrief').id, reason: 'Native debrief waiting' })
+    const rows = (await h.send('/api/lodge/candidate-updates', undefined, f.agentSession)).value.cases
+    const args = updateProposal(rows.find(row => row.application === added.application.id), email)
+    const first = legacy ? await h.command('propose', args, f.agentSession)
+      : (await c.tool('lodge.proposals.prepare', { ...args, idempotency_key: randomUUID() })).result.structuredContent
+    const before = await persisted('proposal', first.id)
+    assert.equal(!!before.preparation, !legacy)
+    const token = await accessToken(c, { act: { sub: c.agentId, name: 'Renamed authenticated agent', specialist: c.surface.specialist } })
+    const duplicate = await c.tool('lodge.proposals.prepare', { ...args, idempotency_key: randomUUID() }, { token })
+    assert.equal(duplicate.result?.isError, false, JSON.stringify(duplicate.body))
+    assert.equal(duplicate.result.structuredContent.id, first.id)
+    assert.deepEqual(duplicate.result.structuredContent.preparation, before.preparation, 'a duplicate must retain its actual original preparer')
+    assert.deepEqual(await persisted('proposal', first.id), before, 'no relabeling or historical reconstruction on a native duplicate')
+  }
+  console.log('PROBE BASE-AGENT-008 duplicates: changed authenticated label -> original preparation retained; unavailable history is not reconstructed')
+}
+
 export async function checkAgentAttribution() {
   const f = await attributionFixture(), { h, c, email, human, persisted } = f
   try {
+    await checkDuplicateAttribution(f)
     const packets = []
     for (const [phase, policy, disposition] of [['autonomous', autonomousPolicy(), 'autonomous'], ['held', heldPolicy(), 'review']]) {
       await c.adopt(policy)
@@ -156,6 +182,9 @@ export async function checkAgentAttribution() {
     for (const p of packets) {
       assert.equal((await persisted('proposal', p.proposal.id)).preparation.label, p.proposal.preparation.label)
       assert.equal((await h.state()).activity.find(row => row.draft === p.debrief.id && row.kind === 'debrief-prepared').preparation.label, p.debrief.preparation.label)
+      const retained = await h.send('/api/lodge/download/activity/' + p.app.candidate, undefined, h.owner)
+      assert.equal(retained.status, 200)
+      assert.equal(retained.value.activity.find(row => row.draft === p.proposal.id && row.kind === 'proposal-prepared').preparation.label, p.proposal.preparation.label)
     }
     const refused = await c.tool('lodge.proposals.prepare', { ...packets[0].proposalArgs, idempotency_key: randomUUID() })
     assert.equal(refused.result?.isError, true)
@@ -199,8 +228,11 @@ export async function checkAgentAttribution() {
     }
     assert.equal((await h.send('/api/lodge/download/activity/' + p.app.candidate, undefined, h.owner)).status, 404)
     await h.command('member', { ...bound, active: true })
-    const replay = await c.tool('lodge.proposals.prepare', p.proposalArgs)
-    assert.equal(replay.result?.isError, true)
+    for (const [tool, args] of [['lodge.proposals.prepare', p.proposalArgs], ['lodge.debriefs.prepare', p.debriefArgs]]) {
+      const replay = await c.tool(tool, args)
+      assert.equal(replay.result?.isError, true)
+      assert.ok(!JSON.stringify(replay.body).includes(p.debrief.statements[0].citations[0].quote), 'erased quotations cannot escape through a cached result')
+    }
     assert.equal(await persisted('proposal', p.proposal.id), null)
     console.log('PROBE BASE-AGENT-008 erasure: candidate erased -> drafts and quotations removed; replay cannot restore them')
   } finally { await h.close() }
