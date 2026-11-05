@@ -54,6 +54,11 @@ export async function checkAgentPrompts() {
     assert.deepEqual(discover.result._meta['com.runeditrun/capabilities'].declared, surface.capabilities)
     assert.ok(discover.result.instructions.includes(surface.specialist))
     const name = 'lodge.recruiting-coordinator'
+    for (const verb of ['list', 'get']) {
+      const signedOut = await c.mcp(method('prompts', verb), { name }, { token: '' })
+      assert.equal(signedOut.status, 401)
+      assert.equal(signedOut.result, undefined)
+    }
     let baseline
     for (const policy of [autonomousPolicy(), heldPolicy()]) {
       await c.adopt(policy)
@@ -119,6 +124,25 @@ export async function checkAgentPrompts() {
     const noHumanTool = await c.tool('lodge.proposals.apply', { id: draft.result.structuredContent.id })
     assert.equal(noHumanTool.body.error?.data?.code, 'tool_not_found')
     assert.deepEqual(await snapshot(), afterDraft, 'retrieving guidance supplies no human-decision tool')
+    await h.command('decide-proposal', { id: draft.result.structuredContent.id, decision: 'approved', reason: 'Human reviewed the exact proposed vacancy' })
+    assert.ok((await h.state()).vacancies.some(job => job.title === 'Synthetic estimator'), 'the named human still applies the native proposal')
+    const inventory = await c.tool('lodge.proposals.list', {})
+    const application = fixtures.values.debrief.application
+    const source = inventory.result.structuredContent.records.find(record => record.kind === 'application' && record.id === application)
+    const originalApplication = (await h.state()).applications.find(row => row.id === application)
+    const debrief = await c.tool('lodge.debriefs.prepare', { ...fixtures.values.debrief,
+      expected_revision: source.revision, idempotency_key: randomUUID(),
+    })
+    assert.equal(debrief.result?.isError, false)
+    const briefId = debrief.result.structuredContent.id
+    const afterBrief = await h.state()
+    assert.equal(afterBrief.debriefs.find(brief => brief.id === briefId)?.status, 'draft')
+    assert.deepEqual(afterBrief.applications.find(row => row.id === application), originalApplication, 'debrief preparation changes no application decision')
+    const beforeKeep = await snapshot()
+    assert.equal((await c.tool('lodge.debriefs.keep', { id: briefId })).body.error?.data?.code, 'tool_not_found')
+    assert.deepEqual(await snapshot(), beforeKeep, 'the prompt cannot supply a human debrief decision')
+    await h.command('decide-debrief', { id: briefId, decision: 'keep' })
+    assert.equal((await h.state()).debriefs.find(brief => brief.id === briefId)?.status, 'kept')
 
     const refuse = async code => {
       const before = await snapshot()
