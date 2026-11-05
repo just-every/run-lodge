@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f43",
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f43",
+  "head": "9695ac29e7c2e3239849a88f35b66ea5feb7f4b2",
+  "origin_main": "26f3c06bf9343370e3e9860cd45117288f65ebc4",
+  "requested_base": "1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb",
+  "scope": "FIX round, blocking finding B only",
+  "clause": {
+    "id": "BASE-AGENT-008",
+    "before": "partial",
+    "after": "partial"
+  },
+  "counts_before": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "counts_after": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "product_push": {
+    "status": "success",
+    "attempts": 1,
+    "remote_head_confirmed": "9695ac29e7c2e3239849a88f35b66ea5feb7f4b2"
+  },
+  "reproduction": {
+    "head": "1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb",
+    "command": "node --test --test-name-pattern='Native agent preparation' tests/security.test.mjs",
+    "exit": 1,
+    "failure": "bulk export must not disclose any retained peer rating or identity",
+    "test": "Native agent preparation retains trusted attribution and separate human decisions across activity, exports, revocation and erasure",
+    "test_change": "Added the public-door regression before changing product code; no candidate CI failure was involved."
+  },
+  "checks": [
+    {
+      "command": "node --test --test-name-pattern='Native agent preparation|COORD-006' tests/security.test.mjs tests/agents.test.mjs",
+      "exit": 0,
+      "tests": 2,
+      "exact_head": "9695ac29e7c2e3239849a88f35b66ea5feb7f4b2",
+      "log": "exact-sha-tests.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party-check.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-008",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-008",
+      "exit": 0,
+      "log": "contract-generation.log"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "source-lock.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "mechanical": {
+    "lock": 0,
+    "views_write": 0,
+    "views_check": 0,
+    "ledger": "not applicable; no migration changed",
+    "parent_table_line_count": 169,
+    "candidate_table_line_count": 169,
+    "status_rows_retained": 145,
+    "generated_views_committed": false
+  },
+  "ci": {
+    "total_count": 1,
+    "workflow_runs": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_sha": "9695ac29e7c2e3239849a88f35b66ea5feb7f4b2",
+        "html_url": "https://github.com/just-every/run-lodge/actions/runs/42132159094",
+        "id": 42132159094,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    ]
+  },
+  "github_api_calls": 2,
+  "github_api_note": "One mistyped SHA discovery returned no runs; the corrected exact-SHA discovery returned the recorded Verify run. No dispatch, rerun or job-log call.",
+  "publication_scan": "Deferred to the maintained Mac lander under the explicit cloud branch exception; no COMPLETE or zero-findings scan claim.",
+  "run_site": "Not run: candidate is branch-only and main was not pushed.",
+  "browser": "No screen edited in this FIX round. Existing attribution browser registration is unchanged and belongs to branch Verify.",
+  "test_registrations_added": 0,
+  "test_registrations_removed": 0,
+  "assertions_removed_or_weakened": false,
+  "new_policy_defaults": false,
+  "blockers": [],
+  "timestamp": "2026-11-05T23:50:18.469338+00:00"
+}

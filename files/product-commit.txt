@@ -1,0 +1,12 @@
+commit 9695ac29e7c2e3239849a88f35b66ea5feb7f4b2
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Thu Nov 5 23:48:11 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Thu Nov 5 23:48:11 2026 +0000
+
+    Keep cached debrief ratings behind current source access
+
+ sources.lock.json                |  4 +--
+ src/lodge/agents/debriefs.ts     | 28 +++++++++------
+ tests/agent-attribution-flow.mjs | 75 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 95 insertions(+), 12 deletions(-)

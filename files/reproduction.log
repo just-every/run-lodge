@@ -1,0 +1,148 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ Native agent preparation retains trusted attribution and separate human decisions across activity, exports, revocation and erasure (1344.992405ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1940.591647
+
+✖ failing tests:
+
+test at tests/security.test.mjs:22:1
+✖ Native agent preparation retains trusted attribution and separate human decisions across activity, exports, revocation and erasure (1344.992405ms)
+  AssertionError [ERR_ASSERTION]: bulk export must not disclose any retained peer rating or identity
+  + actual - expected
+  
+  + [
+  +   {
+  +     application: 'd6ad681e-fade-4ac8-878e-c60daec41f70',
+  +     criteria: [
+  +       {
+  +         agreement: 'agree',
+  +         criterion: '44b30492',
+  +         name: 'Takeoffs',
+  +         ratings: [
+  +           {
+  +             author: 'synthetic-lodge-43-manager@example.invalid',
+  +             rating: 3,
+  +             scorecard: 'd6ad681e-fade-4ac8-878e-c60daec41f70:review:synthetic-lodge-43-manager@example.invalid'
+  +           },
+  +           {
+  +             author: 'synthetic-lodge-43-peer@example.invalid',
+  +             rating: 4,
+  +             scorecard: 'd6ad681e-fade-4ac8-878e-c60daec41f70:review:synthetic-lodge-43-peer@example.invalid'
+  +           }
+  +         ]
+  +       }
+  +     ],
+  +     id: '876a395a-80b3-4d82-a3c4-8bfd838516f6',
+  +     keptAt: '2026-11-05T23:44:29.120Z',
+  +     keptBy: 'synthetic-lodge-43-manager@example.invalid',
+  +     model: null,
+  +     preparation: {
+  +       agent: '00b39e85-7695-4d78-a2ca-02ea661f99c3',
+  +       label: 'Agent door conformance for Olive Owner',
+  +       sponsor: '8d0f2cc2-887c-4e82-99a2-13731e7d807e'
+  +     },
+  +     preparedAt: '2026-11-05T23:44:29.086Z',
+  +     preparedBy: 'door-295e6a17afbdc4c030022cc6@agents.example.invalid',
+  +     preparedByAgent: true,
+  +     preparedFor: 'owner@example.test',
+  +     stale: false,
+  +     statements: [
+  +       {
+  +         citations: [
+  +           {
+  +             author: 'synthetic-lodge-43-manager@example.invalid',
+  +             criterion: '44b30492',
+  +             field: 'evidence',
+  +             quote: 'Measured the drawings against the agreed requirements.',
+  +             rating: 3,
+  +             revision: '5f9caefe-e01d-4913-91a9-a9555b3a42b8',
+  +             scorecard: 'd6ad681e-fade-4ac8-878e-c60daec41f70:review:synthetic-lodge-43-manager@example.invalid',
+  +             version: 1
+  +           }
+  +         ],
+  +         criterion: '44b30492',
+  +         kind: 'evidence',
+  +         text: 'The manager described checking the drawings.'
+  +       }
+  +     ],
+  +     status: 'kept',
+  +     vacancy: '09523c91-b123-4c06-8dca-397d825cba23'
+  +   },
+  +   {
+  +     application: 'd6ad681e-fade-4ac8-878e-c60daec41f70',
+  +     criteria: [
+  +       {
+  +         agreement: 'agree',
+  +         criterion: '44b30492',
+  +         name: 'Takeoffs',
+  +         ratings: [
+  +           {
+  +             author: 'synthetic-lodge-43-manager@example.invalid',
+  +             rating: 3,
+  +             scorecard: 'd6ad681e-fade-4ac8-878e-c60daec41f70:review:synthetic-lodge-43-manager@example.invalid'
+  +           },
+  +           {
+  +             author: 'synthetic-lodge-43-peer@example.invalid',
+  +             rating: 4,
+  +             scorecard: 'd6ad681e-fade-4ac8-878e-c60daec41f70:review:synthetic-lodge-43-peer@example.invalid'
+  +           }
+  +         ]
+  +       }
+  +     ],
+  +     id: 'c0cf216c-ae84-4008-b6ce-a552dc63d446',
+  +     model: null,
+  +     preparation: {
+  +       agent: '00b39e85-7695-4d78-a2ca-02ea661f99c3',
+  +       label: 'Agent door conformance for Olive Owner',
+  +       sponsor: '8d0f2cc2-887c-4e82-99a2-13731e7d807e'
+  +     },
+  +     preparedAt: '2026-11-05T23:44:29.112Z',
+  +     preparedBy: 'door-295e6a17afbdc4c030022cc6@agents.example.invalid',
+  +     preparedByAgent: true,
+  +     preparedFor: 'owner@example.test',
+  +     stale: false,
+  +     statements: [
+  +       {
+  +         citations: [
+  +           {
+  +             author: 'synthetic-lodge-43-manager@example.invalid',
+  +             criterion: '44b30492',
+  +             field: 'evidence',
+  +             quote: 'Measured the drawings against the agreed requirements.',
+  +             rating: 3,
+  +             revision: '5f9caefe-e01d-4913-91a9-a9555b3a42b8',
+  +             scorecard: 'd6ad681e-fade-4ac8-878e-c60daec41f70:review:synthetic-lodge-43-manager@example.invalid',
+  +             version: 1
+  +           }
+  +         ],
+  +         criterion: '44b30492',
+  +         kind: 'evidence',
+  +         text: 'The manager described checking the drawings.'
+  +       }
+  +     ],
+  +     status: 'draft',
+  +     vacancy: '09523c91-b123-4c06-8dca-397d825cba23'
+  +   }
+  + ]
+  - []
+  
+      at checkDebriefExportRevocation (file:///home/agent/rer-consolidation/work/sx-lodge-c-f43/run-lodge/tests/agent-attribution-flow.mjs:163:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.checkAgentAttribution (file:///home/agent/rer-consolidation/work/sx-lodge-c-f43/run-lodge/tests/agent-attribution-flow.mjs:187:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { application: 'd6ad681e-fade-4ac8-878e-c60daec41f70', vacancy: '09523c91-b123-4c06-8dca-397d825cba23', statements: [Array], criteria: [Array], status: 'kept', model: null, preparedBy: 'door-295e6a17afbdc4c030022cc6@agents.example.invalid', preparedFor: 'owner@example.test', preparedByAgent: true, preparedAt: '2026-11-05T23:44:29.086Z', id: '876a395a-80b3-4d82-a3c4-8bfd838516f6', preparation: [Object], keptBy: 'synthetic-lodge-43-manager@example.invalid', keptAt: '2026-11-05T23:44:29.120Z', stale: false }, { application: 'd6ad681e-fade-4ac8-878e-c60daec41f70', vacancy: '09523c91-b123-4c06-8dca-397d825cba23', statements: [Array], criteria: [Array], status: 'draft', model: null, preparedBy: 'door-295e6a17afbdc4c030022cc6@agents.example.invalid', preparedFor: 'owner@example.test', preparedByAgent: true, preparedAt: '2026-11-05T23:44:29.112Z', id: 'c0cf216c-ae84-4008-b6ce-a552dc63d446', preparation: [Object], stale: false } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
