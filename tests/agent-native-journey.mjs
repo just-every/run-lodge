@@ -6,8 +6,16 @@ import {assertInactiveSponsor} from './initialize-agent-sponsor.mjs'
 
 // The native person sees the same named agent, retained reviews and refusals.
 // Optional local screenshots stay outside the public source tree.
-export default async function ({request,origin,cookie}) {
+export default async function ({request,origin,cookie,tool}) {
   await assertInactiveSponsor({request,origin,cookie})
+  const stateResponse=await request(origin+'/api/lodge/state',{headers:{Cookie:cookie}})
+  assert.equal(stateResponse.status,200)
+  const state=await stateResponse.json()
+  assert.ok(state.vacancies.length>0,'The owner still has real seeded jobs after sponsor suspension')
+  const allowed=await tool('lodge.jobs.list',{})
+  assert.equal(allowed.status,200,'Suspending a different sponsor preserves owner agent admission')
+  assert.equal(allowed.result?.isError,false)
+  assert.deepEqual(allowed.result?.structuredContent?.jobs.map(job=>job.id).sort(),state.vacancies.map(job=>job.id).sort())
   const inventory=await request(origin+'/agents/api/agents',{headers:{Cookie:cookie}})
   assert.equal(inventory.status,200)
   const {agents}=await inventory.json()

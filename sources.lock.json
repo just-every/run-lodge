@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a01b6d2cec02b12d40ed699944fdc552f8fa1428f09d48ab33ee6bbba4f0e8df",
+      "sha256": "5c8fd6dfce374ee123a392892813d75d45f9044ee569be2ada0c8eb81c450c1e",
       "executable": false
     },
     "DEMO.md": {
@@ -4703,7 +4703,7 @@
       "executable": false
     },
     "tests/agent-native-journey.mjs": {
-      "sha256": "e1c4a5e300942962aaf83ff2ce7dd42d6e78390f4d1174fbbc4a6b151a9b1b65",
+      "sha256": "0c849be2756c570a5df6962698e26403904f12bb52aba6e2a4ccd071285ff06c",
       "executable": false
     },
     "tests/agent-phase-fixtures.mjs": {
