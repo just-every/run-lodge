@@ -1,0 +1,16 @@
+{
+  "head": "148a562f1929c2475e22c5a14effb51c0689e708",
+  "command": "pnpm exec rer verify",
+  "environment": {
+    "LODGE_VERIFY_CORE": "1"
+  },
+  "exit": 0,
+  "conformance": [
+    "Agent door conformance: 675/675 points passed."
+  ],
+  "browser_executable": "/usr/bin/chromium",
+  "browser_args": [
+    "--no-sandbox"
+  ],
+  "notes": "The core path is the existing Verify workflow environment; it builds production output, checks site, types, emitted runtime, hosted output, hydration and agent conformance. The touched Worker and D1 journey is recorded separately. A local cache executable adapter invokes system Chromium; no product or verifier source was modified."
+}

@@ -1,0 +1,9 @@
+# sx-lodge-c-f41 plan
+
+1. Start from the full-history pinned continuation bbccbbd2cc34a4704a4e99a1e5216c3892c7f2c9 and retain its two published commits. Inspect the native resource adapter, manifest, shared runtime boundary and the existing Worker and D1 journey.
+2. Map the six unchanged BASE-AGENT-003 acceptance outcomes. Verify the nine declared metadata and draft types, current native agent projection, identical hidden and missing refusals, saved draft links and hostile-text marking. Preserve every wider identity, policy, lifecycle and custody hold.
+3. Extend the existing public-door sanity journey without another registration: both protocol clients, exact visible inventory links, replay-stable draft identity and link, and captured-link readback after the native human decision applies a proposal.
+4. Run the touched resource journey and typecheck. Generate the touched contract views and check them, restore main's generated views, regenerate the source lock last, check it, and run the first-party check. Verify all parent Status rows and commit identities before publishing.
+5. Publish the named product branch immediately after its first real commit. Run the normal production-build Verify core path and native agent conformance with the real Chromium, recording actual results. Inspect the exact-SHA workflow through the bounded REST watcher; repair only reproducible candidate failures.
+6. Keep BASE-AGENT-003 partial unless all original outcomes are actually proved. Byte budgets need the shared Base runtime, while the brief expressly omits two-role qualification, file bytes, refresh and broader record types. Do not invent a new scope decision or weaken acceptance.
+7. Publish the actual non-secret report, probes, command receipts and relevant logs on the separate evidence ref; return exact product and evidence provenance and a lane POST. Remove the product clone after successful transfers.

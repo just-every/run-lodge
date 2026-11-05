@@ -1,0 +1,61 @@
+{
+  "head": "148a562f1929c2475e22c5a14effb51c0689e708",
+  "base": "bbccbbd2cc34a4704a4e99a1e5216c3892c7f2c9",
+  "main_at_final_integration": "fa86acb87c727b709390836e35203f60cd5f54fb",
+  "main_is_ancestor": true,
+  "merge": "Already up to date",
+  "status_rows_before": 145,
+  "status_rows_after": 145,
+  "counts_before": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "counts_after": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "checks": [
+    {
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-001 BASE-AGENT-003",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-001 BASE-AGENT-003",
+      "exit": 0
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "note": "No generated view committed"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0
+    }
+  ],
+  "migration_ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration changed"
+  },
+  "source_lock_sha256": "55a7e352a8e4a8cd9960793a81a11b467be06df9ae47fbfaeade0c4fac4a24ae",
+  "published_commits": [
+    "148a562f1929c2475e22c5a14effb51c0689e708 Qualify metadata resource links across native decisions and MCP clients",
+    "bbccbbd2cc34a4704a4e99a1e5216c3892c7f2c9 Qualify revoked resource consent and erased inventory replay",
+    "e3417a7ccbe0028af7f0cf410dd562e70f527698 Restore scoped metadata resources on current main [skip ci]"
+  ]
+}

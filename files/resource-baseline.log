@@ -1,0 +1,16 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE BASE-AGENT-003 metadata: nine MCP templates and seven populated source reads -> current native agent projections, restricted originals unavailable, no file bytes
+PROBE BASE-AGENT-003 links: native read and saved proposal and debrief links -> current saved records under autonomous and review policies
+PROBE BASE-AGENT-003 safety: hidden and missing ids, missing scope, blocked policy, Pause, revoked consent, revoked native agent and erased sources and drafts -> typed refusals with unchanged hiring state
+PROBE BASE-AGENT-003 untrusted: hostile native note -> retained as text with the untrusted content marker
+✔ BASE-AGENT-003 metadata resources and saved draft links preserve current native projection, revocation and erasure (12718.331173ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14426.321346

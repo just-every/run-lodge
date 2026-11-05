@@ -1,0 +1,8 @@
+{
+  "head": "148a562f1929c2475e22c5a14effb51c0689e708",
+  "command": "node --test --test-name-pattern='BASE-AGENT-003' tests/security.test.mjs",
+  "exit": 0,
+  "test": "BASE-AGENT-003 metadata resources and saved draft links preserve current native projection, revocation and erasure",
+  "test_path": "tests/agent-resource-flow.mjs",
+  "test_sha256": "6f59c33bb5a52d15f56727c0832b5977de620b421b9101898143d71c4b0c8dcc"
+}

@@ -1,0 +1,34 @@
+{
+  "head": "148a562f1929c2475e22c5a14effb51c0689e708",
+  "screen": "/agents",
+  "command": "LODGE_VERIFY_CORE=1 LODGE_EVIDENCE=<packet>/browser pnpm exec rer verify",
+  "browser_executable": "/usr/bin/chromium",
+  "headless": true,
+  "args": [
+    "--no-sandbox"
+  ],
+  "exit": 0,
+  "images": [
+    {
+      "path": "browser/agents-1440.png",
+      "pixels": [
+        1440,
+        6765
+      ],
+      "bytes": 682400,
+      "sha256": "280a824be057cd2d54c6c3c812fc7756e3ec394390c17834c43ae450e68c53c3",
+      "inspected": true
+    },
+    {
+      "path": "browser/agents-390.png",
+      "pixels": [
+        390,
+        8350
+      ],
+      "bytes": 633281,
+      "sha256": "6540340072be99ed2c73f6749683744678e00933ab70f6717c1c12c91e895e72",
+      "inspected": true
+    }
+  ],
+  "note": "No UI source changed; the existing native journey captured current metadata resource review entries at both widths. Screenshots contain only disposable synthetic fixture identities."
+}

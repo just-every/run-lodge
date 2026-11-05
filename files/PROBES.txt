@@ -1,0 +1,4 @@
+PROBE BASE-AGENT-003 metadata: nine MCP templates and seven populated source reads -> current native agent projections, restricted originals unavailable, no file bytes
+PROBE BASE-AGENT-003 links: native read and saved proposal and debrief links -> current saved records under autonomous and review policies
+PROBE BASE-AGENT-003 safety: hidden and missing ids, missing scope, blocked policy, Pause, revoked consent, revoked native agent and erased sources and drafts -> typed refusals with unchanged hiring state
+PROBE BASE-AGENT-003 untrusted: hostile native note -> retained as text with the untrusted content marker
