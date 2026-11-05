@@ -5115,7 +5115,7 @@
       "executable": false
     },
     "tests/office-job-posting-browser.mjs": {
-      "sha256": "844f6a7b61bc06aa9e56a725b056932286117e7467bb2fc7ffa1e934a67722f3",
+      "sha256": "ae53acd309b5f5431380b76801aba8a525352003f71f3c842e2ba63bb9393c72",
       "executable": false
     },
     "tests/office-job-posting-flow.mjs": {
