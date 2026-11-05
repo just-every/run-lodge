@@ -147,7 +147,7 @@
       "executable": false
     },
     "agent-surface.json": {
-      "sha256": "4174ddb4775b727c8f51c5904106c2a690e14d0376c4a4df3a90675c82ad9a97",
+      "sha256": "4866d0ffac9ce0955880e5f64a24a5e556ff52b36318e8c04b13ad8c03405a57",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "5c8fd6dfce374ee123a392892813d75d45f9044ee569be2ada0c8eb81c450c1e",
+      "sha256": "e3aa8986052dec0d386b4d996abfd2074a2f76fdf7fbd3547347fc1e8ecf2297",
       "executable": false
     },
     "DEMO.md": {
@@ -191,7 +191,7 @@
       "executable": false
     },
     "docs/agent-access.md": {
-      "sha256": "bb4438b0058a5029ec7fd68f92c5071824ec0bd83dc066d12d07c1674129a4fa",
+      "sha256": "5a65217b0bb6ee1c6746b7ca517e87d74ae8337f9c5f3e43ec9c736b5abb5420",
       "executable": false
     },
     "docs/applications.md": {
@@ -1171,11 +1171,15 @@
       "executable": false
     },
     "src/lodge/agent-door/index.ts": {
-      "sha256": "98f88cf7c149a3fce6218e28eea9e7da50b2c4a081211f9e11b9f85e8a12ccfd",
+      "sha256": "967d76458b1f121dad1547a6e859d797c159ff8f46606701c0769c18bcf93964",
       "executable": false
     },
     "src/lodge/agent-door/people.ts": {
       "sha256": "7eed2a506d1f499d4e8650c62e7265ecd4806497a63a67ace0cfb86468a83816",
+      "executable": false
+    },
+    "src/lodge/agent-door/prompts.ts": {
+      "sha256": "4c9d22afee7afe9310b0c60a1b836281e06224e5c4c93c6dff1cd51cf3df24b2",
       "executable": false
     },
     "src/lodge/agent-door/team.ts": {
@@ -1183,7 +1187,7 @@
       "executable": false
     },
     "src/lodge/agent-door/tools.ts": {
-      "sha256": "526dd05e9fb205596583f7cf7f3d879e6c44688c3d7feedac1f0a0c76b808f28",
+      "sha256": "ee3dcf0128925ad2bae44c4a41eaec0986d23d3736d864d07c64cdd0586e73c6",
       "executable": false
     },
     "src/lodge/agents/candidate-updates.ts": {
@@ -4710,6 +4714,10 @@
       "sha256": "3000e4c0d5af78cc3f0b749370f5f93c321281e22f1b4bc5745c01480477f63e",
       "executable": false
     },
+    "tests/agent-prompts-flow.mjs": {
+      "sha256": "092e09aa803a7534494e8e91939b3b70ce86ed50cbaa706a00b8dd667eda5c43",
+      "executable": false
+    },
     "tests/agents.test.mjs": {
       "sha256": "63fdf6985ad35fd15af50eb48a6dcc33a1b01e4530c4933107f44ad11acf0efe",
       "executable": false
@@ -5243,7 +5251,7 @@
       "executable": false
     },
     "tests/security.test.mjs": {
-      "sha256": "b1fa77dc9f383b6f37fecdaec6023f89bab0e335c337420fffe7cb69b3d485aa",
+      "sha256": "d3dbb552f92526948cb1dae38be93b2286735e555f4702a83c4b855c918ac9f4",
       "executable": false
     },
     "tests/site/site.test.mjs": {

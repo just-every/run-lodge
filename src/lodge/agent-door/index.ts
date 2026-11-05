@@ -4,6 +4,7 @@ import { createBusinessSettings } from '../../modules/business-settings/index.ts
 import { runtimeBindings, type Bindings } from '../../auth.server.ts'
 import { capabilities, lodgeTools, notTools } from './tools.ts'
 import { lodgePeople } from './people.ts'
+import { lodgePrompts } from './prompts.ts'
 
 /** One production door, using the installation's existing signed claim ring. */
 export async function agentResponse(request: Request, original: Bindings): Promise<Response | null> {
@@ -15,6 +16,6 @@ export async function agentResponse(request: Request, original: Bindings): Promi
   const business=await settings.handle(request)
   if(business)return business
   return createAgentDoor({seed:'lodge',name:'Lodge',specialist:'Recruiting coordinator',db:env.DB,origin:env.AUTH_ORIGIN,trust,capabilities,
-    people:lodgePeople(env),tools:lodgeTools(env),notTools,
+    people:lodgePeople(env),tools:lodgeTools(env),prompts:lodgePrompts,notTools,
   }).handle(request)
 }

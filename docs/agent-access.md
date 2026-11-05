@@ -45,14 +45,27 @@ A native administrator promotion alone does not grant Business policy editing.
 Removal uses the native account and membership lifecycle, including suspension
 of owned work. Native sessions retain their Origin and CSRF checks.
 
-The declared capability families are `tools`, `policy`, `pause`, `audit` and
-`idempotency`. Resources, prompts, events and subscriptions are undeclared and
+The declared capability families are `tools`, `policy`, `pause`, `audit`,
+`idempotency` and `prompts`. Resources, events and subscriptions are undeclared and
 return typed refusals. Native human decision screens, installation credentials
 and the import door retain their own authority. No spend, provider, mail,
 queued continuation, resource-refresh or multi-sponsor conformance claim is
 made by this core declaration. Candidate mailbox delivery, outside HR-system
 creation, licensed sourcing and provider-kept steps remain subject to their
 existing incomplete product clauses.
+
+The single `lodge.recruiting-coordinator` prompt describes the five tools above:
+scoped jobs and source reads, visible draft inventory, proposal preparation and
+cited debrief preparation. Retrieve it with MCP `prompts / get`; `prompts / list`
+and discovery advertise it under the same declared family. It returns static
+MCP text messages, accepts no meaningful arguments and reads no hiring records.
+String argument values are ignored; malformed arguments and unknown prompt
+names receive typed refusals. Retrieval follows current company policy, Pause
+and consent revocation. The prompt grants no tool scope or native authority.
+The named approver still decides a proposal in the native proposal screen;
+the manager still edits and keeps or discards a debrief in its native screen.
+Company policy review never replaces those decisions. The prompt supplies no
+connected provider capability or specialist-completion claim.
 
 Run `pnpm exec rer verify` for the production-build conformance journey. It
 creates a disposable owner through native setup-token admission, finishes

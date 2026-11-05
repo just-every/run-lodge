@@ -15,7 +15,7 @@ function textSchema(){return {type:'string',minLength:1,maxLength:200}}
 const empty: JsonSchemaObject = { type: 'object', properties: {}, additionalProperties: false }
 const text = { type: 'string', minLength: 1, maxLength: 200 }
 const kinds = ['vacancy', 'application', 'candidate', 'interview', 'interview-note', 'scorecard', 'document']
-export const capabilities = ['tools', 'policy', 'pause', 'audit', 'idempotency'] as const
+export const capabilities = ['tools', 'policy', 'pause', 'audit', 'idempotency', 'prompts'] as const
 export const notTools = [
   { clauses: ['LDG-013', 'COORD-006'], reason: 'screen' as const },
   { clauses: ['LDG-015'], reason: 'import-door' as const },
