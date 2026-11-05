@@ -1,0 +1,31 @@
+{
+  "migration_ledger": {
+    "command": "none; no migration changed",
+    "exit": 0
+  },
+  "source_lock_sha256": "16e191b25facbe561299b3154956ec6739e49fa86ce06c81eace738047fa730b",
+  "steps": [
+    {
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-008",
+      "exit": 0,
+      "output": "contract-docs write: BASE-AGENT-008; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-008",
+      "exit": 0,
+      "output": "contract-docs check: BASE-AGENT-008; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "conclusion": "success",
+  "credential_recovery": {
+    "attempts": 2,
+    "observed_http": 401,
+    "result": "success after prescribed launcher refresh and Git setup"
+  },
+  "event": "push",
+  "head_sha": "1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb",
+  "html_url": "https://github.com/just-every/run-lodge/actions/runs/42121260157",
+  "id": 42121260157,
+  "name": "Verify",
+  "status": "completed"
+}

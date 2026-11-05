@@ -1,0 +1,5 @@
+api repos/just-every/run-lodge/actions/runs?head_sha=26f3c06bf9343370e3e9860cd45117288f65ebc4&per_page=100 --jq .workflow_runs[] | {id,name,status,conclusion,head_sha,event,html_url}
+api repos/just-every/run-lodge/actions/runs?head_sha=1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb&per_page=100 --jq .workflow_runs[] | {id,name,status,conclusion,head_sha,event,html_url}
+api repos/just-every/run-lodge/actions/runs/42121260157 --jq {status,conclusion,head_sha,html_url}
+api repos/just-every/run-lodge/actions/runs/42121260157 --jq {status,conclusion,head_sha,html_url}
+api repos/just-every/run-lodge/actions/runs/42121260157 --jq {status,conclusion,head_sha,html_url}

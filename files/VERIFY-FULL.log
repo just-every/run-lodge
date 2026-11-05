@@ -1,0 +1,297 @@
+Using project Node 22.20.0 (current Node 24.19.0).
+Heavy job admitted: Lodge verify:workflow [385e63a644c8]
+Checking pinned pnpm
+10.12.4
+Installing Chromium and its headless shell from the checkout’s Playwright
+Downloading Chromium 140.0.7339.186 (playwright build v1193) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1193/chromium-linux.zip
+|                                                                                |   0% of 173.8 MiB
+|■■■■■■■■                                                                        |  10% of 173.8 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 173.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 173.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 173.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 173.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 173.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 173.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 173.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 173.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 173.8 MiB
+Chromium 140.0.7339.186 (playwright build v1193) downloaded to /home/agent/.cache/ms-playwright/chromium-1193
+Downloading FFMPEG playwright build v1011 from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+|                                                                                |   0% of 2.3 MiB
+|■■■■■■■■                                                                        |  10% of 2.3 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+FFMPEG playwright build v1011 downloaded to /home/agent/.cache/ms-playwright/ffmpeg-1011
+Downloading Chromium Headless Shell 140.0.7339.186 (playwright build v1193) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1193/chromium-headless-shell-linux.zip
+|                                                                                |   0% of 104.3 MiB
+|■■■■■■■■                                                                        |  10% of 104.3 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 104.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 104.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 104.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 104.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 104.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 104.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 104.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 104.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 104.3 MiB
+Chromium Headless Shell 140.0.7339.186 (playwright build v1193) downloaded to /home/agent/.cache/ms-playwright/chromium_headless_shell-1193
+Verifying application
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @hiring/lodge@0.1.1 verify:app [REDACTED]
+> rer queue verify:app -- sh -c "pnpm run build && pnpm run test:site && pnpm run typecheck && pnpm run test:lodge && pnpm run test:runtime"
+
+verify:app
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @hiring/lodge@0.1.1 build [REDACTED]
+> rer build
+
+Using project Node 22.20.0 (current Node 24.19.0).
+Checking pinned pnpm
+10.12.4
+Building your application
+build:app
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 244 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/.assetsignore                            0.02 kB
+dist/client/assets/pdf.worker.min-Dkey6ZUl.mjs   1,321.30 kB
+dist/client/assets/rolldown-runtime-W7wSyTde.js      0.97 kB │ gzip:   0.56 kB
+dist/client/assets/mammoth.browser-Ce9XrXXm.js     298.60 kB │ gzip:  87.84 kB
+dist/client/assets/index-BTj51Dhv.js               313.63 kB │ gzip: 101.60 kB
+dist/client/assets/app-5TXz1nhl.js                 418.56 kB │ gzip: 111.07 kB
+dist/client/assets/pdf-DYWK-qLj.js                 488.17 kB │ gzip: 148.19 kB
+
+✓ built in 2.65s
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 1060 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/wrangler.json                                      1.52 kB │ gzip:   0.78 kB
+dist/server/.vite/manifest.json                                5.09 kB │ gzip:   0.93 kB
+dist/server/assets/pdf.worker.min-Dkey6ZUl.mjs             1,321.30 kB
+dist/server/assets/empty-plugin-adapters-D_0twvAa.js           0.28 kB │ gzip:   0.18 kB
+dist/server/assets/start-D8qDT34V.js                           0.28 kB │ gzip:   0.21 kB
+dist/server/assets/font-head-CetOOOTZ.js                       0.44 kB │ gzip:   0.30 kB
+dist/server/assets/_tanstack-start-manifest_v-BJ0ftLEw.js      0.53 kB │ gzip:   0.32 kB
+dist/server/assets/rolldown-runtime-CEgmsyvS.js                2.30 kB │ gzip:   1.03 kB
+dist/server/assets/types-yyMrpE8w.js                           4.54 kB │ gzip:   1.79 kB
+dist/server/assets/home-d6MraXip.js                            4.64 kB │ gzip:   1.73 kB
+dist/server/assets/hash-Bh-JNTOD.js                            4.70 kB │ gzip:   2.16 kB
+dist/server/assets/jsx-runtime-CckQS-3O.js                    17.14 kB │ gzip:   4.48 kB
+dist/server/assets/router-Det_rAcL.js                         41.92 kB │ gzip:  11.08 kB
+dist/server/assets/extraction-C_enGTB3.js                     56.44 kB │ gzip:  17.93 kB
+dist/server/assets/Match-DZoTMlSc.js                         145.02 kB │ gzip:  36.42 kB
+dist/server/assets/mammoth.browser-BK4XmyNm.js               597.51 kB │ gzip: 123.56 kB
+dist/server/assets/app-BDBxCVcL.js                           713.90 kB │ gzip: 143.47 kB
+dist/server/assets/pdf-28ZgV9D8.js                           926.17 kB │ gzip: 202.45 kB
+dist/server/index.js                                       4,117.76 kB │ gzip: 982.90 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/lodge/views/workspace.ts is dynamically imported by src/lodge/operations/trial.ts but also statically imported by src/lodge/agent-door/tools.ts, src/lodge/agents/delay-trials.ts, src/lodge/agents/delays.ts, src/lodge/agents/proposals.ts, src/lodge/analysis/scope.ts, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/lodge/views/field-views.ts is dynamically imported by src/lodge/operations/trial.ts but also statically imported by src/lodge/http/api.ts, dynamic import will not move module into another chunk.
+
+✓ built in 5.07s
+Your application is built
+{"version":1,"verb":"build","event":"result","ok":true,"exitCode":0}
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @hiring/lodge@0.1.1 test:site [REDACTED]
+> node --test tests/site/site.test.mjs
+
+✔ the run site builds, links to /run and every published guide, and resolves every named file (11287.734105ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11610.755282
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @hiring/lodge@0.1.1 typecheck [REDACTED]
+> tsc --build --incremental
+
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @hiring/lodge@0.1.1 test:lodge [REDACTED]
+> node tests/run-lodge.mjs
+
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ Local accepted-offer handoff exceptions preserve exact artifacts, human ownership and incomplete destination status (20705.593125ms)
+✔ LDG-013 agents propose typed changes from versioned sources; a person approves; stale or unsupported proposals fail (10476.03796ms)
+✔ COORD-006 a debrief brief quotes released scorecards only, names disagreements and gaps, and never scores or moves the candidate (9380.215782ms)
+✔ Persistent reminders deliver on cadence, escalate once and survive restart without stale contact (20300.735036ms)
+✔ Reminder stops honor live work and contact, preserve honest failures, and erase personal schedules (16266.491337ms)
+✔ Nurture pools preserve consent, exact review, replies, opt-out, owned tasks and human application selection (19646.926842ms)
+✔ Nurture stops on expired consent, withdrawal, hire, revoked authority and uncertain delivery; imported pools never grant consent (14067.599337ms)
+✔ Restored nurture archives keep sending, native reply activation and queued steps inert (44438.642351ms)
+✔ Native delay evidence and agent diagnosis preserve exact citations, uncertainty, live authority and inert review (59376.303809ms)
+✔ COORD-005 native response windows and human-reviewed unsent updates preserve authority and lifecycle (9009.048195ms)
+✔ Native sourcing research keeps exact consented facts and reviewed outreach inert through stale sources, revocation and erasure (8699.88535ms)
+✔ Native feedback cases preserve human ownership, truthful submission readback, revocation and erasure (49614.286949ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ Lodge hiring flows through native sessions and real D1
+  ✔ LDG-001 vacancy terms need a headcount approval that matches them exactly (339.221032ms)
+  ✔ LDG-002 stages, rubric and plan are agreed before evaluation and stay fixed while published (98.962636ms)
+  ✔ LDG-003 the accessible application page records the notice version and returns a receipt (219.009194ms)
+  ✔ LDG-004 staff add candidates with source, consent basis, retention and original file bytes (143.972651ms)
+  ✔ LDG-005 one person, several applications; duplicates are reviewed, never merged automatically (1909.38228ms)
+  ✔ LDG-006 an interviewer reaches only assigned applications, through every door (216.092239ms)
+  ✔ LDG-007 stage moves keep reason, actor and time; concurrent moves cannot both win (133.568227ms)
+  ✔ LDG-008 interviews collect panel and candidate availability and download as calendar files (357.774703ms)
+  ✔ LDG-009 scorecards are independent until the manager releases feedback (284.557927ms)
+  ✔ SCORE-001 recommendations and take-aways stay blind until release, then summarize by interview (589.61589ms)
+  ✔ LDG-010 messages are approved as exact text and downloaded, never sent (327.991464ms)
+  ✔ LDG-011 an offer is approved on exact terms, its outcome recorded and handed to HR (440.340332ms)
+  ✔ LDG-012 holds block deletion; deletion leaves a receipt; access requests export everything (137736.284799ms)
+✔ Lodge hiring flows through native sessions and real D1 (146618.106069ms)
+▶ Candidate intake, job setup and reviewed bulk flows through real HTTP and D1
+  ✔ REQ-001 one opening per approved headcount, filled by a named accepted offer, closed with a reason, added only with approval (973.113177ms)
+  ✔ SCREEN-001 a versioned question library: typed answers on the job, kept on the version answered; protected traits refused (459.37104ms)
+  ✔ REQ-004 departments and offices: jobs, openings and members attach; the careers page filters; a manager granted Operations runs only Operations (1170.666995ms)
+  ✔ ATTR-009 the public job board: published jobs as JSON for the employer’s own careers page; applications with a board key or from an allowed site (1475.008738ms)
+  ✔ a receipt for a repeat job-board submission verifies no privacy request about the earlier application (200.912293ms)
+  ✔ ATTR-008 the embedded job board and form: framed only by listed sites, filtered, applied to inside the frame with the host page’s campaign (730.167484ms)
+  ✔ ATTR-005 the internal job board: employees see public and internal-only jobs and apply as members; internal applications stay with the hiring team and count as internal moves (1027.695028ms)
+  ✔ ATTR-012 several posts per job: each post lists with its own title and approved locations on its destinations; applications land on the one job with the post; pausing, an unapproved location and closing the job (1627.13759ms)
+  ✔ CRM-009 a campus career fair: staff and QR captures join the event pool with source, notice and consent; a repeated sync adds nobody; duplicates go to review; nobody applies until a recruiter adds them; the report counts attendees and the hire with cost per hire (1514.405023ms)
+  ✔ DATA-003 reviewed bulk actions across two jobs: preview per item, apply only unchanged and still-authorized items with each outcome shown and audited, a resubmitted batch changes nothing; bulk rejection, archive, export and personalized message drafts (7079.187974ms)
+  ✔ SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply (1191.488247ms)
+  ✔ rule previews and the rule-match queue leave out applications the reader cannot see (682.544987ms)
+  ✔ REQ-003 a job names its hiring team; each sees and hears only that job, and a swap moves reminders and access at once (2922.773729ms)
+  ✔ REQ-002 job templates and clones: jobs keep what they copied; a clone carries no candidates, approvals or openings and needs its own approval (1159.658193ms)
+  ✔ DATA-002 original resumes, grounded extraction, corrections and confirmed duplicates before individual or bulk commit (7565.422687ms)
+  ✔ an event shows each reader only the linked jobs and applications they may see (1346.97276ms)
+  ✔ the hosted and embedded application forms take at most sixty attempts an hour from one connection (5145.386032ms)
+✔ Candidate intake, job setup and reviewed bulk flows through real HTTP and D1 (39364.544946ms)
+✔ DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration (7247.397943ms)
+✔ CRM-005 invited agencies own frozen submissions, reviewed credit and coarse progress through live scoped doors (4598.987609ms)
+✔ ATTR-007 Spanish posts and applications preserve reviewed source versions (5182.490024ms)
+✔ CRM-003 consented employee referrals reconcile identities and expose only shared progress (4521.841085ms)
+✔ CRM-010 referral alerts and shared progress by installation email, claimed once and checked live (6807.304968ms)
+✔ ATTR-001 employer careers branding, private receipt recovery and verified custom domains (6635.339342ms)
+✔ CAND-001 native candidate sessions recover only their receipts and submit scoped PRIV-001 requests (3959.186883ms)
+✔ CAND-002 candidate account publishes only explicit updates, verifies email and stops contact on withdrawal (4727.867737ms)
+✔ CAND-003 native candidates book and reschedule only their own panel-approved interview without conflicts (2931.7266ms)
+✔ COM-004 private inbound capture preserves bytes and rechecks contact custody (3880.266017ms)
+✔ Application acknowledgments keep receipts and suppress submission replay (3793.852712ms)
+✔ Application mail requires human review in the recorded language (3031.458843ms)
+application email dispatch failed Error
+application email dispatch failed Error
+application email dispatch failed Error
+application email dispatch failed Error
+✔ Approved chosen-stage emails record outcomes without resending failures (24423.691793ms)
+application email dispatch failed Error
+✔ Application sender authentication and current approval fence automatic mail (2919.200413ms)
+✔ Restored application mail remains inert with receipts and duplicate protection retained (26893.096701ms)
+✔ Per-job application email reviews remain isolated when another job changes (3223.003673ms)
+PROBE ATTR-015 1: native owner and office-only manager review -> one accurate safely serialized JobPosting; exact content and cents agree
+PROBE ATTR-015 2: revoke office grant, deactivate reviewer and remove settings -> markup absent, public page readable without authority disclosures
+PROBE ATTR-015 3: unrelated office and ineffective member, team and place authority -> refused with identical saved state and markup
+✔ ATTR-015 current office authority controls reviewed native structured publication (6797.064603ms)
+✔ ATTR-004 approved location pay, reviewed rules and salary-history refusals reach public doors (3334.555763ms)
+✔ CAL-002 native interview-day drafts explain constraints and fence human substitute review (33759.486597ms)
+✔ Native take-home custody, candidate identity, deadlines and independent grading survive replay and erasure (9482.74213ms)
+PROBE CAL-004 review: native HTTP sessions and independent sharing -> three reviewed sessions only; self-scheduling alone refused
+PROBE CAL-004 projection: candidate HTTP page and parsed ICS -> DST times, durations, approved names, no panel addresses or internal fields
+PROBE CAL-004 language: Spanish public intake and exact human review -> Spanish page and parsed calendar; wrong-language review refused
+PROBE CAL-004 changes: native reschedule and cancellation -> stale review refused; current reviewed calendar state and stable identities
+PROBE CAL-004 lifecycle: wrong identity, signout, disable, withdrawal, erasure and restart -> access refused; zero outbound requests
+✔ CAL-004 reviewed native candidate itineraries preserve scope, current times and private calendar bytes (69712.594816ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ Lodge offers through native sessions and real D1
+  ✔ HIRE-008 native task-linked phone references preserve versions, authority, stage and lifecycle (7312.535822ms)
+  ✔ Headcount chains require every exact-term decision and preserve isolated configuration and new-job independence (8756.807005ms)
+Background [REDACTED]
+Background [REDACTED]
+Background [REDACTED]
+Background [REDACTED]
+Background [REDACTED]
+Background [REDACTED] export
+Background [REDACTED]
+Background [REDACTED]
+  ✔ HIRE-002 local background authorization preserves exact review, native consent, restricted custody and lifecycle (11342.324207ms)
+  ✔ DISP-001 closes take a listed reason; a rejection schedules its template email, canceled on reopen or erasure (1170.565228ms)
+  ✔ REVIEW-001 a review queue of new applications: the manager advances, rejects and skips; a reviewer only recommends (1718.596597ms)
+  ✔ HIRE-007 fair-chance places: no criminal-history question before a conditional offer, then assessment, notice and a waiting period, restricted to admins (1883.150193ms)
+  ✔ OFFER-006 a recruiter records an offer signed outside Lodge: bytes bound to the approved terms, hire recorded, honest label (975.459172ms)
+  ✔ DISP-002 a rejected application reopens into a chosen stage with its whole history (2483.105446ms)
+  ✔ DATA-005 add a candidate to another job, and transfer an application with its history (1130.966562ms)
+  ✔ DATA-004 spam leaves the pipeline and its counts with a reason; repeats are flagged for review (2436.02775ms)
+  ✔ REQ-005 a hiring manager kickoff becomes the job draft; changing its pay or headcount after approval makes the approval stale (701.14765ms)
+  ✔ KIT-001 each interview has a versioned kit, opened from its invitation by its panel, and its scorecard rates only its focus (1455.985936ms)
+  ✔ SCORE-002 a correction is a linked version: the original stays, the manager hears, the packet goes stale (2218.634659ms)
+✔ Lodge offers through native sessions and real D1 (71452.862793ms)
+✔ OFFER-001 reviewed hourly and annual documents bind compensation routing, release and job setup (36506.818929ms)
+✔ OFFER-005 native e-[REDACTED] verify, consent, sign, countersign, seal, void, erase (35408.459666ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ Lodge reports through native sessions and real D1
+  ✔ PIPE-001 the job board: stage counts and days in stage from the history, per-person saved filters and sort, a needs-decision flag, moves with reasons (3108.417771ms)
+  ✔ HOME-001 one home across jobs: interviews, scorecards, approvals, reviews, follow-ups, offers and jobs needing attention, each linked and gone once done or revoked (1424.116648ms)
+  ✔ CRM-008 a managed source list with mapped texts; each hire shows its source and credited sourcer, agency or employee; credit changes keep history; merges follow the rule (3304.362055ms)
+  ✔ OPS-001 the complete audit: every event in a period, searched and exported whole by admins; corrections are new events; erasure leaves no personal text (9925.957604ms)
+  ✔ REPORT-006 interviewer timeliness: on time, late and missing against the due time, with released calls only (973.261345ms)
+✔ Lodge reports through native sessions and real D1 (26281.135283ms)
+✔ TEAM-002 @mentions raise access-checked notifications and never widen access (5340.217947ms)
+✔ TEAM-003 personal notification subscriptions, role defaults, the daily digest and live access at send time (5321.489804ms)
+survey proof: fixed clock and public roles
+survey proof: consent, confirmation and suppression
+survey proof: role refusals beside positive reads
+survey proof: contact refusal and preserved anonymous aggregates
+survey proof: retention at exact boundaries and no reminder after window
+✔ REPORT-004 opt-in surveys preserve anonymity, contact refusal, aggregate limits and retention (18834.626773ms)
+✔ Recruiting analysis grounds editable charts in authorized events and preserves private evidence (8075.891349ms)
+✖ Reviewed chart delivery sends once with current access and stays inert after restore (91275.702736ms)
+✔ Weekly reports recompute private recipient scopes and claim each period once (72595.507865ms)
+✔ Submission cohorts preserve original timing, current close reasons and live read and export scope (6123.488939ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ Lodge security through native sessions and real D1
+  ✔ PRIV-001 a California job shows and records the CPRA notice version; applicants verify by receipt and email, see acknowledgement, deadline and extension on their request page; access and correction are fulfilled and a held deletion is refused with its reason (2378.701017ms)
+  ✔ TEAM-001 shared notes and the activity feed reach the hiring team; private notes and unreleased scorecards do not (1550.846175ms)
+  ✔ TASK-001 follow-ups and tasks reach their owner, come due, close with the application and move on deprovisioning (1471.397127ms)
+  ✔ OPS-005 a confidential job and a private candidate reach only the people named and see-private holders (1954.443561ms)
+  ✔ LDG-016 every private route checks the live session, origin and saved role (186.59395ms)
+  ✔ panel answers on an interview never carry the candidate’s private availability link (519.218586ms)
+  ✔ an admin who cannot see a private candidate can neither correct nor merge them (325.168358ms)
+  ✔ talent search reads only the resumes and applications the admin may see (1517.628797ms)
+✔ Lodge security through native sessions and real D1 (17961.394633ms)
+✔ REVIEW-002 name-blind review across reads, reveals and return (19232.687372ms)
+✔ MOB-001 offline feedback refuses stale kits and reconciles confirmed submission once (10772.197638ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ LDG-014 Workable package: preview writes nothing, commit is exact and repeatable, undo keeps what people changed (21649.237331ms)
+✔ MIG-009 old source links resolve only to currently public mapped jobs and posts (5057.74562ms)
+✔ MIG-008 mapped, previewed and approved cutover of open imported applications into live jobs, with contact gate and undo (39962.637097ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+ ELIFECYCLE  Command failed.
+Stopped by SIGTERM after owned children were stopped.
+verify: failed (exit 143)

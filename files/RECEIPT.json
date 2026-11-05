@@ -1,0 +1,216 @@
+{
+  "agent_door_conformance": {
+    "passed": 453,
+    "production_build": true,
+    "total": 453
+  },
+  "artifacts": [
+    {
+      "bytes": 434419,
+      "path": "screens/candidate-activity-1440.png",
+      "sha256": "e06ef829cbc773b97a8dd7496cbcdfffdcf5cb1101048319fe3c253cf4a14093"
+    },
+    {
+      "bytes": 372864,
+      "path": "screens/candidate-activity-390.png",
+      "sha256": "8ed07d593b1f03f16a7b1799a335104c9adbfa30ff03ae1648776cff0c2ddd43"
+    },
+    {
+      "bytes": 442608,
+      "path": "screens/debrief-human-decision-1440.png",
+      "sha256": "c5c4830a12e98e72c1852608a0828d3d7331a898d3bb777ce6e19c6a4125e52b"
+    },
+    {
+      "bytes": 373366,
+      "path": "screens/debrief-human-decision-390.png",
+      "sha256": "a7cf0e24234561bc32400928684701027ee387397d085c6a4d0066db38bb6e5a"
+    },
+    {
+      "bytes": 440417,
+      "path": "screens/debrief-preparation-1440.png",
+      "sha256": "1679da069238604a79d2dbc8cf8866ca7f2467d90a3b6e5904ebf8ab19446398"
+    },
+    {
+      "bytes": 374355,
+      "path": "screens/debrief-preparation-390.png",
+      "sha256": "f4033b30a231b940e370c8af80d2e092bae82b054e799e3c2f04127c27951fea"
+    },
+    {
+      "bytes": 302020,
+      "path": "screens/native-audit-1440.png",
+      "sha256": "0b9f1efff3bfe338976ca1e19c82c796c15b798b12d07e7f022cfccb846f260a"
+    },
+    {
+      "bytes": 340710,
+      "path": "screens/native-audit-390.png",
+      "sha256": "ec498a20dced89f3406365cba39852bfb7bd1113556c4c6b47b965c3767923bf"
+    },
+    {
+      "bytes": 201710,
+      "path": "screens/proposal-human-decision-1440.png",
+      "sha256": "2063625ed2ae9c1740fe5351d8f17fb8cf882c0f8cbb05b74f6f7c0f628a4b99"
+    },
+    {
+      "bytes": 158612,
+      "path": "screens/proposal-human-decision-390.png",
+      "sha256": "1104a8ab777d692a363ae85e022b640e71b98878932c680c93c791f786556b4c"
+    },
+    {
+      "bytes": 188284,
+      "path": "screens/proposal-preparation-1440.png",
+      "sha256": "1347f4330eb656ecb15ad2c61598474043aa3e83fea53b64a251d696a292ea64"
+    },
+    {
+      "bytes": 154878,
+      "path": "screens/proposal-preparation-390.png",
+      "sha256": "6e3f7c0fb7bd5cf782114c2e2b5803374f3781cce70edb7a35c5ee65f0e64ec3"
+    },
+    {
+      "bytes": 200107,
+      "path": "screens/retained-attribution-1440.png",
+      "sha256": "bac8d82758df359343b0146715f7e51ddab1e3ef05148d45970d7cfec84e06b0"
+    },
+    {
+      "bytes": 156590,
+      "path": "screens/retained-attribution-390.png",
+      "sha256": "56c497c05e264a02dee14300e34f8c026ffcf4d57125ba41cbc670786b0e4198"
+    }
+  ],
+  "baseline": "26f3c06bf9343370e3e9860cd45117288f65ebc4",
+  "branch": "cloud/sx-lodge-c-f42",
+  "ci": {
+    "conclusion": "success",
+    "credential_recovery": {
+      "attempts": 2,
+      "observed_http": 401,
+      "result": "success after prescribed launcher refresh and Git setup"
+    },
+    "event": "push",
+    "head_sha": "1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42121260157",
+    "id": 42121260157,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "clause": {
+    "after": "partial",
+    "before": "partial",
+    "id": "BASE-AGENT-008",
+    "whole_clause_done": false
+  },
+  "commit_identity_audit": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\n",
+  "counts_after": {
+    "done": 70,
+    "missing": 31,
+    "partial": 44,
+    "total": 145
+  },
+  "counts_before": {
+    "done": 70,
+    "missing": 31,
+    "partial": 44,
+    "total": 145
+  },
+  "head": "1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb",
+  "local_chart_transport": {
+    "candidate_isolated_exit": 1,
+    "candidate_reproduction_exit": 1,
+    "failure": "TypeError: fetch failed; cause read ECONNRESET",
+    "main_head": "26f3c06bf9343370e3e9860cd45117288f65ebc4",
+    "main_same_test_exit": 0,
+    "product_code_or_assertions_changed": false,
+    "remote_exact_sha_verify": "success"
+  },
+  "local_checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "TYPECHECK.log"
+    },
+    {
+      "command": "node --test tests/security.test.mjs tests/agents.test.mjs",
+      "exit": 0,
+      "log": "TOUCHED-TESTS.log",
+      "tests": 26
+    },
+    {
+      "command": "node --test --test-name-pattern='Native agent preparation' tests/security.test.mjs",
+      "exit": 0,
+      "log": "ATTRIBUTION.log"
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "log": "FIRST-PARTY.log"
+    },
+    {
+      "command": "LODGE_VERIFY_CORE=1 pnpm exec rer verify",
+      "exit": 0,
+      "log": "VERIFY.log",
+      "production_build": true,
+      "relevant_source_hashes": "RELEVANT-SOURCE-HASHES.json"
+    },
+    {
+      "assertion_width": 1440,
+      "captured_widths": [
+        1440,
+        390
+      ],
+      "command": "timeout 1200 node tests/agent-attribution-browser.mjs",
+      "exit": 0,
+      "log": "BROWSER.log"
+    }
+  ],
+  "mechanical": {
+    "migration_ledger": {
+      "command": "none; no migration changed",
+      "exit": 0
+    },
+    "source_lock_sha256": "16e191b25facbe561299b3154956ec6739e49fa86ce06c81eace738047fa730b",
+    "steps": [
+      {
+        "command": "node scripts/contract-docs.mjs write BASE-AGENT-008",
+        "exit": 0,
+        "output": "contract-docs write: BASE-AGENT-008; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}"
+      },
+      {
+        "command": "node scripts/contract-docs.mjs check BASE-AGENT-008",
+        "exit": 0,
+        "output": "contract-docs check: BASE-AGENT-008; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}"
+      },
+      {
+        "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+        "exit": 0
+      },
+      {
+        "command": "node scripts/edition-authoring/cli.mjs lock",
+        "exit": 0
+      },
+      {
+        "command": "node scripts/edition-authoring/cli.mjs check",
+        "exit": 0
+      }
+    ]
+  },
+  "ordinary_full_local_verify": {
+    "command": "pnpm exec rer verify",
+    "exit": 143,
+    "log": "VERIFY-FULL.log",
+    "stopped_after_unrelated_transport_failure": true
+  },
+  "pr": null,
+  "product_push": "fleet Git: removed 0 credential-bearing GitHub URL rewrite sections\nPUSH attempt=1/5 command=git push --porcelain origin HEAD:refs/heads/cloud/sx-lodge-c-f42\nPUSH_CREDENTIAL sha256_16=8addacf6ac95b0bc bundle_file_age_seconds=2580 token_issue_age=unknown\nfleet Git: removed 0 credential-bearing GitHub URL rewrite sections\nTo https://github.com/just-every/run-lodge.git\n \tHEAD:refs/heads/cloud/sx-lodge-c-f42\t8b8ba5f..1e122eb\nDone\nremote: \nremote: GitHub found 30 vulnerabilities on just-every/run-lodge's default branch (14 high, 14 moderate, 2 low). To find out more, visit:        \nremote:      https://github.com/just-every/run-lodge/security/dependabot        \nremote: \nPUSH_OK branch=cloud/sx-lodge-c-f42\n",
+  "publication_scan": {
+    "custodian": "fleet lander",
+    "history_complete": true,
+    "status": "not_run_in_cloud"
+  },
+  "recorded_at": "2026-11-05T22:38:22.344402+00:00",
+  "repository": "just-every/run-lodge",
+  "run_site": {
+    "status": "lander_gate_after_main_landing"
+  },
+  "source_byte_equivalence": "Every relevant source and test file matches the saved hashes",
+  "tag": "sx-lodge-c-f42",
+  "views": "Selected generator write and check pass; generated views restored from origin/main for fleet landing"
+}

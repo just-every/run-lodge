@@ -1,0 +1,25 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✖ Reviewed chart delivery sends once with current access and stays inert after restore (58896.619061ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 61413.280382
+
+✖ failing tests:
+
+test at tests/hiring-reports.test.mjs:299:1
+✖ Reviewed chart delivery sends once with current access and stays inert after restore (58896.619061ms)
+  TypeError: fetch failed
+      at Object.processResponse (/workspace/run-lodge/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+      at /workspace/run-lodge/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+      at /workspace/run-lodge/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+      at async MessagePort.<anonymous> ([worker eval]:32:22) {
+    [cause]: Error: read ECONNRESET
+        at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+  }

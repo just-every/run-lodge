@@ -1,0 +1,45 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ Local accepted-offer handoff exceptions preserve exact artifacts, human ownership and incomplete destination status (10337.019085ms)
+✔ LDG-013 agents propose typed changes from versioned sources; a person approves; stale or unsupported proposals fail (4925.79235ms)
+✔ COORD-006 a debrief brief quotes released scorecards only, names disagreements and gaps, and never scores or moves the candidate (4157.823818ms)
+✔ Persistent reminders deliver on cadence, escalate once and survive restart without stale contact (11592.483088ms)
+✔ Reminder stops honor live work and contact, preserve honest failures, and erase personal schedules (12128.904297ms)
+✔ Nurture pools preserve consent, exact review, replies, opt-out, owned tasks and human application selection (15706.432336ms)
+✔ Nurture stops on expired consent, withdrawal, hire, revoked authority and uncertain delivery; imported pools never grant consent (9859.515306ms)
+✔ Restored nurture archives keep sending, native reply activation and queued steps inert (52440.70293ms)
+✔ Native delay evidence and agent diagnosis preserve exact citations, uncertainty, live authority and inert review (96737.024294ms)
+✔ COORD-005 native response windows and human-reviewed unsent updates preserve authority and lifecycle (12958.781668ms)
+✔ Native sourcing research keeps exact consented facts and reviewed outreach inert through stale sources, revocation and erasure (14068.74105ms)
+✔ Native feedback cases preserve human ownership, truthful submission readback, revocation and erasure (45663.84882ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PROBE BASE-AGENT-008 autonomous: signed MCP preparation -> persisted attribution, human-only decisions, scoped activity and downloaded exports
+PROBE BASE-AGENT-008 held: signed MCP preparation -> persisted attribution, human-only decisions, scoped activity and downloaded exports
+PROBE BASE-AGENT-008 deactivation: revoked native agent -> no new draft; historical label retained after restart
+PROBE BASE-AGENT-008 revocation: source fields, feedback and confidential job access revoked -> drafts, activity and exports unavailable
+PROBE BASE-AGENT-008 erasure: candidate erased -> drafts and quotations removed; replay cannot restore them
+✔ Native agent preparation retains trusted attribution and separate human decisions across activity, exports, revocation and erasure (10350.321038ms)
+✔ Recruiting coordinator prompt stays static and preserves native human review, policy, Pause and consent authority (8041.516395ms)
+✔ OPS-003 selected workflow trials isolate production, bind reviewed deployment and rollback, and expose confirmed provider setup estimates (6430.396857ms)
+✔ LDG-006/008/016 current roles and principals govern every private HTTP door without refusal side effects (124471.185922ms)
+✔ OPS-004 named permission levels on a job, a team role and a department grant govern the app, API, exports and agent reads at once (15529.453351ms)
+✔ a manager whose permission level hides contact details reaches no candidate email through messages (9647.640147ms)
+✔ DATA-006 inline originals and restricted-view audit obey live reviewer authorization (11675.248853ms)
+✔ INT-002 admin connector registry refuses credentials and never fabricates provider access (7955.280883ms)
+✔ enterprise provisioned identities use bound Okta subjects, revoke access and transfer owned work without losing referrals (12418.437634ms)
+✔ bulk invitation preview grants scoped access and sends each valid row once (6439.009328ms)
+✔ compliance grants are separate from hiring scope and are revoked on every document door (7778.567296ms)
+✔ signed SAML sign-in binds the provisioned subject and refuses replay, stale settings and invalid assertions (8996.651047ms)
+✔ INT-001 scoped read-only applications honor current authority and installation credential lifecycle (18576.140791ms)
+✔ INT-001 employer deprovisioning immediately refuses app credentials without resurrection (3927.800631ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 293769.55089

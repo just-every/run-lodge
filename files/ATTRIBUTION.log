@@ -1,0 +1,18 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PROBE BASE-AGENT-008 duplicates: changed authenticated label -> original preparation retained; unavailable history is not reconstructed
+PROBE BASE-AGENT-008 autonomous: signed MCP preparation -> persisted attribution, human-only decisions, scoped activity and downloaded exports
+PROBE BASE-AGENT-008 held: signed MCP preparation -> persisted attribution, human-only decisions, scoped activity and downloaded exports
+PROBE BASE-AGENT-008 deactivation: revoked native agent -> no new draft; historical label retained after restart
+PROBE BASE-AGENT-008 revocation: source fields, feedback and confidential job access revoked -> drafts, activity and exports unavailable
+PROBE BASE-AGENT-008 erasure: candidate erased -> drafts and quotations removed; replay cannot restore them
+✔ Native agent preparation retains trusted attribution and separate human decisions across activity, exports, revocation and erasure (13448.275321ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16017.649266
