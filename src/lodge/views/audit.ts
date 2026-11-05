@@ -33,7 +33,7 @@ export function auditTrail(s: State, a: Actor, query: AuditQuery) {
   requireThat(!start || !end || start < end, 'The period ends before it starts')
   const { concealed } = concealer(s, a, new Set(s.all('application').filter(app => canSeeApplication(s, a, app)).map(x => x.id)))
   const words = (query.q ?? '').toLowerCase(), who = (query.actor ?? '').toLowerCase()
-  const events = s.all('audit').filter((e: Data) => !concealed(e.record ?? '') && (!start || e.at >= start) && (!end || e.at < end)
+  const events = s.all('audit').filter((e: Data) => !(a.agent && e.action.startsWith('background-authorization-')) && !concealed(e.record ?? '') && (!start || e.at >= start) && (!end || e.at < end)
     && (!query.action || e.action === query.action) && (!who || String(e.email).toLowerCase().includes(who)) && (!words || JSON.stringify(e).toLowerCase().includes(words)))
     .sort((x: Data, y: Data) => x.at.localeCompare(y.at) || x.id.localeCompare(y.id))
   return { period: { from: query.from ?? null, to: query.to ?? null, timeZone: zone }, filters: { q: query.q || null, action: query.action || null, actor: query.actor || null }, total: events.length, events }

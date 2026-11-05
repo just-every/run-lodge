@@ -101,6 +101,7 @@ export async function candidateExport(db: D1Database, s: State, a: Actor, id: st
     format: 'lodge-candidate-export-1', exportedAt: now(), exportedBy: a.email,
     candidate, mergedCandidates: mergedCandidates(view.mergedCandidates, id),
     'reference-questionnaire': byApp(view.references.questionnaires), 'reference-record': byApp(view.references.records),
+    'background-authorization': byApp(view.backgroundAuthorizations?.records ?? []),
     'take-home': byApp(view.takeHomes.assignments), 'take-home-submission': byApp(view.takeHomes.submissions), 'take-home-grade': byApp(view.takeHomes.grades),
     application: applications, 'stage-event': applications.flatMap(app => app.history),
     'interview-day': byApp(view.scheduling.drafts), 'coordination-case': byApp(view.coordination.cases),
