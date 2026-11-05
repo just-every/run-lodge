@@ -90,8 +90,8 @@ export async function checkAgentResources() {
     const prepared=[]
     for(const document of [autonomousPolicy(),heldPolicy()]) {
       await c.adopt(document)
-      const proposal=await c.tool('lodge.proposals.prepare',{workflow:'prepare-vacancy',approver:email,summary:'Synthetic proposed role',sources:[{kind:'vacancy',id:f.values.job.id}],changes:[{op:'vacancy',input:{title:'Synthetic proposed role',location:'Brooklyn, NY',headcount:1,manager:email,description:'Human review required'}}],idempotency_key:randomUUID()})
-      const debrief=await c.tool('lodge.debriefs.prepare',{...f.values.debrief,idempotency_key:randomUUID()})
+      const proposal=await c.tool('lodge.proposals.prepare',{workflow:'prepare-vacancy',approver:email,summary:'Synthetic proposed role',sources:[{kind:'candidate',id:f.added.candidate.id}],changes:[{op:'vacancy',input:{title:'Synthetic proposed role',location:'Brooklyn, NY',headcount:1,manager:email,description:'Human review required'}}],idempotency_key:randomUUID()})
+      const debrief=await c.tool('lodge.debriefs.prepare',{...f.citedDebrief,idempotency_key:randomUUID()})
       for(const [kind,answer] of [['proposal',proposal],['debrief',debrief]]) {
         assert.equal(answer.result?.isError,false,`${kind} preparation succeeds`)
         const id=answer.result.structuredContent.id
@@ -114,7 +114,18 @@ export async function checkAgentResources() {
     const hiring=await h.state()
     assert.deepEqual(await production(),hiringBefore,'Draft preparations leave every hiring record unchanged')
     assert.equal(hiring.vacancies.length,1,'Draft preparation creates no vacancy')
+    const beforePolicyRefusals=await snapshot(h)
+    await c.adopt({...autonomousPolicy(),rules:[{id:'blocked',class:'*',do:'blocked'}]})
+    const blocked=await read('candidate',f.added.candidate.id)
+    assert.equal(errorCode(blocked),'policy_blocked')
+    assert.equal(blocked.result,undefined,'A blocked resource returns no content')
     await c.adopt(autonomousPolicy())
+    assert.equal((await h.send('/agents/api/pause',{paused:true},h.owner)).status,200)
+    const paused=await read('candidate',f.added.candidate.id)
+    assert.equal(errorCode(paused),'agents_paused')
+    assert.equal(paused.result,undefined,'Pause stops resource content')
+    assert.equal((await h.send('/agents/api/pause',{paused:false},h.owner)).status,200)
+    assert.deepEqual(await snapshot(h),beforePolicyRefusals,'Policy and Pause refusals change no hiring state')
     const documentId=f.records.find(([kind])=>kind==='document')[1]
     const beforeRestart=record(await read('document',documentId))
     await h.restart()
@@ -135,7 +146,7 @@ export async function checkAgentResources() {
     await h.command('move',{application:f.added.application.id,to:'withdrawn',closeReason:'other-offer',reason:'Synthetic erasure request'})
     assert.equal((await h.send('/api/lodge/delete-candidate',{candidate:f.added.candidate.id,confirm:'synthetic-lodge-38 revised name',reason:'Synthetic erasure request'},h.owner)).status,200)
     const erasedBefore=await snapshot(h)
-    for(const [kind,id] of f.records.filter(([kind])=>kind!=='vacancy')) {
+    for(const [kind,id] of [...f.records.filter(([kind])=>kind!=='vacancy'),...prepared]) {
       const refused=await read(kind,id)
       assert.equal(errorCode(refused),'resource_unavailable','Previously captured resource ids cannot recover erased records')
       assert.deepEqual(refused.message.error,(await read(kind,'synthetic-lodge-missing')).message.error)
@@ -144,7 +155,7 @@ export async function checkAgentResources() {
     assert.deepEqual(await snapshot(h),erasedBefore,'Replayed erased-source reads restore no data')
     console.log('PROBE BASE-AGENT-003 metadata: nine MCP templates and seven populated source reads -> current native agent projections, restricted originals unavailable, no file bytes')
     console.log('PROBE BASE-AGENT-003 links: native read and saved proposal and debrief links -> current saved records under autonomous and review policies')
-    console.log('PROBE BASE-AGENT-003 safety: hidden and missing ids, missing scope, revoked native agent and erased sources -> typed refusals with unchanged hiring state')
+    console.log('PROBE BASE-AGENT-003 safety: hidden and missing ids, missing scope, blocked policy, Pause, revoked native agent and erased sources and drafts -> typed refusals with unchanged hiring state')
     console.log('PROBE BASE-AGENT-003 untrusted: hostile native note -> retained as text with the untrusted content marker')
   } finally {await h.close()}
 }

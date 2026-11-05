@@ -52,8 +52,9 @@ must keep working and [ACCEPTANCE.md](ACCEPTANCE.md) for what is proven.
   do not edit them in place. The agent-door, Business-settings and operator-auth
   runtime at Base `2135c394939f4a737adabdc8003b0e667b31ac5a` is recorded
   independently of the `@runeditrun/rer` 0.2.91 CLI pin. Lodge's native adapters
-  in `src/lodge/agent-door` expose the five tools in `agent-surface.json` with
-  the core tools, policy, pause, audit and idempotency families. Run normal
+  in `src/lodge/agent-door` expose the five tools and nine metadata and draft
+  resource templates in `agent-surface.json` with the tools, resources, policy,
+  pause, audit and idempotency families. Run normal
   `rer verify` for their production-build conformance; see
   [docs/agent-access.md](docs/agent-access.md) for native authority and the
   undeclared families. Copying source alone never proves an optional family.

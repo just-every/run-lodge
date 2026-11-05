@@ -155,7 +155,7 @@
       "executable": false
     },
     "AGENTS.md": {
-      "sha256": "a930bd20e78bfe8aab76fcab90bae7eb07e5dfef06bc250c9ed41e8362e7645a",
+      "sha256": "43164d0729d0e58ac9ee7cf0f8ff71bec3cf0774af7b8439c69e3f4fe5242d8c",
       "executable": false
     },
     "API.md": {
@@ -4711,11 +4711,11 @@
       "executable": false
     },
     "tests/agent-phase-fixtures.mjs": {
-      "sha256": "9b18b4ae6c48afb42070eac48af8876f43616dc5fe8b43f392ef9b578af90d38",
+      "sha256": "5162bebc547fda9cbb6b096059a8c26bda95a92ca51123cc1d339a88fcc0e3dd",
       "executable": false
     },
     "tests/agent-resource-flow.mjs": {
-      "sha256": "4cf291174ae772f6c15d0d758a881d4770c72d06de9daae803659bf7a4db3d76",
+      "sha256": "b30a2f48f35726c33cd55b3cd25a57aec1bddc6695545fe51ccc106991d6a50c",
       "executable": false
     },
     "tests/agents.test.mjs": {

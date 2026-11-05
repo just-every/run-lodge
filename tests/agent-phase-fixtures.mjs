@@ -40,5 +40,6 @@ export async function resourceFixtures({request,origin,email,cookie}) {
   await command('release-feedback',{application,reason:'Human release for resource qualification'})
   const document=await command('document',{application,name:'synthetic-lodge-38.txt',kind:'resume',base64:Buffer.from('synthetic-lodge-38 original file bytes').toString('base64')})
   const restricted=await command('document',{application,name:'synthetic-lodge-39.txt',kind:'right-to-work',base64:Buffer.from('synthetic-lodge-39 restricted file bytes').toString('base64')})
-  return {values,added,restricted,records:[['vacancy',values.job.id],['application',application],['candidate',added.candidate.id],['interview',interview.id],['interview-note',note.id],['scorecard',scorecard.id],['document',document.id]]}
+  const citedDebrief={application,statements:[{kind:'evidence',criterion,text:'Explained the actual takeoff process.',citations:[{scorecard:scorecard.id,criterion,quote:'Explained the actual takeoff process.'}]}]}
+  return {values,added,restricted,citedDebrief,records:[['vacancy',values.job.id],['application',application],['candidate',added.candidate.id],['interview',interview.id],['interview-note',note.id],['scorecard',scorecard.id],['document',document.id]]}
 }
