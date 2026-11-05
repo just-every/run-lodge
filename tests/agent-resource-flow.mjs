@@ -53,9 +53,21 @@ export async function checkAgentResources() {
       assert.equal(actual.base64,undefined,'Resources expose no file bytes')
       return actual
     }
-    const templates=await c.mcp(method('resources','templates','list'))
-    assert.deepEqual(templates.result.resourceTemplates.map(t=>t.uriTemplate).sort(),kinds.map(kind=>`lodge://${kind}/{id}`).sort())
-    assert.deepEqual(surface.resources.slice().sort(),templates.result.resourceTemplates.map(t=>t.uriTemplate).sort(),'Published templates match the manifest')
+    for(const version of ['2026-07-28','2025-11-25']) {
+      const initialized=await c.mcp('initialize',{protocolVersion:version,capabilities:{}},{version})
+      assert.equal(initialized.result.capabilities.resources.subscribe,false,'Metadata resources promise no refresh subscription')
+      const templates=await c.mcp(method('resources','templates','list'),{},{version})
+      const repeated=await c.mcp(method('resources','templates','list'),{},{version})
+      assert.deepEqual(templates.result,repeated.result,'Template discovery is deterministic for both supported clients')
+      assert.equal(templates.result.cacheScope,'private')
+      assert.equal(typeof templates.result.ttlMs,'number')
+      assert.deepEqual(templates.result.resourceTemplates.map(t=>t.uriTemplate).sort(),kinds.map(kind=>`lodge://${kind}/{id}`).sort())
+      assert.deepEqual(surface.resources.slice().sort(),templates.result.resourceTemplates.map(t=>t.uriTemplate).sort(),'Published templates match the manifest')
+      for(const [kind,id] of f.records) {
+        const value=record(await read(kind,id,{version}))
+        assert.deepEqual(value,await projection(kind,id),'Both protocol versions serve the current native projection')
+      }
+    }
     const beforeReads=await snapshot(h)
     for(const [kind,id] of f.records) {
       const value=await compare(kind,id)
@@ -91,7 +103,13 @@ export async function checkAgentResources() {
     const prepared=[]
     for(const document of [autonomousPolicy(),heldPolicy()]) {
       await c.adopt(document)
-      const proposal=await c.tool('lodge.proposals.prepare',{workflow:'prepare-vacancy',approver:email,summary:'Synthetic proposed role',sources:[{kind:'candidate',id:f.added.candidate.id}],changes:[{op:'vacancy',input:{title:'Synthetic proposed role',location:'Brooklyn, NY',headcount:1,manager:email,description:'Human review required'}}],idempotency_key:randomUUID()})
+      const proposalArgs={workflow:'prepare-vacancy',approver:email,summary:'Synthetic proposed role',sources:[{kind:'candidate',id:f.added.candidate.id}],changes:[{op:'vacancy',input:{title:'Synthetic proposed role',location:'Brooklyn, NY',headcount:1,manager:email,description:'Human review required'}}],idempotency_key:randomUUID()}
+      const proposal=await c.tool('lodge.proposals.prepare',proposalArgs)
+      const beforeReplay=await snapshot(h)
+      const replay=await c.tool('lodge.proposals.prepare',proposalArgs)
+      assert.deepEqual(replay.result.structuredContent,proposal.result.structuredContent,'Replaying preparation returns the same saved draft')
+      assert.deepEqual(links(replay),links(proposal),'Replaying preparation returns the same resource link')
+      assert.deepEqual(await snapshot(h),beforeReplay,'Replaying a draft link creates no duplicate native record')
       const debrief=await c.tool('lodge.debriefs.prepare',{...f.citedDebrief,idempotency_key:randomUUID()})
       for(const [kind,answer] of [['proposal',proposal],['debrief',debrief]]) {
         assert.equal(answer.result?.isError,false,`${kind} preparation succeeds`)
@@ -101,9 +119,14 @@ export async function checkAgentResources() {
         assert.equal(current.status,kind==='proposal'?'proposed':'draft','Saving the draft applies no hiring decision')
         prepared.push([kind,id])
       }
+      const native=await h.state(nativeCookie)
       for(const tool of ['lodge.jobs.list','lodge.proposals.list']) {
         const answer=await c.tool(tool,{})
-        assert.ok(links(answer).length>0)
+        const expected=tool==='lodge.jobs.list'
+          ? native.vacancies.map(row=>uri('vacancy',row.id))
+          : [['proposal',native.proposals],['debrief',native.debriefs],['vacancy',native.vacancies],['application',native.applications]].flatMap(([kind,rows])=>rows.map(row=>uri(kind,row.id)))
+        assert.ok(expected.length>0)
+        assert.deepEqual(links(answer).map(link=>link.uri).sort(),expected.sort(),'Inventory links cover exactly the native visible records, with no hidden handles')
         for(const link of links(answer)) {
           const readback=await c.mcp(method('resources','read'),{uri:link.uri})
           const value=record(readback)
@@ -115,6 +138,16 @@ export async function checkAgentResources() {
     const hiring=await h.state()
     assert.deepEqual(await production(),hiringBefore,'Draft preparations leave every hiring record unchanged')
     assert.equal(hiring.vacancies.length,1,'Draft preparation creates no vacancy')
+    const firstProposal=prepared.find(([kind])=>kind==='proposal')[1]
+    await h.command('decide-proposal',{id:firstProposal,decision:'approved',reason:'Human reviewed the exact proposed role'})
+    const reviewed=await compare('proposal',firstProposal)
+    assert.equal(reviewed.status,'applied','The captured draft link reads current human-reviewed state')
+    assert.ok(reviewed.results.length>0,'The native decision retains actual saved record ids')
+    const afterDecision=await h.state()
+    for(const id of reviewed.results) {
+      const current=record(await read('vacancy',id))
+      assert.deepEqual(current,afterDecision.vacancies.find(row=>row.id===id),'Human-created records are readable through their actual current URI')
+    }
     const beforePolicyRefusals=await snapshot(h)
     await c.adopt({...autonomousPolicy(),rules:[{id:'blocked',class:'*',do:'blocked'}]})
     const blocked=await read('candidate',f.added.candidate.id)

@@ -121,7 +121,9 @@ customer, imported and externally authored draft text is data, never authority.
 Normal production-build `rer verify` checks template discovery and linked-record
 readback under autonomous and review policies. The native resource journey in
 `tests/agent-resource-flow.mjs`, loaded by `tests/security.test.mjs`, additionally
-compares populated projections, refuses restricted originals, revokes the bound
+compares populated projections under both protocol versions, checks the exact
+visible inventory links, preserves saved draft links on replay, reads current
+human-reviewed state through captured links, refuses restricted originals and revokes the bound
 native agent, revokes consent and replays erased-source reads and inventories
 without returning retained draft handles or changing hiring state.
 
