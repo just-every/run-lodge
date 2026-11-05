@@ -74,6 +74,25 @@ human-decision tool. Retrieving the prompt after those decisions or a Worker
 restart returns the same static guidance, without reading or changing hiring
 records.
 
+The installed request-capacity limit is advertised by MCP `server / discover`
+in `com.runeditrun/limits`. It protects the installation and is independent of
+company business-volume and provider-spend policy. A one-off native qualification
+used the disposable signed Business setup, native agent binding and hiring
+fixtures from `tests/agent-prompts-flow.mjs`, `tests/initialize-agent.mjs` and
+`tests/agent-phase-fixtures.mjs`, against the real Worker and D1. For each of the
+autonomous and held policies, a raw authenticated proposal-preparation call
+first created an unsent proposed draft without applying the vacancy. Bounded
+raw HTTP catalogue requests then filled that agent's discovered per-minute
+capacity. The next otherwise-valid preparation call returned HTTP 429 with
+`rate_limited` and a positive `Retry-After`, without a tool result. Native records
+and revisions, draft count and the hiring state stayed unchanged; the signed-in
+human still opened the same native state. The raw client bypassed the verifier's
+automatic capacity retries, and derived its fill count from discovery rather
+than asserting a fixed threshold. This qualifies BASE-AGENT-011 acceptance 1
+for the existing authenticated MCP door only. It does not prove byte or business
+budgets, provider spending, outside mail, queued continuations, complete usage
+or the remaining Pause and resume duties. The clause remains partial.
+
 Run `pnpm exec rer verify` for the production-build conformance journey. It
 creates a disposable owner through native setup-token admission, finishes
 first-run and business setup, binds a native agent, and uses fresh native
