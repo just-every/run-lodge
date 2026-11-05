@@ -1203,7 +1203,7 @@
       "executable": false
     },
     "src/lodge/agents/debriefs.ts": {
-      "sha256": "5f25907f4600745bf2995143488ff8e6bff19f43c4494cd3034f3699ad61482e",
+      "sha256": "f4bb13bc74e8f8a9a882bba27df1cfd7897262b71ca8d35586b50d13f91f0b6b",
       "executable": false
     },
     "src/lodge/agents/delay-trials.ts": {
@@ -4711,7 +4711,7 @@
       "executable": false
     },
     "tests/agent-attribution-flow.mjs": {
-      "sha256": "c0cbfa2471e954cecc189b166cfd203f1adfceefb3d76c0095bcf448ee12276d",
+      "sha256": "c70974f459323e33d77823404b062bfb603d72085d390cefdefb74b8478760eb",
       "executable": false
     },
     "tests/agent-native-journey.mjs": {
