@@ -122,7 +122,8 @@ Normal production-build `rer verify` checks template discovery and linked-record
 readback under autonomous and review policies. The native resource journey in
 `tests/agent-resource-flow.mjs`, loaded by `tests/security.test.mjs`, additionally
 compares populated projections, refuses restricted originals, revokes the bound
-native agent and replays erased-source reads without changing hiring state.
+native agent, revokes consent and replays erased-source reads and inventories
+without returning retained draft handles or changing hiring state.
 
 This is the current native metadata and draft surface. Two-role resource
 qualification, file-byte access and byte budgets, refresh, and primary types

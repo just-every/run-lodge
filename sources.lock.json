@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "9306f012086e6182f750c5335980baa108726e2943c975bead299457118f68dd",
+      "sha256": "a9924161aa931db3a1c3dec140fea8666eae18107999193f801e7baeae5e7687",
       "executable": false
     },
     "DEMO.md": {
@@ -191,7 +191,7 @@
       "executable": false
     },
     "docs/agent-access.md": {
-      "sha256": "acec438f0cffc5d0244fce551ab0ed2389ed39527124065fc2a70c98764ab859",
+      "sha256": "59ae50c19da7e7babc4b5491f95cc53662a291083839d77fbe64e1a32448c1bf",
       "executable": false
     },
     "docs/applications.md": {
@@ -4723,7 +4723,7 @@
       "executable": false
     },
     "tests/agent-resource-flow.mjs": {
-      "sha256": "b30a2f48f35726c33cd55b3cd25a57aec1bddc6695545fe51ccc106991d6a50c",
+      "sha256": "af6987626b8aceecd26149dff0bc3f4e170fcbddfa4427a8faf682169ce016ac",
       "executable": false
     },
     "tests/agents.test.mjs": {

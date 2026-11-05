@@ -6,6 +6,7 @@ import {resourceFixtures} from './agent-phase-fixtures.mjs'
 import {createProtocol, errorCode} from '../src/modules/agent-door/conformance/protocol.mjs'
 import {autonomousPolicy, heldPolicy, accessToken, seconds, signJws} from '../src/modules/agent-door/conformance/crypto.mjs'
 
+const method=(...parts)=>parts.join('/')
 const kinds=['vacancy','application','candidate','interview','interview-note','scorecard','document','proposal','debrief']
 const collections=['vacancies','applications','candidates','interviews','notes','scorecards','documents','proposals','debriefs']
 const uri=(kind,id)=>`lodge://${kind}/${encodeURIComponent(id)}`
@@ -30,7 +31,7 @@ export async function checkAgentResources() {
     const c=createProtocol({fetch:request,origin:h.origin,surface,signer,person:{email,sub,cookie:h.owner},business,consent:randomUUID(),agentId,seq:0,revision:0,points:[]})
     await c.adopt(autonomousPolicy())
     const f=await resourceFixtures({request,origin:h.origin,email,cookie:h.owner})
-    const read=(kind,id,options)=>c.mcp('resources/read',{uri:uri(kind,id)},options)
+    const read=(kind,id,options)=>c.mcp(method('resources','read'),{uri:uri(kind,id)},options)
     const record=answer=>{
       assert.equal(answer.status,200)
       assert.equal(answer.message.error,undefined,`Resource read refused: ${errorCode(answer)}`)
@@ -52,7 +53,7 @@ export async function checkAgentResources() {
       assert.equal(actual.base64,undefined,'Resources expose no file bytes')
       return actual
     }
-    const templates=await c.mcp('resources/templates/list')
+    const templates=await c.mcp(method('resources','templates','list'))
     assert.deepEqual(templates.result.resourceTemplates.map(t=>t.uriTemplate).sort(),kinds.map(kind=>`lodge://${kind}/{id}`).sort())
     assert.deepEqual(surface.resources.slice().sort(),templates.result.resourceTemplates.map(t=>t.uriTemplate).sort(),'Published templates match the manifest')
     const beforeReads=await snapshot(h)
@@ -77,7 +78,7 @@ export async function checkAgentResources() {
       assert.deepEqual(links(refused),[],'Refusals disclose no resource links')
     }
     const noRead=await accessToken(c,{scope:'lodge:prepare'})
-    assert.deepEqual((await c.mcp('resources/templates/list',{}, {token:noRead})).result.resourceTemplates,[])
+    assert.deepEqual((await c.mcp(method('resources','templates','list'),{}, {token:noRead})).result.resourceTemplates,[])
     const unscoped=await read('candidate',f.added.candidate.id,{token:noRead})
     assert.equal(unscoped.status,403)
     assert.equal(errorCode(unscoped),'insufficient_scope')
@@ -104,7 +105,7 @@ export async function checkAgentResources() {
         const answer=await c.tool(tool,{})
         assert.ok(links(answer).length>0)
         for(const link of links(answer)) {
-          const readback=await c.mcp('resources/read',{uri:link.uri})
+          const readback=await c.mcp(method('resources','read'),{uri:link.uri})
           const value=record(readback)
           assert.equal(link.uri,uri(kinds.find(kind=>link.uri.startsWith(`lodge://${kind}/`)),value.id))
           assert.equal(readback.decision.disposition,document.rules[0].do==='autonomous'?'autonomous':'review','Resource readback obeys the current policy')
@@ -125,7 +126,12 @@ export async function checkAgentResources() {
     assert.equal(errorCode(paused),'agents_paused')
     assert.equal(paused.result,undefined,'Pause stops resource content')
     assert.equal((await h.send('/agents/api/pause',{paused:false},h.owner)).status,200)
-    assert.deepEqual(await snapshot(h),beforePolicyRefusals,'Policy and Pause refusals change no hiring state')
+    await c.adopt(autonomousPolicy(),{revoked:{agents:[],consents:[c.consent]}})
+    const consentRevoked=await read('candidate',f.added.candidate.id)
+    assert.equal(consentRevoked.status,401,'Revoked consent refuses a retained resource URI immediately')
+    assert.equal(consentRevoked.result,undefined,'Revoked consent returns no resource content')
+    await c.adopt(autonomousPolicy())
+    assert.deepEqual(await snapshot(h),beforePolicyRefusals,'Policy, Pause and consent refusals change no hiring state')
     const documentId=f.records.find(([kind])=>kind==='document')[1]
     const beforeRestart=record(await read('document',documentId))
     await h.restart()
@@ -152,10 +158,18 @@ export async function checkAgentResources() {
       assert.deepEqual(refused.message.error,(await read(kind,'synthetic-lodge-missing')).message.error)
       assert.equal(refused.result,undefined)
     }
-    assert.deepEqual(await snapshot(h),erasedBefore,'Replayed erased-source reads restore no data')
+    for(const tool of ['lodge.jobs.list','lodge.proposals.list']) {
+      const answer=await c.tool(tool,{})
+      assert.equal(answer.result?.isError,false,'Erasure preserves allowed inventory reads')
+      for(const [kind,id] of [...f.records.filter(([kind])=>kind!=='vacancy'),...prepared]) {
+        assert.ok(!links(answer).some(link=>link.uri===uri(kind,id)),'Inventories cannot reissue an erased record or draft link')
+        assert.ok(!JSON.stringify(answer.result.structuredContent).includes(id),'Inventories cannot return an erased record or draft handle')
+      }
+    }
+    assert.deepEqual(await snapshot(h),erasedBefore,'Replayed erased-source reads and inventories restore no data')
     console.log('PROBE BASE-AGENT-003 metadata: nine MCP templates and seven populated source reads -> current native agent projections, restricted originals unavailable, no file bytes')
     console.log('PROBE BASE-AGENT-003 links: native read and saved proposal and debrief links -> current saved records under autonomous and review policies')
-    console.log('PROBE BASE-AGENT-003 safety: hidden and missing ids, missing scope, blocked policy, Pause, revoked native agent and erased sources and drafts -> typed refusals with unchanged hiring state')
+    console.log('PROBE BASE-AGENT-003 safety: hidden and missing ids, missing scope, blocked policy, Pause, revoked consent, revoked native agent and erased sources and drafts -> typed refusals with unchanged hiring state')
     console.log('PROBE BASE-AGENT-003 untrusted: hostile native note -> retained as text with the untrusted content marker')
   } finally {await h.close()}
 }
