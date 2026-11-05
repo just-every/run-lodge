@@ -1,3 +1,4 @@
+import { agentAttributionPage } from './agent-attribution-browser.mjs'
 import { officeJobPostingPage } from './office-job-posting-browser.mjs'
 import { candidateItineraryPage } from './candidate-itinerary-browser.mjs'
 import { backgroundAuthorizationPage } from './background-authorization-browser.mjs'
@@ -101,6 +102,7 @@ try {
   await owner.page.screenshot({ path: join(evidence, 'owner-overview-1440.png'), fullPage: true })
   for (const [as, roles, name] of PERSONAS) await api(owner.context, server.origin, 'member', { email: `${as}@dev.localhost`, name, roles })
 
+  await agentAttributionPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'agent-attribution') })
   await applicationEmailWorkspace(browser, root, server.origin, resolve(evidence, 'application-emails'))
   await officeJobPostingPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'office-job-posting') })
   await candidateItineraryPage(browser, { root, origin: server.origin, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })

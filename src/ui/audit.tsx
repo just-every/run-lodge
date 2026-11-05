@@ -21,6 +21,6 @@ export function Audit({ w }: PageProps) {
     </Form>
     {found ? <p className="hint">{found.total} {found.total === 1 ? 'event' : 'events'} in this search, oldest first, none left out · days in {found.period.timeZone} · <a href={'/api/lodge/download/audit' + (query ? '?' + query : '')}>Export these events (JSON)</a></p>
       : <p className="hint">The latest {w.audit.length} events, newest first. Search for every event in a period, or <a href="/api/lodge/download/audit">export the complete audit (JSON)</a>.</p>}
-    <Table heads={['When', 'Who', 'Action', 'Record']} empty="Nothing recorded yet.">{events.map((e: D) => <tr key={e.id}><td>{when(e.at)}</td><td title={e.email}>{person(w, e.email)}</td><td>{phrase(e.action)}</td><td title={e.record}>{recordName(w, e.record)}</td></tr>)}</Table>
+    <Table heads={['When', 'Who', 'Action', 'Record']} empty="Nothing recorded yet.">{events.map((e: D) => <tr key={e.id}><td>{when(e.at)}</td><td title={e.email}>{e.preparedBy ?? (e.agent ? 'Agent attribution unavailable' : person(w, e.email))}</td><td>{phrase(e.action)}</td><td title={e.record}>{recordName(w, e.record)}</td></tr>)}</Table>
   </div>
 }
