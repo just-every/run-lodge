@@ -1,0 +1,106 @@
+{
+  "files": [
+    {
+      "blob": "d335f3c8d61c29f59f19497fc0fbac71edc0af18",
+      "bytes": 294,
+      "path": "B1-after.log",
+      "sha256": "1335a73d32e68625d27cb8fc8c864531aac757955c9bf9a1bef078b9e92de965"
+    },
+    {
+      "blob": "346df323945591ad0933611010a7064adf9d5d15",
+      "bytes": 4173,
+      "path": "B1-before.log",
+      "sha256": "37dbce369c3236aea3fe54f0b6907aac5408a8383a84268c0166e4823c6a959c"
+    },
+    {
+      "blob": "d335f3c8d61c29f59f19497fc0fbac71edc0af18",
+      "bytes": 294,
+      "path": "B1-exact-head.log",
+      "sha256": "1335a73d32e68625d27cb8fc8c864531aac757955c9bf9a1bef078b9e92de965"
+    },
+    {
+      "blob": "f6e4ffdbf27182eee1e45bcdaa6997d7c4d14c81",
+      "bytes": 238,
+      "path": "CI.json",
+      "sha256": "e0f04586a423e81d01641d4d9c351cb70aa3356909ff31c9cf0c2941b90316ed"
+    },
+    {
+      "blob": "ab04f5b4f068e6ba6128e26b5ca84f988ec18f60",
+      "bytes": 8474,
+      "path": "FIX.patch",
+      "sha256": "1f1f6298f4033977d3db083713461a7ee2f3a658741673e4e1a86107960af8ea"
+    },
+    {
+      "blob": "0e18fa19114b6bd31b0deb9ba37c3da949ac8584",
+      "bytes": 1474,
+      "path": "PLAN.md",
+      "sha256": "d49a46bcc7e194d7677110ceb3ef2166fb5cd525d0f106aff5d0f048b9d30e0a"
+    },
+    {
+      "blob": "5a4738db9db62100aa4e29fe9358cb3096343979",
+      "bytes": 2808,
+      "path": "RECEIPT.json",
+      "sha256": "973dbb265ab2e3c752af474a76bb5b599a5630bef47c5d2ccf10553da2481d4a"
+    },
+    {
+      "blob": "2c70ed5e2b9be185b5926aec040815bbc699be68",
+      "bytes": 6191,
+      "path": "REPORT.md",
+      "sha256": "ccb41f9182d75db40d592b480812492dc41a6049f4d6df3f76c3d89e8842ca52"
+    },
+    {
+      "blob": "70e7f3c3ff91e4fd835d9ae42682fdbaa5419d61",
+      "bytes": 329,
+      "path": "candidate-messages.txt",
+      "sha256": "3266ba5b34030f8e1da612ffc4a4ce61f1955fe3afbeb053e6f855e7088ebe59"
+    },
+    {
+      "blob": "79c908722057eb9022e3d43ea027346f51674919",
+      "bytes": 214294,
+      "path": "lock-exact-head.json",
+      "sha256": "37a0bcb47322d430f71c94ccfbc39c7135f0f13dca4ff0dc0c899f8f66150512"
+    },
+    {
+      "blob": "7d9a3aab2fc67b172bed2bfd912900b8e04a902d",
+      "bytes": 428574,
+      "path": "lock.log",
+      "sha256": "5f667fae652acefcde4955212086732acd6f6c6dc59bff53f7359cfad36f7682"
+    },
+    {
+      "blob": "cb4c0cffcf6f93996493bd9101803f86c2175e6d",
+      "bytes": 918,
+      "path": "product-push.log",
+      "sha256": "24002ae226ea9bf86dc72bf05dc0c6b346a35f447172dded57df1a358d23c26f"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "rer-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "db75a2ac6daa8abf1adeec46e244000e4c3a3e77",
+      "bytes": 2286,
+      "path": "targeted-tests.log",
+      "sha256": "a9654e72da36ca187d639bae4cc40b68dd2da8c213b9a73eb59a1305b56d8a63"
+    },
+    {
+      "blob": "e9febcea7cb85ab8895e0daec750214f4865caf8",
+      "bytes": 83,
+      "path": "typecheck.log",
+      "sha256": "3cf0b2f14f5130702b7066ebeae3335115e59bff0bac42bde3dd5a36b4c7df37"
+    },
+    {
+      "blob": "fe4a55ca4f3b6c845c55bb84aca46560d5c1ab47",
+      "bytes": 188,
+      "path": "views.log",
+      "sha256": "18cfe9b4c5b5dc93de2067e54c7f15132c502ea9aa2b1e5b006ea58f0b14b426"
+    }
+  ],
+  "product_branch": "cloud/sx-lodge-c-f42-fix1",
+  "product_head": "c8f495e95c2ceec1db47511ed8daaf30695eef72",
+  "ref": "refs/heads/evidence/sx-lodge-c-f42-fix1",
+  "repository": "just-every/run-lodge",
+  "schema": 1,
+  "tag": "sx-lodge-c-f42-fix1"
+}

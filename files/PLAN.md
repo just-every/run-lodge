@@ -1,0 +1,7 @@
+Scope: original gate sx-lodge-c-f42-gate-1 blocking B1 only. Continue source 1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb, preserving qualified attribution and all main assertions. No clause promotion or hold change.
+
+1. Integrate frozen source into a fresh main-based task branch without rewriting published history. Retain every parent contract row and main's judgments.
+2. Extend the existing public-door attribution journey with two native submitted cards and a retained brief citing only the manager's own card. Exercise native bulk preview and bulk apply before and after revoking peer-scorecard permission while retaining job management and export. Record the failing result before editing production code.
+3. Evaluate authority for all retained debrief sources, including uncited criterion ratings. Preserve normal authorized exports and stored evidence.
+4. Rerun the identical probe, the touched attribution and debrief security journeys, and typecheck. Generate and check contract views, restore main's generated files, regenerate and check the edition source lock last. Retain all original assertions.
+5. Integrate fresh main before final commit, inspect candidate identities and messages, push only cloud/sx-lodge-c-f42-fix1 through the fleet guard. Discover exact-head Verify by REST. Publish this non-secret packet independently on the task evidence ref. Return for the original frozen affected re-gate; original and fix source and exact-land holds remain active.

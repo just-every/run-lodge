@@ -1,0 +1,94 @@
+{
+  "tag": "sx-lodge-c-f42-fix1",
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f42-fix1",
+  "head": "c8f495e95c2ceec1db47511ed8daaf30695eef72",
+  "source": "1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb",
+  "mainIntegrated": "26f3c06bf9343370e3e9860cd45117288f65ebc4",
+  "before": {
+    "B1ProbeExit": 1,
+    "peerScorecardVisible": false,
+    "retainedDebriefs": 1,
+    "uncitedPeerRatingExposed": true
+  },
+  "after": {
+    "B1ProbeExit": 0,
+    "peerScorecardVisible": false,
+    "ownScorecardVisible": true,
+    "retainedDebriefs": 0,
+    "authorizedExportsBeforeRevocationAndAfterRestoration": true
+  },
+  "checks": {
+    "targetedTests": {
+      "exit": 0,
+      "pass": 3,
+      "fail": 0,
+      "command": "node --test --test-concurrency=1 --test-name-pattern='Native agent preparation|LDG-006/008/016|COORD-006' tests/security.test.mjs tests/agents.test.mjs"
+    },
+    "typecheck": {
+      "exit": 0,
+      "command": "pnpm typecheck"
+    },
+    "rerCheck": {
+      "exit": 0,
+      "command": "pnpm exec rer check --profile first-party"
+    },
+    "viewsWrite": {
+      "exit": 0,
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-008"
+    },
+    "viewsCheck": {
+      "exit": 0,
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-008"
+    },
+    "sourceLock": {
+      "exit": 0,
+      "command": "node scripts/edition-authoring/cli.mjs lock"
+    },
+    "sourceLockCheck": {
+      "exit": 0,
+      "command": "node scripts/edition-authoring/cli.mjs check"
+    },
+    "ledger": {
+      "command": null,
+      "reason": "No migration changed"
+    }
+  },
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "clause": "BASE-AGENT-008",
+  "statusBefore": "partial",
+  "statusAfter": "partial",
+  "productPush": "success",
+  "CI": {
+    "workflow_runs": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_sha": "c8f495e95c2ceec1db47511ed8daaf30695eef72",
+        "html_url": "https://github.com/just-every/run-lodge/actions/runs/42127842946",
+        "id": 42127842946,
+        "name": "Verify",
+        "status": "queued"
+      }
+    ]
+  },
+  "publicationScan": "Mac lander gate, not performed in cloud",
+  "runSite": "main-only gate, no main push",
+  "holds": "Original and fix source and exact-land holds ACTIVE; return for original frozen affected re-gate",
+  "noAcceptanceOrLifecycleMutation": true,
+  "noExistingAssertionsRemoved": true,
+  "noNewTestRegistration": true,
+  "browser": "No UI change relative to frozen source; fix is retained-source authorization through native HTTP doors",
+  "runtime": "Node 22.20.0; workerd with native persistent D1; mail network edge only"
+}

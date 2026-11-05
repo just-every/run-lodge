@@ -1,0 +1,110 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE B1 bulk-preview then bulk-apply after peer access revocation: {"ownCardVisible":true,"peerCardVisible":false,"retainedDebriefs":1,"retainedRatings":[{"author":"synthetic-lodge-42-retained-manager@example.invalid","scorecard":"2108eb4e-7378-45a0-a05d-9e572bc4fe2f:review:synthetic-lodge-42-retained-manager@example.invalid","rating":3},{"author":"synthetic-lodge-42-retained-peer@example.invalid","scorecard":"2108eb4e-7378-45a0-a05d-9e572bc4fe2f:review:synthetic-lodge-42-retained-peer@example.invalid","rating":4}]}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: retained uncited peer ratings must not escape through bulk export
++ actual - expected
+
++ [
++   {
++     application: '2108eb4e-7378-45a0-a05d-9e572bc4fe2f',
++     criteria: [
++       {
++         agreement: 'agree',
++         criterion: 'a1c9d514',
++         name: 'Work evidence',
++         ratings: [
++           {
++             author: 'synthetic-lodge-42-retained-manager@example.invalid',
++             rating: 3,
++             scorecard: '2108eb4e-7378-45a0-a05d-9e572bc4fe2f:review:synthetic-lodge-42-retained-manager@example.invalid'
++           },
++           {
++             author: 'synthetic-lodge-42-retained-peer@example.invalid',
++             rating: 4,
++             scorecard: '2108eb4e-7378-45a0-a05d-9e572bc4fe2f:review:synthetic-lodge-42-retained-peer@example.invalid'
++           }
++         ]
++       }
++     ],
++     id: 'fc995fd9-f963-4215-836c-b723350bdd25',
++     keptAt: '2026-11-05T23:10:40.154Z',
++     keptBy: 'synthetic-lodge-42-retained-manager@example.invalid',
++     model: null,
++     preparedAt: '2026-11-05T23:10:40.146Z',
++     preparedBy: 'synthetic-lodge-42-retained-manager@example.invalid',
++     preparedByAgent: false,
++     preparedFor: 'synthetic-lodge-42-retained-manager@example.invalid',
++     stale: false,
++     statements: [
++       {
++         citations: [
++           {
++             author: 'synthetic-lodge-42-retained-manager@example.invalid',
++             criterion: 'a1c9d514',
++             field: 'evidence',
++             quote: 'Explained the original drawings in a factual example.',
++             rating: 3,
++             revision: '767a9c3d-da99-4887-bf4c-608285e28895',
++             scorecard: '2108eb4e-7378-45a0-a05d-9e572bc4fe2f:review:synthetic-lodge-42-retained-manager@example.invalid',
++             version: 1
++           }
++         ],
++         criterion: 'a1c9d514',
++         kind: 'evidence',
++         text: 'The interviewer described the original drawings.'
++       }
++     ],
++     status: 'kept',
++     vacancy: '4f1421d5-5467-47a0-bc29-0438992f8246'
++   }
++ ]
+- []
+
+    at checkRetainedDebriefAuthority (file:///workspace/lodge-fix/tests/agent-attribution-flow.mjs:165:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///tmp/lodge-b1-run.mjs:2:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    {
+      application: '2108eb4e-7378-45a0-a05d-9e572bc4fe2f',
+      vacancy: '4f1421d5-5467-47a0-bc29-0438992f8246',
+      statements: [
+        {
+          kind: 'evidence',
+          criterion: 'a1c9d514',
+          text: 'The interviewer described the original drawings.',
+          citations: [ [Object] ]
+        }
+      ],
+      criteria: [
+        {
+          criterion: 'a1c9d514',
+          name: 'Work evidence',
+          ratings: [ [Object], [Object] ],
+          agreement: 'agree'
+        }
+      ],
+      status: 'kept',
+      model: null,
+      preparedBy: 'synthetic-lodge-42-retained-manager@example.invalid',
+      preparedFor: 'synthetic-lodge-42-retained-manager@example.invalid',
+      preparedByAgent: false,
+      preparedAt: '2026-11-05T23:10:40.146Z',
+      id: 'fc995fd9-f963-4215-836c-b723350bdd25',
+      keptBy: 'synthetic-lodge-42-retained-manager@example.invalid',
+      keptAt: '2026-11-05T23:10:40.154Z',
+      stale: false
+    }
+  ],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.20.0

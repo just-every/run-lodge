@@ -1,0 +1,114 @@
+diff --git a/src/lodge/agents/debriefs.ts b/src/lodge/agents/debriefs.ts
+index ef2c939..15e62d5 100644
+--- a/src/lodge/agents/debriefs.ts
++++ b/src/lodge/agents/debriefs.ts
+@@ -103,14 +103,17 @@ function checkStatements(s: State, a: Actor, app: Data, raw: unknown) {
+   return { statements, criteria: facts.criteria }
+ }
+ 
+-/** A retained brief grants no access to the released evidence it quotes. */
++/** Every retained rating is a source, including cards no statement quotes. */
++const ratingSources = (brief: Data): Data[] => (brief.criteria ?? []).flatMap((criterion: Data) => criterion.ratings ?? [])
++
++/** A retained brief grants no access to its quoted evidence or criterion ratings. */
+ export function canSeeDebrief(view: { applications: Data[]; scorecards: Data[] }, brief: Data) {
+   const app = view.applications.find(app => app.id === brief.application)
+   return app?.manages === true && app.feedbackReleased === true && brief.statements.every((statement: Data) =>
+     statement.citations.every((citation: Data) => {
+       const card = view.scorecards.find(card => card.id === citation.scorecard && card.application === app.id)
+       return card && (citation.field === 'takeaways' ? typeof card.takeaways === 'string' : typeof card.evidence?.[citation.criterion] === 'string')
+-    }))
++    })) && ratingSources(brief).every(rating => view.scorecards.some(card => card.id === rating.scorecard && card.application === app.id))
+ }
+ 
+ /** Prepare a brief (an agent for the manager, or a person who runs the job). It changes no hiring record. */
+@@ -132,7 +135,10 @@ function draftBrief(s: State, a: Actor, id: unknown) {
+   requireThat(brief.statements.every((statement: Data) => statement.citations.every((citation: Data) => {
+     const card = s.find('scorecard', citation.scorecard)
+     return card && card.application === brief.application && canSeeScorecard(s, a, card)
+-  })), 'Debrief brief not found', 404)
++  })) && ratingSources(brief).every(rating => {
++    const card = s.find('scorecard', rating.scorecard)
++    return card && card.application === brief.application && canSeeScorecard(s, a, card)
++  }), 'Debrief brief not found', 404)
+   requireThat(brief.status === 'draft', 'This brief was already kept; prepare a new one', 409)
+   return brief
+ }
+diff --git a/tests/agent-attribution-flow.mjs b/tests/agent-attribution-flow.mjs
+index f94ee9b..eb1d54e 100644
+--- a/tests/agent-attribution-flow.mjs
++++ b/tests/agent-attribution-flow.mjs
+@@ -107,7 +107,73 @@ async function checkDuplicateAttribution(f) {
+   console.log('PROBE BASE-AGENT-008 duplicates: changed authenticated label -> original preparation retained; unavailable history is not reconstructed')
+ }
+ 
++// Retained criterion ratings are sources even when no statement quotes them.
++export async function checkRetainedDebriefAuthority() {
++  const h = await businessHarness()
++  const managerEmail = address('42-retained-manager'), peerEmail = address('42-retained-peer')
++  try {
++    const manager = await h.member(managerEmail, ['manager'], 'Synthetic retained manager')
++    const peer = await h.member(peerEmail, ['interviewer'], 'Synthetic retained peer')
++    const job = await h.command('vacancy', { title: 'Synthetic retained feedback', location: 'New York', headcount: 1,
++      manager: managerEmail, compensation: { currency: 'USD', min: 100, max: 200, period: 'year' } }, manager)
++    await h.command('rubric', { id: job.id, criteria: [{ name: 'Work evidence', description: 'Explains previous work' }] }, manager)
++    await h.command('interview-plan', { id: job.id, plan: [{ name: 'Work review', stageName: 'Interview' }] }, manager)
++    const ownerEmail = (await h.state()).members.find(row => row.owner).email
++    const approval = await h.command('request-vacancy-approval', { id: job.id, approver: ownerEmail }, manager)
++    await h.command('decide-approval', { id: approval.id, decision: 'approved', version: approval.version, reason: 'Approved budget' })
++    const published = await h.command('publish', { id: job.id }, manager)
++    const criterion = published.rubrics[0].criteria[0].id
++    const { application } = await h.command('candidate', { name: 'Synthetic retained candidate', email: address('42-retained-candidate'),
++      source: 'Direct', consentBasis: 'manual', vacancy: job.id }, manager)
++    await h.command('assign-reviewers', { application: application.id, reviewers: [managerEmail, peerEmail] }, manager)
++    const ownQuote = 'Explained the original drawings in a factual example.'
++    const own = await h.command('scorecard', { application: application.id, ratings: { [criterion]: 3 },
++      evidence: { [criterion]: ownQuote }, recommendation: 'yes', takeaways: 'Specific work example', submit: true }, manager)
++    const other = await h.command('scorecard', { application: application.id, ratings: { [criterion]: 4 },
++      evidence: { [criterion]: 'Explained a separate completed work example.' }, recommendation: 'yes', takeaways: 'Another work example', submit: true }, peer)
++    await h.command('release-feedback', { application: application.id }, manager)
++    const statements = [{ kind: 'evidence', criterion, text: 'The interviewer described the original drawings.',
++      citations: [{ scorecard: own.id, criterion, field: 'evidence', quote: ownQuote }] }]
++    const brief = await h.command('debrief', { application: application.id, statements }, manager)
++    await h.command('decide-debrief', { id: brief.id, decision: 'keep' }, manager)
++    assert.deepEqual(brief.criteria[0].ratings.map(row => [row.scorecard, row.author, row.rating]),
++      [[own.id, managerEmail, 3], [other.id, peerEmail, 4]])
++    assert.deepEqual(brief.statements[0].citations.map(row => row.scorecard), [own.id], 'the peer is uncited')
++    let sequence = 0
++    const bulk = async () => {
++      const action = { kind: 'export' }, items = [application.id]
++      const preview = await h.command('bulk-preview', { items, action }, manager)
++      assert.equal(preview.items[0].ok, true)
++      const applied = await h.command('bulk-apply', { items, action, batch: 'synthetic-lodge-retained-' + (++sequence),
++        previewed: { [application.id]: preview.items[0].seen } }, manager)
++      assert.equal(applied.applied, 1)
++      return applied.file.items[0]
++    }
++    const allowed = await bulk()
++    assert.deepEqual(allowed.debriefs.map(row => row.id), [brief.id], 'authorized retained feedback remains exportable')
++    assert.deepEqual(allowed.debriefs[0].criteria, brief.criteria)
++    const level = await h.command('permission-level', { name: 'Retained feedback without peer access', permissions: ['export', 'contact'] })
++    await h.command('job-levels', { id: job.id, members: { [managerEmail]: level.id } })
++    await h.restart()
++    const view = await h.state(manager)
++    assert.ok(view.applications.find(row => row.id === application.id).manages, 'job management survives permission loss')
++    assert.deepEqual(view.scorecards.filter(row => row.application === application.id).map(row => row.id), [own.id], 'own-author exception survives; peer card is absent')
++    const denied = await bulk()
++    console.log('PROBE B1 bulk-preview then bulk-apply after peer access revocation: ' + JSON.stringify({
++      ownCardVisible: denied.scorecards.some(row => row.id === own.id), peerCardVisible: denied.scorecards.some(row => row.id === other.id),
++      retainedDebriefs: denied.debriefs.length, retainedRatings: denied.debriefs.flatMap(row => row.criteria.flatMap(k => k.ratings)) }))
++    assert.deepEqual(denied.debriefs, [], 'retained uncited peer ratings must not escape through bulk export')
++    assert.deepEqual(view.debriefs, [], 'workspace hides the same unauthorized retained brief')
++    assert.ok(!JSON.stringify(denied.debriefs).includes(other.id) && !JSON.stringify(denied.debriefs).includes(peerEmail))
++    await h.command('job-levels', { id: job.id, members: {} })
++    const restored = await bulk()
++    assert.deepEqual(restored.debriefs.map(row => row.id), [brief.id], 'restoring actual authority restores normal export')
++    assert.deepEqual(restored.debriefs[0].criteria, brief.criteria, 'privacy filtering never deletes retained evidence')
++  } finally { await h.close() }
++}
++
+ export async function checkAgentAttribution() {
++  await checkRetainedDebriefAuthority()
+   const f = await attributionFixture(), { h, c, email, human, persisted } = f
+   try {
+     await checkDuplicateAttribution(f)

@@ -1,0 +1,9 @@
+c8f495e95c2ceec1db47511ed8daaf30695eef72
+Fix retained debrief source authority after peer access revocation
+
+1e122ebf2a966d5a4d328f4a7c45d20d0ca1d0eb
+Keep original preparers on duplicate drafts and show retained activity labels
+
+8b8ba5f46da0cba4cd708731313f9aa54c6b5584
+Preserve authenticated native draft attribution [skip ci]
+
