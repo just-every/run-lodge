@@ -219,6 +219,24 @@
     "owner": {
       "initializer": "tests/initialize-agent-owner.mjs"
     },
+    "sponsors": [
+      {
+        "label": "owner"
+      },
+      {
+        "label": "inactive-sponsor",
+        "email": "synthetic-lodge-35\u0040example.invalid",
+        "negativeOnly": true,
+        "initializer": "tests/initialize-agent-sponsor.mjs"
+      }
+    ],
+    "reviewers": [
+      {
+        "label": "inactive-sponsor",
+        "email": "synthetic-lodge-35\u0040example.invalid",
+        "initializer": "tests/initialize-agent-sponsor.mjs"
+      }
+    ],
     "agent": {
       "initializer": "tests/initialize-agent.mjs"
     },

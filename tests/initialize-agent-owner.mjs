@@ -1,5 +1,8 @@
+import { configureSponsorSession } from './initialize-agent-sponsor.mjs'
+
 // Disposable tooling drives only the production owner and first-run doors.
-export default async function ({request, origin, claim, displayName, email, returnTo}) {
+export default async function ({request, origin, claim, displayName, email, returnTo, reviewers}) {
+  configureSponsorSession(reviewers)
   const response=await request(origin+claim.path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({token:claim.token,displayName,returnTo})})
   if(response.status!==303) return response
   const cookie=response.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ')

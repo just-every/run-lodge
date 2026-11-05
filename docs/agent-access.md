@@ -61,3 +61,17 @@ hiring fixtures for each policy phase. The fixture modules never enter the
 production dependency graph. The journey includes a real unassessed-feedback
 debrief, not invented interview evidence. The source contract keeps broader
 shared agent duties partial until their undeclared families are proved.
+
+Conformance also declares one non-owner sponsor solely for the inactive-person
+negative probe. The signed Business roster invites and binds that person; the
+disposable captured mail edge supplies the real confirmation link. The owner
+then suspends the confirmed native operator through `/auth/operator/status`.
+Negative preparation returns only the signed subject and canonical address,
+leaving credential signing and fresh agent identities to the verifier. The
+probe requires a typed refusal, no content and unchanged native state; the
+native journey also checks that suspension revokes the confirmed session while
+Lodge membership remains active. This proves native suspension admission only,
+with no live Business-provider or active cross-sponsor isolation claim. Extra
+active sponsors and allow-list exclusion remain undeclared. Standalone local
+token issuance is not adopted, and the remaining shared identity obligations
+stay open in CONTRACT.md.

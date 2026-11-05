@@ -2,10 +2,12 @@ import assert from 'node:assert/strict'
 import {mkdir} from 'node:fs/promises'
 import {join} from 'node:path'
 import {chromium} from '@playwright/test'
+import {assertInactiveSponsor} from './initialize-agent-sponsor.mjs'
 
 // The native person sees the same named agent, retained reviews and refusals.
 // Optional local screenshots stay outside the public source tree.
 export default async function ({request,origin,cookie}) {
+  await assertInactiveSponsor({request,origin,cookie})
   const inventory=await request(origin+'/agents/api/agents',{headers:{Cookie:cookie}})
   assert.equal(inventory.status,200)
   const {agents}=await inventory.json()

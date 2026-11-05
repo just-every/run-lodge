@@ -1,5 +1,7 @@
 import {randomUUID} from 'node:crypto'
-export default async function ({request,origin,email,cookie}) {
+import {inactiveSponsor} from './initialize-agent-sponsor.mjs'
+export default async function ({request,origin,email,cookie,phase}) {
+  if(phase==='negative') return {sponsors:{inactive:await inactiveSponsor({request,origin,cookie})}}
   const command=async(op,body)=>{
     const response=await request(origin+'/api/lodge/command/'+op,{method:'POST',headers:{Origin:origin,Cookie:cookie,'Content-Type':'application/json'},body:JSON.stringify(body)})
     if(!response.ok) throw Error('Native fixture command refused: '+op)

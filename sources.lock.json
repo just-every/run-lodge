@@ -147,7 +147,7 @@
       "executable": false
     },
     "agent-surface.json": {
-      "sha256": "2814bb0badc8f5b1ea55ec96604271f9749b2fee7343cfe6db8c7425ea1fdc2c",
+      "sha256": "4174ddb4775b727c8f51c5904106c2a690e14d0376c4a4df3a90675c82ad9a97",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -171,7 +171,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "859c57b8a226b0c7c6ec543d16c6ec36b380e1ca17abf60de8da85b317c2d913",
+      "sha256": "a01b6d2cec02b12d40ed699944fdc552f8fa1428f09d48ab33ee6bbba4f0e8df",
       "executable": false
     },
     "DEMO.md": {
@@ -191,7 +191,7 @@
       "executable": false
     },
     "docs/agent-access.md": {
-      "sha256": "aef2b2948d96906a9dc9975fc9fb372b2206704dd9af04c33e0803b735eb71bf",
+      "sha256": "bb4438b0058a5029ec7fd68f92c5071824ec0bd83dc066d12d07c1674129a4fa",
       "executable": false
     },
     "docs/applications.md": {
@@ -4703,11 +4703,11 @@
       "executable": false
     },
     "tests/agent-native-journey.mjs": {
-      "sha256": "e4098be9f35ec01a66a6438bbe07938cf0c6900e1543f6451a5d5f3122d8d867",
+      "sha256": "e1c4a5e300942962aaf83ff2ce7dd42d6e78390f4d1174fbbc4a6b151a9b1b65",
       "executable": false
     },
     "tests/agent-phase-fixtures.mjs": {
-      "sha256": "fbcf9aba39b59b1ef17bb3e4b6eb31367ea2bd152ffa4d1cac83fe31c4e7e37f",
+      "sha256": "3000e4c0d5af78cc3f0b749370f5f93c321281e22f1b4bc5745c01480477f63e",
       "executable": false
     },
     "tests/agents.test.mjs": {
@@ -5035,7 +5035,11 @@
       "executable": false
     },
     "tests/initialize-agent-owner.mjs": {
-      "sha256": "5d93bcb15af79c907581d5f6b50cdebac245d34135513677d021612d4e4cbd3a",
+      "sha256": "ff2cfea31599b6d56200415cf985a507aa77dd0f33cf817f308cec553bd7c1c9",
+      "executable": false
+    },
+    "tests/initialize-agent-sponsor.mjs": {
+      "sha256": "d2ab74fd3b287f326b610a1f70f1a0ee6fc4fabc44a001d7b260ac89d464c4e1",
       "executable": false
     },
     "tests/initialize-agent.mjs": {
