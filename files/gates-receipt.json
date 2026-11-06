@@ -1,0 +1,80 @@
+{
+  "head": "db5923d14eaf67f2f079956979d03269903717ff",
+  "branch": "cloud/sx-lodge-c-f58",
+  "repository": "just-every/run-lodge",
+  "productionBuild": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit": 0
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0
+  },
+  "firstParty": {
+    "command": "cloud_run pnpm exec rer check --profile first-party",
+    "exit": 0
+  },
+  "transportAndBrowser": {
+    "command": "cloud_run timeout 1200 node --import /tmp/driver-exit.mjs <packet>/qualify-recovery.mjs",
+    "exit": 0,
+    "cases": 4,
+    "captures": 6
+  },
+  "views": {
+    "write": "node scripts/contract-docs.mjs write BASE-AGENT-012",
+    "check": "node scripts/contract-docs.mjs check BASE-AGENT-012",
+    "exit": 0,
+    "restoredFromMain": [
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ]
+  },
+  "lock": {
+    "write": "node scripts/edition-authoring/cli.mjs lock",
+    "check": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migrations changed"
+  },
+  "baselineMain": {
+    "head": "7091069f6524f1c0d1ecd90b0b54bcae2f01d8f1",
+    "verify": 42198388704,
+    "verifyConclusion": "success",
+    "runSite": 42198388636,
+    "runSiteConclusion": "success"
+  },
+  "candidateVerify": {
+    "conclusion": null,
+    "event": "workflow_dispatch",
+    "head_sha": "db5923d14eaf67f2f079956979d03269903717ff",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42201626242",
+    "id": 42201626242,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "publicationScan": {
+    "status": "NOT_RUN_CLOUD",
+    "reason": "The maintained Mac lander owns the full-history publication scan"
+  },
+  "RunSite": {
+    "status": "NOT_RUN_CLOUD",
+    "reason": "Main-only workflow remains a landing gate"
+  },
+  "counts": {
+    "before": {
+      "done": 70,
+      "partial": 44,
+      "missing": 31,
+      "total": 145
+    },
+    "after": {
+      "done": 70,
+      "partial": 44,
+      "missing": 31,
+      "total": 145
+    }
+  }
+}

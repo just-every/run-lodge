@@ -1,0 +1,22 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f58",
+  "head": "db5923d14eaf67f2f079956979d03269903717ff",
+  "pushed": true,
+  "pushAttempts": 1,
+  "transport": "shared cloud-push.py guard",
+  "advertisedHead": "db5923d14eaf67f2f079956979d03269903717ff",
+  "identity": {
+    "everyCandidateAuthorAndCommitterFleet": true,
+    "candidateCommitCount": 1,
+    "trailers": []
+  },
+  "changedFiles": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "generatedViewsCommitted": false,
+  "sourceLockFresh": true,
+  "workingTreeClean": true
+}

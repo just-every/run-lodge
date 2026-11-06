@@ -1,0 +1,87 @@
+{
+  "tag": "sx-lodge-c-f58",
+  "head": "7091069f6524f1c0d1ecd90b0b54bcae2f01d8f1",
+  "trackedTreeClean": true,
+  "startedAt": "2026-11-06T10:13:21.285Z",
+  "scope": "BASE-AGENT-012 acceptance 2 only",
+  "cases": [],
+  "browser": [],
+  "outboundRequests": 0,
+  "productionModules": [
+    {
+      "path": "dist/server/index.js",
+      "sha256": "d3a645af77219415ee61f531ae774eb31be488650159d36bdf70894a9aeee52c"
+    },
+    {
+      "path": "dist/server/assets/_tanstack-start-manifest_v-DN91jiQM.js",
+      "sha256": "03417479a38e59cd023ea42f4b2c5711c11498d89bc0ccc0fd38bc9844c3d9cf"
+    },
+    {
+      "path": "dist/server/assets/app-D9hw9JfM.js",
+      "sha256": "1bae02f8ab3a54594ec7879cf2eab9854fde3bf92ccabc23d27bfc6b80f10c31"
+    },
+    {
+      "path": "dist/server/assets/empty-plugin-adapters-D_0twvAa.js",
+      "sha256": "5ada8964a8d4313230ebd37d2f7eaa56e27233d518fed6382fc02fb163632d82"
+    },
+    {
+      "path": "dist/server/assets/extraction-C_enGTB3.js",
+      "sha256": "356c6f8e1648e52eea0654364ffc7de33637f9ed8372f780411b1ac5ab4e92fe"
+    },
+    {
+      "path": "dist/server/assets/font-head-CetOOOTZ.js",
+      "sha256": "f2bc58b474f3db59d4efc2b1c86becfa9adbcc60a5f326f408dac2e6858c68d6"
+    },
+    {
+      "path": "dist/server/assets/hash-Bh-JNTOD.js",
+      "sha256": "041c8c1f228d6cc92593c6d9273e161371796545491d5ec4f1e62821508cc47f"
+    },
+    {
+      "path": "dist/server/assets/home-d6MraXip.js",
+      "sha256": "98801df416263ef7c3383942b0dc3ba08c997e051f32f9f75a9afe05af7d58eb"
+    },
+    {
+      "path": "dist/server/assets/jsx-runtime-CckQS-3O.js",
+      "sha256": "cc4b46aa0bcb86013d58d2fd5d2197ce61614522c77ec16502f72b62286f17f4"
+    },
+    {
+      "path": "dist/server/assets/mammoth.browser-BK4XmyNm.js",
+      "sha256": "78f8b0b41fcbfdfa7783b36bdad43ec0c3c7f97875c3f4c5bcaef4d8bc81ba9d"
+    },
+    {
+      "path": "dist/server/assets/Match-DZoTMlSc.js",
+      "sha256": "88229541a9acb4ea2e4ddb0edb8c775de6bdcdc22550df644c224a746589d6d4"
+    },
+    {
+      "path": "dist/server/assets/pdf-28ZgV9D8.js",
+      "sha256": "d45a7f2260836f4b984650e41c2772f47969fe6fa920d737a2519018e4e40203"
+    },
+    {
+      "path": "dist/server/assets/pdf.worker.min-Dkey6ZUl.mjs",
+      "sha256": "145d2dd3ab0c86151011dba95acfa2d5336e2accd59388ea43dbee0efddaaec6"
+    },
+    {
+      "path": "dist/server/assets/rolldown-runtime-CEgmsyvS.js",
+      "sha256": "43716186c8575b2ba466c74735300a1a0295debbc765bbd16c5ac72c944ed56f"
+    },
+    {
+      "path": "dist/server/assets/router-CUFKF7pt.js",
+      "sha256": "59d57b92fbeb72e179a58587e0b3b18f5e385d857eb9f18770df697409619aff"
+    },
+    {
+      "path": "dist/server/assets/start-D8qDT34V.js",
+      "sha256": "31d57962dd93bbf1002f738d5d2d193285461c31a38b17f4801be148457fc770"
+    },
+    {
+      "path": "dist/server/assets/types-yyMrpE8w.js",
+      "sha256": "0aaa81d72170af549c54a9621806bab4ab05a6405f3e60f2832daea22ea35574"
+    }
+  ],
+  "result": "FAIL",
+  "error": {
+    "name": "AssertionError",
+    "message": "The expression evaluated to a falsy value:\n\n  assert.ok(audit.rows.some(a => a.replayed === storedFirst.decision_id && a.tool === tool))\n",
+    "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(audit.rows.some(a => a.replayed === storedFirst.decision_id && a.tool === tool))\n\n    at file:///home/agent/rer-consolidation/work/sx-lodge-c-f58/packet/qualify-recovery.mjs:239:14\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+  },
+  "finishedAt": "2026-11-06T10:13:23.924Z"
+}

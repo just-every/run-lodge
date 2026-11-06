@@ -1,0 +1,12 @@
+# sx-lodge-c-f58 plan
+
+1. Read current source contract and inherited evidence. Preserve all 145 status rows and every existing hold. The predecessor source change has already been replayed onto main; keep its landed counterpart and other writers' changes.
+2. Qualify only BASE-AGENT-012 acceptance 2 for the existing proposal and debrief preparation tools, with autonomous and held policies. Reuse native owner setup and signed disposable Business helpers. Add no permanent test, runtime, manifest, copied Base or screen changes.
+3. Run the emitted production Worker with migrated persistent D1. For each case capture a complete successful upstream HTTP response and a durable outcome before truncating downstream delivery. Observe caller body-read failure and one native unsent draft through signed-in HTTP state.
+4. Dispose and restart the Worker against the same D1. Retry byte-identical arguments and idempotency key with a new RPC id, retaining the credential, sponsor, agent, consent, client and policy. Compare original structured result, draft content, review handle and every native value and revision; require no second draft or hiring mutation.
+5. Inspect existing end states at widths 1440 and 390. Keep assertions at 1440. Record failures honestly; a shared runtime defect is reported without editing copied Base.
+6. Record bounded proof in the source contract and agent guide while retaining partial status and all omitted original acceptance. Generate and check touched contract views, restore generated files from main, regenerate and check the source lock last. Run typecheck and first-party checks.
+7. Commit with fleet identity and active hooks. Push only the named cloud branch using the shared guard, inspect every candidate identity and trailer. Discover exact-head Verify through REST within the ten-call budget; use the existing dispatch entry if a docs-only skip creates no run.
+8. Publish explicitly selected non-secret driver, receipt, screenshots and reports through the separate evidence branch. Report product custody and evidence custody separately; leave publication scanning and main-only Run site to the maintained lander.
+
+No DONE claim: provider uncertainty, queued continuation, retained client-data custody and erasure integration, crash recovery between native mutation and durable outcome, 24-hour retention, wider conflicts and revisions, long work and cross-person handles remain unproved. Live Business and all prior sponsor, authority, lifecycle, device and specialist holds remain.
