@@ -131,6 +131,8 @@ oversized requests create no tool audit entry.
 
 The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f59/files)
 retains the one-off raw driver, production fixture helper, actual receipt and
+screenshots. The [current-main repeat](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f60/files)
+repeats all four cases with native record and inventory hashes and fresh
 screenshots. No permanent test, runtime, manifest, copied Base or production
 screen changes accompany this qualification. Other transport, version,
 discovery, cache, Origin and header acceptance remains required. Resources and
