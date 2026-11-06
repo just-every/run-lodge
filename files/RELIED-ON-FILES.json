@@ -1,0 +1,228 @@
+{
+  "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+  "tree": "d2f307ebf2dee24dea22d3b07ddd0f1ab8b19b19",
+  "files": [
+    {
+      "path": "tests/office-job-posting-flow.mjs",
+      "bytes": 15650,
+      "sha256": "16225aef08d88d95a589b56013fe47988f4601ade7304f1698fff5a907bcff16",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/office-job-posting-browser.mjs",
+      "bytes": 9329,
+      "sha256": "ae53acd309b5f5431380b76801aba8a525352003f71f3c842e2ba63bb9393c72",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/harness.mjs",
+      "bytes": 8678,
+      "sha256": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/lodge-worker.ts",
+      "bytes": 6950,
+      "sha256": "dbee2b45d98a8c8159730665c782e152d2292d2867b5a759f043f9e7607ebb5c",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/mail-edge.mjs",
+      "bytes": 1630,
+      "sha256": "6f054d209f2201b91a5f30540504dae164f24569619c8afb1707764db746ed10",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/browser-runtime.mjs",
+      "bytes": 3449,
+      "sha256": "f722994916a9903e23c1ba6b2a310a76a6d910db2f05720f239abab01dfeef5a",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/browser-journey.mjs",
+      "bytes": 14845,
+      "sha256": "4707cfb9120697b898f3ee0dd5e1e670f4ac65d36b962f95f8492dcee4e4cd4e",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/icon-tooltips.mjs",
+      "bytes": 1645,
+      "sha256": "62688f19bbd5e8b4376b2441da6a0b5f2d5f233ef9186de1eee3b2c890ae0ef1",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/portability.test.mjs",
+      "bytes": 27858,
+      "sha256": "2f8e1c0210270a1255296629039ff29b0f904c559a238dc4978b47232ad61d0f",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/portability-cli.mjs",
+      "bytes": 3645,
+      "sha256": "f01c11664f0cee4b0ca51712db3d7b1012b9ac995935c250db081f59e19c5b54",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/take-home-flow.mjs",
+      "bytes": 14342,
+      "sha256": "044df45b3f8ef0240fd39ae6338c866f17246cb7c7235d1bb2ca8bbe853134f6",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/background-authorization-flow.mjs",
+      "bytes": 12977,
+      "sha256": "f1bef394118bcf5a1bea650277328281f2a581116c9910ed8424e6ebe4ab34a4",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/careers-driver.mjs",
+      "bytes": 18292,
+      "sha256": "86ccedb879663834df8e0a24fa737ec05fc1e6b9b84c271e6bd041ee19e0850e",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/modules/operator-auth/dev/sign-in-as.mjs",
+      "bytes": 1509,
+      "sha256": "c41b8030fc95b3fa401976322fb433ad547ff659471d5d5344eb120849e9b34a",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/careers/job-posting.ts",
+      "bytes": 9272,
+      "sha256": "cfa8b4f1b1b538a22127e6951190f9cc461ee11ebb80075de102ad295a273c8d",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/ui/job-posting.tsx",
+      "bytes": 4504,
+      "sha256": "b44b6e0821024f730d56ea2c7e5a996d788e210ea012859c7349bc0c4a2e0ab9",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/core/store.ts",
+      "bytes": 11259,
+      "sha256": "a9bb011ceaa43a14382a2922100da87be8415cbc5c6b2fff433ac587884dd86b",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/core/state.ts",
+      "bytes": 4703,
+      "sha256": "a5c55baac9032c570c1af96f190fb613ecf5ccfcb4a0ccd31bfedde1e602e704",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/core/access.ts",
+      "bytes": 19566,
+      "sha256": "05465a98383c49d2cce8448d87d4465edd8f058ffd6f3683ce904acf2d5cb541",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/http/public.ts",
+      "bytes": 25311,
+      "sha256": "2f478711fa028e71e689a39fd7d41d00242ad6dc4b229048a39160c422d6f3bb",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/http/api.ts",
+      "bytes": 28475,
+      "sha256": "8d194860b817ebed1d18f8ce518cda0c7f7332b16e614eccfd61f1e51eaa1e86",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/commands.ts",
+      "bytes": 12929,
+      "sha256": "c1dc98c13695b4cb9fc137f6b330ec0866777b8663c8f60069a601b589620613",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/records/posts.ts",
+      "bytes": 10394,
+      "sha256": "ff28bb798126b9af44d7dcd3177c6eed12fbb25062e2dced9efdb1db0c818c96",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/records/approvals.ts",
+      "bytes": 9552,
+      "sha256": "df01f59912929dfd8afbe3d93ba665aab8e751d61717dff5c46ecbd1d30c2d49",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/records/pay-transparency.ts",
+      "bytes": 3227,
+      "sha256": "663d8e8c25cf5f4bb4dfcccfd309a421c95c4b6739b3970cc00660acddb3be68",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "src/lodge/views/workspace.ts",
+      "bytes": 24417,
+      "sha256": "03a89e5efc19a05d5cda279947bff1b9d5e6eca2de3033568ff360f28ed66988",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "scripts/installer/local.mjs",
+      "bytes": 2446,
+      "sha256": "9ac085abdcb4757537fac013627cbe3308e19d57b9e24a054d231b12da9b03e0",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "scripts/installer/portability-policy.mjs",
+      "bytes": 11601,
+      "sha256": "7f8871f34f18f854b753bae3286c64b48f4279d9a5f0fefe4fb1512e22540a44",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "scripts/installer/assessment-policy.mjs",
+      "bytes": 3349,
+      "sha256": "e9c3963076a7c855fc90791a16f752b158af2176ff80070990593e57cf7f4d4f",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "scripts/installer/background-authorization-policy.mjs",
+      "bytes": 2466,
+      "sha256": "f13bd058ae3a2fe54c760e6e534816a1ea91a8a5d4dc08e36eb80e418b8d144e",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "scripts/installer/candidate-lineage.mjs",
+      "bytes": 1142,
+      "sha256": "0b8f1bdcb1208f7a6293258567ff55370472257ddc1628bf28ee69000653cee6",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "scripts/installer/referral-policy.mjs",
+      "bytes": 1981,
+      "sha256": "cf63267adff289eb1e33957e448b8651f1983ec2cecefb02bb5edfc0efe95709",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "scripts/installer/agency-policy.mjs",
+      "bytes": 4654,
+      "sha256": "4736ef82866a82342282b64e8f9ca090565a4c8a7d6dc0e0f79fe841a927226f",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "bytes": 7041,
+      "sha256": "4f3bca4d0111f5b499419869c1fea71de3821738cb8995febf1d2a04bbc3f85c",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/run-lodge.mjs",
+      "bytes": 843,
+      "sha256": "a1adeca5ac1009e2edfc93ea8168b088e62a7b5417e1f194905d3332a0d0b13b",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "tests/browser.mjs",
+      "bytes": 22539,
+      "sha256": "7e5074264b3e409643ed6540d9868f49da09b7cceaa669f18bf6142b844e3a0e",
+      "matches_pinned_blob": true
+    },
+    {
+      "path": "scripts/contract-docs.mjs",
+      "bytes": 4746,
+      "sha256": "372157db837901805582679147f6b629c7b278ca74b8b5e64543549dfa006534",
+      "matches_pinned_blob": true
+    }
+  ]
+}

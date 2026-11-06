@@ -1,0 +1,29 @@
+{
+  "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+  "files": [
+    {
+      "path": "CONTRACT.md",
+      "bytes": 340356,
+      "sha256": "859c57b8a226b0c7c6ec543d16c6ec36b380e1ca17abf60de8da85b317c2d913",
+      "raw_equals_checkout": true
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "bytes": 171793,
+      "sha256": "137c16095a6505f80b527254fdd6cfca4d29d87327abcc60acb09861fad66812",
+      "raw_equals_checkout": true
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 5868,
+      "sha256": "a930bd20e78bfe8aab76fcab90bae7eb07e5dfef06bc250c9ed41e8362e7645a",
+      "raw_equals_checkout": true
+    },
+    {
+      "path": "RULINGS.md",
+      "bytes": 6269,
+      "sha256": "c4ff584356042a476039506d42ea77572050f43e172b3fe01ef5098c04fc2bee",
+      "raw_equals_checkout": true
+    }
+  ]
+}

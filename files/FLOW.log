@@ -1,0 +1,20 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# PROBE ATTR-015 1: native owner and office-only manager review -> one accurate safely serialized JobPosting; exact content and cents agree
+# PROBE ATTR-015 2: revoke office grant, deactivate reviewer and remove settings -> markup absent, public page readable without authority disclosures
+# PROBE ATTR-015 3: unrelated office and ineffective member, team and place authority -> refused with identical saved state and markup
+# Subtest: ATTR-015 current office authority controls reviewed native structured publication
+ok 1 - ATTR-015 current office authority controls reviewed native structured publication
+  ---
+  duration_ms: 4940.427026
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6473.982555

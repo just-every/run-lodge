@@ -1,0 +1,1 @@
+{"command":"LODGE_CHROMIUM_EXECUTABLE=/usr/bin/chromium LODGE_EVIDENCE=packet/screens cloud_run node tests/office-job-posting-browser.mjs","source":"6271e6949029da920e396352dabebdc9f2cd5943","started":"2026-11-06T02:07:53Z","finished":"2026-11-06T02:07:56Z","exit":1,"widths":[1440,390]}

@@ -1,0 +1,129 @@
+{
+  "tag": "ct-judge-lodge-attr015-20261105-1700-sol1",
+  "repository": "just-every/run-lodge",
+  "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+  "recorded_at": "2026-11-06T02:23:20.134597+00:00",
+  "completed_checks": [
+    {
+      "command": "cloud_run node --test --test-name-pattern='^ATTR-015 current office authority controls reviewed native structured publication$' tests/hiring-candidates.test.mjs",
+      "node": "22.20.0",
+      "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+      "started": "2026-11-06T02:14:24Z",
+      "finished": "2026-11-06T02:14:30Z",
+      "exit": 0
+    },
+    {
+      "command": "LODGE_CHROMIUM_EXECUTABLE=/usr/bin/chromium LODGE_EVIDENCE=packet/screens cloud_run node tests/office-job-posting-browser.mjs",
+      "node": "22.20.0",
+      "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+      "started": "2026-11-06T02:15:03Z",
+      "finished": "2026-11-06T02:15:44Z",
+      "exit": 0,
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "cloud_run node --test --test-name-pattern='^LDG-015 actual seed restore policy rejects broken records and lineage before publication$' tests/portability.test.mjs",
+      "node": "22.20.0",
+      "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+      "started": "2026-11-06T02:16:02Z",
+      "finished": "2026-11-06T02:21:55Z",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+      "started": "2026-11-06T02:06:54Z",
+      "finished": "2026-11-06T02:07:02Z",
+      "exit": 0
+    }
+  ],
+  "mechanical_checks": [
+    {
+      "command": "node scripts/contract-docs.mjs check ATTR-015",
+      "exit": 1,
+      "log": "CONTRACT-CHECK.log",
+      "result": "Stale generated contract record: ACCEPTANCE.md; expected candidate generated-view exemption; no write performed"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "SOURCE-LOCK-CHECK.log",
+      "result": "Source lock matches pinned source"
+    }
+  ],
+  "startup_attempts": [
+    {
+      "command": "cloud_run pnpm install --frozen-lockfile",
+      "exit": 0,
+      "node": "24.19.0",
+      "notes": "Dependency installation only; package-manager pin 10.12.4"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "log": "SETUP.log",
+      "notes": "Local synthetic installation only, no provider credential supplied"
+    },
+    {
+      "command": "cloud_run node --input-type=module -e \"await (await import('./tests/office-job-posting-flow.mjs')).checkOfficeJobPosting()\"",
+      "node": "24.19.0",
+      "exit": 247,
+      "log": "FLOW-STARTUP-NODE24.log",
+      "notes": "Stopped before migrations; parent Atomics.wait blocked after child CommonJS eval inherited --input-type=module. SIGTERM did not release parent; owned parent killed, workerd stopped."
+    },
+    {
+      "command": "cloud_run node --input-type=module -e \"await (await import('./tests/office-job-posting-flow.mjs')).checkOfficeJobPosting()\"",
+      "node": "22.20.0",
+      "exit": 247,
+      "log": "FLOW-STARTUP-NODE22.log",
+      "notes": "Same startup issue. Diagnostic inspector showed parent SynchronousFetcher.fetch -> ProxyStubHandler.get -> Miniflare.getProxy; no user tables existed. Owned processes stopped. No product assertion reached."
+    },
+    {
+      "command": "LODGE_CHROMIUM_EXECUTABLE=/usr/bin/chromium LODGE_EVIDENCE=packet/screens cloud_run node tests/office-job-posting-browser.mjs",
+      "node": "24.19.0",
+      "exit": 1,
+      "log": "BROWSER-STARTUP-ATTEMPT.log",
+      "notes": "Runtime startup refused because earlier owned flow process held checkout. Browser journey was not entered. Later sequential pinned-Node run passed."
+    }
+  ],
+  "verdict": "ATTR-015 ACCEPT ON LANDING",
+  "frozen_rows": {
+    "R1": "MET",
+    "R2": "MET",
+    "R3": "MET",
+    "R4": "MET",
+    "R5": "MET"
+  },
+  "new_findings": [],
+  "product_commits": 0,
+  "product_pushes": 0,
+  "prs": [],
+  "ci_calls": 0,
+  "accepted_source": [],
+  "accepted_final": [],
+  "count_delta": 0,
+  "source_status_before_after": {
+    "rows": 145,
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "views_status_before_after": {
+    "rows": 145,
+    "done": 69,
+    "partial": 44,
+    "missing": 32
+  },
+  "pending_guards": [
+    "CT authorized Sol admission and original-to-replacement custody",
+    "Original-to-final and entire fresh-main Status AND Gap/Evidence/provenance/newer-assertion preservation",
+    "Merged generator write/check, accurate counts/provenance and source-lock LAST check",
+    "ACTUALLY EXECUTED full-green exact-FINAL runtime Verify with relied-on journeys",
+    "COMPLETE full-history publication scan NEW 0",
+    "Guarded FF, main equality and exact-main Run site success"
+  ],
+  "holds_unchanged": true
+}

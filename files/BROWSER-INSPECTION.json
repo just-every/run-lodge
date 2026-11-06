@@ -1,0 +1,65 @@
+{
+  "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+  "widths": [
+    1440,
+    390
+  ],
+  "files": [
+    {
+      "path": "screens/office-job-posting-published-1440.png",
+      "bytes": 210690,
+      "sha256": "0342e3d552c097a00c3a789b7c8dde6960e6aff433bf3c3de209214eebfed0f4",
+      "functional_inspection": "INSPECTED",
+      "notes": "Form metadata and off state, published public details, readable withheld public application and private withheld-state readback; no design or visual-quality rating."
+    },
+    {
+      "path": "screens/office-job-posting-published-390.png",
+      "bytes": 180416,
+      "sha256": "0218110100ff5639930a873f92de7cb29b58562b1a0e2456ab714d59f3da472f",
+      "functional_inspection": "INSPECTED",
+      "notes": "Form metadata and off state, published public details, readable withheld public application and private withheld-state readback; no design or visual-quality rating."
+    },
+    {
+      "path": "screens/office-job-posting-review-1440.png",
+      "bytes": 825927,
+      "sha256": "61d5b253389ef56c5514c04fd5fa6d6150ca61b8abc13dc9dd115e494956afa4",
+      "functional_inspection": "INSPECTED",
+      "notes": "Form metadata and off state, published public details, readable withheld public application and private withheld-state readback; no design or visual-quality rating."
+    },
+    {
+      "path": "screens/office-job-posting-review-390.png",
+      "bytes": 522950,
+      "sha256": "86bebc4ad1819b5ffe99640446003f2a52a3babec020bdea3fb091f332eb09b7",
+      "functional_inspection": "INSPECTED",
+      "notes": "Form metadata and off state, published public details, readable withheld public application and private withheld-state readback; no design or visual-quality rating."
+    },
+    {
+      "path": "screens/office-job-posting-state-1440.png",
+      "bytes": 703247,
+      "sha256": "f3aee9d7d5c1f52caff0c750c076993f368d1282acc7e5d29df39abb94e387c0",
+      "functional_inspection": "INSPECTED",
+      "notes": "Form metadata and off state, published public details, readable withheld public application and private withheld-state readback; no design or visual-quality rating."
+    },
+    {
+      "path": "screens/office-job-posting-state-390.png",
+      "bytes": 524300,
+      "sha256": "08e35f5d922fb5eabf6f3554c9ace730b02569adf68a05a16f1b69da6791cfd4",
+      "functional_inspection": "INSPECTED",
+      "notes": "Form metadata and off state, published public details, readable withheld public application and private withheld-state readback; no design or visual-quality rating."
+    },
+    {
+      "path": "screens/office-job-posting-withheld-1440.png",
+      "bytes": 188922,
+      "sha256": "98f4bb0dc5e2ae0a92a79d036cf9d39338344cc43e5ddcc1b41b73832a0f511e",
+      "functional_inspection": "INSPECTED",
+      "notes": "Form metadata and off state, published public details, readable withheld public application and private withheld-state readback; no design or visual-quality rating."
+    },
+    {
+      "path": "screens/office-job-posting-withheld-390.png",
+      "bytes": 161030,
+      "sha256": "01004fcebd96220b3e82cf6b75ea081927d003b8c57299dd7e88cb5259b78e6a",
+      "functional_inspection": "INSPECTED",
+      "notes": "Form metadata and off state, published public details, readable withheld public application and private withheld-state readback; no design or visual-quality rating."
+    }
+  ]
+}

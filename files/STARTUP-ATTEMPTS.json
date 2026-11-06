@@ -1,0 +1,35 @@
+[
+  {
+    "command": "cloud_run pnpm install --frozen-lockfile",
+    "exit": 0,
+    "node": "24.19.0",
+    "notes": "Dependency installation only; package-manager pin 10.12.4"
+  },
+  {
+    "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0,
+    "log": "SETUP.log",
+    "notes": "Local synthetic installation only, no provider credential supplied"
+  },
+  {
+    "command": "cloud_run node --input-type=module -e \"await (await import('./tests/office-job-posting-flow.mjs')).checkOfficeJobPosting()\"",
+    "node": "24.19.0",
+    "exit": 247,
+    "log": "FLOW-STARTUP-NODE24.log",
+    "notes": "Stopped before migrations; parent Atomics.wait blocked after child CommonJS eval inherited --input-type=module. SIGTERM did not release parent; owned parent killed, workerd stopped."
+  },
+  {
+    "command": "cloud_run node --input-type=module -e \"await (await import('./tests/office-job-posting-flow.mjs')).checkOfficeJobPosting()\"",
+    "node": "22.20.0",
+    "exit": 247,
+    "log": "FLOW-STARTUP-NODE22.log",
+    "notes": "Same startup issue. Diagnostic inspector showed parent SynchronousFetcher.fetch -> ProxyStubHandler.get -> Miniflare.getProxy; no user tables existed. Owned processes stopped. No product assertion reached."
+  },
+  {
+    "command": "LODGE_CHROMIUM_EXECUTABLE=/usr/bin/chromium LODGE_EVIDENCE=packet/screens cloud_run node tests/office-job-posting-browser.mjs",
+    "node": "24.19.0",
+    "exit": 1,
+    "log": "BROWSER-STARTUP-ATTEMPT.log",
+    "notes": "Runtime startup refused because earlier owned flow process held checkout. Browser journey was not entered. Later sequential pinned-Node run passed."
+  }
+]

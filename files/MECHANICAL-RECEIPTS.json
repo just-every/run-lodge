@@ -1,0 +1,14 @@
+[
+  {
+    "command": "node scripts/contract-docs.mjs check ATTR-015",
+    "exit": 1,
+    "log": "CONTRACT-CHECK.log",
+    "result": "Stale generated contract record: ACCEPTANCE.md; expected candidate generated-view exemption; no write performed"
+  },
+  {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "log": "SOURCE-LOCK-CHECK.log",
+    "result": "Source lock matches pinned source"
+  }
+]

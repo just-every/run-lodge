@@ -1,0 +1,8 @@
+{
+  "command": "cloud_run node --test --test-name-pattern='^ATTR-015 current office authority controls reviewed native structured publication$' tests/hiring-candidates.test.mjs",
+  "node": "22.20.0",
+  "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+  "started": "2026-11-06T02:14:24Z",
+  "finished": "2026-11-06T02:14:30Z",
+  "exit": 0
+}

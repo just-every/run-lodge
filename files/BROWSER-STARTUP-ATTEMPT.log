@@ -1,0 +1,17 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+file:///home/agent/rer-consolidation/work/ct-judge-lodge-attr015-20261105-1700-sol1/run-lodge/tests/browser-runtime.mjs:50
+    if (child.exitCode !== null) throw new Error(`${mode} exited: ${clean(output).slice(-4000)}`)
+                                       ^
+
+Error: dev exited: Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Using project Node 22.20.0 (current Node 24.19.0).
+A local process holds this checkout: PID 1283 (MainThread). Stop it with kill -TERM 1283, then retry. Use rer dev --stop or rer preview --stop for a registered server.
+dev: failed (exit 4)
+
+    at start (file:///home/agent/rer-consolidation/work/ct-judge-lodge-attr015-20261105-1700-sol1/run-lodge/tests/browser-runtime.mjs:50:40)
+    at async file:///home/agent/rer-consolidation/work/ct-judge-lodge-attr015-20261105-1700-sol1/run-lodge/tests/office-job-posting-browser.mjs:110:18
+
+Node.js v24.19.0

@@ -1,0 +1,52 @@
+{
+  "source": {
+    "head": "6271e6949029da920e396352dabebdc9f2cd5943",
+    "branch": "cloud/sx-lodge-c-f34",
+    "verify": {
+      "id": 42058120299,
+      "event": "push",
+      "conclusion": "success",
+      "basis": "Supplied original request, not independently polled"
+    },
+    "affected_gate": {
+      "name": "sx-lodge-c-f34-gate-1",
+      "ended": "2026-11-05T16:12:46Z",
+      "exit": 0,
+      "result": "GATE PASS",
+      "basis": "Supplied custody facts, no private held-out gate material read"
+    }
+  },
+  "reported_final": {
+    "head": "c17c2aaadac3f6d6760cc7f1565a3a71f77c405c",
+    "verify": {
+      "id": 42062858103,
+      "event": "push",
+      "conclusion": "success",
+      "basis": "Inline custody only"
+    },
+    "run_site": {
+      "id": 42065167894,
+      "conclusion": "success",
+      "basis": "Inline custody only"
+    },
+    "publication_scan": "COMPLETE history scan NEW 0, supplied inline only",
+    "landing": "guarded FF and main equality, supplied inline only",
+    "counts": {
+      "rows": 145,
+      "done": 70,
+      "partial": 44,
+      "missing": 31
+    }
+  },
+  "judgment_custody": {
+    "accepted_source": [],
+    "accepted_final": [],
+    "qualification": "UNQUALIFIED",
+    "count_delta": 0,
+    "original_to_final_and_fresh_main_reconciliation": "CT retains entire final/current-main gate obligations",
+    "ci_api_calls": 0,
+    "ci_operations": "None: read-only original judgment prohibits poll/rerun/dispatch",
+    "fix_lifetime": "Original ATTR-002 two-FIX defer retained; this is additive ATTR-015 original judgment, no FIX started or consumed",
+    "holds": "Existing independent-review, MAIN/FV missing-hold/admission and provider holds unchanged"
+  }
+}

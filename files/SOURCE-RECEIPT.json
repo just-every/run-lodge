@@ -1,0 +1,60 @@
+{
+  "source": "6271e6949029da920e396352dabebdc9f2cd5943",
+  "source_branch": "cloud/sx-lodge-c-f34",
+  "checkout": "detached exact original source",
+  "initial_clone_origin_main": "1f6753cf184298ca75c7140130830d70635d3de3",
+  "product_mutations": false,
+  "tracked_status": "",
+  "files": {
+    "CONTRACT.md": {
+      "bytes": 340356,
+      "sha256": "859c57b8a226b0c7c6ec543d16c6ec36b380e1ca17abf60de8da85b317c2d913",
+      "matches_pinned_blob": true
+    },
+    "ACCEPTANCE.md": {
+      "bytes": 171793,
+      "sha256": "137c16095a6505f80b527254fdd6cfca4d29d87327abcc60acb09861fad66812",
+      "matches_pinned_blob": true
+    },
+    "docs/CLAIMS.md": {
+      "bytes": 40278,
+      "sha256": "92310e977e0886a81017d99b5161fd114cb8ba980a515dd483a9f4eb31a93ef6",
+      "matches_pinned_blob": true
+    },
+    "AGENTS.md": {
+      "bytes": 5868,
+      "sha256": "a930bd20e78bfe8aab76fcab90bae7eb07e5dfef06bc250c9ed41e8362e7645a",
+      "matches_pinned_blob": true
+    },
+    "RULINGS.md": {
+      "bytes": 6269,
+      "sha256": "c4ff584356042a476039506d42ea77572050f43e172b3fe01ef5098c04fc2bee",
+      "matches_pinned_blob": true
+    },
+    "docs/contract/ATTR-015-rubric.md": {
+      "bytes": 3006,
+      "sha256": "dd50ceb4e866a0eade359e267d35cd70a171ad792f82f355a8ae3236980b821d",
+      "matches_pinned_blob": true
+    }
+  },
+  "status_counts": {
+    "CONTRACT": {
+      "rows": 145,
+      "counts": {
+        "done": 70,
+        "missing": 31,
+        "partial": 44
+      }
+    },
+    "ACCEPTANCE": {
+      "rows": 145,
+      "counts": {
+        "done": 69,
+        "missing": 32,
+        "partial": 44
+      }
+    }
+  },
+  "tracked_status_after_all_journeys": "",
+  "head_after_all_journeys": "6271e6949029da920e396352dabebdc9f2cd5943"
+}
