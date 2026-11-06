@@ -1,0 +1,252 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f66",
+  "head": "b45f241b927cdb5a4199a492ab6da38c9ada0c89",
+  "tree": "6a9f795e4f514e6735fc054c6ec33243012d16e1",
+  "startingHead": "af2219aacebf412b59f404845537c3a932359321",
+  "originMain": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+  "remoteProductHead": "b45f241b927cdb5a4199a492ab6da38c9ada0c89",
+  "remoteMainHead": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+  "mainIsAncestor": true,
+  "mainEqualsCandidate": false,
+  "productPush": "succeeded on first attempt through cloud-push.py",
+  "statusRegisterUnchanged": true,
+  "generatedViewsRestoredFromMain": true,
+  "workingTreeClean": true,
+  "commitsChecked": [
+    {
+      "head": "b45f241b927cdb5a4199a492ab6da38c9ada0c89",
+      "authorFleet": true,
+      "committerFleet": true,
+      "trailers": []
+    },
+    {
+      "head": "af2219aacebf412b59f404845537c3a932359321",
+      "authorFleet": true,
+      "committerFleet": true,
+      "trailers": []
+    },
+    {
+      "head": "9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a",
+      "authorFleet": true,
+      "committerFleet": true,
+      "trailers": []
+    },
+    {
+      "head": "d572002fe6cedf211d10eeb610811bac9a8d2f83",
+      "authorFleet": true,
+      "committerFleet": true,
+      "trailers": []
+    },
+    {
+      "head": "f8f8782541d13aac48993dd59879131ab060409b",
+      "authorFleet": true,
+      "committerFleet": true,
+      "trailers": []
+    },
+    {
+      "head": "19f1a7abb760409143d6e82638a65df0edd872e4",
+      "authorFleet": true,
+      "committerFleet": true,
+      "trailers": []
+    }
+  ],
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "newTestRegistrations": 0,
+  "existingAssertionsPreserved": true,
+  "mechanical": {
+    "views": {
+      "write": "node scripts/contract-docs.mjs write BASE-AGENT-002",
+      "check": "node scripts/contract-docs.mjs check BASE-AGENT-002",
+      "writeExit": 0,
+      "checkExit": 0,
+      "restored": true
+    },
+    "lock": {
+      "write": "node scripts/edition-authoring/cli.mjs lock",
+      "writeExit": 0,
+      "check": "node scripts/edition-authoring/cli.mjs check",
+      "checkExit": 0,
+      "sha256": "b39fafead5fbea4b2a06f4a0b5d5902a077109a65e9a138475a4f31575ef2c04"
+    },
+    "ledger": {
+      "command": null,
+      "exit": 0,
+      "reason": "No migration changed"
+    }
+  },
+  "localChecks": [
+    {
+      "command": "node --test --test-name-pattern='Native proposal and debrief refusals' tests/security.test.mjs",
+      "exit": 0,
+      "headBinding": "Relevant source and test bytes identical to committed candidate"
+    },
+    {
+      "command": "pnpm run typecheck",
+      "exit": 0,
+      "headBinding": "Relevant source and test bytes identical to committed candidate"
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "head": "b45f241b927cdb5a4199a492ab6da38c9ada0c89"
+    },
+    {
+      "command": "node refusal-proof.mjs",
+      "exit": 0,
+      "head": "b45f241b927cdb5a4199a492ab6da38c9ada0c89"
+    },
+    {
+      "command": "timeout 1200 node tests/agent-refusal-browser.mjs",
+      "exit": 0,
+      "head": "b45f241b927cdb5a4199a492ab6da38c9ada0c89"
+    }
+  ],
+  "screens": [
+    {
+      "path": "screens/debrief-draft-1440.png",
+      "sha256": "b998b880089ee4ff6ce59042145ccc9d4d73ca18bfe5ab601f9d838a8e8aeb00",
+      "width": 1440,
+      "height": 1948,
+      "inspected": true
+    },
+    {
+      "path": "screens/debrief-draft-390.png",
+      "sha256": "0659914665a4bb53173d5c9f0937c740e885c67e4cb9dd27325a94ce33d4eb6d",
+      "width": 390,
+      "height": 4454,
+      "inspected": true
+    },
+    {
+      "path": "screens/debrief-refused-edit-1440.png",
+      "sha256": "75d74c09a03cdfc6daf978c9e521b340423fb2c9c126538f1c71f303d6ab5243",
+      "width": 1440,
+      "height": 2232,
+      "inspected": true
+    },
+    {
+      "path": "screens/debrief-refused-edit-390.png",
+      "sha256": "3b9d5c9d4fb405fcef1a00af6c57be804abadc31e5e18cf38623f73f1d1e2c8f",
+      "width": 390,
+      "height": 4738,
+      "inspected": true
+    },
+    {
+      "path": "screens/unsent-proposal-1440.png",
+      "sha256": "581f542a45ad37b07a881d4d8983a95117ae25642d5f75ea3e82806f124017fd",
+      "width": 1440,
+      "height": 1000,
+      "inspected": true
+    },
+    {
+      "path": "screens/unsent-proposal-390.png",
+      "sha256": "021ae89bb2ad8684ed753c73b147e8785fb16a1c66eb5aca0e1753aa3a250808",
+      "width": 390,
+      "height": 1332,
+      "inspected": true
+    }
+  ],
+  "ciDiscovery": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "b45f241b927cdb5a4199a492ab6da38c9ada0c89",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42255012789",
+      "id": 42255012789,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "publicationScan": {
+    "commit": "b45f241b927cdb5a4199a492ab6da38c9ada0c89",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "status": "NOT RUN: cloud branch-push exemption; independent lander must run complete exact-tree scan"
+  },
+  "runSite": {
+    "status": "PENDING landing",
+    "runId": null
+  },
+  "pr": null,
+  "screensInspectedAt": "2026-11-06T16:48:27.464793+00:00",
+  "mainCi": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42224894488",
+      "id": 42224894488,
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "event": "push",
+      "head_sha": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42217449719",
+      "id": 42217449719,
+      "name": "Run demo",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42217449649",
+      "id": 42217449649,
+      "name": "Run site",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42217450352",
+      "id": 42217450352,
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "dynamic",
+      "head_sha": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42217449301",
+      "id": 42217449301,
+      "name": "Push on main",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42213721430",
+      "id": 42213721430,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "githubCallsUsed": 3,
+  "candidateCiLatest": {
+    "conclusion": null,
+    "head_sha": "b45f241b927cdb5a4199a492ab6da38c9ada0c89",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42255012789",
+    "status": "in_progress"
+  }
+}

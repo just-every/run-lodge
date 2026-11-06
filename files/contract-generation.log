@@ -1,0 +1,2 @@
+contract-docs write: BASE-AGENT-002; counts {"done":70,"partial":44,"missing":31,"total":145}
+contract-docs check: BASE-AGENT-002; counts {"done":70,"partial":44,"missing":31,"total":145}

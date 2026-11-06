@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "head": "b45f241b927cdb5a4199a492ab6da38c9ada0c89",
+  "started": "2026-11-06T16:44:59.914Z",
+  "completed": "2026-11-06T16:45:07.975Z",
+  "door": "Real workerd and migrated persistent local D1; authenticated native commands and signed MCP",
+  "result": {
+    "refusals": [
+      {
+        "phase": "autonomous",
+        "case": "proposal validation",
+        "status": 400,
+        "code": "native_refused",
+        "audit": "refused"
+      },
+      {
+        "phase": "autonomous",
+        "case": "proposal trial validation",
+        "status": 400,
+        "code": "native_refused",
+        "audit": "refused"
+      },
+      {
+        "phase": "autonomous",
+        "case": "hidden source",
+        "status": 404,
+        "code": "record_unavailable",
+        "audit": "refused"
+      },
+      {
+        "phase": "autonomous",
+        "case": "missing source",
+        "status": 404,
+        "code": "record_unavailable",
+        "audit": "refused"
+      },
+      {
+        "phase": "autonomous",
+        "case": "proposal precondition",
+        "status": 409,
+        "code": "native_conflict",
+        "audit": "refused"
+      },
+      {
+        "phase": "autonomous",
+        "case": "debrief validation",
+        "status": 400,
+        "code": "native_refused",
+        "audit": "refused"
+      },
+      {
+        "phase": "autonomous",
+        "case": "debrief unavailable",
+        "status": 404,
+        "code": "record_unavailable",
+        "audit": "refused"
+      },
+      {
+        "phase": "autonomous",
+        "case": "debrief precondition",
+        "status": 409,
+        "code": "native_conflict",
+        "audit": "refused"
+      },
+      {
+        "phase": "held",
+        "case": "proposal validation",
+        "status": 400,
+        "code": "native_refused",
+        "audit": "refused"
+      },
+      {
+        "phase": "held",
+        "case": "proposal trial validation",
+        "status": 400,
+        "code": "native_refused",
+        "audit": "refused"
+      },
+      {
+        "phase": "held",
+        "case": "hidden source",
+        "status": 404,
+        "code": "record_unavailable",
+        "audit": "refused"
+      },
+      {
+        "phase": "held",
+        "case": "missing source",
+        "status": 404,
+        "code": "record_unavailable",
+        "audit": "refused"
+      },
+      {
+        "phase": "held",
+        "case": "proposal precondition",
+        "status": 409,
+        "code": "native_conflict",
+        "audit": "refused"
+      },
+      {
+        "phase": "held",
+        "case": "debrief validation",
+        "status": 400,
+        "code": "native_refused",
+        "audit": "refused"
+      },
+      {
+        "phase": "held",
+        "case": "debrief unavailable",
+        "status": 404,
+        "code": "record_unavailable",
+        "audit": "refused"
+      },
+      {
+        "phase": "held",
+        "case": "debrief precondition",
+        "status": 409,
+        "code": "native_conflict",
+        "audit": "refused"
+      }
+    ],
+    "recoveries": [
+      {
+        "phase": "autonomous",
+        "door": "native",
+        "action": "propose",
+        "status": "proposed",
+        "hiringRecordsUnchanged": true,
+        "existingDraftsUnchanged": true
+      },
+      {
+        "phase": "autonomous",
+        "door": "MCP",
+        "action": "propose",
+        "status": "proposed",
+        "hiringRecordsUnchanged": true,
+        "existingDraftsUnchanged": true
+      },
+      {
+        "phase": "autonomous",
+        "door": "native",
+        "action": "debrief",
+        "status": "draft",
+        "hiringRecordsUnchanged": true,
+        "existingDraftsUnchanged": true
+      },
+      {
+        "phase": "autonomous",
+        "door": "MCP",
+        "action": "debrief",
+        "status": "draft",
+        "hiringRecordsUnchanged": true,
+        "existingDraftsUnchanged": true
+      },
+      {
+        "phase": "held",
+        "door": "native",
+        "action": "propose",
+        "status": "proposed",
+        "hiringRecordsUnchanged": true,
+        "existingDraftsUnchanged": true
+      },
+      {
+        "phase": "held",
+        "door": "MCP",
+        "action": "propose",
+        "status": "proposed",
+        "hiringRecordsUnchanged": true,
+        "existingDraftsUnchanged": true
+      },
+      {
+        "phase": "held",
+        "door": "native",
+        "action": "debrief",
+        "status": "draft",
+        "hiringRecordsUnchanged": true,
+        "existingDraftsUnchanged": true
+      },
+      {
+        "phase": "held",
+        "door": "MCP",
+        "action": "debrief",
+        "status": "draft",
+        "hiringRecordsUnchanged": true,
+        "existingDraftsUnchanged": true
+      }
+    ],
+    "providerAttempts": 0
+  },
+  "exit": 0
+}
