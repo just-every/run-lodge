@@ -1,0 +1,13 @@
+{
+  "head": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+  "dispatchInitial": {
+    "exit": 1,
+    "http": 503,
+    "diagnostic": "upstream connect error or disconnect/reset before headers. reset reason: remote refused stream reset"
+  },
+  "runs": [],
+  "dispatchRetry": {
+    "exit": 0,
+    "confirmedNoExactHeadRun": true
+  }
+}

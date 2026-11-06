@@ -1,0 +1,95 @@
+{
+  "head": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+  "completed": "2026-11-06T05:04:24.585993+00:00",
+  "steps": [
+    {
+      "name": "contract-write",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "BASE-AGENT-007"
+      ],
+      "exit": 0,
+      "log": "contract-write.log"
+    },
+    {
+      "name": "contract-check",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check",
+        "BASE-AGENT-007"
+      ],
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "name": "restore-generated-views",
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0,
+      "log": "restore-generated-views.log"
+    },
+    {
+      "name": "source-lock",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0,
+      "log": "source-lock.log"
+    },
+    {
+      "name": "source-lock-check",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "log": "source-lock-check.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "first-party-check",
+      "command": [
+        "pnpm",
+        "exec",
+        "rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "log": "first-party-check.log"
+    },
+    {
+      "name": "clean-worktree",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "exit": 0,
+      "log": "clean-worktree.log"
+    }
+  ],
+  "migrationLedger": "not applicable; no migration changed",
+  "viewsRestored": true
+}

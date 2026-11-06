@@ -1,0 +1,903 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f48",
+  "head": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+  "started": "2026-11-06T05:00:00.510Z",
+  "cases": [
+    {
+      "tool": "lodge.jobs.list",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "after": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.records.read",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "after": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "after": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "after": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "after": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.jobs.list",
+      "path": "approval",
+      "status": "pass",
+      "revision": 3,
+      "decision": {
+        "id": "db129d6f-c478-446d-9860-aaffdf9a9032",
+        "disposition": "approval",
+        "revision": 3,
+        "classes": [
+          {
+            "class": "standard",
+            "rule": "standard-approval",
+            "do": "approval",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ]
+      },
+      "approvalId": "dc561efc-e6ad-4723-a0bf-dce95c6c88f9",
+      "expiry": "2026-11-06T06:00:02.374Z",
+      "summarySha256": "c5d4cad8762cddc7956e3105f2d6febe30aa92ea8aecdabfa91f53bb82401700",
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "nativeContentWhilePending": false,
+      "pendingBefore": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "pendingAfter": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "receipt": {
+        "id": "e6da7d78-bcb6-4a58-be14-8f5fbd18be61",
+        "decision_id": "db129d6f-c478-446d-9860-aaffdf9a9032",
+        "approval_id": "dc561efc-e6ad-4723-a0bf-dce95c6c88f9",
+        "prepared_by": {
+          "agent": {
+            "id": "8c58a8ee-e661-4be7-9721-a4404fb2179b",
+            "name": "Agent door conformance"
+          },
+          "for": {
+            "id": "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d",
+            "name": "Olive Owner"
+          },
+          "label": "Agent door conformance for Olive Owner"
+        },
+        "approved_by": [
+          "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d"
+        ],
+        "decision": {
+          "id": "db129d6f-c478-446d-9860-aaffdf9a9032",
+          "disposition": "approval",
+          "revision": 3,
+          "classes": [
+            {
+              "class": "standard",
+              "rule": "standard-approval",
+              "do": "approval",
+              "facts": {
+                "measure": 1
+              }
+            }
+          ]
+        }
+      },
+      "resultKeys": [
+        "jobs"
+      ],
+      "repeatNativeEffect": false,
+      "nativeDraftStatus": null
+    },
+    {
+      "tool": "lodge.records.read",
+      "path": "approval",
+      "status": "pass",
+      "revision": 3,
+      "decision": {
+        "id": "6fb0d745-b1bb-4a14-a15e-01c570f35824",
+        "disposition": "approval",
+        "revision": 3,
+        "classes": [
+          {
+            "class": "standard",
+            "rule": "standard-approval",
+            "do": "approval",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ]
+      },
+      "approvalId": "aab67c57-2721-4fa5-9ce4-80ea0daed8d2",
+      "expiry": "2026-11-06T06:00:03.115Z",
+      "summarySha256": "d4e98d8fc95d7937bac7de0b61ae0a6caab97cd0aa6492c28ce26978989b1a8a",
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "nativeContentWhilePending": false,
+      "pendingBefore": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "pendingAfter": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "receipt": {
+        "id": "8ec9ccc1-a2e7-4211-8751-a56628f358f8",
+        "decision_id": "6fb0d745-b1bb-4a14-a15e-01c570f35824",
+        "approval_id": "aab67c57-2721-4fa5-9ce4-80ea0daed8d2",
+        "prepared_by": {
+          "agent": {
+            "id": "8c58a8ee-e661-4be7-9721-a4404fb2179b",
+            "name": "Agent door conformance"
+          },
+          "for": {
+            "id": "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d",
+            "name": "Olive Owner"
+          },
+          "label": "Agent door conformance for Olive Owner"
+        },
+        "approved_by": [
+          "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d"
+        ],
+        "decision": {
+          "id": "6fb0d745-b1bb-4a14-a15e-01c570f35824",
+          "disposition": "approval",
+          "revision": 3,
+          "classes": [
+            {
+              "class": "standard",
+              "rule": "standard-approval",
+              "do": "approval",
+              "facts": {
+                "measure": 1
+              }
+            }
+          ]
+        }
+      },
+      "resultKeys": [
+        "record"
+      ],
+      "repeatNativeEffect": false,
+      "nativeDraftStatus": null
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "path": "approval",
+      "status": "pass",
+      "revision": 3,
+      "decision": {
+        "id": "f4288008-de5d-417a-9185-7b2400837700",
+        "disposition": "approval",
+        "revision": 3,
+        "classes": [
+          {
+            "class": "standard",
+            "rule": "standard-approval",
+            "do": "approval",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ]
+      },
+      "approvalId": "3a49226e-d961-425d-bf78-3b8198989ecb",
+      "expiry": "2026-11-06T06:00:03.815Z",
+      "summarySha256": "c5d4cad8762cddc7956e3105f2d6febe30aa92ea8aecdabfa91f53bb82401700",
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "nativeContentWhilePending": false,
+      "pendingBefore": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "pendingAfter": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "receipt": {
+        "id": "3eca8b6c-b14d-4ffb-813f-f4b6559dd29c",
+        "decision_id": "f4288008-de5d-417a-9185-7b2400837700",
+        "approval_id": "3a49226e-d961-425d-bf78-3b8198989ecb",
+        "prepared_by": {
+          "agent": {
+            "id": "8c58a8ee-e661-4be7-9721-a4404fb2179b",
+            "name": "Agent door conformance"
+          },
+          "for": {
+            "id": "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d",
+            "name": "Olive Owner"
+          },
+          "label": "Agent door conformance for Olive Owner"
+        },
+        "approved_by": [
+          "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d"
+        ],
+        "decision": {
+          "id": "f4288008-de5d-417a-9185-7b2400837700",
+          "disposition": "approval",
+          "revision": 3,
+          "classes": [
+            {
+              "class": "standard",
+              "rule": "standard-approval",
+              "do": "approval",
+              "facts": {
+                "measure": 1
+              }
+            }
+          ]
+        }
+      },
+      "resultKeys": [
+        "proposals",
+        "debriefs",
+        "records"
+      ],
+      "repeatNativeEffect": false,
+      "nativeDraftStatus": null
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "path": "approval",
+      "status": "pass",
+      "revision": 3,
+      "decision": {
+        "id": "05f9524d-d8a8-42fa-93a0-9c082161951f",
+        "disposition": "approval",
+        "revision": 3,
+        "classes": [
+          {
+            "class": "standard",
+            "rule": "standard-approval",
+            "do": "approval",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ]
+      },
+      "approvalId": "f498e6a9-96db-4d5d-87c6-d942d8145837",
+      "expiry": "2026-11-06T06:00:04.451Z",
+      "summarySha256": "64f62166919bf18c0812e09f68b4b4bafb429a8a1e8ecea27b281aaebf75b384",
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "nativeContentWhilePending": false,
+      "pendingBefore": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "pendingAfter": "a26fd7f370e817ebe0b7b52ec15d4a710eb5bd88fa3f54958fdb2d58dbce0654",
+      "receipt": {
+        "id": "8dd91bf7-5bb3-4631-b055-6bf049d5d6d7",
+        "decision_id": "05f9524d-d8a8-42fa-93a0-9c082161951f",
+        "approval_id": "f498e6a9-96db-4d5d-87c6-d942d8145837",
+        "prepared_by": {
+          "agent": {
+            "id": "8c58a8ee-e661-4be7-9721-a4404fb2179b",
+            "name": "Agent door conformance"
+          },
+          "for": {
+            "id": "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d",
+            "name": "Olive Owner"
+          },
+          "label": "Agent door conformance for Olive Owner"
+        },
+        "approved_by": [
+          "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d"
+        ],
+        "decision": {
+          "id": "05f9524d-d8a8-42fa-93a0-9c082161951f",
+          "disposition": "approval",
+          "revision": 3,
+          "classes": [
+            {
+              "class": "standard",
+              "rule": "standard-approval",
+              "do": "approval",
+              "facts": {
+                "measure": 1
+              }
+            }
+          ]
+        }
+      },
+      "resultKeys": [
+        "workflow",
+        "summary",
+        "rationale",
+        "intake",
+        "sources",
+        "changes",
+        "citations",
+        "approver",
+        "proposedBy",
+        "proposedFor",
+        "proposedByAgent",
+        "proposedAt",
+        "status",
+        "model",
+        "missing",
+        "id"
+      ],
+      "repeatNativeEffect": false,
+      "nativeDraftStatus": "proposed"
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "path": "approval",
+      "status": "pass",
+      "revision": 3,
+      "decision": {
+        "id": "5f8b6a79-876a-4327-9dea-42356c331f64",
+        "disposition": "approval",
+        "revision": 3,
+        "classes": [
+          {
+            "class": "standard",
+            "rule": "standard-approval",
+            "do": "approval",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ]
+      },
+      "approvalId": "58276760-3442-47c3-8ba2-d6a0e9d01b14",
+      "expiry": "2026-11-06T06:00:05.149Z",
+      "summarySha256": "0d4578fcf34b3088dbdb660f3a12fb50a6b21cd055c2b824fc51047aa47dd156",
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "nativeContentWhilePending": false,
+      "pendingBefore": "1500f50148d44566a6933a6e874be916e86151eb9d0822e6e314c68a382c9bad",
+      "pendingAfter": "1500f50148d44566a6933a6e874be916e86151eb9d0822e6e314c68a382c9bad",
+      "receipt": {
+        "id": "d8bfd8d2-e2fa-4ad2-9a67-e6861367a087",
+        "decision_id": "5f8b6a79-876a-4327-9dea-42356c331f64",
+        "approval_id": "58276760-3442-47c3-8ba2-d6a0e9d01b14",
+        "prepared_by": {
+          "agent": {
+            "id": "8c58a8ee-e661-4be7-9721-a4404fb2179b",
+            "name": "Agent door conformance"
+          },
+          "for": {
+            "id": "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d",
+            "name": "Olive Owner"
+          },
+          "label": "Agent door conformance for Olive Owner"
+        },
+        "approved_by": [
+          "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d"
+        ],
+        "decision": {
+          "id": "5f8b6a79-876a-4327-9dea-42356c331f64",
+          "disposition": "approval",
+          "revision": 3,
+          "classes": [
+            {
+              "class": "standard",
+              "rule": "standard-approval",
+              "do": "approval",
+              "facts": {
+                "measure": 1
+              }
+            }
+          ]
+        }
+      },
+      "resultKeys": [
+        "application",
+        "vacancy",
+        "statements",
+        "criteria",
+        "status",
+        "model",
+        "preparedBy",
+        "preparedFor",
+        "preparedByAgent",
+        "preparedAt",
+        "id"
+      ],
+      "repeatNativeEffect": false,
+      "nativeDraftStatus": "draft"
+    }
+  ],
+  "screens": [
+    {
+      "file": "jobs-pending-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/dc561efc-e6ad-4723-a0bf-dce95c6c88f9",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "jobs-pending-390.png",
+      "width": 390,
+      "path": "/agents/approvals/dc561efc-e6ad-4723-a0bf-dce95c6c88f9",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "jobs-executed-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/dc561efc-e6ad-4723-a0bf-dce95c6c88f9",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "jobs-executed-390.png",
+      "width": 390,
+      "path": "/agents/approvals/dc561efc-e6ad-4723-a0bf-dce95c6c88f9",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "source-pending-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/aab67c57-2721-4fa5-9ce4-80ea0daed8d2",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "source-pending-390.png",
+      "width": 390,
+      "path": "/agents/approvals/aab67c57-2721-4fa5-9ce4-80ea0daed8d2",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "source-executed-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/aab67c57-2721-4fa5-9ce4-80ea0daed8d2",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "source-executed-390.png",
+      "width": 390,
+      "path": "/agents/approvals/aab67c57-2721-4fa5-9ce4-80ea0daed8d2",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "drafts-pending-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/3a49226e-d961-425d-bf78-3b8198989ecb",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "drafts-pending-390.png",
+      "width": 390,
+      "path": "/agents/approvals/3a49226e-d961-425d-bf78-3b8198989ecb",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "drafts-executed-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/3a49226e-d961-425d-bf78-3b8198989ecb",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "drafts-executed-390.png",
+      "width": 390,
+      "path": "/agents/approvals/3a49226e-d961-425d-bf78-3b8198989ecb",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "proposal-pending-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/f498e6a9-96db-4d5d-87c6-d942d8145837",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "proposal-pending-390.png",
+      "width": 390,
+      "path": "/agents/approvals/f498e6a9-96db-4d5d-87c6-d942d8145837",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "proposal-executed-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/f498e6a9-96db-4d5d-87c6-d942d8145837",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "proposal-executed-390.png",
+      "width": 390,
+      "path": "/agents/approvals/f498e6a9-96db-4d5d-87c6-d942d8145837",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "debrief-pending-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/58276760-3442-47c3-8ba2-d6a0e9d01b14",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "debrief-pending-390.png",
+      "width": 390,
+      "path": "/agents/approvals/58276760-3442-47c3-8ba2-d6a0e9d01b14",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "debrief-executed-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/58276760-3442-47c3-8ba2-d6a0e9d01b14",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "debrief-executed-390.png",
+      "width": 390,
+      "path": "/agents/approvals/58276760-3442-47c3-8ba2-d6a0e9d01b14",
+      "horizontalOverflow": false
+    }
+  ],
+  "failures": [],
+  "browserDiagnostics": [
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "browserDecision": {
+    "status": 200,
+    "body": {
+      "approval": {
+        "id": "58276760-3442-47c3-8ba2-d6a0e9d01b14",
+        "decision_id": "5f8b6a79-876a-4327-9dea-42356c331f64",
+        "revision": 3,
+        "state": "executed",
+        "code": null,
+        "summary": {
+          "target": {
+            "id": "7fbc976d-d89a-43d7-ad45-b7b307ca7aaa",
+            "name": "Estimator a597ef8d"
+          },
+          "items": [
+            "Draft debrief; human review remains required"
+          ],
+          "nativeTarget": {
+            "kind": "application",
+            "id": "7fbc976d-d89a-43d7-ad45-b7b307ca7aaa"
+          }
+        },
+        "summary_sha256": "0d4578fcf34b3088dbdb660f3a12fb50a6b21cd055c2b824fc51047aa47dd156",
+        "tool": "lodge.debriefs.prepare",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "approvers": [
+          "sponsor"
+        ],
+        "approvals": [
+          {
+            "ref": "sponsor",
+            "person": "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d",
+            "name": "Olive Owner",
+            "at": "2026-11-06T05:00:05.419Z"
+          }
+        ],
+        "expires_at": "2026-11-06T06:00:05.149Z",
+        "prepared_by": {
+          "agent": {
+            "id": "8c58a8ee-e661-4be7-9721-a4404fb2179b",
+            "name": "Agent door conformance"
+          },
+          "for": {
+            "id": "5252e8b5-b2f4-49d2-95a0-48bb4f192b1d",
+            "name": "Olive Owner"
+          },
+          "label": "Agent door conformance for Olive Owner"
+        },
+        "rules": [
+          {
+            "class": "standard",
+            "rule": "standard-approval",
+            "do": "approval"
+          }
+        ]
+      }
+    }
+  },
+  "restartReplay": "pass",
+  "protocolPoints": [
+    {
+      "id": "BASE-AGENT-007.7.adopt.1",
+      "ok": true
+    },
+    {
+      "id": "BASE-AGENT-007.7.adopt.2",
+      "ok": true
+    },
+    {
+      "id": "BASE-AGENT-007.7.adopt.3",
+      "ok": true
+    }
+  ],
+  "separateNativeDecisions": "pass; proposal applied and debrief kept only after separate human native commands",
+  "status": "pass",
+  "completed": "2026-11-06T05:00:06.271Z"
+}

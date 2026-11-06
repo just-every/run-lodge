@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f48",
+  "head": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+  "started": "2026-11-06T04:57:37.990Z",
+  "cases": [
+    {
+      "tool": "lodge.jobs.list",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "after": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.records.read",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "after": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "after": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "after": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "after": "78da7b3eb6727df84929c9f9f6db25e39650bcd0090fc79ec4d74192e4858700",
+      "nativeContent": false
+    }
+  ],
+  "screens": [
+    {
+      "file": "jobs-pending-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/af5ff047-d6be-4eec-a9cd-8e30d1e868f8",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "jobs-pending-390.png",
+      "width": 390,
+      "path": "/agents/approvals/af5ff047-d6be-4eec-a9cd-8e30d1e868f8",
+      "horizontalOverflow": false
+    }
+  ],
+  "failures": [
+    {
+      "name": "TimeoutError",
+      "message": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-approval-state=\"executed\"]') to be visible\u001b[22m\n",
+      "stack": [
+        "locator.waitFor: Timeout 15000ms exceeded.",
+        "Call log:",
+        "\u001b[2m  - waiting for locator('[data-approval-state=\"executed\"]') to be visible\u001b[22m",
+        "",
+        "    at /home/agent/rer-consolidation/work/sx-lodge-c-f48/packet/qualify-standard.mjs:162:60"
+      ]
+    }
+  ],
+  "status": "fail",
+  "completed": "2026-11-06T04:57:55.054Z"
+}

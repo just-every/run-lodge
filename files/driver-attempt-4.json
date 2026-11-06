@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f48",
+  "head": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+  "started": "2026-11-06T04:59:21.971Z",
+  "cases": [
+    {
+      "tool": "lodge.jobs.list",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "after": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.records.read",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "after": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "after": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "after": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "after": "9aee7bb46ab4991f3a99c45f3544f939e6c1e30a0a1df0bf2047fcee93546ff2",
+      "nativeContent": false
+    }
+  ],
+  "screens": [
+    {
+      "file": "jobs-pending-1440.png",
+      "width": 1440,
+      "path": "/agents/approvals/5cc83f46-6990-4a5a-938d-f4a9ec8e2750",
+      "horizontalOverflow": false
+    },
+    {
+      "file": "jobs-pending-390.png",
+      "width": 390,
+      "path": "/agents/approvals/5cc83f46-6990-4a5a-938d-f4a9ec8e2750",
+      "horizontalOverflow": false
+    }
+  ],
+  "failures": [
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 390,
+      "console": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "browser": 1440,
+      "console": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "name": "TimeoutError",
+      "message": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-approval-state=\"executed\"]') to be visible\u001b[22m\n",
+      "stack": [
+        "locator.waitFor: Timeout 15000ms exceeded.",
+        "Call log:",
+        "\u001b[2m  - waiting for locator('[data-approval-state=\"executed\"]') to be visible\u001b[22m",
+        "",
+        "    at /home/agent/rer-consolidation/work/sx-lodge-c-f48/packet/qualify-standard.mjs:165:66"
+      ]
+    }
+  ],
+  "browserDecision": {
+    "status": 403,
+    "body": {
+      "code": "origin_refused"
+    }
+  },
+  "browserAfterClick": "Skip to content\nLodge\nAgents\nCould not save (origin_refused).\nRead scoped jobs\n\nAgent door conformance for Olive Owner\n\nWaiting for your decision · expires Fri, Nov 6, 5:59 AM\n\nNone\n\nApprove\nDecline\nDetails\nPolicy\nAsk first for everyday work (1 item), rule standard-approval\nWho decides\nThe person the agent works for\nPolicy version\n3\nAction\nlodge.jobs.list\n\nTimes are UTC.",
+  "approvalAfterClick": {
+    "approval": {
+      "id": "5cc83f46-6990-4a5a-938d-f4a9ec8e2750",
+      "decision_id": "b349b005-f443-4fdd-8143-c11a476d31a6",
+      "revision": 3,
+      "state": "pending",
+      "code": null,
+      "summary": {
+        "arguments": {}
+      },
+      "summary_sha256": "c5d4cad8762cddc7956e3105f2d6febe30aa92ea8aecdabfa91f53bb82401700",
+      "tool": "lodge.jobs.list",
+      "classes": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "approvers": [
+        "sponsor"
+      ],
+      "approvals": [],
+      "expires_at": "2026-11-06T05:59:23.616Z",
+      "prepared_by": {
+        "agent": {
+          "id": "094aa5b5-ccd8-4937-bb72-b43add9a713d",
+          "name": "Agent door conformance"
+        },
+        "for": {
+          "id": "0be87cfb-e775-4e25-b9c5-e5dcc5abe86f",
+          "name": "Olive Owner"
+        },
+        "label": "Agent door conformance for Olive Owner"
+      },
+      "rules": [
+        {
+          "class": "standard",
+          "rule": "standard-approval",
+          "do": "approval"
+        }
+      ]
+    }
+  },
+  "status": "fail",
+  "completed": "2026-11-06T04:59:39.219Z"
+}

@@ -1,0 +1,17 @@
+{
+  "head": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+  "file": "qualify-standard.mjs",
+  "lines": {
+    "blocked facts and no native effect": 80,
+    "pending exact revision and no content": 133,
+    "pending native record snapshot": 154,
+    "sponsor browser approval": 166,
+    "linked receipt": 177,
+    "replay snapshot": 200,
+    "draft proposal": 187,
+    "draft debrief": 192,
+    "Worker restart": 215,
+    "native browser screens": 228,
+    "separate human decisions": 265
+  }
+}

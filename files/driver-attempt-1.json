@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f48",
+  "head": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+  "started": "2026-11-06T04:56:52.142Z",
+  "cases": [],
+  "screens": [],
+  "failures": [
+    {
+      "name": "TypeError",
+      "message": "Cannot read properties of undefined (reading 'sponsor')",
+      "stack": [
+        "TypeError: Cannot read properties of undefined (reading 'sponsor')",
+        "    at file:///home/agent/rer-consolidation/work/sx-lodge-c-f48/packet/qualify-standard.mjs:58:72",
+        "    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+      ]
+    }
+  ],
+  "status": "fail",
+  "completed": "2026-11-06T04:56:53.191Z"
+}

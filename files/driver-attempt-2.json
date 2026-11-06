@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f48",
+  "head": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+  "started": "2026-11-06T04:57:12.627Z",
+  "cases": [
+    {
+      "tool": "lodge.jobs.list",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "after": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.records.read",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "after": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "after": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "after": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "nativeContent": false
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "path": "blocked",
+      "status": "pass",
+      "revision": 2,
+      "facts": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "code": "policy_blocked",
+      "before": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "after": "3ad411415d4a228f58aaed7dfa8eacda116b09afbf0cfb58439769dde523f403",
+      "nativeContent": false
+    }
+  ],
+  "screens": [],
+  "failures": [
+    {
+      "name": "AssertionError",
+      "message": "The expression evaluated to a falsy value:\n\n  assert.ok((await page.locator('body').innerText()).includes('Policy version'))\n",
+      "stack": [
+        "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:",
+        "",
+        "  assert.ok((await page.locator('body').innerText()).includes('Policy version'))",
+        "",
+        "    at file:///home/agent/rer-consolidation/work/sx-lodge-c-f48/packet/qualify-standard.mjs:154:16"
+      ]
+    }
+  ],
+  "status": "fail",
+  "completed": "2026-11-06T04:57:14.810Z"
+}
