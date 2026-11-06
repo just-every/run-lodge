@@ -1,0 +1,26 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f53",
+  "head": "fa1043c9936eca09c6146f4f9c3f397a01de1c18",
+  "verify": {
+    "conclusion": "success",
+    "event": "workflow_dispatch",
+    "head_sha": "fa1043c9936eca09c6146f4f9c3f397a01de1c18",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42182294791",
+    "id": 42182294791,
+    "status": "completed"
+  },
+  "localChecks": "passed",
+  "qualification": "passed",
+  "status": "partial",
+  "counts": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "publicationScan": "deferred to guarded Mac lander",
+  "landing": "not performed",
+  "githubCalls": 6,
+  "at": "2026-11-06T07:55:03.224452+00:00"
+}
