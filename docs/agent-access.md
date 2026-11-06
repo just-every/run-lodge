@@ -101,6 +101,40 @@ acceptance 1 for the existing authenticated MCP door only. It does not prove byt
 budgets, provider spending, outside mail, queued continuations, complete usage
 or the remaining Pause and resume duties. The clause remains partial.
 
+## Dropped-response recovery qualification
+
+A one-off acceptance-2 qualification for BASE-AGENT-012 runs the production
+build in real workerd with persistent local D1 and actual HTTP. It reuses the
+existing owner sponsor, disposable signed Business settings and policy,
+`tests/initialize-agent-owner.mjs`, `tests/initialize-agent.mjs` and
+`tests/agent-phase-fixtures.mjs`. Signing keys and credentials exist only in the
+disposable driver's memory; this supplies no live Business admission proof.
+
+For each of `lodge.proposals.prepare` and `lodge.debriefs.prepare`, under both
+autonomous and held company policies, the transport driver consumes the entire
+upstream response and confirms its recorded durable outcome before forwarding
+only half the bytes and terminating downstream delivery. The caller receives
+an incomplete body and fails while reading it. A signed-in state read then
+shows one native unsent draft. The driver disposes the Worker and starts a
+fresh instance against the same persistent D1, without changing the agent,
+sponsor, consent, client, policy or credential. An identical-argument retry
+with the same key and a new JSON-RPC id returns the original structured result,
+draft identity and content, and original review handle when present. Every
+native record value and revision remains equal, the draft count does not
+increase, and the shared audit identifies the replay. Fresh RPC and decision
+identifiers are excluded from semantic comparison.
+
+The existing proposal and debrief screens are inspected at 1440 and 390; no
+production screen or permanent test is changed. The complete one-off driver,
+actual response bytes, failure observations, comparisons and screenshots are
+in the [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f56/files).
+This independently confirms the predecessor's bounded proof. It does not
+qualify an interruption between native mutation and durable outcome, 24-hour
+retention, provider uncertainty, queued continuation, retained client-data
+custody or erasure, wider revision conflicts, long work or cross-person job
+handles. BASE-AGENT-012 stays partial with its complete original acceptance
+and all existing holds unchanged.
+
 Run `pnpm exec rer verify` for the production-build conformance journey. It
 creates a disposable owner through native setup-token admission, finishes
 first-run and business setup, binds a native agent, and uses fresh native
