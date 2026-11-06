@@ -1,0 +1,256 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f60",
+  "head": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+  "started": "2026-11-06T11:24:22.697Z",
+  "checks": [
+    {
+      "phase": "autonomous",
+      "mode": "declared",
+      "maxBodyBytes": 1048576,
+      "requestBytes": 1048577,
+      "withinCapacityBytes": 624,
+      "framing": {
+        "contentLength": 1048577,
+        "chunked": false,
+        "chunksWritten": 1,
+        "bytesWritten": 1048577
+      },
+      "refusal": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Body too large"
+        }
+      },
+      "status": 413,
+      "nativeBeforeSha256": "6c9243dac6f718cbdd4df001811dff44d8a7d479f77c6215bc8eef923a3b2155",
+      "nativeAfterSha256": "6c9243dac6f718cbdd4df001811dff44d8a7d479f77c6215bc8eef923a3b2155",
+      "nativeRecordCount": 23,
+      "effectBeforeSha256": "ce41cfbe65b92704585697162c1a275ee3ccc92432570a3561dc38d9e1bf8ff2",
+      "effectAfterSha256": "ce41cfbe65b92704585697162c1a275ee3ccc92432570a3561dc38d9e1bf8ff2",
+      "nativeInventoryBeforeSha256": "beb0b21137b928fe256defb7e965daac21ae4200cbd9d57d4c30f1824aaba14e",
+      "nativeInventoryAfterSha256": "beb0b21137b928fe256defb7e965daac21ae4200cbd9d57d4c30f1824aaba14e",
+      "proposalCountBefore": 1,
+      "debriefCountBefore": 1,
+      "validJsonPreserved": true,
+      "positiveRequestSha256": "6927ce28e0a59debd21fc252926ad2f2f50e919ec58c2917aa9525ef0db878c9",
+      "idempotencyKeySha256": "951c8398442f7807daaeda74564a5a53e7c3116166d722d0cf0c1e2868431b4e",
+      "allEffectTablesUnchanged": true,
+      "inventoriesAndHiringDecisionsUnchanged": true,
+      "retryStatus": 200,
+      "positiveFraming": {
+        "contentLength": 624,
+        "chunked": false,
+        "chunksWritten": 1,
+        "bytesWritten": 624
+      },
+      "proposedDraftState": "proposed",
+      "exactlyOneProposedDraft": true,
+      "decisionDisposition": "autonomous",
+      "policyRevision": 1,
+      "decisionLinkedToCallAndAudit": true,
+      "reviewLinked": false,
+      "noAppliedVacancy": true,
+      "replaySameDraft": true,
+      "providerCalls": 0,
+      "mailUnchanged": true
+    },
+    {
+      "phase": "autonomous",
+      "mode": "streamed",
+      "maxBodyBytes": 1048576,
+      "requestBytes": 1048577,
+      "withinCapacityBytes": 624,
+      "framing": {
+        "contentLength": null,
+        "chunked": true,
+        "chunksWritten": 65,
+        "bytesWritten": 1048577
+      },
+      "refusal": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Body too large"
+        }
+      },
+      "status": 413,
+      "nativeBeforeSha256": "abebee4fef0186ec2e6645944355cf5f870f04d49641268c150328c8e6344b9d",
+      "nativeAfterSha256": "abebee4fef0186ec2e6645944355cf5f870f04d49641268c150328c8e6344b9d",
+      "nativeRecordCount": 25,
+      "effectBeforeSha256": "1ddc181624471f3652a4f3d168c93df676ef1f66f015ea1efb4c0b5a3a28467b",
+      "effectAfterSha256": "1ddc181624471f3652a4f3d168c93df676ef1f66f015ea1efb4c0b5a3a28467b",
+      "nativeInventoryBeforeSha256": "b87b1f29e3d62d9d905298062b0406dc0de8c70001d7ec15939aafe649f6ccec",
+      "nativeInventoryAfterSha256": "b87b1f29e3d62d9d905298062b0406dc0de8c70001d7ec15939aafe649f6ccec",
+      "proposalCountBefore": 2,
+      "debriefCountBefore": 1,
+      "validJsonPreserved": true,
+      "positiveRequestSha256": "deb355e0d6ed8375f236b599440866c08a0bc21a955800b1636f040ac798a2cb",
+      "idempotencyKeySha256": "c568fdd79c944618604384d9c1f0514db11903cf254ff3c015bf3ded23ebef3b",
+      "allEffectTablesUnchanged": true,
+      "inventoriesAndHiringDecisionsUnchanged": true,
+      "retryStatus": 200,
+      "positiveFraming": {
+        "contentLength": 624,
+        "chunked": false,
+        "chunksWritten": 1,
+        "bytesWritten": 624
+      },
+      "proposedDraftState": "proposed",
+      "exactlyOneProposedDraft": true,
+      "decisionDisposition": "autonomous",
+      "policyRevision": 1,
+      "decisionLinkedToCallAndAudit": true,
+      "reviewLinked": false,
+      "noAppliedVacancy": true,
+      "replaySameDraft": true,
+      "providerCalls": 0,
+      "mailUnchanged": true
+    },
+    {
+      "phase": "held",
+      "mode": "declared",
+      "maxBodyBytes": 1048576,
+      "requestBytes": 1048577,
+      "withinCapacityBytes": 612,
+      "framing": {
+        "contentLength": 1048577,
+        "chunked": false,
+        "chunksWritten": 1,
+        "bytesWritten": 1048577
+      },
+      "refusal": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Body too large"
+        }
+      },
+      "status": 413,
+      "nativeBeforeSha256": "f72874f803052a7d28b882128f9abd18cb0a652820f743766983deb7d7a84619",
+      "nativeAfterSha256": "f72874f803052a7d28b882128f9abd18cb0a652820f743766983deb7d7a84619",
+      "nativeRecordCount": 27,
+      "effectBeforeSha256": "8c312a6d2c56e358f33830cb80b0d0bf6d2b2d401fce972a258ea55c0b974d6d",
+      "effectAfterSha256": "8c312a6d2c56e358f33830cb80b0d0bf6d2b2d401fce972a258ea55c0b974d6d",
+      "nativeInventoryBeforeSha256": "244e9ba79c61a199af3812464d00029abed3a5d20ca2447c3beb742c76f11655",
+      "nativeInventoryAfterSha256": "244e9ba79c61a199af3812464d00029abed3a5d20ca2447c3beb742c76f11655",
+      "proposalCountBefore": 3,
+      "debriefCountBefore": 1,
+      "validJsonPreserved": true,
+      "positiveRequestSha256": "368537d48662cae7f7a1f0269a251cbc2049ce811b1b8fee2e374c2e75aa03f3",
+      "idempotencyKeySha256": "71e31fc83937aa10fed510b2654d8cf27a76b6ace7debf182a39952ce0bb6144",
+      "allEffectTablesUnchanged": true,
+      "inventoriesAndHiringDecisionsUnchanged": true,
+      "retryStatus": 200,
+      "positiveFraming": {
+        "contentLength": 612,
+        "chunked": false,
+        "chunksWritten": 1,
+        "bytesWritten": 612
+      },
+      "proposedDraftState": "proposed",
+      "exactlyOneProposedDraft": true,
+      "decisionDisposition": "review",
+      "policyRevision": 2,
+      "decisionLinkedToCallAndAudit": true,
+      "reviewLinked": true,
+      "noAppliedVacancy": true,
+      "replaySameDraft": true,
+      "providerCalls": 0,
+      "mailUnchanged": true
+    },
+    {
+      "phase": "held",
+      "mode": "streamed",
+      "maxBodyBytes": 1048576,
+      "requestBytes": 1048577,
+      "withinCapacityBytes": 612,
+      "framing": {
+        "contentLength": null,
+        "chunked": true,
+        "chunksWritten": 65,
+        "bytesWritten": 1048577
+      },
+      "refusal": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Body too large"
+        }
+      },
+      "status": 413,
+      "nativeBeforeSha256": "5c5e4e23f2f2f192860736d7ac4b5273404699f4742b251143f869755114b579",
+      "nativeAfterSha256": "5c5e4e23f2f2f192860736d7ac4b5273404699f4742b251143f869755114b579",
+      "nativeRecordCount": 29,
+      "effectBeforeSha256": "dac139cbc0d22e388269a25cb64052b50efb346e4391a5470faad97fb77b6d2f",
+      "effectAfterSha256": "dac139cbc0d22e388269a25cb64052b50efb346e4391a5470faad97fb77b6d2f",
+      "nativeInventoryBeforeSha256": "320684ae36145f88949a62b77575ecc7cb16c2ab079fc940af6c4a8a14fb66dd",
+      "nativeInventoryAfterSha256": "320684ae36145f88949a62b77575ecc7cb16c2ab079fc940af6c4a8a14fb66dd",
+      "proposalCountBefore": 4,
+      "debriefCountBefore": 1,
+      "validJsonPreserved": true,
+      "positiveRequestSha256": "43674118bd846d0cb19557e9b74ede831e26fac26ebb025ee6e86fe002e465b4",
+      "idempotencyKeySha256": "4c7df5efc5bb9f997c46495b8198e74f2eb40f16007fa0a7498875fe3703fdf5",
+      "allEffectTablesUnchanged": true,
+      "inventoriesAndHiringDecisionsUnchanged": true,
+      "retryStatus": 200,
+      "positiveFraming": {
+        "contentLength": 612,
+        "chunked": false,
+        "chunksWritten": 1,
+        "bytesWritten": 612
+      },
+      "proposedDraftState": "proposed",
+      "exactlyOneProposedDraft": true,
+      "decisionDisposition": "review",
+      "policyRevision": 2,
+      "decisionLinkedToCallAndAudit": true,
+      "reviewLinked": true,
+      "noAppliedVacancy": true,
+      "replaySameDraft": true,
+      "providerCalls": 0,
+      "mailUnchanged": true
+    }
+  ],
+  "screenshots": [
+    "native-proposed-drafts-1440.png",
+    "native-proposed-drafts-390.png",
+    "native-retained-debrief-1440.png",
+    "native-retained-debrief-390.png",
+    "native-policy-refusal-1440.png",
+    "native-policy-refusal-390.png"
+  ],
+  "status": "passed",
+  "maxBodyBytes": 1048576,
+  "discovery": {
+    "versions": [
+      "2026-07-28",
+      "2025-11-25"
+    ],
+    "capabilities": {
+      "tools": {
+        "listChanged": false
+      },
+      "prompts": {
+        "listChanged": false
+      }
+    },
+    "serverInfo": {
+      "name": "Lodge",
+      "version": "1"
+    },
+    "instructions": true
+  },
+  "retainedDrafts": {
+    "proposals": 1,
+    "debriefs": 1
+  },
+  "transportPointsOneToFive": "passed under both policies",
+  "browser": "Unchanged emitted production Worker, native session, real D1 and built assets over HTTP; no intercepted browser responses",
+  "completed": "2026-11-06T11:24:29.121Z"
+}

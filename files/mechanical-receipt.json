@@ -1,0 +1,53 @@
+{
+  "head": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+  "commands": [
+    {
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-001",
+      "exit": 0,
+      "stdoutSha256": "4de6fdeb253eb6fb24d520dd786f2b0efaabc3a9645ee74be8f4af526a251954",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-001",
+      "exit": 0,
+      "stdoutSha256": "efd1aec8c6e57c6c479ccb3e4279bc69b5099b41c37aa94586d75fca5a2581ea",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "stdoutSha256": "fbc0cbe657d9a714b57f94b25bde7eb535f2fd62b2868186a5c5cbc3b15e3eea",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "stdoutSha256": "02c6346ff12a4b4db6ec2c7dba7af326ebf3942548814ddaf2057044e7dab5d0",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git diff --exit-code",
+      "exit": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "ledger": {
+    "command": "none",
+    "exit": 0,
+    "reason": "No migration changed"
+  },
+  "generatedViewsRestored": true
+}

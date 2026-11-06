@@ -1,0 +1,27 @@
+{
+  "head": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "runtimeAndTestBytesUnchangedAtHead": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+      "logSha256": "6a62bb65121d5a348295ffdebd5997f8c6d6aa9b4c0ae1a39ab4d336d97b9ab3"
+    },
+    {
+      "command": "node --test --test-name-pattern='Recruiting coordinator prompt stays static' tests/security.test.mjs",
+      "exit": 0,
+      "log": "existing-journey.log",
+      "runtimeAndTestBytesUnchangedAtHead": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+      "logSha256": "6594a88e3aa2e09f97da9a2c8d926390d95faa6cfe1c5068c18869f935c0c3fa"
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log",
+      "runtimeAndTestBytesUnchangedAtHead": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+      "runAtHead": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+# sx-lodge-c-f60 plan
+
+Replay the refused predecessor's single unfinished qualification commit onto current main, retaining every newer judgment and all other writers' work. Read the existing BASE-AGENT-001 acceptance and Status Gap, fixture helpers, native tool adapter and copied transport implementation. Qualify only acceptance 6 for the authenticated MCP door and current owner sponsor.
+
+Use an external one-off driver and the existing disposable signed Business fixture pattern. Derive the capacity from discovery. Under autonomous and held policies, transmit the same valid proposal-preparation arguments with whitespace padding through declared-length and genuinely streamed HTTP requests. Assert 413, no tool result, unchanged nonempty native inventories, record values and revisions, hiring decisions and provider effects. Submit the identical arguments and key within capacity; require exactly one proposed draft with the current decision and held-review linkage, without applying a vacancy or calling a provider. Check replay preserves that one draft.
+
+Inspect unchanged native draft and policy-refusal screens at 1440 and 390 using the production build. Add no permanent test, runtime, manifest, copied Base or approved-screen change. Run the related existing journey, typecheck and first-party check. Update only the qualification evidence and Gap with every held remainder retained. Run contract generation and its check, restore generated views, regenerate the source lock last and check it. Validate all parent Status rows and candidate commit identities and trailers before committing and pushing only cloud/sx-lodge-c-f60.
+
+Re-run the proof on the committed candidate. Discover and, if necessary, dispatch one exact-SHA Verify through REST within the ten-call budget. Report pending CI honestly. Publish the complete non-secret packet separately to evidence/sx-lodge-c-f60. No DONE claim, no status-count increase, no main push, no adjacent held work.

@@ -1,0 +1,18 @@
+{
+  "parent": "2847114868079ad6e85a6aa1c3e4f46986693dbc",
+  "before": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "after": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "parentStatusRows": 145,
+  "stagedStatusRows": 145,
+  "droppedIds": []
+}

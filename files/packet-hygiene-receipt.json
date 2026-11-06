@@ -1,0 +1,138 @@
+{
+  "head": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+  "selectedFiles": [
+    {
+      "path": "REPORT.md",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "PLAN.md",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "PROBES.txt",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "qualification-receipt.json",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "runtime-receipt.json",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "validation-receipt.json",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "row-preservation-receipt.json",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "mechanical-receipt.json",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "custody-receipt.json",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "ci-receipt.json",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "ci-discovery.json",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "ci-discovery-time.txt",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "oversize-qualification.mjs",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "production-harness.mjs",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "mechanical-check.py",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "build.log",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "qualification.log",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "existing-journey.log",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "first-party.log",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "typecheck.log",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "native-proposed-drafts-1440.png",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "native-proposed-drafts-390.png",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "native-retained-debrief-1440.png",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "native-retained-debrief-390.png",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "native-policy-refusal-1440.png",
+      "regular": true,
+      "credentialPatternFindings": 0
+    },
+    {
+      "path": "native-policy-refusal-390.png",
+      "regular": true,
+      "credentialPatternFindings": 0
+    }
+  ],
+  "addedProductEmailLiterals": 0,
+  "productTreeClean": true,
+  "publicationScan": "not run in cloud; maintained lander gate"
+}

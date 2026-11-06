@@ -1,0 +1,172 @@
+{
+  "files": [
+    {
+      "blob": "4c7b6c31e99c7d9cbe654c8fb689770b3a9eb2a6",
+      "bytes": 1971,
+      "path": "PLAN.md",
+      "sha256": "94f3d8dada8c810eb69ef51e1422c3c61d114ec13ec161d8a10d08246e28091d"
+    },
+    {
+      "blob": "f37d9ad7c7955de93bc12c8b2d21e7c7f596aa3f",
+      "bytes": 872,
+      "path": "PROBES.txt",
+      "sha256": "f66d9baae1a772121c27d60b8a808dfe302d5e91ea75ea82537a6e8586f52dc4"
+    },
+    {
+      "blob": "6e24b2309af6b34d1954b8637e90232110bceb85",
+      "bytes": 15755,
+      "path": "REPORT.md",
+      "sha256": "2f83d14417717be9f6d72381e779fd8a6c1c8fdc041b356f5bc0f08bb366c66a"
+    },
+    {
+      "blob": "3219744ab87fbfbdad84ac8a2f71892c2667bae6",
+      "bytes": 3475,
+      "path": "build.log",
+      "sha256": "e8b5b5206fdd7df78923735bc82ea121f749c46f951e03840f473c4c2e0fe59c"
+    },
+    {
+      "blob": "9753682212824522bdb9776f39cbd7bf0ef902dd",
+      "bytes": 21,
+      "path": "ci-discovery-time.txt",
+      "sha256": "209a83347056253fba99a1744271d85c2fa9bf1f7cc622ff20f62cfe47b36e76"
+    },
+    {
+      "blob": "fe51488c7066f6687ef680d6bfaa4f7768ef205c",
+      "bytes": 3,
+      "path": "ci-discovery.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "blob": "5f216b9889b0cb6c79509d134b5dcc460a38caad",
+      "bytes": 830,
+      "path": "ci-receipt.json",
+      "sha256": "3f5eec1dd214c3c5af5d9e2788bc335d39a1c83b8d458f2b18b16a73dfcb67df"
+    },
+    {
+      "blob": "84fc889f7c04a14c108641013ed5395dd72e163d",
+      "bytes": 545,
+      "path": "custody-receipt.json",
+      "sha256": "4de07781964af92d6ecb98f2d14d0faf8360868565293257555c5bf324965917"
+    },
+    {
+      "blob": "1f7302e8a537877413606d564075c727db437131",
+      "bytes": 386,
+      "path": "existing-journey.log",
+      "sha256": "6594a88e3aa2e09f97da9a2c8d926390d95faa6cfe1c5068c18869f935c0c3fa"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "2943a06554945155e1bb09261b4e4cfc5ae502fa",
+      "bytes": 1103,
+      "path": "mechanical-check.py",
+      "sha256": "48916823706a6ebbdc9c12e8deebaa6ca32e3d0bcd3faaa8bc46d38344f43d20"
+    },
+    {
+      "blob": "88a34b08b28391ba698c657055a244b693b856ca",
+      "bytes": 2096,
+      "path": "mechanical-receipt.json",
+      "sha256": "774071e214e01863361bca5924777d5f4c7b91fa63ea3b238f6ff57154434b1d"
+    },
+    {
+      "blob": "ddf7c3480b49e45e08a076c46159c5dd19f7350e",
+      "bytes": 231802,
+      "path": "native-policy-refusal-1440.png",
+      "sha256": "bf3355bacfe493988dc52bcc6c37dc9d02d87863d6c6d4280d0bd7c13b9ee55c"
+    },
+    {
+      "blob": "a9d83e17c9cdf8ca67f86af6cdf8ef89929590ed",
+      "bytes": 207047,
+      "path": "native-policy-refusal-390.png",
+      "sha256": "91d335b09d2343a222c223c7b57ee8da443d6339268daaaa17815d8b7f5a33de"
+    },
+    {
+      "blob": "420c0cd492bba42d76cde2b6e998acf689633c2c",
+      "bytes": 338669,
+      "path": "native-proposed-drafts-1440.png",
+      "sha256": "78f912d832cffc5daf20c573459ead9f694471a723e1d9a040ebccc4a2f8c4ac"
+    },
+    {
+      "blob": "0c72a1c25cffa5e2e57e4be619ad9440b6bf0deb",
+      "bytes": 271972,
+      "path": "native-proposed-drafts-390.png",
+      "sha256": "55d5ef6e99d2ffb98505daba511a769e4d177bfbe2373b3377e32cdf1d38983d"
+    },
+    {
+      "blob": "fb1c910733be928131b4498bc06213508b72ee76",
+      "bytes": 415008,
+      "path": "native-retained-debrief-1440.png",
+      "sha256": "5b02c6e3fcea3b81c3e0f1c4ee75cc43edd6e3a48ec72cefd9eb9dcb2477ff68"
+    },
+    {
+      "blob": "39f2ca4d0f40795e634449b6bda0d9a18327b6b1",
+      "bytes": 367960,
+      "path": "native-retained-debrief-390.png",
+      "sha256": "fb497e919cc5fd132d444cc25173d4eeedcaf2fb0cc8c4b523a720b7a65cb887"
+    },
+    {
+      "blob": "ca5a62f9fb817785a87004d91478212a6981f32e",
+      "bytes": 17930,
+      "path": "oversize-qualification.mjs",
+      "sha256": "0533b59ef114f7e371dd83f20c1e6a7440b90f2e5c2259da05a0b6b79ab7d7ef"
+    },
+    {
+      "blob": "7a92af37e73576730a8dbd1a1e14b797b7369f32",
+      "bytes": 3119,
+      "path": "packet-hygiene-receipt.json",
+      "sha256": "926334857f7c03f55f5f0fafa9b3c0de365665f1651c008804908fbfbef7da90"
+    },
+    {
+      "blob": "6da346c5684ab8bd1548a861e1027a938df54817",
+      "bytes": 4767,
+      "path": "production-harness.mjs",
+      "sha256": "abe2369d4a4246480e6895b3270ddb7381deb2feb88362e736ad21dcf9b327ef"
+    },
+    {
+      "blob": "2ee0950a241187dab2e97a98fcdbb7158c75372d",
+      "bytes": 9153,
+      "path": "qualification-receipt.json",
+      "sha256": "3d4252e7e5a93cada6625157253e958a9ccc044722798d23c6aa1a108a979e9d"
+    },
+    {
+      "blob": "8246b913b925f0755b570078dae8059fbdf7f7a1",
+      "bytes": 1008,
+      "path": "qualification.log",
+      "sha256": "6ad949a4ed321cf8f32b8008ea0d817a895cf9f01020b749e1864ede34243b73"
+    },
+    {
+      "blob": "d08b3b5aeba0715f45821e9cc31d339d72168f10",
+      "bytes": 312,
+      "path": "row-preservation-receipt.json",
+      "sha256": "e156ff138172b86de6e1ad75a95c2bb79f668a6a48d57b21eeca58071c096424"
+    },
+    {
+      "blob": "1aa102b36e706661e0585f32219b6c66cb129ad3",
+      "bytes": 101,
+      "path": "runtime-receipt.json",
+      "sha256": "ce4323323d6a37822e9b27509ba15a85be941b37de61502dfc3d3ce48b998aec"
+    },
+    {
+      "blob": "a58871d124835492895c06570de135ed1fe85d91",
+      "bytes": 228,
+      "path": "typecheck.log",
+      "sha256": "6a62bb65121d5a348295ffdebd5997f8c6d6aa9b4c0ae1a39ab4d336d97b9ab3"
+    },
+    {
+      "blob": "572931f26bcc23bc90912ec695ff99c16dfd9d43",
+      "bytes": 1067,
+      "path": "validation-receipt.json",
+      "sha256": "fcf00b31f931aa8ec132d15f4f7afdbf72c4874ba9a94c6c6cceab88ba25316c"
+    }
+  ],
+  "product_branch": "cloud/sx-lodge-c-f60",
+  "product_head": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+  "ref": "refs/heads/evidence/sx-lodge-c-f60",
+  "repository": "just-every/run-lodge",
+  "schema": 1,
+  "tag": "sx-lodge-c-f60"
+}

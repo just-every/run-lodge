@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f60",
+  "head": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+  "remoteHead": "1614a92809ed8c4b3be467fa7f751baebb370ef5",
+  "pushGuard": "cloud-push.py",
+  "pushStatus": "PUSH_OK",
+  "mainPushed": false,
+  "startingMain": "31d6fe373723209fe21593523e8a533ce402fae7",
+  "rebasedMain": "2847114868079ad6e85a6aa1c3e4f46986693dbc",
+  "worktreeClean": true,
+  "productFiles": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "coAuthorTrailers": []
+}
