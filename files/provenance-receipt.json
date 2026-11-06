@@ -1,0 +1,105 @@
+{
+  "head": "b04687ab3ae01ee951330cb07cae96e48fddc6d3",
+  "baseMain": "4a9c753cd7b3eec91903d9e4442d5c32b1f2cc42",
+  "files": [
+    {
+      "path": "agent-surface.json",
+      "sha256": "4866d0ffac9ce0955880e5f64a24a5e556ff52b36318e8c04b13ad8c03405a57",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "tests/agent-prompts-flow.mjs",
+      "sha256": "525e4aaa043992f4030d0b20a0fd5e534454c00262e6f43df403ef2c425739e5",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "tests/harness.mjs",
+      "sha256": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "tests/initialize-agent.mjs",
+      "sha256": "8a8b79c94adb1024c4e838259cac1802ea955fbb7c8612b070dceef59367f065",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "tests/agent-phase-fixtures.mjs",
+      "sha256": "3000e4c0d5af78cc3f0b749370f5f93c321281e22f1b4bc5745c01480477f63e",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "src/lodge/agent-door/tools.ts",
+      "sha256": "ee3dcf0128925ad2bae44c4a41eaec0986d23d3736d864d07c64cdd0586e73c6",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "src/lodge/agent-door/context.ts",
+      "sha256": "0a853d246acddb0781e1513231f39150a92a4ee9866d166d6548cba3b220e973",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "src/modules/agent-door/conformance/journey.mjs",
+      "sha256": "8f1150f23271d0dc2acaf03b7737932ed8ab04473fee1fd534ef1dd07da34b1c",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "src/modules/agent-door/conformance/injection.mjs",
+      "sha256": "677874564cd7e3d6a6f083cffd358c22a05f28cd129b4f22bdb4743186d0b472",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "src/modules/agent-door/conformance/audit.mjs",
+      "sha256": "77d720ebb0c8d2fdc8ef60f59cb24b36dc378e34f11ed0c5de0527235d1a8061",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "src/modules/agent-door/pipeline.ts",
+      "sha256": "c1a1072f3f1fec84f33c365719c61fa4cdfdba384155385f6ad300da964e8eed",
+      "unchangedFromMain": true
+    },
+    {
+      "path": "src/ui/app.tsx",
+      "sha256": "b8bc375185c6923150f4258d0e631426ca7e13b555d2bb31396dd7e961463cf6",
+      "unchangedFromMain": true
+    }
+  ],
+  "builtWorkerSha256": "2797c8e4e1af20b0e430eceff64744da4db52c8c6dc24eb5696a3b0833d357de",
+  "runtimeAndManifestChanges": false,
+  "permanentTestsAdded": 0,
+  "assertionsRemovedOrWeakened": false,
+  "browserInterception": false,
+  "browserScreens": {
+    "native-proposal-drafts-1440.png": {
+      "sha256": "9f6763ccd7a2007044e8b9c84baa97dddfadf7c5bc871594280d5b893eceac94",
+      "bytes": 406742
+    },
+    "native-debrief-drafts-390.png": {
+      "sha256": "5cd0b275da00219d9a04010b96c7f3098cc6e7466f72f753ccc992a406c62e8b",
+      "bytes": 498589
+    },
+    "native-source-1440.png": {
+      "sha256": "1d624eba2252027b6fcc3decd08a7162f6c941c2aba3e78a48dd4584ec8bba52",
+      "bytes": 457197
+    },
+    "native-proposal-drafts-390.png": {
+      "sha256": "e57d220821e7db45fe69dbc861e72fa08cfe995d35cf269373be1a270f105b3c",
+      "bytes": 317002
+    },
+    "native-source-390.png": {
+      "sha256": "4ff7e97b5b2378a9c9f9d99692d87ee438ddef5620a54fc87f3369f4df3ed549",
+      "bytes": 376079
+    },
+    "native-debrief-drafts-1440.png": {
+      "sha256": "e5c30094ab2df964bed20743b13d676ff3b74248b1e8b0177b5f648906501545",
+      "bytes": 844830
+    }
+  },
+  "browserInspected": true,
+  "browserWidths": [
+    1440,
+    390
+  ],
+  "initialFetchBeforeFinalPush": "authentication failed; no successful new-main observation established by that attempt",
+  "finalFetch": "success: main unchanged at 4a9c753cd7b3eec91903d9e4442d5c32b1f2cc42",
+  "productPush": "success on guarded attempt four"
+}

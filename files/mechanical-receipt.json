@@ -1,0 +1,23 @@
+{
+  "viewsWrite": 0,
+  "viewsCheck": 0,
+  "lockWrite": 0,
+  "lockCheck": 0,
+  "ledger": "none: no migration changed",
+  "parentRows": 145,
+  "stagedRows": 145,
+  "dropped": [],
+  "parentPipeCount": 169,
+  "stagedPipeCount": 169,
+  "before": {
+    "done": 70,
+    "missing": 31,
+    "partial": 44
+  },
+  "after": {
+    "done": 70,
+    "missing": 31,
+    "partial": 44
+  },
+  "head": "b04687ab3ae01ee951330cb07cae96e48fddc6d3"
+}

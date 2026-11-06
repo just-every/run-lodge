@@ -1,0 +1,8 @@
+{
+  "head": "b04687ab3ae01ee951330cb07cae96e48fddc6d3",
+  "branch": "cloud/sx-lodge-c-f55",
+  "command": "gh api -X POST repos/just-every/run-lodge/actions/workflows/verify.yml/dispatches -f ref=cloud/sx-lodge-c-f55",
+  "exit": 0,
+  "at": "2026-11-06T08:52:39.171755+00:00",
+  "reason": "exact-SHA discovery returned no existing run; documentation-only product commits carry skip-ci markers"
+}

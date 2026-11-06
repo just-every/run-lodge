@@ -1,0 +1,43 @@
+{
+  "head": "b04687ab3ae01ee951330cb07cae96e48fddc6d3",
+  "main": "4a9c753cd7b3eec91903d9e4442d5c32b1f2cc42",
+  "branch": "cloud/sx-lodge-c-f55",
+  "before": {
+    "done": 70,
+    "missing": 31,
+    "partial": 44
+  },
+  "after": {
+    "done": 70,
+    "missing": 31,
+    "partial": 44
+  },
+  "total": 145,
+  "allParentChecks": [
+    {
+      "commit": "b04687ab3ae01ee951330cb07cae96e48fddc6d3",
+      "parent": "d2f4a1e8daab608967af86ecca158254138f707d",
+      "parentRows": 145,
+      "rows": 145,
+      "dropped": []
+    },
+    {
+      "commit": "d2f4a1e8daab608967af86ecca158254138f707d",
+      "parent": "4a9c753cd7b3eec91903d9e4442d5c32b1f2cc42",
+      "parentRows": 145,
+      "rows": 145,
+      "dropped": []
+    }
+  ],
+  "candidateCommits": [
+    "b04687ab3ae01ee951330cb07cae96e48fddc6d3",
+    "d2f4a1e8daab608967af86ecca158254138f707d"
+  ],
+  "identityAndTrailers": "pass",
+  "generatedViewsMatchMain": true,
+  "sourceChanges": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ]
+}
