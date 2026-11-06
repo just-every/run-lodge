@@ -131,6 +131,8 @@ oversized requests create no tool audit entry.
 
 The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f59/files)
 retains the one-off raw driver, production fixture helper, actual receipt and
+screenshots. The [current-main repeat](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f60/files)
+repeats all four cases with native record and inventory hashes and fresh
 screenshots. No permanent test, runtime, manifest, copied Base or production
 screen changes accompany this qualification. Other transport, version,
 discovery, cache, Origin and header acceptance remains required. Resources and
@@ -243,3 +245,52 @@ Other class and fact duties, tool families, roles, live Business admission and
 the complete original acceptance remain open, alongside the existing identity,
 custody, lifecycle, continuation and specialist holds. BASE-AGENT-006 remains
 partial.
+
+
+## Read-only action-scope qualification
+
+The sx-lodge-c-f62 one-off driver independently qualifies the existing
+BASE-AGENT-005 acceptance-2 action-scope and caller-argument boundary. It uses
+the emitted production Worker, migrated disposable D1 and the same signed
+Business owner, native agent binding and fixture initializers as
+`tests/agent-prompts-flow.mjs`. The signing keys exist only in driver memory;
+this establishes no live Business admission or standalone token issuance.
+
+Under autonomous and held company policies, a token containing only
+`lodge:read` successfully calls all three adopted read tools: scoped job
+listing, a native vacancy source read and the draft inventory. Both preparation
+tools then receive otherwise-valid native arguments and fresh idempotency keys.
+The driver separately tries no extra claim, an owner role claim, a preparation
+scope claim and an unrestricted grant claim. All sixteen requests return HTTP
+403 `insufficient_scope`, challenge for `lodge:prepare` and return no tool
+result. Every native record value and revision, existing draft, native binding,
+shared call, review, approval, usage and event remains unchanged. Each refusal
+has a matching audit row retaining the actual read scope, agent, sponsor,
+consent, tool, refused key and ignored caller arguments.
+
+With the same identity, consent, arguments and refused key, the fully scoped
+fixture credential succeeds once per case. Each success adds exactly one
+unsent proposed vacancy draft or draft debrief, bound to the current policy
+revision and disposition. Held-policy results have an open review linked to
+the same decision and sponsor. Replaying each successful request returns its
+original draft without adding another or changing its native revision. Hiring
+records and decisions remain unchanged, no proposal is applied, no debrief is
+kept and no provider call occurs. Existing source, proposal and debrief states
+are inspected through the production page at 1440 and 390.
+
+The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f62/files)
+contains the disposable driver, production fixture, actual receipt and browser
+proof. An additional application-source read reproduces `output_invalid` with
+both the read-only and fully scoped credentials; the valid vacancy-source read
+above succeeds. That existing output defect is reported separately and is not
+silently repaired by this qualification.
+
+No permanent test, runtime, manifest, copied Base, capability or approved screen
+changes accompany this qualification. BASE-AGENT-005 remains partial. Complete
+one-folder resource grants and budget intersection, all-role UI parity,
+sponsor downgrade and suspension beyond existing proof, self-escalation,
+own-grant narrowing and broader injection resistance remain required. Access
+and security families and cross-sponsor fixtures remain undeclared. Every
+existing Business, identity, lifecycle, custody, continuation, provider,
+specialist, account, device and policy hold remains unchanged, along with the
+complete original acceptance; live BASE-AGENT-001 remains excluded.
