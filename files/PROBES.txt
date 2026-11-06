@@ -1,0 +1,9 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PROBE BASE-AGENT-012 acceptance-2 autonomous lodge.proposals.prepare: complete durable upstream, incomplete downstream, fresh Worker retry -> original draft and review, no second effect
+PROBE BASE-AGENT-012 acceptance-2 autonomous lodge.debriefs.prepare: complete durable upstream, incomplete downstream, fresh Worker retry -> original draft and review, no second effect
+PROBE BASE-AGENT-012 acceptance-2 held lodge.proposals.prepare: complete durable upstream, incomplete downstream, fresh Worker retry -> original draft and review, no second effect
+PROBE BASE-AGENT-012 acceptance-2 held lodge.debriefs.prepare: complete durable upstream, incomplete downstream, fresh Worker retry -> original draft and review, no second effect
+RESULT 4 lost-response cases passed; existing proposal and debrief screens captured at 1440 and 390
+DRIVER_CLEANUP processExitCode=0

@@ -1,0 +1,898 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f56",
+  "clause": "BASE-AGENT-012",
+  "acceptance": 2,
+  "head": "daece69a5598b93ecfb1e86ec7950b436b6e2ebc",
+  "builtWorkerSha256": "622e1e8a4464f9e6b8aa72ab30048271834d623f73aa1bcbc70b88327bbb0248",
+  "startedAt": "2026-11-06T08:58:37.896Z",
+  "runtime": "production build in workerd, persistent D1, actual loopback HTTP",
+  "cases": [
+    {
+      "phase": "autonomous",
+      "tool": "lodge.proposals.prepare",
+      "unchangedIdentity": {
+        "agent": "54a16dcd-23ea-4d01-a9c5-04fe73a0eb8d",
+        "sponsor": "ed949b1d-f8ba-4e18-ba15-b926ba603c19",
+        "consent": "8336ec09-8909-49d6-85f8-993bc54ce422",
+        "client": "rer-agent-conformance",
+        "revision": 1,
+        "policyDigest": "0277ef77bfe6a628004532008224da2e0efc43ef9610a2453ea3b43595359ca2",
+        "tokenDigest": "c1b77d8b74ebe9f3da595321089bb8c3c4a3200d7cb01ac932e2fc339c7ee8b9",
+        "argsDigest": "2e2bf4e652c61597c9aa8e2265319c01f73d10bf1d39b3975dabbae17cb20a6d",
+        "keyDigest": "2febc5ab722a85af7bbae861b8029d49811b4c61d99e62f3f6ccf86856349d04",
+        "d1DirectoryDigest": "0b8ded5a307d8efb6b6d9e1e359e045518d316faa943963ac3c092311072853d"
+      },
+      "originalRpcId": "86511c92-bace-4032-8292-5dc3b73779b3",
+      "retryRpcId": "255821a4-ea7f-4c46-98a0-34f54572afa4",
+      "upstream": {
+        "status": 200,
+        "type": "application/json",
+        "bytes": 2037,
+        "sha256": "779dbc669ee59146f6277bf76216cb7ab6ce8146b59e87933c68c8d6ae13d124",
+        "raw": "{\"jsonrpc\":\"2.0\",\"id\":\"86511c92-bace-4032-8292-5dc3b73779b3\",\"result\":{\"resultType\":\"complete\",\"content\":[{\"type\":\"text\",\"text\":\"{\\\"workflow\\\":\\\"prepare-vacancy\\\",\\\"summary\\\":\\\"Synthetic Lodge lost-response autonomous\\\",\\\"rationale\\\":\\\"\\\",\\\"intake\\\":\\\"Prepare a vacancy draft only.\\\",\\\"sources\\\":[],\\\"changes\\\":[{\\\"op\\\":\\\"vacancy\\\",\\\"input\\\":{\\\"title\\\":\\\"Synthetic Lodge transport autonomous\\\",\\\"location\\\":\\\"Brooklyn, NY\\\",\\\"headcount\\\":1,\\\"manager\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"description\\\":\\\"Prepare estimates from drawings.\\\"}}],\\\"citations\\\":[],\\\"approver\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"proposedBy\\\":\\\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\\\",\\\"proposedFor\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"proposedByAgent\\\":true,\\\"proposedAt\\\":\\\"2026-11-06T08:58:39.646Z\\\",\\\"status\\\":\\\"proposed\\\",\\\"model\\\":null,\\\"missing\\\":[\\\"compensation range\\\",\\\"a job-related rubric\\\",\\\"an interview plan\\\"],\\\"id\\\":\\\"0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf\\\"}\"}],\"structuredContent\":{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic Lodge lost-response autonomous\",\"rationale\":\"\",\"intake\":\"Prepare a vacancy draft only.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic Lodge transport autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"synthetic-lodge-56\u0040example.invalid\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"proposedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T08:58:39.646Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf\"},\"isError\":false,\"_meta\":{\"com.runeditrun/decision\":{\"id\":\"417bebee-e1cc-4158-a490-5c08325dff6f\",\"disposition\":\"autonomous\",\"revision\":1,\"classes\":[{\"class\":\"standard\",\"rule\":\"all\",\"do\":\"autonomous\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/untrusted\":true}}}",
+        "message": {
+          "jsonrpc": "2.0",
+          "id": "86511c92-bace-4032-8292-5dc3b73779b3",
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic Lodge lost-response autonomous\",\"rationale\":\"\",\"intake\":\"Prepare a vacancy draft only.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic Lodge transport autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"synthetic-lodge-56\u0040example.invalid\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"proposedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T08:58:39.646Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf\"}"
+              }
+            ],
+            "structuredContent": {
+              "workflow": "prepare-vacancy",
+              "summary": "Synthetic Lodge lost-response autonomous",
+              "rationale": "",
+              "intake": "Prepare a vacancy draft only.",
+              "sources": [],
+              "changes": [
+                {
+                  "op": "vacancy",
+                  "input": {
+                    "title": "Synthetic Lodge transport autonomous",
+                    "location": "Brooklyn, NY",
+                    "headcount": 1,
+                    "manager": "synthetic-lodge-56\u0040example.invalid",
+                    "description": "Prepare estimates from drawings."
+                  }
+                }
+              ],
+              "citations": [],
+              "approver": "synthetic-lodge-56\u0040example.invalid",
+              "proposedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+              "proposedFor": "synthetic-lodge-56\u0040example.invalid",
+              "proposedByAgent": true,
+              "proposedAt": "2026-11-06T08:58:39.646Z",
+              "status": "proposed",
+              "model": null,
+              "missing": [
+                "compensation range",
+                "a job-related rubric",
+                "an interview plan"
+              ],
+              "id": "0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "417bebee-e1cc-4158-a490-5c08325dff6f",
+                "disposition": "autonomous",
+                "revision": 1,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "all",
+                    "do": "autonomous",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "durable": {
+          "state": "done",
+          "outcomeSha256": "39589a1aa24a0173f18e19dc929bb66753add00290c3020e9a5c1f1f6bf70e77",
+          "decisionId": "417bebee-e1cc-4158-a490-5c08325dff6f"
+        }
+      },
+      "callerFailure": {
+        "name": "TypeError",
+        "message": "terminated",
+        "cause": "UND_ERR_RES_CONTENT_LENGTH_MISMATCH"
+      },
+      "deliveredBytes": 1018,
+      "restartNumber": 1,
+      "retry": {
+        "status": 200,
+        "raw": "{\"jsonrpc\":\"2.0\",\"id\":\"255821a4-ea7f-4c46-98a0-34f54572afa4\",\"result\":{\"resultType\":\"complete\",\"content\":[{\"type\":\"text\",\"text\":\"{\\\"workflow\\\":\\\"prepare-vacancy\\\",\\\"summary\\\":\\\"Synthetic Lodge lost-response autonomous\\\",\\\"rationale\\\":\\\"\\\",\\\"intake\\\":\\\"Prepare a vacancy draft only.\\\",\\\"sources\\\":[],\\\"changes\\\":[{\\\"op\\\":\\\"vacancy\\\",\\\"input\\\":{\\\"title\\\":\\\"Synthetic Lodge transport autonomous\\\",\\\"location\\\":\\\"Brooklyn, NY\\\",\\\"headcount\\\":1,\\\"manager\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"description\\\":\\\"Prepare estimates from drawings.\\\"}}],\\\"citations\\\":[],\\\"approver\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"proposedBy\\\":\\\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\\\",\\\"proposedFor\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"proposedByAgent\\\":true,\\\"proposedAt\\\":\\\"2026-11-06T08:58:39.646Z\\\",\\\"status\\\":\\\"proposed\\\",\\\"model\\\":null,\\\"missing\\\":[\\\"compensation range\\\",\\\"a job-related rubric\\\",\\\"an interview plan\\\"],\\\"id\\\":\\\"0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf\\\"}\"}],\"structuredContent\":{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic Lodge lost-response autonomous\",\"rationale\":\"\",\"intake\":\"Prepare a vacancy draft only.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic Lodge transport autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"synthetic-lodge-56\u0040example.invalid\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"proposedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T08:58:39.646Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf\"},\"isError\":false,\"_meta\":{\"com.runeditrun/decision\":{\"id\":\"426a1728-77c4-4845-9c3c-488666c5a1eb\",\"disposition\":\"autonomous\",\"revision\":1,\"classes\":[{\"class\":\"standard\",\"rule\":\"all\",\"do\":\"autonomous\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/untrusted\":true}}}",
+        "message": {
+          "jsonrpc": "2.0",
+          "id": "255821a4-ea7f-4c46-98a0-34f54572afa4",
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic Lodge lost-response autonomous\",\"rationale\":\"\",\"intake\":\"Prepare a vacancy draft only.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic Lodge transport autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"synthetic-lodge-56\u0040example.invalid\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"proposedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T08:58:39.646Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf\"}"
+              }
+            ],
+            "structuredContent": {
+              "workflow": "prepare-vacancy",
+              "summary": "Synthetic Lodge lost-response autonomous",
+              "rationale": "",
+              "intake": "Prepare a vacancy draft only.",
+              "sources": [],
+              "changes": [
+                {
+                  "op": "vacancy",
+                  "input": {
+                    "title": "Synthetic Lodge transport autonomous",
+                    "location": "Brooklyn, NY",
+                    "headcount": 1,
+                    "manager": "synthetic-lodge-56\u0040example.invalid",
+                    "description": "Prepare estimates from drawings."
+                  }
+                }
+              ],
+              "citations": [],
+              "approver": "synthetic-lodge-56\u0040example.invalid",
+              "proposedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+              "proposedFor": "synthetic-lodge-56\u0040example.invalid",
+              "proposedByAgent": true,
+              "proposedAt": "2026-11-06T08:58:39.646Z",
+              "status": "proposed",
+              "model": null,
+              "missing": [
+                "compensation range",
+                "a job-related rubric",
+                "an interview plan"
+              ],
+              "id": "0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "426a1728-77c4-4845-9c3c-488666c5a1eb",
+                "disposition": "autonomous",
+                "revision": 1,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "all",
+                    "do": "autonomous",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "sha256": "7f9f8afdd89654b5b24f33b95716f6e1806e14f7e471f7356f8c7364e8ac1bfe"
+      },
+      "draft": {
+        "workflow": "prepare-vacancy",
+        "summary": "Synthetic Lodge lost-response autonomous",
+        "rationale": "",
+        "intake": "Prepare a vacancy draft only.",
+        "sources": [],
+        "changes": [
+          {
+            "op": "vacancy",
+            "input": {
+              "title": "Synthetic Lodge transport autonomous",
+              "location": "Brooklyn, NY",
+              "headcount": 1,
+              "manager": "synthetic-lodge-56\u0040example.invalid",
+              "description": "Prepare estimates from drawings."
+            }
+          }
+        ],
+        "citations": [],
+        "approver": "synthetic-lodge-56\u0040example.invalid",
+        "proposedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+        "proposedFor": "synthetic-lodge-56\u0040example.invalid",
+        "proposedByAgent": true,
+        "proposedAt": "2026-11-06T08:58:39.646Z",
+        "status": "proposed",
+        "model": null,
+        "missing": [
+          "compensation range",
+          "a job-related rubric",
+          "an interview plan"
+        ],
+        "id": "0b8c6de6-8f7e-4b90-a7fb-58afd40f5bdf"
+      },
+      "countBefore": 0,
+      "countAfterDrop": 1,
+      "countAfterRetry": 1,
+      "nativeRecordCount": 21,
+      "nativeRowsSha256": "6cfef4349a3a8cbc0c6d9355194b4109e8057fd20bec9a575d7a852f8f2ed500",
+      "retryNativeRowsSha256": "6cfef4349a3a8cbc0c6d9355194b4109e8057fd20bec9a575d7a852f8f2ed500",
+      "reviewRowsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sharedAuditCountBeforeRetry": 2,
+      "sharedAuditCountAfterRetry": 3,
+      "originalOutcomeReturned": true,
+      "unchangedDraft": true,
+      "unchangedNativeValuesAndRevisions": true,
+      "noSecondDraft": true
+    },
+    {
+      "phase": "autonomous",
+      "tool": "lodge.debriefs.prepare",
+      "unchangedIdentity": {
+        "agent": "54a16dcd-23ea-4d01-a9c5-04fe73a0eb8d",
+        "sponsor": "ed949b1d-f8ba-4e18-ba15-b926ba603c19",
+        "consent": "8336ec09-8909-49d6-85f8-993bc54ce422",
+        "client": "rer-agent-conformance",
+        "revision": 1,
+        "policyDigest": "0277ef77bfe6a628004532008224da2e0efc43ef9610a2453ea3b43595359ca2",
+        "tokenDigest": "3c9593c869910bbb9080251d19ddc92a1dd20f976c3fd91eb7edb98d2e9d7771",
+        "argsDigest": "1067003babba508f37ebd6c10c093906684e38ab416894303aa4da08863b3b71",
+        "keyDigest": "0f233303af6eb07d77386b8f4dc08135c9ccc56cb10a4b6a27e027e876dc015b",
+        "d1DirectoryDigest": "0b8ded5a307d8efb6b6d9e1e359e045518d316faa943963ac3c092311072853d"
+      },
+      "originalRpcId": "b1e920a7-3ec2-475b-89e9-f588cc14f562",
+      "retryRpcId": "7058ca87-f436-41e3-89b1-c8c45d8c8c0c",
+      "upstream": {
+        "status": 200,
+        "type": "application/json",
+        "bytes": 1599,
+        "sha256": "5c7143ef88eb7c1583d09b3f7ffdf800d6ff99350764c4c8d4f1537857f83077",
+        "raw": "{\"jsonrpc\":\"2.0\",\"id\":\"b1e920a7-3ec2-475b-89e9-f588cc14f562\",\"result\":{\"resultType\":\"complete\",\"content\":[{\"type\":\"text\",\"text\":\"{\\\"application\\\":\\\"3107ae6f-d742-408c-b72c-7961fba02a1b\\\",\\\"vacancy\\\":\\\"6236d2a7-32dd-4c42-839c-4a4f8a29d0b2\\\",\\\"statements\\\":[{\\\"kind\\\":\\\"gap\\\",\\\"criterion\\\":\\\"38a0d600\\\",\\\"text\\\":\\\"Takeoffs has not been assessed.\\\",\\\"citations\\\":[]}],\\\"criteria\\\":[{\\\"criterion\\\":\\\"38a0d600\\\",\\\"name\\\":\\\"Takeoffs\\\",\\\"ratings\\\":[],\\\"agreement\\\":\\\"unassessed\\\"}],\\\"status\\\":\\\"draft\\\",\\\"model\\\":null,\\\"preparedBy\\\":\\\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\\\",\\\"preparedFor\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"preparedByAgent\\\":true,\\\"preparedAt\\\":\\\"2026-11-06T08:58:40.526Z\\\",\\\"id\\\":\\\"fad18ea1-c560-46a0-b1a9-26bc9e3dfed5\\\"}\"}],\"structuredContent\":{\"application\":\"3107ae6f-d742-408c-b72c-7961fba02a1b\",\"vacancy\":\"6236d2a7-32dd-4c42-839c-4a4f8a29d0b2\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"38a0d600\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"38a0d600\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"preparedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T08:58:40.526Z\",\"id\":\"fad18ea1-c560-46a0-b1a9-26bc9e3dfed5\"},\"isError\":false,\"_meta\":{\"com.runeditrun/decision\":{\"id\":\"e4546ada-512f-4038-aa6d-1d213810c5bf\",\"disposition\":\"autonomous\",\"revision\":1,\"classes\":[{\"class\":\"standard\",\"rule\":\"all\",\"do\":\"autonomous\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/untrusted\":true}}}",
+        "message": {
+          "jsonrpc": "2.0",
+          "id": "b1e920a7-3ec2-475b-89e9-f588cc14f562",
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"application\":\"3107ae6f-d742-408c-b72c-7961fba02a1b\",\"vacancy\":\"6236d2a7-32dd-4c42-839c-4a4f8a29d0b2\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"38a0d600\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"38a0d600\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"preparedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T08:58:40.526Z\",\"id\":\"fad18ea1-c560-46a0-b1a9-26bc9e3dfed5\"}"
+              }
+            ],
+            "structuredContent": {
+              "application": "3107ae6f-d742-408c-b72c-7961fba02a1b",
+              "vacancy": "6236d2a7-32dd-4c42-839c-4a4f8a29d0b2",
+              "statements": [
+                {
+                  "kind": "gap",
+                  "criterion": "38a0d600",
+                  "text": "Takeoffs has not been assessed.",
+                  "citations": []
+                }
+              ],
+              "criteria": [
+                {
+                  "criterion": "38a0d600",
+                  "name": "Takeoffs",
+                  "ratings": [],
+                  "agreement": "unassessed"
+                }
+              ],
+              "status": "draft",
+              "model": null,
+              "preparedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+              "preparedFor": "synthetic-lodge-56\u0040example.invalid",
+              "preparedByAgent": true,
+              "preparedAt": "2026-11-06T08:58:40.526Z",
+              "id": "fad18ea1-c560-46a0-b1a9-26bc9e3dfed5"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "e4546ada-512f-4038-aa6d-1d213810c5bf",
+                "disposition": "autonomous",
+                "revision": 1,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "all",
+                    "do": "autonomous",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "durable": {
+          "state": "done",
+          "outcomeSha256": "337be3a88bcffe3e3b67d63bf5ad0eda92e56afd596250a55c1d6101f62ad38b",
+          "decisionId": "e4546ada-512f-4038-aa6d-1d213810c5bf"
+        }
+      },
+      "callerFailure": {
+        "name": "TypeError",
+        "message": "terminated",
+        "cause": "UND_ERR_RES_CONTENT_LENGTH_MISMATCH"
+      },
+      "deliveredBytes": 799,
+      "restartNumber": 2,
+      "retry": {
+        "status": 200,
+        "raw": "{\"jsonrpc\":\"2.0\",\"id\":\"7058ca87-f436-41e3-89b1-c8c45d8c8c0c\",\"result\":{\"resultType\":\"complete\",\"content\":[{\"type\":\"text\",\"text\":\"{\\\"application\\\":\\\"3107ae6f-d742-408c-b72c-7961fba02a1b\\\",\\\"vacancy\\\":\\\"6236d2a7-32dd-4c42-839c-4a4f8a29d0b2\\\",\\\"statements\\\":[{\\\"kind\\\":\\\"gap\\\",\\\"criterion\\\":\\\"38a0d600\\\",\\\"text\\\":\\\"Takeoffs has not been assessed.\\\",\\\"citations\\\":[]}],\\\"criteria\\\":[{\\\"criterion\\\":\\\"38a0d600\\\",\\\"name\\\":\\\"Takeoffs\\\",\\\"ratings\\\":[],\\\"agreement\\\":\\\"unassessed\\\"}],\\\"status\\\":\\\"draft\\\",\\\"model\\\":null,\\\"preparedBy\\\":\\\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\\\",\\\"preparedFor\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"preparedByAgent\\\":true,\\\"preparedAt\\\":\\\"2026-11-06T08:58:40.526Z\\\",\\\"id\\\":\\\"fad18ea1-c560-46a0-b1a9-26bc9e3dfed5\\\"}\"}],\"structuredContent\":{\"application\":\"3107ae6f-d742-408c-b72c-7961fba02a1b\",\"vacancy\":\"6236d2a7-32dd-4c42-839c-4a4f8a29d0b2\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"38a0d600\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"38a0d600\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"preparedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T08:58:40.526Z\",\"id\":\"fad18ea1-c560-46a0-b1a9-26bc9e3dfed5\"},\"isError\":false,\"_meta\":{\"com.runeditrun/decision\":{\"id\":\"f071cde3-75a4-4e85-860b-61d780dd7c04\",\"disposition\":\"autonomous\",\"revision\":1,\"classes\":[{\"class\":\"standard\",\"rule\":\"all\",\"do\":\"autonomous\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/untrusted\":true}}}",
+        "message": {
+          "jsonrpc": "2.0",
+          "id": "7058ca87-f436-41e3-89b1-c8c45d8c8c0c",
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"application\":\"3107ae6f-d742-408c-b72c-7961fba02a1b\",\"vacancy\":\"6236d2a7-32dd-4c42-839c-4a4f8a29d0b2\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"38a0d600\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"38a0d600\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"preparedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T08:58:40.526Z\",\"id\":\"fad18ea1-c560-46a0-b1a9-26bc9e3dfed5\"}"
+              }
+            ],
+            "structuredContent": {
+              "application": "3107ae6f-d742-408c-b72c-7961fba02a1b",
+              "vacancy": "6236d2a7-32dd-4c42-839c-4a4f8a29d0b2",
+              "statements": [
+                {
+                  "kind": "gap",
+                  "criterion": "38a0d600",
+                  "text": "Takeoffs has not been assessed.",
+                  "citations": []
+                }
+              ],
+              "criteria": [
+                {
+                  "criterion": "38a0d600",
+                  "name": "Takeoffs",
+                  "ratings": [],
+                  "agreement": "unassessed"
+                }
+              ],
+              "status": "draft",
+              "model": null,
+              "preparedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+              "preparedFor": "synthetic-lodge-56\u0040example.invalid",
+              "preparedByAgent": true,
+              "preparedAt": "2026-11-06T08:58:40.526Z",
+              "id": "fad18ea1-c560-46a0-b1a9-26bc9e3dfed5"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "f071cde3-75a4-4e85-860b-61d780dd7c04",
+                "disposition": "autonomous",
+                "revision": 1,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "all",
+                    "do": "autonomous",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "sha256": "a689af180710408accb29a4e8d91a68246e703993fc3e5bbf5d5203f08f41260"
+      },
+      "draft": {
+        "application": "3107ae6f-d742-408c-b72c-7961fba02a1b",
+        "vacancy": "6236d2a7-32dd-4c42-839c-4a4f8a29d0b2",
+        "statements": [
+          {
+            "kind": "gap",
+            "criterion": "38a0d600",
+            "text": "Takeoffs has not been assessed.",
+            "citations": []
+          }
+        ],
+        "criteria": [
+          {
+            "criterion": "38a0d600",
+            "name": "Takeoffs",
+            "ratings": [],
+            "agreement": "unassessed"
+          }
+        ],
+        "status": "draft",
+        "model": null,
+        "preparedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+        "preparedFor": "synthetic-lodge-56\u0040example.invalid",
+        "preparedByAgent": true,
+        "preparedAt": "2026-11-06T08:58:40.526Z",
+        "id": "fad18ea1-c560-46a0-b1a9-26bc9e3dfed5",
+        "stale": false
+      },
+      "countBefore": 0,
+      "countAfterDrop": 1,
+      "countAfterRetry": 1,
+      "nativeRecordCount": 23,
+      "nativeRowsSha256": "d6a7191576e0714ceab1a6b6d2f461a80e52c9c6426bbbb8be369472f67e3b21",
+      "retryNativeRowsSha256": "d6a7191576e0714ceab1a6b6d2f461a80e52c9c6426bbbb8be369472f67e3b21",
+      "reviewRowsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sharedAuditCountBeforeRetry": 4,
+      "sharedAuditCountAfterRetry": 5,
+      "originalOutcomeReturned": true,
+      "unchangedDraft": true,
+      "unchangedNativeValuesAndRevisions": true,
+      "noSecondDraft": true
+    },
+    {
+      "phase": "held",
+      "tool": "lodge.proposals.prepare",
+      "unchangedIdentity": {
+        "agent": "54a16dcd-23ea-4d01-a9c5-04fe73a0eb8d",
+        "sponsor": "ed949b1d-f8ba-4e18-ba15-b926ba603c19",
+        "consent": "8336ec09-8909-49d6-85f8-993bc54ce422",
+        "client": "rer-agent-conformance",
+        "revision": 2,
+        "policyDigest": "83e4375f689dc9045d07f979c46c096ebf80d28e7539f1a54b97c0762fd2ab3b",
+        "tokenDigest": "575c5fd3d39919b3cfb0a9231079fcee284a6e5bd65ee8d0c297c6d9daae0ab0",
+        "argsDigest": "63bfde799869af29e15ea7d3e389398d62df09bc7668e777252bb57532e61912",
+        "keyDigest": "237ce1360aa51f232d4bd55d81a74f3991433e5b4ea2a13aa1943df876d8a2ea",
+        "d1DirectoryDigest": "0b8ded5a307d8efb6b6d9e1e359e045518d316faa943963ac3c092311072853d"
+      },
+      "originalRpcId": "37b68588-4f47-4c47-b5ca-64736c309ae1",
+      "retryRpcId": "4e2a0099-36e8-4149-ac73-5d26b46bd7c8",
+      "upstream": {
+        "status": 200,
+        "type": "application/json",
+        "bytes": 2080,
+        "sha256": "dee3934877eaab3b615354b6af180d75a96e0f4e7541e987635d3a9afe3a05d1",
+        "raw": "{\"jsonrpc\":\"2.0\",\"id\":\"37b68588-4f47-4c47-b5ca-64736c309ae1\",\"result\":{\"resultType\":\"complete\",\"content\":[{\"type\":\"text\",\"text\":\"{\\\"workflow\\\":\\\"prepare-vacancy\\\",\\\"summary\\\":\\\"Synthetic Lodge lost-response held\\\",\\\"rationale\\\":\\\"\\\",\\\"intake\\\":\\\"Prepare a vacancy draft only.\\\",\\\"sources\\\":[],\\\"changes\\\":[{\\\"op\\\":\\\"vacancy\\\",\\\"input\\\":{\\\"title\\\":\\\"Synthetic Lodge transport held\\\",\\\"location\\\":\\\"Brooklyn, NY\\\",\\\"headcount\\\":1,\\\"manager\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"description\\\":\\\"Prepare estimates from drawings.\\\"}}],\\\"citations\\\":[],\\\"approver\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"proposedBy\\\":\\\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\\\",\\\"proposedFor\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"proposedByAgent\\\":true,\\\"proposedAt\\\":\\\"2026-11-06T08:58:41.520Z\\\",\\\"status\\\":\\\"proposed\\\",\\\"model\\\":null,\\\"missing\\\":[\\\"compensation range\\\",\\\"a job-related rubric\\\",\\\"an interview plan\\\"],\\\"id\\\":\\\"98b5e666-99fd-4c69-8fef-3fea81f9756b\\\"}\"}],\"structuredContent\":{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic Lodge lost-response held\",\"rationale\":\"\",\"intake\":\"Prepare a vacancy draft only.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic Lodge transport held\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"synthetic-lodge-56\u0040example.invalid\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"proposedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T08:58:41.520Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"98b5e666-99fd-4c69-8fef-3fea81f9756b\"},\"isError\":false,\"_meta\":{\"com.runeditrun/decision\":{\"id\":\"b8ea1813-3efc-49c3-8915-3fc225c401ed\",\"disposition\":\"review\",\"revision\":2,\"classes\":[{\"class\":\"standard\",\"rule\":\"standard\",\"do\":\"review\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/review\":{\"id\":\"f46f3d0e-9ba2-4d7f-941e-7a71d6166ad1\"},\"com.runeditrun/untrusted\":true}}}",
+        "message": {
+          "jsonrpc": "2.0",
+          "id": "37b68588-4f47-4c47-b5ca-64736c309ae1",
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic Lodge lost-response held\",\"rationale\":\"\",\"intake\":\"Prepare a vacancy draft only.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic Lodge transport held\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"synthetic-lodge-56\u0040example.invalid\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"proposedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T08:58:41.520Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"98b5e666-99fd-4c69-8fef-3fea81f9756b\"}"
+              }
+            ],
+            "structuredContent": {
+              "workflow": "prepare-vacancy",
+              "summary": "Synthetic Lodge lost-response held",
+              "rationale": "",
+              "intake": "Prepare a vacancy draft only.",
+              "sources": [],
+              "changes": [
+                {
+                  "op": "vacancy",
+                  "input": {
+                    "title": "Synthetic Lodge transport held",
+                    "location": "Brooklyn, NY",
+                    "headcount": 1,
+                    "manager": "synthetic-lodge-56\u0040example.invalid",
+                    "description": "Prepare estimates from drawings."
+                  }
+                }
+              ],
+              "citations": [],
+              "approver": "synthetic-lodge-56\u0040example.invalid",
+              "proposedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+              "proposedFor": "synthetic-lodge-56\u0040example.invalid",
+              "proposedByAgent": true,
+              "proposedAt": "2026-11-06T08:58:41.520Z",
+              "status": "proposed",
+              "model": null,
+              "missing": [
+                "compensation range",
+                "a job-related rubric",
+                "an interview plan"
+              ],
+              "id": "98b5e666-99fd-4c69-8fef-3fea81f9756b"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "b8ea1813-3efc-49c3-8915-3fc225c401ed",
+                "disposition": "review",
+                "revision": 2,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "standard",
+                    "do": "review",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/review": {
+                "id": "f46f3d0e-9ba2-4d7f-941e-7a71d6166ad1"
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "durable": {
+          "state": "done",
+          "outcomeSha256": "c6df16ac69d4a622d88958d15fcff16e89abc563dc81d5d093590bb91240ab32",
+          "decisionId": "b8ea1813-3efc-49c3-8915-3fc225c401ed"
+        }
+      },
+      "callerFailure": {
+        "name": "TypeError",
+        "message": "terminated",
+        "cause": "UND_ERR_RES_CONTENT_LENGTH_MISMATCH"
+      },
+      "deliveredBytes": 1040,
+      "restartNumber": 3,
+      "retry": {
+        "status": 200,
+        "raw": "{\"jsonrpc\":\"2.0\",\"id\":\"4e2a0099-36e8-4149-ac73-5d26b46bd7c8\",\"result\":{\"resultType\":\"complete\",\"content\":[{\"type\":\"text\",\"text\":\"{\\\"workflow\\\":\\\"prepare-vacancy\\\",\\\"summary\\\":\\\"Synthetic Lodge lost-response held\\\",\\\"rationale\\\":\\\"\\\",\\\"intake\\\":\\\"Prepare a vacancy draft only.\\\",\\\"sources\\\":[],\\\"changes\\\":[{\\\"op\\\":\\\"vacancy\\\",\\\"input\\\":{\\\"title\\\":\\\"Synthetic Lodge transport held\\\",\\\"location\\\":\\\"Brooklyn, NY\\\",\\\"headcount\\\":1,\\\"manager\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"description\\\":\\\"Prepare estimates from drawings.\\\"}}],\\\"citations\\\":[],\\\"approver\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"proposedBy\\\":\\\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\\\",\\\"proposedFor\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"proposedByAgent\\\":true,\\\"proposedAt\\\":\\\"2026-11-06T08:58:41.520Z\\\",\\\"status\\\":\\\"proposed\\\",\\\"model\\\":null,\\\"missing\\\":[\\\"compensation range\\\",\\\"a job-related rubric\\\",\\\"an interview plan\\\"],\\\"id\\\":\\\"98b5e666-99fd-4c69-8fef-3fea81f9756b\\\"}\"}],\"structuredContent\":{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic Lodge lost-response held\",\"rationale\":\"\",\"intake\":\"Prepare a vacancy draft only.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic Lodge transport held\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"synthetic-lodge-56\u0040example.invalid\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"proposedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T08:58:41.520Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"98b5e666-99fd-4c69-8fef-3fea81f9756b\"},\"isError\":false,\"_meta\":{\"com.runeditrun/decision\":{\"id\":\"a70bb33d-7bba-452d-bc0e-95552bcba076\",\"disposition\":\"review\",\"revision\":2,\"classes\":[{\"class\":\"standard\",\"rule\":\"standard\",\"do\":\"review\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/review\":{\"id\":\"f46f3d0e-9ba2-4d7f-941e-7a71d6166ad1\"},\"com.runeditrun/untrusted\":true}}}",
+        "message": {
+          "jsonrpc": "2.0",
+          "id": "4e2a0099-36e8-4149-ac73-5d26b46bd7c8",
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic Lodge lost-response held\",\"rationale\":\"\",\"intake\":\"Prepare a vacancy draft only.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic Lodge transport held\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"synthetic-lodge-56\u0040example.invalid\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"proposedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T08:58:41.520Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"98b5e666-99fd-4c69-8fef-3fea81f9756b\"}"
+              }
+            ],
+            "structuredContent": {
+              "workflow": "prepare-vacancy",
+              "summary": "Synthetic Lodge lost-response held",
+              "rationale": "",
+              "intake": "Prepare a vacancy draft only.",
+              "sources": [],
+              "changes": [
+                {
+                  "op": "vacancy",
+                  "input": {
+                    "title": "Synthetic Lodge transport held",
+                    "location": "Brooklyn, NY",
+                    "headcount": 1,
+                    "manager": "synthetic-lodge-56\u0040example.invalid",
+                    "description": "Prepare estimates from drawings."
+                  }
+                }
+              ],
+              "citations": [],
+              "approver": "synthetic-lodge-56\u0040example.invalid",
+              "proposedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+              "proposedFor": "synthetic-lodge-56\u0040example.invalid",
+              "proposedByAgent": true,
+              "proposedAt": "2026-11-06T08:58:41.520Z",
+              "status": "proposed",
+              "model": null,
+              "missing": [
+                "compensation range",
+                "a job-related rubric",
+                "an interview plan"
+              ],
+              "id": "98b5e666-99fd-4c69-8fef-3fea81f9756b"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "a70bb33d-7bba-452d-bc0e-95552bcba076",
+                "disposition": "review",
+                "revision": 2,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "standard",
+                    "do": "review",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/review": {
+                "id": "f46f3d0e-9ba2-4d7f-941e-7a71d6166ad1"
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "sha256": "d4b024b62fe6a330abe62352c8a8ec32367ce721908163a34788a9676875fe20"
+      },
+      "draft": {
+        "workflow": "prepare-vacancy",
+        "summary": "Synthetic Lodge lost-response held",
+        "rationale": "",
+        "intake": "Prepare a vacancy draft only.",
+        "sources": [],
+        "changes": [
+          {
+            "op": "vacancy",
+            "input": {
+              "title": "Synthetic Lodge transport held",
+              "location": "Brooklyn, NY",
+              "headcount": 1,
+              "manager": "synthetic-lodge-56\u0040example.invalid",
+              "description": "Prepare estimates from drawings."
+            }
+          }
+        ],
+        "citations": [],
+        "approver": "synthetic-lodge-56\u0040example.invalid",
+        "proposedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+        "proposedFor": "synthetic-lodge-56\u0040example.invalid",
+        "proposedByAgent": true,
+        "proposedAt": "2026-11-06T08:58:41.520Z",
+        "status": "proposed",
+        "model": null,
+        "missing": [
+          "compensation range",
+          "a job-related rubric",
+          "an interview plan"
+        ],
+        "id": "98b5e666-99fd-4c69-8fef-3fea81f9756b"
+      },
+      "countBefore": 1,
+      "countAfterDrop": 2,
+      "countAfterRetry": 2,
+      "nativeRecordCount": 39,
+      "nativeRowsSha256": "3bc569f83fd9e107e7ad142debe5c0da5110584e8cfc69c14e472c086e17a04a",
+      "retryNativeRowsSha256": "3bc569f83fd9e107e7ad142debe5c0da5110584e8cfc69c14e472c086e17a04a",
+      "review": {
+        "id": "f46f3d0e-9ba2-4d7f-941e-7a71d6166ad1"
+      },
+      "reviewRowsSha256": "e8b4d3c274dc0647b348f096b3742b5cbd42aaf662ae90d45594cca9e0323d24",
+      "sharedAuditCountBeforeRetry": 7,
+      "sharedAuditCountAfterRetry": 8,
+      "originalOutcomeReturned": true,
+      "unchangedDraft": true,
+      "unchangedNativeValuesAndRevisions": true,
+      "noSecondDraft": true
+    },
+    {
+      "phase": "held",
+      "tool": "lodge.debriefs.prepare",
+      "unchangedIdentity": {
+        "agent": "54a16dcd-23ea-4d01-a9c5-04fe73a0eb8d",
+        "sponsor": "ed949b1d-f8ba-4e18-ba15-b926ba603c19",
+        "consent": "8336ec09-8909-49d6-85f8-993bc54ce422",
+        "client": "rer-agent-conformance",
+        "revision": 2,
+        "policyDigest": "83e4375f689dc9045d07f979c46c096ebf80d28e7539f1a54b97c0762fd2ab3b",
+        "tokenDigest": "3b41d92f35ab96be9ff2d2e94e9260eb45efd38f5363ff88ec6a360990704111",
+        "argsDigest": "0be4cb51a8e9802b1d457aedbba22471a0719a8886ba73e301c0bb558bce274c",
+        "keyDigest": "20c978c8883a12921bca862391bc6e3768bd275cd2d0c0160f25934403376277",
+        "d1DirectoryDigest": "0b8ded5a307d8efb6b6d9e1e359e045518d316faa943963ac3c092311072853d"
+      },
+      "originalRpcId": "cb1c1d08-5f73-4d2f-a662-195616df949a",
+      "retryRpcId": "023eea91-bcf8-4815-972c-27ac73b7da1a",
+      "upstream": {
+        "status": 200,
+        "type": "application/json",
+        "bytes": 1666,
+        "sha256": "c18960947f538dbeadd1e83750ef94cbaf04abb9369b0bbd1cf92f00d93d4a41",
+        "raw": "{\"jsonrpc\":\"2.0\",\"id\":\"cb1c1d08-5f73-4d2f-a662-195616df949a\",\"result\":{\"resultType\":\"complete\",\"content\":[{\"type\":\"text\",\"text\":\"{\\\"application\\\":\\\"03d9ecba-be45-4b39-ac89-ffb864a42cb6\\\",\\\"vacancy\\\":\\\"21691959-e496-48bc-9bf2-8caf2fa05654\\\",\\\"statements\\\":[{\\\"kind\\\":\\\"gap\\\",\\\"criterion\\\":\\\"ca4f7cdc\\\",\\\"text\\\":\\\"Takeoffs has not been assessed.\\\",\\\"citations\\\":[]}],\\\"criteria\\\":[{\\\"criterion\\\":\\\"ca4f7cdc\\\",\\\"name\\\":\\\"Takeoffs\\\",\\\"ratings\\\":[],\\\"agreement\\\":\\\"unassessed\\\"}],\\\"status\\\":\\\"draft\\\",\\\"model\\\":null,\\\"preparedBy\\\":\\\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\\\",\\\"preparedFor\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"preparedByAgent\\\":true,\\\"preparedAt\\\":\\\"2026-11-06T08:58:42.462Z\\\",\\\"id\\\":\\\"9d41912e-203d-4906-81a1-a9d4f99ee8bd\\\"}\"}],\"structuredContent\":{\"application\":\"03d9ecba-be45-4b39-ac89-ffb864a42cb6\",\"vacancy\":\"21691959-e496-48bc-9bf2-8caf2fa05654\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"ca4f7cdc\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"ca4f7cdc\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"preparedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T08:58:42.462Z\",\"id\":\"9d41912e-203d-4906-81a1-a9d4f99ee8bd\"},\"isError\":false,\"_meta\":{\"com.runeditrun/decision\":{\"id\":\"53260cc1-b8a5-49aa-8c4f-d241322d8b23\",\"disposition\":\"review\",\"revision\":2,\"classes\":[{\"class\":\"standard\",\"rule\":\"standard\",\"do\":\"review\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/review\":{\"id\":\"bbbe5df8-ca8b-4e18-adb2-7efe997510e9\"},\"com.runeditrun/untrusted\":true}}}",
+        "message": {
+          "jsonrpc": "2.0",
+          "id": "cb1c1d08-5f73-4d2f-a662-195616df949a",
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"application\":\"03d9ecba-be45-4b39-ac89-ffb864a42cb6\",\"vacancy\":\"21691959-e496-48bc-9bf2-8caf2fa05654\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"ca4f7cdc\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"ca4f7cdc\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"preparedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T08:58:42.462Z\",\"id\":\"9d41912e-203d-4906-81a1-a9d4f99ee8bd\"}"
+              }
+            ],
+            "structuredContent": {
+              "application": "03d9ecba-be45-4b39-ac89-ffb864a42cb6",
+              "vacancy": "21691959-e496-48bc-9bf2-8caf2fa05654",
+              "statements": [
+                {
+                  "kind": "gap",
+                  "criterion": "ca4f7cdc",
+                  "text": "Takeoffs has not been assessed.",
+                  "citations": []
+                }
+              ],
+              "criteria": [
+                {
+                  "criterion": "ca4f7cdc",
+                  "name": "Takeoffs",
+                  "ratings": [],
+                  "agreement": "unassessed"
+                }
+              ],
+              "status": "draft",
+              "model": null,
+              "preparedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+              "preparedFor": "synthetic-lodge-56\u0040example.invalid",
+              "preparedByAgent": true,
+              "preparedAt": "2026-11-06T08:58:42.462Z",
+              "id": "9d41912e-203d-4906-81a1-a9d4f99ee8bd"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "53260cc1-b8a5-49aa-8c4f-d241322d8b23",
+                "disposition": "review",
+                "revision": 2,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "standard",
+                    "do": "review",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/review": {
+                "id": "bbbe5df8-ca8b-4e18-adb2-7efe997510e9"
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "durable": {
+          "state": "done",
+          "outcomeSha256": "c612ec61d96e333a362922db96f1fa145a970e277424ddc37e14c9ed9b17edc3",
+          "decisionId": "53260cc1-b8a5-49aa-8c4f-d241322d8b23"
+        }
+      },
+      "callerFailure": {
+        "name": "TypeError",
+        "message": "terminated",
+        "cause": "UND_ERR_RES_CONTENT_LENGTH_MISMATCH"
+      },
+      "deliveredBytes": 833,
+      "restartNumber": 4,
+      "retry": {
+        "status": 200,
+        "raw": "{\"jsonrpc\":\"2.0\",\"id\":\"023eea91-bcf8-4815-972c-27ac73b7da1a\",\"result\":{\"resultType\":\"complete\",\"content\":[{\"type\":\"text\",\"text\":\"{\\\"application\\\":\\\"03d9ecba-be45-4b39-ac89-ffb864a42cb6\\\",\\\"vacancy\\\":\\\"21691959-e496-48bc-9bf2-8caf2fa05654\\\",\\\"statements\\\":[{\\\"kind\\\":\\\"gap\\\",\\\"criterion\\\":\\\"ca4f7cdc\\\",\\\"text\\\":\\\"Takeoffs has not been assessed.\\\",\\\"citations\\\":[]}],\\\"criteria\\\":[{\\\"criterion\\\":\\\"ca4f7cdc\\\",\\\"name\\\":\\\"Takeoffs\\\",\\\"ratings\\\":[],\\\"agreement\\\":\\\"unassessed\\\"}],\\\"status\\\":\\\"draft\\\",\\\"model\\\":null,\\\"preparedBy\\\":\\\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\\\",\\\"preparedFor\\\":\\\"synthetic-lodge-56\u0040example.invalid\\\",\\\"preparedByAgent\\\":true,\\\"preparedAt\\\":\\\"2026-11-06T08:58:42.462Z\\\",\\\"id\\\":\\\"9d41912e-203d-4906-81a1-a9d4f99ee8bd\\\"}\"}],\"structuredContent\":{\"application\":\"03d9ecba-be45-4b39-ac89-ffb864a42cb6\",\"vacancy\":\"21691959-e496-48bc-9bf2-8caf2fa05654\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"ca4f7cdc\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"ca4f7cdc\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"preparedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T08:58:42.462Z\",\"id\":\"9d41912e-203d-4906-81a1-a9d4f99ee8bd\"},\"isError\":false,\"_meta\":{\"com.runeditrun/decision\":{\"id\":\"b95d9cc9-3971-4c97-8920-c717a6d24e5d\",\"disposition\":\"review\",\"revision\":2,\"classes\":[{\"class\":\"standard\",\"rule\":\"standard\",\"do\":\"review\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/review\":{\"id\":\"bbbe5df8-ca8b-4e18-adb2-7efe997510e9\"},\"com.runeditrun/untrusted\":true}}}",
+        "message": {
+          "jsonrpc": "2.0",
+          "id": "023eea91-bcf8-4815-972c-27ac73b7da1a",
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"application\":\"03d9ecba-be45-4b39-ac89-ffb864a42cb6\",\"vacancy\":\"21691959-e496-48bc-9bf2-8caf2fa05654\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"ca4f7cdc\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"ca4f7cdc\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"door-c0f868a4642029f5e77eb883\u0040agents.example.invalid\",\"preparedFor\":\"synthetic-lodge-56\u0040example.invalid\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T08:58:42.462Z\",\"id\":\"9d41912e-203d-4906-81a1-a9d4f99ee8bd\"}"
+              }
+            ],
+            "structuredContent": {
+              "application": "03d9ecba-be45-4b39-ac89-ffb864a42cb6",
+              "vacancy": "21691959-e496-48bc-9bf2-8caf2fa05654",
+              "statements": [
+                {
+                  "kind": "gap",
+                  "criterion": "ca4f7cdc",
+                  "text": "Takeoffs has not been assessed.",
+                  "citations": []
+                }
+              ],
+              "criteria": [
+                {
+                  "criterion": "ca4f7cdc",
+                  "name": "Takeoffs",
+                  "ratings": [],
+                  "agreement": "unassessed"
+                }
+              ],
+              "status": "draft",
+              "model": null,
+              "preparedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+              "preparedFor": "synthetic-lodge-56\u0040example.invalid",
+              "preparedByAgent": true,
+              "preparedAt": "2026-11-06T08:58:42.462Z",
+              "id": "9d41912e-203d-4906-81a1-a9d4f99ee8bd"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "b95d9cc9-3971-4c97-8920-c717a6d24e5d",
+                "disposition": "review",
+                "revision": 2,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "standard",
+                    "do": "review",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/review": {
+                "id": "bbbe5df8-ca8b-4e18-adb2-7efe997510e9"
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "sha256": "bb1effafe86443e0252949caa26e1b6f6f4fc7fd839daaf5ad923515dd036676"
+      },
+      "draft": {
+        "application": "03d9ecba-be45-4b39-ac89-ffb864a42cb6",
+        "vacancy": "21691959-e496-48bc-9bf2-8caf2fa05654",
+        "statements": [
+          {
+            "kind": "gap",
+            "criterion": "ca4f7cdc",
+            "text": "Takeoffs has not been assessed.",
+            "citations": []
+          }
+        ],
+        "criteria": [
+          {
+            "criterion": "ca4f7cdc",
+            "name": "Takeoffs",
+            "ratings": [],
+            "agreement": "unassessed"
+          }
+        ],
+        "status": "draft",
+        "model": null,
+        "preparedBy": "door-c0f868a4642029f5e77eb883\u0040agents.example.invalid",
+        "preparedFor": "synthetic-lodge-56\u0040example.invalid",
+        "preparedByAgent": true,
+        "preparedAt": "2026-11-06T08:58:42.462Z",
+        "id": "9d41912e-203d-4906-81a1-a9d4f99ee8bd",
+        "stale": false
+      },
+      "countBefore": 1,
+      "countAfterDrop": 2,
+      "countAfterRetry": 2,
+      "nativeRecordCount": 41,
+      "nativeRowsSha256": "7254421a8b60b0e6ae698a210ae875150061b12d820ad1b4134792abeb081003",
+      "retryNativeRowsSha256": "7254421a8b60b0e6ae698a210ae875150061b12d820ad1b4134792abeb081003",
+      "review": {
+        "id": "bbbe5df8-ca8b-4e18-adb2-7efe997510e9"
+      },
+      "reviewRowsSha256": "571a7fe3ba05d703dfae499159873f64d48fcfe7b3333d4d3480a76ec918881e",
+      "sharedAuditCountBeforeRetry": 9,
+      "sharedAuditCountAfterRetry": 10,
+      "originalOutcomeReturned": true,
+      "unchangedDraft": true,
+      "unchangedNativeValuesAndRevisions": true,
+      "noSecondDraft": true
+    }
+  ],
+  "screens": [
+    {
+      "name": "proposal-drafts",
+      "width": 1440,
+      "filename": "proposal-drafts-1440.png",
+      "sha256": "2d5e87dc96654e3fa45dfcf61e47491b81e3ffb0a90e8601a6d9355504a32c32"
+    },
+    {
+      "name": "proposal-drafts",
+      "width": 390,
+      "filename": "proposal-drafts-390.png",
+      "sha256": "5e3447c9d139dd12d91bb8347a2afd66ab00697955fc54577d9fef6911dab00a"
+    },
+    {
+      "name": "debrief-draft",
+      "width": 1440,
+      "filename": "debrief-draft-1440.png",
+      "sha256": "399f876b8b4efef007f16acb14fd3cfab37d929b096d5ff2e6b09dd4f686f468"
+    },
+    {
+      "name": "debrief-draft",
+      "width": 390,
+      "filename": "debrief-draft-390.png",
+      "sha256": "2513c45c087a42e98a5f691fd00d9d744ae42ed074fb02c440b34c1557d6277b"
+    }
+  ],
+  "browserErrors": [],
+  "ok": true,
+  "processExitCodeBeforeCleanup": 0,
+  "completedAt": "2026-11-06T08:58:45.206Z"
+}

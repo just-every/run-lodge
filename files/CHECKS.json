@@ -1,0 +1,139 @@
+{
+  "head": "daece69a5598b93ecfb1e86ec7950b436b6e2ebc",
+  "branch": "cloud/sx-lodge-c-f56",
+  "status": "partial",
+  "before": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "after": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "commands": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email <fleet identity> --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "pnpm run typecheck",
+      "node": "22.20.0",
+      "exit": 0
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "node": "22.20.0",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-012",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-012",
+      "exit": 0
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "purpose": "restore generated views; commit neither"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run timeout 1200 node <packet>/dropped-response-driver.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "receipt": "RECEIPT.json"
+    }
+  ],
+  "migrationLedger": {
+    "command": null,
+    "reason": "No migration changed"
+  },
+  "sourceChanges": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "unchangedRuntimeAndPermanentTests": true,
+  "identity": "all unpublished authors and committers are fleet; no co-author trailers",
+  "rowRetention": {
+    "parentPipeRows": 169,
+    "candidatePipeRows": 169,
+    "statusRowsRetained": 145
+  },
+  "push": {
+    "command": "python3 <fleet>/.tools/cloud-push.py origin cloud/sx-lodge-c-f56",
+    "exit": 0,
+    "attempts": 1
+  },
+  "publicationScan": {
+    "status": "not run in cloud; required exact-tree scan is a Mac lander gate",
+    "findings": null
+  },
+  "permanentTestsAdded": 0,
+  "permanentTestsRemoved": 0,
+  "existingAssertionsWeakened": false,
+  "apiCallsSoFar": 6,
+  "ciDispatch": {
+    "workflow": "verify.yml",
+    "ref": "cloud/sx-lodge-c-f56",
+    "reason": "documentation save carries skip-ci; discovery returned no exact-SHA run",
+    "dispatches": 1
+  },
+  "notes": [
+    "Initial one-off fixture composed duplicate cookie headers; corrected the driver to set Headers once. No runtime change.",
+    "Initial browser selector treated the business label as a heading; corrected it to use existing navigation and application deep link. No screen change.",
+    "A Node 24 run completed assertions but returned a nonzero wrapper exit. Qualification was repeated successfully under pinned Node 22.20.0.",
+    "An early CI lookup used an incorrect full SHA and returned no runs; it establishes no result. All CI claims use git-resolved full SHAs."
+  ],
+  "expectedStaleRestoredViews": {
+    "command": "node scripts/contract-docs.mjs check BASE-AGENT-012",
+    "exit": 1,
+    "failure": "Stale generated contract record: ACCEPTANCE.md",
+    "requiredRestoration": true
+  },
+  "optionalExistingJourney": {
+    "command": "node --input-type=module -e <import checkAgentPrompts and run>",
+    "initialNode": "24.19.0",
+    "initialResult": "no assertion obtained; explicitly terminated own processes",
+    "initialExit": 247,
+    "pinnedNode": "22.20.0",
+    "pinnedResult": "did not complete before timeout; explicitly terminated own processes",
+    "pinnedExit": 137,
+    "runtimeAndTestsIdenticalToMain": true,
+    "permanentChanges": false,
+    "httpAdapter": {
+      "driver": "existing-prompt-http-runner.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "requests": 134,
+      "assertions": "all existing assertions unchanged",
+      "result": "pass",
+      "head": "daece69a5598b93ecfb1e86ec7950b436b6e2ebc"
+    }
+  },
+  "candidateVerifyRunId": 42191529922,
+  "candidateVerifyLastStatus": "completed",
+  "runtimeNodeVerified": "22.20.0",
+  "disposableFixturesRemoved": true,
+  "allStartedBrowsersAndWorkersStopped": true,
+  "candidateVerifyConclusion": "success",
+  "candidateVerifyEvent": "workflow_dispatch",
+  "productCustody": "READY"
+}
