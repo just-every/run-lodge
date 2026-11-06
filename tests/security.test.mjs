@@ -15,8 +15,11 @@ import { commandBodies } from './security-commands.mjs'
 import { checkLevels } from './security-levels.mjs'
 import { checkOperations } from './operations-driver.mjs'
 import { checkAgentPrompts } from './agent-prompts-flow.mjs'
+import { checkAgentRefusals } from './agent-refusal-flow.mjs'
 
 const snapshot = async h => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
+
+test('Native proposal and debrief refusals keep stable MCP codes, authority and unsent drafts', async () => { await checkAgentRefusals() })
 
 test('Recruiting coordinator prompt stays static and preserves native human review, policy, Pause and consent authority', checkAgentPrompts)
 
