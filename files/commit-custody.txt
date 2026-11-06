@@ -6,3 +6,6 @@ Run Edit Run fleet <fleet@runeditrun.com>
 Run Edit Run fleet <fleet@runeditrun.com>
 Run Edit Run fleet <fleet@runeditrun.com>
 
+
+Remote product custody verified:
+f8f8782541d13aac48993dd59879131ab060409b	refs/heads/cloud/sx-lodge-c-f63

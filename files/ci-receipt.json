@@ -1,13 +1,13 @@
 {
-  "conclusion": null,
+  "conclusion": "success",
   "head_sha": "f8f8782541d13aac48993dd59879131ab060409b",
   "html_url": "https://github.com/just-every/run-lodge/actions/runs/42231967596",
-  "status": "in_progress",
+  "status": "completed",
   "id": 42231967596,
   "event": "push",
   "name": "Verify",
-  "checkedAt": "2026-11-06T14:23:58.628659+00:00",
-  "ghCallsUsed": 3,
+  "checkedAt": "2026-11-06T14:29:13.256589+00:00",
+  "ghCallsUsed": 4,
   "ghBudget": 10,
   "pr": null
 }

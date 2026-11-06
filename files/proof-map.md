@@ -37,7 +37,7 @@ The frozen scope for this round is refusal-code parity for the two adopted prepa
 | --- | --- |
 | 1 | FAIL for whole clause: original outcomes 1, 2, 3, 5 and 6 and wider outcome 4 remain unproved. This is an explicitly PARTIAL claim. Selected public-door outcomes pass the named journey. |
 | 2 | PASS for selected scope: real seeded records and nonempty inventory; allowed preparations and refused unsafe attempts are checked, with unchanged values and revisions on refusal. Lines 74–132. |
-| 3 | Verify registration INSPECTED: tests/security.test.mjs lines 18 and 22 register the journey; tests/run-lodge.mjs security area invokes that file; Verify push runs the existing security shard. Recorded exact-SHA event and conclusion are in ci-receipt.json. Browser screenshots are local supporting evidence, not a new mandatory CI family. |
+| 3 | Verify registration INSPECTED: tests/security.test.mjs lines 18 and 22 register the journey; tests/run-lodge.mjs security area invokes that file; Verify push runs the existing security shard. PASS: exact-SHA push Verify 42231967596 completed success; recorded in ci-receipt.json. Browser screenshots are local supporting evidence, not a new mandatory CI family. |
 | 4 | PASS: local browser-receipt.json and refusal-receipt.json name the full candidate SHA; no product byte changed afterward. |
 | 5 | INSPECTED, no new inheritance claim or clause text change. Relevant existing LDG-013, LDG-006, LDG-016 and COORD-006 duties are listed above. |
 | 6 | PASS for selected mechanical work: generator write and check pass for BASE-AGENT-002, generated files restored wholesale from origin/main; Status, Gap and Evidence are unchanged. Whole-clause Gap remains open. |
