@@ -1,0 +1,61 @@
+{
+  "head": "effd7cf46a52a43b89b7ed60a35b52d73e8e1eea",
+  "sourceUnchangedFromPriorMain": true,
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "outputBytes": 3475,
+      "outputSha256": "91030bebe57a0b7984a2b19a9836d36fd1b0ae8cae48ae33b013295409c7c18e",
+      "outputTail": [
+        "",
+        "[INEFFECTIVE_DYNAMIC_IMPORT] src/lodge/views/field-views.ts is dynamically imported by src/lodge/operations/trial.ts but also statically imported by src/lodge/http/api.ts, dynamic import will not move module into another chunk.",
+        "",
+        "\u2713 built in 829ms",
+        "Your application is built",
+        "build: complete (exit 0)"
+      ]
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "outputBytes": 228,
+      "outputSha256": "1e3cdf6dcf31b2fe363e7fe42035f04f14964aa734126e41bec2d4f8f778dcd6",
+      "outputTail": [
+        "\u2009WARN\u2009 Unsupported engine: wanted: {\"node\":\"22.20.0\"} (current: {\"node\":\"v24.19.0\",\"pnpm\":\"10.12.4\"})",
+        "",
+        "> @hiring/lodge@0.1.1 typecheck /home/agent/rer-consolidation/work/sx-lodge-c-f62/run-lodge",
+        "> tsc --build --incremental",
+        ""
+      ]
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "outputTail": []
+    },
+    {
+      "command": "timeout 1200 env LODGE_SCOPE_BROWSER=1 node ../packet/scope-driver.mjs <checkout> ../packet",
+      "exit": 0,
+      "outputBytes": 293,
+      "outputSha256": "e2a6213729af731f671d8c75cef26a839682940b4cd30846e425284bfee2ba0b",
+      "outputTail": [
+        "\u001b[33m\u25b2 \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m",
+        "",
+        "",
+        "{\"head\":\"effd7cf46a52a43b89b7ed60a35b52d73e8e1eea\",\"status\":\"passed\",\"phases\":2,\"reads\":6,\"refusals\":16,\"positiveControls\":16,\"screens\":6,\"providerCalls\":0}"
+      ]
+    }
+  ],
+  "productPush": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-lodge-c-f62",
+    "exit": 0,
+    "attempts": 1,
+    "remoteHead": "effd7cf46a52a43b89b7ed60a35b52d73e8e1eea",
+    "remoteRef": "refs/heads/cloud/sx-lodge-c-f62",
+    "defaultBranchTouched": false
+  },
+  "githubApiCallsSoFar": 2
+}

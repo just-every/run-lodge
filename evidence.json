@@ -1,0 +1,118 @@
+{
+  "files": [
+    {
+      "blob": "68403df949f086c38354ded767748aa0fae36a2b",
+      "bytes": 3253,
+      "path": "PLAN.md",
+      "sha256": "d11044e4abad33b0fdebe2f097893406796e8add69e85879a15f54b84df22fd2"
+    },
+    {
+      "blob": "b41fe56f04c37d2881ab2c18bdf503dbc7970d16",
+      "bytes": 13342,
+      "path": "REPORT.md",
+      "sha256": "eaac215d6135bbfbf472ebded82a690e6b8661eecbb7854a14e62c314086ffca"
+    },
+    {
+      "blob": "237dad437c0ec0394b48396341a7253c7e510c00",
+      "bytes": 1487,
+      "path": "RESULTS.json",
+      "sha256": "eef4bd63c18f78d9d3b1177baf764a534249bb8ee23f4c9c6e9c0b7d0c42cf2c"
+    },
+    {
+      "blob": "4af9d63cdfa27d0b0e9b8cd5e79d529e21fb018f",
+      "bytes": 1624,
+      "path": "application-read-failure.json",
+      "sha256": "027e99454816833d457c9923c2c727521e8b07ec3da203e396bb7c52cb2dd86e"
+    },
+    {
+      "blob": "a30c8287ab5306ef3111ad079a3420c4b4ba5cf2",
+      "bytes": 2464,
+      "path": "checks-receipt.json",
+      "sha256": "34a16b29fd0ea5aac19a38d867525e839fed43a45707707e5e578942d67930f3"
+    },
+    {
+      "blob": "5d7f7b69bcf159fd2f1cd7eae7a0e2d917ae1a6c",
+      "bytes": 243,
+      "path": "ci-discovery.json",
+      "sha256": "24e7a57a4a98fc17513ed6ecf830642aff023cfdf818aa9a6b9bc8379a49ab16"
+    },
+    {
+      "blob": "749afcbc2c34e0ad4e404f603522cdb5109b6903",
+      "bytes": 175,
+      "path": "ci-receipt.json",
+      "sha256": "9d13a10d2ea08ca7c856d95251062ae4eda2c4e05f65b27fd8f004962a4acddf"
+    },
+    {
+      "blob": "5664d6c0212fdace5428e6d3566dbe42aceb7a1f",
+      "bytes": 1851,
+      "path": "mechanical-receipt.json",
+      "sha256": "871a1e7d47354ac7a85752a51b26bdfde45457497e9c4ce549ecbda1d0313fa0"
+    },
+    {
+      "blob": "4427ee0b554100363228c2dcd5890f17cde624c9",
+      "bytes": 4799,
+      "path": "production-fixture.mjs",
+      "sha256": "3e60e9f70749e0b2c412ea00dc5e8c5845c36651cfd25754b319e9ec908a0650"
+    },
+    {
+      "blob": "542998a17c8c84a66b422e21eb9fd248d7999776",
+      "bytes": 695243,
+      "path": "proposals-1440.png",
+      "sha256": "4b5e1aaee91e604ac05eee965ad6401072c035ccc33a7894ab3d26fd5561026d"
+    },
+    {
+      "blob": "0ffd01e2863c37317aa7822ac6bbdf5d636dcdd3",
+      "bytes": 443439,
+      "path": "proposals-390.png",
+      "sha256": "8642abf2f3417c7c14e0a83e748967430d9146da9ae72b5432a1de148ef0deac"
+    },
+    {
+      "blob": "00648b87f50fa98f54a8c43bcca6836101f5662a",
+      "bytes": 2114,
+      "path": "provenance.json",
+      "sha256": "8a4ff982b840bc299995ba17468f8d07e7ae1fe8a729c4ada2c4ac91f7355a31"
+    },
+    {
+      "blob": "6abc249bd45d9194445e41404484fd999d8ad2b7",
+      "bytes": 16721,
+      "path": "scope-driver.mjs",
+      "sha256": "c06b178916d1f9ea2d9b46e7e45f1ead6894cb1fd17cc3bde9761a7413f7a04e"
+    },
+    {
+      "blob": "24e5223cdcb562a823f68ecbce34c93ba7dad8cd",
+      "bytes": 34906,
+      "path": "scope-receipt.json",
+      "sha256": "fde57f6ce6ec8ea374fa206e2d7782c1512419dcde750c4a3b2972b8c6302c3a"
+    },
+    {
+      "blob": "13cf0857257256cc6849d3d5b765e30771a27fde",
+      "bytes": 374295,
+      "path": "source-1440.png",
+      "sha256": "c0514291ba691a36927c9c6e66ddb7c94800e2ca98dcb33387e0af712ceeadd9"
+    },
+    {
+      "blob": "2b7de2b7cbd92d5a47932a8199bc7f15f35ddaef",
+      "bytes": 363177,
+      "path": "source-390.png",
+      "sha256": "bf758a3b1d92da6b4070c738d875a0f85fb44f926e0263d0f586a4c8f310cbc9"
+    },
+    {
+      "blob": "76ebd04a81692ff0c339912cf7c5da5b9b4ffecb",
+      "bytes": 618370,
+      "path": "source-debrief-1440.png",
+      "sha256": "79c86b9e1609b669fc234f06f42215bd75d0504934659ed6095385a4a23fa79a"
+    },
+    {
+      "blob": "57e32168093cba62779cf4117f74d3da71fc8a89",
+      "bytes": 489875,
+      "path": "source-debrief-390.png",
+      "sha256": "f0259b66ebb7355f47e305049448dc0b5f24e6c61cd2268945986845a85aafad"
+    }
+  ],
+  "product_branch": "cloud/sx-lodge-c-f62",
+  "product_head": "effd7cf46a52a43b89b7ed60a35b52d73e8e1eea",
+  "ref": "refs/heads/evidence/sx-lodge-c-f62",
+  "repository": "just-every/run-lodge",
+  "schema": 1,
+  "tag": "sx-lodge-c-f62"
+}

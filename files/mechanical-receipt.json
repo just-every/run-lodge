@@ -1,0 +1,54 @@
+{
+  "head": "effd7cf46a52a43b89b7ed60a35b52d73e8e1eea",
+  "at": "2026-11-06T12:59:46.783338+00:00",
+  "commands": [
+    {
+      "name": "views_write",
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-005",
+      "exit": 0,
+      "stdoutBytes": 94,
+      "stdoutSha256": "0b5df083e6b94cdb456436d54dbfc0b7f1875bb6784e1a43fa72665e24cde700",
+      "stderrBytes": 0,
+      "stdout": "contract-docs write: BASE-AGENT-005; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}\n"
+    },
+    {
+      "name": "views_check",
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-005",
+      "exit": 0,
+      "stdoutBytes": 94,
+      "stdoutSha256": "f2ec8b57241b8cdfa7172f3ad4d04520743b79afccdba37c00ed648422f8e4ba",
+      "stderrBytes": 0,
+      "stdout": "contract-docs check: BASE-AGENT-005; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}\n"
+    },
+    {
+      "name": "restore_views",
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "stdoutBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrBytes": 0
+    },
+    {
+      "name": "lock_generate",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "stdoutBytes": 213959,
+      "stdoutSha256": "4c1fd279eb9994ad3e581da4b49423a349c2fe1d085f8a45bdb80b08a7f162fd",
+      "stderrBytes": 0
+    },
+    {
+      "name": "lock_check",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "stdoutBytes": 213973,
+      "stdoutSha256": "e8cbb45a63f929b29af156eaf43ab5852d396181d29d72b5ddde31c357fa2812",
+      "stderrBytes": 0
+    }
+  ],
+  "migrationLedger": {
+    "command": "none",
+    "reason": "No migration added or edited",
+    "exit": 0
+  },
+  "workingTreeClean": true
+}

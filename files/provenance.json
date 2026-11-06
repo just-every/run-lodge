@@ -1,0 +1,72 @@
+{
+  "head": "effd7cf46a52a43b89b7ed60a35b52d73e8e1eea",
+  "branch": "cloud/sx-lodge-c-f62",
+  "mainAtIntegration": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+  "parents": [
+    {
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "rows": 145,
+      "dropped": []
+    },
+    {
+      "head": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+      "rows": 145,
+      "dropped": []
+    }
+  ],
+  "counts": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "changedFromMain": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "code": [
+    {
+      "path": "src/lodge/agent-door/tools.ts",
+      "sha256": "ee3dcf0128925ad2bae44c4a41eaec0986d23d3736d864d07c64cdd0586e73c6",
+      "unchangedFromPriorMain": true
+    },
+    {
+      "path": "src/modules/agent-door/pipeline.ts",
+      "sha256": "c1a1072f3f1fec84f33c365719c61fa4cdfdba384155385f6ad300da964e8eed",
+      "unchangedFromPriorMain": true
+    },
+    {
+      "path": "src/modules/agent-door/execution.ts",
+      "sha256": "472e879863060e8d832bd926955f7b5d068c3b723f96fecd723d48e5d4a9d2d2",
+      "unchangedFromPriorMain": true
+    },
+    {
+      "path": "tests/agent-prompts-flow.mjs",
+      "sha256": "525e4aaa043992f4030d0b20a0fd5e534454c00262e6f43df403ef2c425739e5",
+      "unchangedFromPriorMain": true
+    },
+    {
+      "path": "tests/harness.mjs",
+      "sha256": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
+      "unchangedFromPriorMain": true
+    },
+    {
+      "path": "tests/initialize-agent-owner.mjs",
+      "sha256": "ff2cfea31599b6d56200415cf985a507aa77dd0f33cf817f308cec553bd7c1c9",
+      "unchangedFromPriorMain": true
+    },
+    {
+      "path": "tests/initialize-agent.mjs",
+      "sha256": "8a8b79c94adb1024c4e838259cac1802ea955fbb7c8612b070dceef59367f065",
+      "unchangedFromPriorMain": true
+    },
+    {
+      "path": "tests/agent-phase-fixtures.mjs",
+      "sha256": "3000e4c0d5af78cc3f0b749370f5f93c321281e22f1b4bc5745c01480477f63e",
+      "unchangedFromPriorMain": true
+    }
+  ],
+  "generatedViewsMatchMain": true,
+  "workingTreeClean": true
+}

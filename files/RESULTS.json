@@ -1,0 +1,70 @@
+{
+  "head": "effd7cf46a52a43b89b7ed60a35b52d73e8e1eea",
+  "status": "passed",
+  "policies": [
+    "autonomous",
+    "held"
+  ],
+  "successfulRequiredReads": 6,
+  "refusedPreparationCalls": 16,
+  "successfulControls": 16,
+  "replays": 16,
+  "newDraftsFromControls": {
+    "proposal": 8,
+    "debrief": 8
+  },
+  "preexistingSeedDrafts": 4,
+  "allRecordHashComparisonsEqual": true,
+  "heldReviewsLinked": 8,
+  "providerCalls": 0,
+  "screens": [
+    {
+      "width": 1440,
+      "screen": "native application source",
+      "file": "source-1440.png"
+    },
+    {
+      "width": 1440,
+      "screen": "source and unsent debriefs",
+      "file": "source-debrief-1440.png",
+      "visibleDraft": true
+    },
+    {
+      "width": 1440,
+      "screen": "unsent native proposals",
+      "file": "proposals-1440.png",
+      "bothPolicies": true
+    },
+    {
+      "width": 390,
+      "screen": "native application source",
+      "file": "source-390.png"
+    },
+    {
+      "width": 390,
+      "screen": "source and unsent debriefs",
+      "file": "source-debrief-390.png",
+      "visibleDraft": true
+    },
+    {
+      "width": 390,
+      "screen": "unsent native proposals",
+      "file": "proposals-390.png",
+      "bothPolicies": true
+    }
+  ],
+  "statusBefore": "partial",
+  "statusAfter": "partial",
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  }
+}

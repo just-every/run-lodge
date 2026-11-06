@@ -1,0 +1,890 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f62",
+  "head": "effd7cf46a52a43b89b7ed60a35b52d73e8e1eea",
+  "started": "2026-11-06T12:58:19.577Z",
+  "fixture": "emitted production Worker with migrated D1, disposable signed Business and existing owner and agent initializers",
+  "phases": [
+    {
+      "phase": "autonomous",
+      "policyRevision": 1,
+      "disposition": "autonomous",
+      "reads": [
+        {
+          "tool": "lodge.jobs.list",
+          "status": 200,
+          "scope": "lodge:read",
+          "disposition": "autonomous",
+          "revision": 1,
+          "nonempty": true
+        },
+        {
+          "tool": "lodge.records.read",
+          "status": 200,
+          "scope": "lodge:read",
+          "disposition": "autonomous",
+          "revision": 1,
+          "nonempty": true
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "status": 200,
+          "scope": "lodge:read",
+          "disposition": "autonomous",
+          "revision": 1,
+          "nonempty": true
+        }
+      ],
+      "cases": [
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "none",
+          "refusedKey": "09436abe-63d9-43a3-b068-f1db226489ad",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 23,
+            "recordsBefore": "ab0adb687cfa3667e244d74f1abe35ef57b8825e1b7a8a2cef6f5fce5a373b95",
+            "recordsAfter": "ab0adb687cfa3667e244d74f1abe35ef57b8825e1b7a8a2cef6f5fce5a373b95",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "b7e94561-7a17-49fe-af92-8e6ccb3472e8",
+              "tool": "lodge.proposals.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "158a6921-051d-4f8d-ad8f-cb30b93fb6b1",
+            "kind": "proposal",
+            "statusLabel": "proposed",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "cff61612-9465-4be1-b279-2e25076009b3",
+            "policyRevision": 1,
+            "disposition": "autonomous",
+            "reviewId": null,
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "none",
+          "refusedKey": "b4b610f6-4d42-49a3-87b5-982b5b9bd483",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 25,
+            "recordsBefore": "68be110fdbeb9b5805dcd9ca46df48c7767160884f48564ac4c0448f50a1f5ed",
+            "recordsAfter": "68be110fdbeb9b5805dcd9ca46df48c7767160884f48564ac4c0448f50a1f5ed",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "b49dc634-f810-4f4f-958d-0571bf16ff53",
+              "tool": "lodge.debriefs.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "d3138c71-742a-4660-86cf-a4f7816bd64c",
+            "kind": "debrief",
+            "statusLabel": "draft",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "76fd56da-9870-4d12-acdf-7bd9a0a91081",
+            "policyRevision": 1,
+            "disposition": "autonomous",
+            "reviewId": null,
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "role",
+          "refusedKey": "236ed329-4dc5-4305-80fc-eb03ef55037f",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 27,
+            "recordsBefore": "106f913e913d503625435be10dd15e01941b152505822e52e1097dd49f1c84e8",
+            "recordsAfter": "106f913e913d503625435be10dd15e01941b152505822e52e1097dd49f1c84e8",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "344fe44a-476c-4593-8bdd-451abb464c62",
+              "tool": "lodge.proposals.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "role"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "82e92b97-d17c-46db-9af5-4c0764e082db",
+            "kind": "proposal",
+            "statusLabel": "proposed",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "d87e41bc-f6d7-4d5f-b7da-982068415d01",
+            "policyRevision": 1,
+            "disposition": "autonomous",
+            "reviewId": null,
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "role",
+          "refusedKey": "4c7b4a9d-ac31-4550-88bf-9ed4bc1e2f54",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 29,
+            "recordsBefore": "cfcdfcc137a42ba765b3a434d3b6155ea92fc17d690dfbb801198144d0a19e9c",
+            "recordsAfter": "cfcdfcc137a42ba765b3a434d3b6155ea92fc17d690dfbb801198144d0a19e9c",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "976571c3-9536-48dc-9663-a2e933e1e4a3",
+              "tool": "lodge.debriefs.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "role"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "d12cbdca-5bab-4985-81b5-aec2fdc0342b",
+            "kind": "debrief",
+            "statusLabel": "draft",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "fdaabbad-3965-420d-a67c-559dc4eca76a",
+            "policyRevision": 1,
+            "disposition": "autonomous",
+            "reviewId": null,
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "scope",
+          "refusedKey": "2feaabe8-8bc0-452d-b6c6-c8ad4bb46569",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 31,
+            "recordsBefore": "8aaf0b5779a94676a46ec8ad7df58cd04c8760326755269e1bf3b6d62a7cf9e0",
+            "recordsAfter": "8aaf0b5779a94676a46ec8ad7df58cd04c8760326755269e1bf3b6d62a7cf9e0",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "ae5dee42-e4a2-4f40-9246-72cc973b488a",
+              "tool": "lodge.proposals.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "scope"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "a058e624-834a-4c1b-881a-996101496ca2",
+            "kind": "proposal",
+            "statusLabel": "proposed",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "5ee68ce0-4c2b-40f2-8617-6358e3f64f5d",
+            "policyRevision": 1,
+            "disposition": "autonomous",
+            "reviewId": null,
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "scope",
+          "refusedKey": "56e8d243-b6af-49fe-9edc-9e69d6ea8baf",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 33,
+            "recordsBefore": "a97e6f911a1e87c1621632e3825803ed150175d02ac6ace301ec3e88165f6a59",
+            "recordsAfter": "a97e6f911a1e87c1621632e3825803ed150175d02ac6ace301ec3e88165f6a59",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "bf48d3bb-0ff7-461b-9810-c463463935ef",
+              "tool": "lodge.debriefs.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "scope"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "657cdf8c-ba5e-4982-a943-e4e3eeb17914",
+            "kind": "debrief",
+            "statusLabel": "draft",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "d55f8e20-fe7d-47f7-bd5a-06fb4672e261",
+            "policyRevision": 1,
+            "disposition": "autonomous",
+            "reviewId": null,
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "grant",
+          "refusedKey": "6bfcc617-4a78-4574-b61e-c9be1523107f",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 35,
+            "recordsBefore": "f5eadf2b313d054bc8ece210103b6567124ca9f0debb96ecb200b55450ce7059",
+            "recordsAfter": "f5eadf2b313d054bc8ece210103b6567124ca9f0debb96ecb200b55450ce7059",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "81d6ac36-4a03-4a8f-a9d6-845445ff0b36",
+              "tool": "lodge.proposals.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "grant"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "e0bdb701-f99b-42b5-83ae-a1c0b3ac898a",
+            "kind": "proposal",
+            "statusLabel": "proposed",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "7a201400-6f85-4db2-aad2-e4023a1bb9cf",
+            "policyRevision": 1,
+            "disposition": "autonomous",
+            "reviewId": null,
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "grant",
+          "refusedKey": "c3ce5de7-07d4-4b85-ad89-f81a6023bb81",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 37,
+            "recordsBefore": "611bcabd2b0d003667d65dcc9db8b622eb7c0aa4bbcfa77cae4df16c629c22f7",
+            "recordsAfter": "611bcabd2b0d003667d65dcc9db8b622eb7c0aa4bbcfa77cae4df16c629c22f7",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "bb5bd125-bccf-43da-ac3e-625fdb54c6cc",
+              "tool": "lodge.debriefs.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "grant"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "a677a026-4158-4228-a2fb-01f4f2e87925",
+            "kind": "debrief",
+            "statusLabel": "draft",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "9c9bf4a6-28ce-4026-b719-bfab7586e849",
+            "policyRevision": 1,
+            "disposition": "autonomous",
+            "reviewId": null,
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        }
+      ],
+      "seedDrafts": {
+        "proposal": "55ad8c2b-36e9-4f29-911e-37fd782ab2d3",
+        "debrief": "de58526e-c855-48fb-9785-df27ff0e0301"
+      },
+      "applicationReadObservation": {
+        "readOnly": {
+          "status": 200,
+          "code": "output_invalid",
+          "isError": true
+        },
+        "fullyScoped": {
+          "status": 200,
+          "code": "output_invalid",
+          "isError": true
+        }
+      }
+    },
+    {
+      "phase": "held",
+      "policyRevision": 2,
+      "disposition": "review",
+      "reads": [
+        {
+          "tool": "lodge.jobs.list",
+          "status": 200,
+          "scope": "lodge:read",
+          "disposition": "review",
+          "revision": 2,
+          "nonempty": true
+        },
+        {
+          "tool": "lodge.records.read",
+          "status": 200,
+          "scope": "lodge:read",
+          "disposition": "review",
+          "revision": 2,
+          "nonempty": true
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "status": 200,
+          "scope": "lodge:read",
+          "disposition": "review",
+          "revision": 2,
+          "nonempty": true
+        }
+      ],
+      "cases": [
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "none",
+          "refusedKey": "2fe9b503-714a-49c5-bc3a-a3f85805bb41",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 57,
+            "recordsBefore": "59556ce9f3972d60013782017ed5b8fea8e2593220d582917d70ddb2bc41576c",
+            "recordsAfter": "59556ce9f3972d60013782017ed5b8fea8e2593220d582917d70ddb2bc41576c",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "e71cc932-d088-4706-8db7-7ebc276fe3f2",
+              "tool": "lodge.proposals.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "0a18d055-9712-46c8-bb9d-b9339c10ede3",
+            "kind": "proposal",
+            "statusLabel": "proposed",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "c1d3e190-a123-45e9-8cce-ed81a48f84ac",
+            "policyRevision": 2,
+            "disposition": "review",
+            "reviewId": "21bd4371-fa5d-4716-ae9f-68ebbc5b1c06",
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "none",
+          "refusedKey": "fe5769a5-c92e-42ca-a3b5-e2d742026c96",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 59,
+            "recordsBefore": "2c01f557e0aee8d17c7cdebae3c42f4615bde823ae1208e25ce9f3b3f15508e9",
+            "recordsAfter": "2c01f557e0aee8d17c7cdebae3c42f4615bde823ae1208e25ce9f3b3f15508e9",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "5bdc8d57-1e7b-4175-9318-e8847d010a80",
+              "tool": "lodge.debriefs.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "d9ef62d9-56eb-4f6d-88a0-f6a82fc96a6c",
+            "kind": "debrief",
+            "statusLabel": "draft",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "48809766-250b-402b-85a1-60b639ad6147",
+            "policyRevision": 2,
+            "disposition": "review",
+            "reviewId": "14097718-b396-4c8f-9b02-b713232ea6e5",
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "role",
+          "refusedKey": "edee94bf-e7d0-4770-a115-a7229c80dad6",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 61,
+            "recordsBefore": "cee7c642bcf1cf7dc5c1e98c66c7fde16043b657d60f6e17187d523e363a31c2",
+            "recordsAfter": "cee7c642bcf1cf7dc5c1e98c66c7fde16043b657d60f6e17187d523e363a31c2",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "79545534-fbb1-4fe4-80e7-fb22b4a00faa",
+              "tool": "lodge.proposals.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "role"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "15746ecb-6e37-4b0e-9893-1cd7166fefe7",
+            "kind": "proposal",
+            "statusLabel": "proposed",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "e0e6a018-8626-48e0-bc6d-f09689fefa2d",
+            "policyRevision": 2,
+            "disposition": "review",
+            "reviewId": "7bca91ec-08b4-4882-a514-78724ae16a23",
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "role",
+          "refusedKey": "0bb84fcf-4e27-419f-a143-63b27ce73400",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 63,
+            "recordsBefore": "f0dbb68ae7f1cb44b013333f3146609d44ffc47d7d90a980684c0d8c3973fc88",
+            "recordsAfter": "f0dbb68ae7f1cb44b013333f3146609d44ffc47d7d90a980684c0d8c3973fc88",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "d535fe51-e258-446e-ba5a-182bed033761",
+              "tool": "lodge.debriefs.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "role"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "133ebcae-d37c-4b32-97ce-5519f1d02e58",
+            "kind": "debrief",
+            "statusLabel": "draft",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "b83087fe-ce1e-44f2-b958-4edd54a60d1f",
+            "policyRevision": 2,
+            "disposition": "review",
+            "reviewId": "5b4237f1-f73b-4269-aebe-e503758ecf7d",
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "scope",
+          "refusedKey": "7c36fc26-a166-4365-b807-6bfb6c2a1abc",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 65,
+            "recordsBefore": "eaeadace17aa90b2482ae03691e31a9f75638f2ca3218331e159169771974471",
+            "recordsAfter": "eaeadace17aa90b2482ae03691e31a9f75638f2ca3218331e159169771974471",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "690aff76-8552-4e66-b8c3-04143577e6e1",
+              "tool": "lodge.proposals.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "scope"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "01df1b94-a1ac-45da-a1d5-e88da0916732",
+            "kind": "proposal",
+            "statusLabel": "proposed",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "16e030de-8043-40c9-82b0-bdd4b7c118f4",
+            "policyRevision": 2,
+            "disposition": "review",
+            "reviewId": "768f53c5-3aa7-4efd-a0be-46c34fea901a",
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "scope",
+          "refusedKey": "d7527471-d029-4f0d-9f72-734791a5206f",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 67,
+            "recordsBefore": "38b70776b98993d3d6495db6bbb9663a5a686476ffb87fc5a49f767356d83768",
+            "recordsAfter": "38b70776b98993d3d6495db6bbb9663a5a686476ffb87fc5a49f767356d83768",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "11afea7f-24d7-4500-b25f-7461c0994287",
+              "tool": "lodge.debriefs.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "scope"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "5da9f64c-f8b5-49c1-ba56-124e1543a0b1",
+            "kind": "debrief",
+            "statusLabel": "draft",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "c4adf1ce-aac9-4e28-8ff8-017dc2dd028e",
+            "policyRevision": 2,
+            "disposition": "review",
+            "reviewId": "8465eae2-37a6-4398-85cd-07137dabb171",
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "grant",
+          "refusedKey": "b9960081-f570-463f-8a85-f6e09e3333fb",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 69,
+            "recordsBefore": "0a5f17876b11eaad55232d6984953b4cf571849555557ba3a434fa28b74a0f2d",
+            "recordsAfter": "0a5f17876b11eaad55232d6984953b4cf571849555557ba3a434fa28b74a0f2d",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "91c2b22f-cc82-42c1-8df9-15a1c7e97096",
+              "tool": "lodge.proposals.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "grant"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "4e2de2b7-183f-4b90-a075-1275ae86845d",
+            "kind": "proposal",
+            "statusLabel": "proposed",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "4c1842c8-c5bc-4a39-a87c-bda099e20307",
+            "policyRevision": 2,
+            "disposition": "review",
+            "reviewId": "35c7253d-1b66-49f9-9235-011e2f7a534d",
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "grant",
+          "refusedKey": "19de0a73-c4a1-4fac-8748-bd04f58c22a6",
+          "refusal": {
+            "status": 403,
+            "code": "insufficient_scope",
+            "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"https://rer-hosted-check.invalid/.well-known/oauth-protected-resource/mcp\"",
+            "resultAbsent": true,
+            "recordRows": 71,
+            "recordsBefore": "2eb083b8c20e7d8213dc7e0961e6d3ea960a747852d5c60fb549143463b6a1e4",
+            "recordsAfter": "2eb083b8c20e7d8213dc7e0961e6d3ea960a747852d5c60fb549143463b6a1e4",
+            "bindingsUnchanged": true,
+            "nativeStateUnchanged": true,
+            "sharedStateUnchanged": true,
+            "audit": {
+              "id": "37226435-035f-43f1-b90e-7796470418ea",
+              "tool": "lodge.debriefs.prepare",
+              "code": "insufficient_scope",
+              "outcome": "refused",
+              "scopes": [
+                "lodge:read"
+              ],
+              "ignored_arguments": [
+                "grant"
+              ],
+              "agent": "35533262-9b12-4dc7-889e-0fe6632daae0",
+              "sponsor": "62aec4c8-c5bd-4e5f-9a44-f0e384127dff",
+              "consent": "a4953ee7-a342-4d17-919c-81134cd507ed"
+            }
+          },
+          "positive": {
+            "status": 200,
+            "nativeDraftId": "99879733-1ed0-4ce3-89d7-261d15fd6bfc",
+            "kind": "debrief",
+            "statusLabel": "draft",
+            "exactOneNewDraft": true,
+            "noNativeDecision": true,
+            "sameArgumentsAndKey": true,
+            "decisionId": "8c1361b5-33af-4c9a-8e40-2ccccd0a3074",
+            "policyRevision": 2,
+            "disposition": "review",
+            "reviewId": "00379347-d82b-47e3-8f15-39e95b41bc63",
+            "replaySameDraft": true,
+            "providerCalls": 0
+          }
+        }
+      ],
+      "seedDrafts": {
+        "proposal": "9a0aac74-c923-4a03-9b24-ebe4a091f9e1",
+        "debrief": "3c0069cf-a535-40f7-93f5-3f5888f8faf6"
+      },
+      "applicationReadObservation": {
+        "readOnly": {
+          "status": 200,
+          "code": "output_invalid",
+          "isError": true
+        },
+        "fullyScoped": {
+          "status": 200,
+          "code": "output_invalid",
+          "isError": true
+        }
+      }
+    }
+  ],
+  "screens": [
+    {
+      "width": 1440,
+      "screen": "native application source",
+      "file": "source-1440.png"
+    },
+    {
+      "width": 1440,
+      "screen": "source and unsent debriefs",
+      "file": "source-debrief-1440.png",
+      "visibleDraft": true
+    },
+    {
+      "width": 1440,
+      "screen": "unsent native proposals",
+      "file": "proposals-1440.png",
+      "bothPolicies": true
+    },
+    {
+      "width": 390,
+      "screen": "native application source",
+      "file": "source-390.png"
+    },
+    {
+      "width": 390,
+      "screen": "source and unsent debriefs",
+      "file": "source-debrief-390.png",
+      "visibleDraft": true
+    },
+    {
+      "width": 390,
+      "screen": "unsent native proposals",
+      "file": "proposals-390.png",
+      "bothPolicies": true
+    }
+  ],
+  "status": "passed",
+  "providerCalls": 0,
+  "finished": "2026-11-06T12:58:29.338Z"
+}

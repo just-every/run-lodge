@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f62",
+  "head": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+  "started": "2026-11-06T12:52:33.766Z",
+  "fixture": "emitted production Worker with migrated D1, disposable signed Business and existing owner and agent initializers",
+  "phases": [
+    {
+      "phase": "autonomous",
+      "policyRevision": 1,
+      "disposition": "autonomous",
+      "reads": [
+        {
+          "tool": "lodge.jobs.list",
+          "status": 200,
+          "scope": "lodge:read",
+          "disposition": "autonomous",
+          "revision": 1,
+          "nonempty": true
+        }
+      ],
+      "cases": []
+    }
+  ],
+  "screens": [],
+  "status": "failed",
+  "failure": {
+    "name": "AssertionError",
+    "message": "lodge.records.read: {\"com.runeditrun/decision\":{\"id\":\"65e03a6e-b244-4e63-b853-1b4cf6851418\",\"disposition\":\"autonomous\",\"revision\":1,\"classes\":[{\"class\":\"standard\",\"rule\":\"all\",\"do\":\"autonomous\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/error\":{\"code\":\"output_invalid\"}}\n\ntrue !== false\n",
+    "stack": "AssertionError [ERR_ASSERTION]: lodge.records.read: {\"com.runeditrun/decision\":{\"id\":\"65e03a6e-b244-4e63-b853-1b4cf6851418\",\"disposition\":\"autonomous\",\"revision\":1,\"classes\":[{\"class\":\"standard\",\"rule\":\"all\",\"do\":\"autonomous\",\"facts\":{\"measure\":1}}]},\"com.runeditrun/error\":{\"code\":\"output_invalid\"}}\n\ntrue !== false\n\n    at file:///home/agent/rer-consolidation/work/sx-lodge-c-f62/packet/scope-driver.mjs:47:14\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+  }
+}
