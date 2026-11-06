@@ -1,0 +1,20 @@
+{
+  "head": "0982834f66d9b018af720e12992908160a887e47",
+  "runs": [
+    {
+      "conclusion": null,
+      "event": "workflow_dispatch",
+      "head_sha": "0982834f66d9b018af720e12992908160a887e47",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42203530892",
+      "id": 42203530892,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "githubCallsUsed": 3,
+  "dispatchCount": 1,
+  "reruns": 0,
+  "status": "in_progress",
+  "publicationScan": "Mac lander gate; not run in cloud",
+  "runSite": "main-only lander gate; not run in cloud"
+}

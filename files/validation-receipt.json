@@ -1,0 +1,60 @@
+{
+  "head": "0982834f66d9b018af720e12992908160a887e47",
+  "results": [
+    {
+      "name": "build",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ],
+      "exit": 0,
+      "log": "build.log",
+      "logSha256": "f280ef2b77d867fcb0c8294e351e29903a49ab387cc590d7f985a6a955d496e4",
+      "candidateRelevantBytesUnchanged": true
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "typecheck.log",
+      "logSha256": "e8d9ac81f1d2f6ce991631e32541de414c59a52831c7338c7bfc0eb78c064da2",
+      "candidateRelevantBytesUnchanged": true
+    },
+    {
+      "name": "existing journey",
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern=Recruiting coordinator prompt stays static",
+        "tests/security.test.mjs"
+      ],
+      "exit": 0,
+      "log": "existing-journey.log",
+      "logSha256": "c763351187a55b44e6d4c1f1042d74466becb4680c925678007d979782378674",
+      "candidateRelevantBytesUnchanged": true
+    },
+    {
+      "name": "qualification",
+      "command": [
+        "timeout",
+        "1200",
+        "env",
+        "QUALIFY_BROWSER=1",
+        "node",
+        "<packet>/oversize-qualification.mjs"
+      ],
+      "exit": 0,
+      "log": "qualification.log",
+      "logSha256": "3639da73a6feffe588efa66d96fcf9be43af74632c38bf81f87879998c878db7",
+      "candidateRelevantBytesUnchanged": true
+    }
+  ],
+  "runtimeAndExistingTestDiffEmpty": true,
+  "permanentTestsAdded": 0,
+  "permanentTestsRemoved": 0
+}

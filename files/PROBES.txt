@@ -1,0 +1,4 @@
+PROBE BASE-AGENT-001 6 autonomous declared: authenticated raw HTTP -> 413, native state identical; same valid arguments and key within capacity -> exactly one proposed draft, autonomous, no applied vacancy or provider call
+PROBE BASE-AGENT-001 6 autonomous streamed: authenticated raw HTTP -> 413, native state identical; same valid arguments and key within capacity -> exactly one proposed draft, autonomous, no applied vacancy or provider call
+PROBE BASE-AGENT-001 6 held declared: authenticated raw HTTP -> 413, native state identical; same valid arguments and key within capacity -> exactly one proposed draft, review, no applied vacancy or provider call
+PROBE BASE-AGENT-001 6 held streamed: authenticated raw HTTP -> 413, native state identical; same valid arguments and key within capacity -> exactly one proposed draft, review, no applied vacancy or provider call

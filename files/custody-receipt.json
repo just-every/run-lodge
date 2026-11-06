@@ -1,0 +1,26 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f59",
+  "head": "0982834f66d9b018af720e12992908160a887e47",
+  "push": "PUSH_OK",
+  "guard": "cloud-push.py",
+  "candidateCommits": 1,
+  "identityAndTrailerAudit": "passed for every candidate commit including side parents",
+  "author": "Run Edit Run fleet",
+  "committer": "Run Edit Run fleet",
+  "trailers": [],
+  "mainPushed": false,
+  "pr": null,
+  "statusRowsBefore": 145,
+  "statusRowsAfter": 145,
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  }
+}

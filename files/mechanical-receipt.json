@@ -1,0 +1,88 @@
+{
+  "head": "0982834f66d9b018af720e12992908160a887e47",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "BASE-AGENT-001"
+      ],
+      "exit": 0,
+      "outputBytes": 94,
+      "outputSha256": "4de6fdeb253eb6fb24d520dd786f2b0efaabc3a9645ee74be8f4af526a251954",
+      "output": "contract-docs write: BASE-AGENT-001; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check",
+        "BASE-AGENT-001"
+      ],
+      "exit": 0,
+      "outputBytes": 94,
+      "outputSha256": "efd1aec8c6e57c6c479ccb3e4279bc69b5099b41c37aa94586d75fca5a2581ea",
+      "output": "contract-docs check: BASE-AGENT-001; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}"
+    },
+    {
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0,
+      "outputBytes": 213959,
+      "outputSha256": "f83c4adea1f480adc803acefe01e02dd3429d9b102fe9ca1828ce1e37be2cee6"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "outputBytes": 213973,
+      "outputSha256": "059997e4892859b787f42f1b5fddabf37b91225418078c4c4e3cfa1d8454275b"
+    },
+    {
+      "command": [
+        "pnpm",
+        "exec",
+        "rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "exit": 0,
+      "outputBytes": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "migrationLedger": "not applicable; no migration changed",
+  "generatedViewsRestoredFrom": "origin/main",
+  "sourceLockFresh": true
+}

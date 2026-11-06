@@ -1,0 +1,188 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f59",
+  "head": "0982834f66d9b018af720e12992908160a887e47",
+  "started": "2026-11-06T10:39:10.543Z",
+  "checks": [
+    {
+      "phase": "autonomous",
+      "mode": "declared",
+      "maxBodyBytes": 1048576,
+      "requestBytes": 1048577,
+      "withinCapacityBytes": 624,
+      "framing": {
+        "contentLength": 1048577,
+        "chunked": false,
+        "chunksWritten": 1,
+        "bytesWritten": 1048577
+      },
+      "refusal": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Body too large"
+        }
+      },
+      "status": 413,
+      "nativeBeforeSha256": "6f4ca94a6d0813eb3cf776e5878b96bb74338b5d8c8c65154a9b298153bf68b0",
+      "nativeAfterSha256": "6f4ca94a6d0813eb3cf776e5878b96bb74338b5d8c8c65154a9b298153bf68b0",
+      "nativeRecordCount": 23,
+      "allEffectTablesUnchanged": true,
+      "inventoriesAndHiringDecisionsUnchanged": true,
+      "retryStatus": 200,
+      "exactlyOneProposedDraft": true,
+      "decisionDisposition": "autonomous",
+      "policyRevision": 1,
+      "decisionLinkedToCallAndAudit": true,
+      "reviewLinked": false,
+      "replaySameDraft": true,
+      "providerCalls": 0,
+      "mailUnchanged": true
+    },
+    {
+      "phase": "autonomous",
+      "mode": "streamed",
+      "maxBodyBytes": 1048576,
+      "requestBytes": 1048577,
+      "withinCapacityBytes": 624,
+      "framing": {
+        "contentLength": null,
+        "chunked": true,
+        "chunksWritten": 65,
+        "bytesWritten": 1048577
+      },
+      "refusal": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Body too large"
+        }
+      },
+      "status": 413,
+      "nativeBeforeSha256": "d7981be77d1194211b2b781b955fa40b766d2235233c4d29c76d20bba190f38d",
+      "nativeAfterSha256": "d7981be77d1194211b2b781b955fa40b766d2235233c4d29c76d20bba190f38d",
+      "nativeRecordCount": 25,
+      "allEffectTablesUnchanged": true,
+      "inventoriesAndHiringDecisionsUnchanged": true,
+      "retryStatus": 200,
+      "exactlyOneProposedDraft": true,
+      "decisionDisposition": "autonomous",
+      "policyRevision": 1,
+      "decisionLinkedToCallAndAudit": true,
+      "reviewLinked": false,
+      "replaySameDraft": true,
+      "providerCalls": 0,
+      "mailUnchanged": true
+    },
+    {
+      "phase": "held",
+      "mode": "declared",
+      "maxBodyBytes": 1048576,
+      "requestBytes": 1048577,
+      "withinCapacityBytes": 612,
+      "framing": {
+        "contentLength": 1048577,
+        "chunked": false,
+        "chunksWritten": 1,
+        "bytesWritten": 1048577
+      },
+      "refusal": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Body too large"
+        }
+      },
+      "status": 413,
+      "nativeBeforeSha256": "fa16bf04e0bf0d11b773722fb3a4852ef601cf91668ef64aee6c5b5969fba0ca",
+      "nativeAfterSha256": "fa16bf04e0bf0d11b773722fb3a4852ef601cf91668ef64aee6c5b5969fba0ca",
+      "nativeRecordCount": 27,
+      "allEffectTablesUnchanged": true,
+      "inventoriesAndHiringDecisionsUnchanged": true,
+      "retryStatus": 200,
+      "exactlyOneProposedDraft": true,
+      "decisionDisposition": "review",
+      "policyRevision": 2,
+      "decisionLinkedToCallAndAudit": true,
+      "reviewLinked": true,
+      "replaySameDraft": true,
+      "providerCalls": 0,
+      "mailUnchanged": true
+    },
+    {
+      "phase": "held",
+      "mode": "streamed",
+      "maxBodyBytes": 1048576,
+      "requestBytes": 1048577,
+      "withinCapacityBytes": 612,
+      "framing": {
+        "contentLength": null,
+        "chunked": true,
+        "chunksWritten": 65,
+        "bytesWritten": 1048577
+      },
+      "refusal": {
+        "jsonrpc": "2.0",
+        "id": null,
+        "error": {
+          "code": -32600,
+          "message": "Body too large"
+        }
+      },
+      "status": 413,
+      "nativeBeforeSha256": "884ec8e8758e15c728731bdf902a260245412692188817ef269751f5d020cd29",
+      "nativeAfterSha256": "884ec8e8758e15c728731bdf902a260245412692188817ef269751f5d020cd29",
+      "nativeRecordCount": 29,
+      "allEffectTablesUnchanged": true,
+      "inventoriesAndHiringDecisionsUnchanged": true,
+      "retryStatus": 200,
+      "exactlyOneProposedDraft": true,
+      "decisionDisposition": "review",
+      "policyRevision": 2,
+      "decisionLinkedToCallAndAudit": true,
+      "reviewLinked": true,
+      "replaySameDraft": true,
+      "providerCalls": 0,
+      "mailUnchanged": true
+    }
+  ],
+  "screenshots": [
+    "native-proposed-drafts-1440.png",
+    "native-proposed-drafts-390.png",
+    "native-retained-debrief-1440.png",
+    "native-retained-debrief-390.png",
+    "native-policy-refusal-1440.png",
+    "native-policy-refusal-390.png"
+  ],
+  "status": "passed",
+  "maxBodyBytes": 1048576,
+  "discovery": {
+    "versions": [
+      "2026-07-28",
+      "2025-11-25"
+    ],
+    "capabilities": {
+      "tools": {
+        "listChanged": false
+      },
+      "prompts": {
+        "listChanged": false
+      }
+    },
+    "serverInfo": {
+      "name": "Lodge",
+      "version": "1"
+    },
+    "instructions": true
+  },
+  "retainedDrafts": {
+    "proposals": 1,
+    "debriefs": 1
+  },
+  "transportPointsOneToFive": "passed under both policies",
+  "browser": "Unchanged emitted production Worker, native session, real D1 and built assets over HTTP; no intercepted browser responses",
+  "completed": "2026-11-06T10:39:17.818Z"
+}
