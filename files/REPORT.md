@@ -50,7 +50,7 @@ The whole-clause dependencies are Base capabilities and external authorization, 
 
 1. FAIL for whole-clause DONE: acceptance 2–7 retain incomplete outcomes above. Acceptance 1 has the public-door probe at driver lines 80–131.
 2. PASS for the qualified point: nonempty native fixtures, valid preparation, unsafe overrun refusal with no mutation, and identical-input recovery; lines 93–131.
-3. NOT ESTABLISHED for whole-clause DONE: the requested one-off qualification remains outside Verify. Existing permanent conformance is unchanged. A green candidate Verify will not establish every omitted outcome.
+3. NOT ESTABLISHED for whole-clause DONE: the requested one-off qualification remains outside Verify. Existing permanent conformance is unchanged. The successful exact-SHA candidate Verify does not establish every omitted outcome.
 4. PASS for the qualified point: request-capacity.json names the exact final head; all relevant runtime and test bytes are unchanged from main.
 5. UNCHANGED: no receiving clause or inherited duty is edited or claimed complete.
 6. PARTIAL: the Gap retains all missing proof; transient generator write and check pass. Published views deliberately remain main's bytes for the lander. Legacy global Judged-from provenance is unchanged; no DONE claim relies on it.
@@ -70,7 +70,7 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; v
 
 Commit: e2021b327c1c84647c2fea0f1fc63b6e129f6223, docs: qualify native request-capacity recovery [skip ci]. Guarded product pushes succeeded on the first attempt; the final push reconfirmed the same branch head. No PR is required by this repository's push-enabled and dispatch-enabled Verify, and none was created. Starting main Verify 42137773172 and 42136202940 and Run site 42137773051 are green on starting main only and are not substituted for candidate proof.
 
-Exact-SHA Verify workflow_dispatch run 42148429927 is in progress on e2021b327c1c84647c2fea0f1fc63b6e129f6223 as of the first permitted post-dispatch discovery. URL: https://github.com/just-every/run-lodge/actions/runs/42148429927. One watcher uses at least 300 seconds between reads. No failed job, repair or rerun has been observed. Candidate Run site and publication scanning remain lander gates.
+Exact-SHA Verify workflow_dispatch run 42148429927 completed successfully on e2021b327c1c84647c2fea0f1fc63b6e129f6223. URL: https://github.com/just-every/run-lodge/actions/runs/42148429927. Six GitHub calls were used in total; candidate REST reads were spaced by at least 300 seconds. No failed job, repair, duplicate dispatch or rerun occurred. Candidate Run site and publication scanning remain guarded Mac lander gates.
 
 Reports remain separate from product custody. The explicit packet selection excludes setup output, environment dumps, decrypted bundles, secret values, held-out gate material and symlinks. Evidence publication proves report transfer only, never acceptance, readiness or landing. Publication scanning and resulting main Run site remain the maintained Mac lander's duties.
 
