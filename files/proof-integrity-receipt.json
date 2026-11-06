@@ -1,0 +1,11 @@
+{
+  "head": "b04687ab3ae01ee951330cb07cae96e48fddc6d3",
+  "receiptDigest": "2865d53612c912709c43d8a3ba3be6383a912056947d0edbda96b9c52f135a09",
+  "proofAndScreenHashesValidated": true,
+  "comparisons": 100,
+  "auditRows": 104,
+  "distinctPreparationKeys": 44,
+  "screenCount": 6,
+  "productClean": true,
+  "runtimeProcessesClosed": true
+}

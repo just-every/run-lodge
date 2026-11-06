@@ -7,10 +7,10 @@
       "sha256": "18eb019626072631484b97fc9fe13b9f8e5fd98d29b75aad9a91bbcf8d75fa96"
     },
     {
-      "blob": "3078494ca5be7f7cd87c2258da2ae8a6de73ba33",
-      "bytes": 13176,
+      "blob": "6b1f381d4d66f3732f72a9ef43f8e552ea5217e8",
+      "bytes": 13629,
       "path": "REPORT.md",
-      "sha256": "25e0ca0a1eac2ff18608e4476f8e2ec5e21e663a6874ab035fc3715536718b7b"
+      "sha256": "0749e0d15cb51886d2aa5cae0e25a5cd873d7108d8979d4ed4eaadb43365675a"
     },
     {
       "blob": "5ff3d772c6276c6a2c1df2f106bddbad0a4ad121",
@@ -35,6 +35,18 @@
       "bytes": 394,
       "path": "ci-dispatch-receipt.json",
       "sha256": "ad7352ff803efcc8f65a27df4a5e7527b2b75e69a8cbbb48a724ce431144ccc9"
+    },
+    {
+      "blob": "402106e1fd08fc42b7d99e53333becef4e195b36",
+      "bytes": 12281,
+      "path": "ci-observation.json",
+      "sha256": "f539bcd74e0be55cc4d674b5a23959985936ade2ec3850835000b4cc375d83d3"
+    },
+    {
+      "blob": "d08f301bdd1dc1bed988837d247f5933f8d36fd2",
+      "bytes": 422,
+      "path": "ci-receipt.json",
+      "sha256": "76c8b3e12b5dd4af45a9d4884266420d12c78deeee88db984584a1d7fb03e92d"
     },
     {
       "blob": "9670fdd8b9369b736709368ebb11efed374dbfab",
@@ -127,6 +139,12 @@
       "sha256": "ee4695032ee5a1e679b4aea6431ac82017c998c4ebd0eb4023c7c59aacb1dec4"
     },
     {
+      "blob": "e24c1c4ff75b027c29bf2ec4d5db29625c89deb6",
+      "bytes": 338,
+      "path": "proof-integrity-receipt.json",
+      "sha256": "6d507e19e1cf86c796532caa46cd06e16bca8391bca2bf3d57e8ee46d7fa0c75"
+    },
+    {
       "blob": "c18dbd22b6280c106ad3c611a85be0727442a622",
       "bytes": 3750,
       "path": "provenance-receipt.json",
@@ -161,6 +179,12 @@
       "bytes": 893,
       "path": "save-push.log",
       "sha256": "833562348dab80ec0555c972124ba0833a5c2cd47fcaa9b19531ecf7239a3ffc"
+    },
+    {
+      "blob": "4f5b0f7296177aef1c82180d62d47dcab38a9322",
+      "bytes": 1310,
+      "path": "terminal-receipt.json",
+      "sha256": "aa7d6c586501af9f4a3322c619765a9fb4204e6967cef0d4ebc750eb9eaccc4c"
     },
     {
       "blob": "c245c4e5d854ca2513c02066f725d1bd9c4d5c6d",
