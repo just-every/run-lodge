@@ -79,3 +79,12 @@ The final product push succeeded on guarded attempt four. Its actual diagnostics
 Exact-SHA discovery returned zero runs. Because documentation-only commits carry skip-ci markers, exactly one Verify dispatch was requested for the named branch. No duplicate dispatch or rerun was made. The event, exact head and final observed status will be recorded in the CI receipt and terminal section below. No main run or another head substitutes for the candidate's Verify. Publication scanning and resulting Run site remain the guarded Mac lander's gates.
 
 Current exact-head Verify: run 42190825089, event workflow_dispatch, status in_progress with no conclusion at the first allowed post-dispatch discovery. Its head is b04687ab3ae01ee951330cb07cae96e48fddc6d3. This is not a green claim. URL: https://github.com/just-every/run-lodge/actions/runs/42190825089. Three GitHub calls have been used: discovery, the one dispatch and the post-dispatch discovery. Further polling respects the five-minute boundary.
+
+
+## Terminal result
+
+Verify run 42190825089, event workflow_dispatch, completed SUCCESS on the exact pushed head b04687ab3ae01ee951330cb07cae96e48fddc6d3. URL: https://github.com/just-every/run-lodge/actions/runs/42190825089. Four GitHub calls were used in total, one watcher and at least 300 seconds between status observations. No failed job, repair, rerun or second dispatch was required.
+
+The bounded acceptance-3 qualification is complete. BASE-AGENT-006 remains PARTIAL to PARTIAL, with 70 DONE, 44 PARTIAL and 31 MISSING unchanged. The final product branch is pushed and locally eligible for the guarded lander. There is no unresolved blocker for this handoff. The full original clause and every named held obligation remain open; no whole-clause DONE or new permanent Verify injection coverage is claimed.
+
+The preceding 34-file evidence snapshot was independently fetched from the declared repository and every manifest file hash verified, with the same product head and branch. Its actual transfer receipt is retained as evidence-prior-transfer-receipt.json. The terminal snapshot adds the successful exact-head CI observation and final receipts. Evidence publication changes neither the product checkout nor its index. The final snapshot is verified again after publication, with its exact EVIDENCE line returned in the terminal message. After successful final verification, the pushed clone and its node_modules are removed; the complete non-secret packet and transport receipts remain under the task's work directory.

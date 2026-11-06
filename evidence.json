@@ -7,10 +7,10 @@
       "sha256": "18eb019626072631484b97fc9fe13b9f8e5fd98d29b75aad9a91bbcf8d75fa96"
     },
     {
-      "blob": "6b1f381d4d66f3732f72a9ef43f8e552ea5217e8",
-      "bytes": 13629,
+      "blob": "cfa5b13e6f2c3c27d5d19ba6553a2d39ff65cbed",
+      "bytes": 15161,
       "path": "REPORT.md",
-      "sha256": "0749e0d15cb51886d2aa5cae0e25a5cd873d7108d8979d4ed4eaadb43365675a"
+      "sha256": "b55bd578552d3e95e8d7f4fb25a9816b792cef2bf2e656b01481bc620c6a39fe"
     },
     {
       "blob": "5ff3d772c6276c6a2c1df2f106bddbad0a4ad121",
@@ -43,10 +43,22 @@
       "sha256": "f539bcd74e0be55cc4d674b5a23959985936ade2ec3850835000b4cc375d83d3"
     },
     {
-      "blob": "d08f301bdd1dc1bed988837d247f5933f8d36fd2",
-      "bytes": 422,
+      "blob": "488096d449b5b171347cff0bc583f2ca3b332de4",
+      "bytes": 344,
       "path": "ci-receipt.json",
-      "sha256": "76c8b3e12b5dd4af45a9d4884266420d12c78deeee88db984584a1d7fb03e92d"
+      "sha256": "9eb12ce319e0b3c4b40a18bf8f5851ed9608fc0933a7689f68da5c77a3ca5788"
+    },
+    {
+      "blob": "5d9966201670fa01bbb866f82a75edbbc4fd5817",
+      "bytes": 178,
+      "path": "ci-status.json",
+      "sha256": "c259a1a4b0689bc0574efe97e9805a683b180e605b6584916ab1341491b5d971"
+    },
+    {
+      "blob": "1d2bae87214d5bc47b01f8272f723687d7c7bac9",
+      "bytes": 6545,
+      "path": "evidence-prior-transfer-receipt.json",
+      "sha256": "d1d1a0376e2b071f1cd5f0763cae6097417d947cf67c4d4480baf8a7930c9f96"
     },
     {
       "blob": "9670fdd8b9369b736709368ebb11efed374dbfab",
@@ -71,6 +83,12 @@
       "bytes": 0,
       "path": "first-party.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "307c79a1ebef6a486490a872444c41f40f676ae5",
+      "bytes": 1049,
+      "path": "github-calls-receipt.json",
+      "sha256": "49ec32a0f344a6392789272400ccfba4294bfa40c0eb1516dc4de18c408c87df"
     },
     {
       "blob": "2122b0a6de5320ff8de4fb7d0cf8a1adca937cab",
@@ -181,10 +199,10 @@
       "sha256": "833562348dab80ec0555c972124ba0833a5c2cd47fcaa9b19531ecf7239a3ffc"
     },
     {
-      "blob": "4f5b0f7296177aef1c82180d62d47dcab38a9322",
-      "bytes": 1310,
+      "blob": "8cb2b54adc541ee68ead1f03fe11c83bb3c7ddf3",
+      "bytes": 1442,
       "path": "terminal-receipt.json",
-      "sha256": "aa7d6c586501af9f4a3322c619765a9fb4204e6967cef0d4ebc750eb9eaccc4c"
+      "sha256": "840a81859a757bab76a9aaa4a53a55d8cd48c29854873c5113017ca3a12e6cc6"
     },
     {
       "blob": "c245c4e5d854ca2513c02066f725d1bd9c4d5c6d",

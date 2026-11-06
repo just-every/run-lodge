@@ -1,0 +1,46 @@
+{
+  "count": 4,
+  "limit": 10,
+  "calls": [
+    {
+      "call": 1,
+      "at": 1793955145.0084474,
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs?head_sha=b04687ab3ae01ee951330cb07cae96e48fddc6d3&per_page=100"
+      ]
+    },
+    {
+      "call": 2,
+      "at": 1793955157.1679873,
+      "args": [
+        "api",
+        "-X",
+        "POST",
+        "repos/just-every/run-lodge/actions/workflows/verify.yml/dispatches",
+        "-f",
+        "ref=cloud/sx-lodge-c-f55"
+      ]
+    },
+    {
+      "call": 3,
+      "at": 1793955467.6529844,
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs?head_sha=b04687ab3ae01ee951330cb07cae96e48fddc6d3&per_page=100"
+      ]
+    },
+    {
+      "call": 4,
+      "at": 1793955772.9601636,
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs/42190825089",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ]
+    }
+  ],
+  "watchers": 1,
+  "polling": "at least 300 seconds between observations of the run"
+}
