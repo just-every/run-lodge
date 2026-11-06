@@ -1,0 +1,50 @@
+{
+  "head": "9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a",
+  "command": "timeout 1200 node tests/agent-refusal-browser.mjs",
+  "exit": 0,
+  "renderer": "existing native app through rer dev",
+  "browser": "/usr/bin/chromium",
+  "assertionWidth": 1440,
+  "captureWidths": [
+    1440,
+    390
+  ],
+  "states": [
+    "unsent-proposal",
+    "debrief-draft",
+    "debrief-refused-edit"
+  ],
+  "screens": [
+    {
+      "path": "screens/debrief-draft-1440.png",
+      "sha256": "b762becee5a8c732f5c0cb3bbce6ca605c17871199c5c3de0c0fa82421042001",
+      "bytes": 416028
+    },
+    {
+      "path": "screens/debrief-draft-390.png",
+      "sha256": "ff07e93c216df3b7be7d58ee4d594c3982f2687ef06da5b0acd7229c5ca412d3",
+      "bytes": 370270
+    },
+    {
+      "path": "screens/debrief-refused-edit-1440.png",
+      "sha256": "0de311cf5309883d23464eaf8a682e0aeefcfc6532fc537ff86b9c58a279a438",
+      "bytes": 467307
+    },
+    {
+      "path": "screens/debrief-refused-edit-390.png",
+      "sha256": "9934b3439e13f3b64f411693ef33c07b45b4cb5b0d845fb2a32d6da5736b5d41",
+      "bytes": 387865
+    },
+    {
+      "path": "screens/unsent-proposal-1440.png",
+      "sha256": "903202385843c70b0d79f6d68a0aec7fb931006dcf484a96a804cc3b4a4c542a",
+      "bytes": 316758
+    },
+    {
+      "path": "screens/unsent-proposal-390.png",
+      "sha256": "d13899bb4462cd226f7bca83081db35e626e9c7b616be9cbc91fba51e891328d",
+      "bytes": 258322
+    }
+  ],
+  "changesAfterExecution": "none"
+}

@@ -1,0 +1,21 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f64",
+  "head": "9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a",
+  "packetStatus": "complete local proof; CI and evidence transfer pending",
+  "beforeCounts": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "afterCounts": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "wholeClause": "PARTIAL",
+  "acceptanceScope": "only refusal parity for adopted proposal and debrief preparation",
+  "productPushed": true,
+  "pr": null,
+  "verifyRun": 42245103538
+}

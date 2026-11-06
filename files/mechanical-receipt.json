@@ -1,0 +1,57 @@
+{
+  "head": "9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a",
+  "checks": [
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "name": "first-party",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "name": "views-write",
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-002",
+      "exit": 0
+    },
+    {
+      "name": "views-check",
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-002",
+      "exit": 0
+    },
+    {
+      "name": "source-lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "name": "source-lock-check",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "name": "setup",
+      "command": "npx -y @runeditrun/rer setup --owner-email <fleet identity> --non-interactive",
+      "exit": 0
+    },
+    {
+      "name": "build",
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    }
+  ],
+  "migrationLedger": "not applicable; no migration changes",
+  "contractDiff": "empty",
+  "generatedViews": "restored whole from origin/main before commits",
+  "worktree": "clean",
+  "baselineMain": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+  "commits": [
+    "9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a",
+    "d572002fe6cedf211d10eeb610811bac9a8d2f83",
+    "f8f8782541d13aac48993dd59879131ab060409b",
+    "19f1a7abb760409143d6e82638a65df0edd872e4"
+  ],
+  "identityAudit": "Every author and committer is Run Edit Run fleet; every email is the fleet address; no trailers or co-author lines in any candidate commit."
+}

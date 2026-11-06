@@ -1,0 +1,13 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ Native proposal and debrief refusals keep stable MCP codes, authority and unsent drafts (4713.775052ms)
+✔ Recruiting coordinator prompt stays static and preserves native human review, policy, Pause and consent authority (2807.715683ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8522.709519
