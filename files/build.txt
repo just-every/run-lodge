@@ -1,0 +1,55 @@
+Using project Node 22.20.0 (current Node 24.19.0).
+Heavy job admitted: Lodge build:workflow [385e63a644c8]
+Checking pinned pnpm
+10.12.4
+Building your application
+build:app
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 244 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/.assetsignore                            0.02 kB
+dist/client/assets/pdf.worker.min-Dkey6ZUl.mjs   1,321.30 kB
+dist/client/assets/rolldown-runtime-W7wSyTde.js      0.97 kB │ gzip:   0.56 kB
+dist/client/assets/mammoth.browser-Ce9XrXXm.js     298.60 kB │ gzip:  87.84 kB
+dist/client/assets/index-BaBJMOOk.js               313.63 kB │ gzip: 101.60 kB
+dist/client/assets/app-B63t8gXP.js                 417.74 kB │ gzip: 110.83 kB
+dist/client/assets/pdf-BR0bQrfE.js                 488.17 kB │ gzip: 148.19 kB
+
+✓ built in 1.47s
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 1061 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/wrangler.json                                      1.52 kB │ gzip:   0.78 kB
+dist/server/.vite/manifest.json                                5.09 kB │ gzip:   0.93 kB
+dist/server/assets/pdf.worker.min-Dkey6ZUl.mjs             1,321.30 kB
+dist/server/assets/empty-plugin-adapters-D_0twvAa.js           0.28 kB │ gzip:   0.18 kB
+dist/server/assets/start-D8qDT34V.js                           0.28 kB │ gzip:   0.21 kB
+dist/server/assets/font-head-CetOOOTZ.js                       0.44 kB │ gzip:   0.30 kB
+dist/server/assets/_tanstack-start-manifest_v-DN91jiQM.js      0.53 kB │ gzip:   0.32 kB
+dist/server/assets/rolldown-runtime-CEgmsyvS.js                2.30 kB │ gzip:   1.03 kB
+dist/server/assets/types-yyMrpE8w.js                           4.54 kB │ gzip:   1.79 kB
+dist/server/assets/home-d6MraXip.js                            4.64 kB │ gzip:   1.73 kB
+dist/server/assets/hash-Bh-JNTOD.js                            4.70 kB │ gzip:   2.16 kB
+dist/server/assets/jsx-runtime-CckQS-3O.js                    17.14 kB │ gzip:   4.48 kB
+dist/server/assets/router-CUFKF7pt.js                         41.92 kB │ gzip:  11.08 kB
+dist/server/assets/extraction-C_enGTB3.js                     56.44 kB │ gzip:  17.93 kB
+dist/server/assets/Match-DZoTMlSc.js                         145.02 kB │ gzip:  36.42 kB
+dist/server/assets/mammoth.browser-BK4XmyNm.js               597.51 kB │ gzip: 123.56 kB
+dist/server/assets/app-D9hw9JfM.js                           712.37 kB │ gzip: 143.07 kB
+dist/server/assets/pdf-28ZgV9D8.js                           926.17 kB │ gzip: 202.45 kB
+dist/server/index.js                                       4,114.54 kB │ gzip: 982.04 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/lodge/views/workspace.ts is dynamically imported by src/lodge/operations/trial.ts but also statically imported by src/lodge/agent-door/tools.ts, src/lodge/agents/delay-trials.ts, src/lodge/agents/delays.ts, src/lodge/agents/proposals.ts, src/lodge/analysis/scope.ts, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/lodge/views/field-views.ts is dynamically imported by src/lodge/operations/trial.ts but also statically imported by src/lodge/http/api.ts, dynamic import will not move module into another chunk.
+
+✓ built in 1.92s
+Your application is built
+build: complete (exit 0)

@@ -1,0 +1,104 @@
+{
+  "head": "f8f8782541d13aac48993dd59879131ab060409b",
+  "refusals": [
+    {
+      "phase": "autonomous",
+      "case": "proposal validation",
+      "status": 400,
+      "code": "native_refused",
+      "audit": "refused"
+    },
+    {
+      "phase": "autonomous",
+      "case": "hidden source",
+      "status": 404,
+      "code": "record_unavailable",
+      "audit": "refused"
+    },
+    {
+      "phase": "autonomous",
+      "case": "missing source",
+      "status": 404,
+      "code": "record_unavailable",
+      "audit": "refused"
+    },
+    {
+      "phase": "autonomous",
+      "case": "proposal precondition",
+      "status": 409,
+      "code": "native_conflict",
+      "audit": "refused"
+    },
+    {
+      "phase": "autonomous",
+      "case": "debrief validation",
+      "status": 400,
+      "code": "native_refused",
+      "audit": "refused"
+    },
+    {
+      "phase": "autonomous",
+      "case": "debrief unavailable",
+      "status": 404,
+      "code": "record_unavailable",
+      "audit": "refused"
+    },
+    {
+      "phase": "autonomous",
+      "case": "debrief precondition",
+      "status": 409,
+      "code": "native_conflict",
+      "audit": "refused"
+    },
+    {
+      "phase": "held",
+      "case": "proposal validation",
+      "status": 400,
+      "code": "native_refused",
+      "audit": "refused"
+    },
+    {
+      "phase": "held",
+      "case": "hidden source",
+      "status": 404,
+      "code": "record_unavailable",
+      "audit": "refused"
+    },
+    {
+      "phase": "held",
+      "case": "missing source",
+      "status": 404,
+      "code": "record_unavailable",
+      "audit": "refused"
+    },
+    {
+      "phase": "held",
+      "case": "proposal precondition",
+      "status": 409,
+      "code": "native_conflict",
+      "audit": "refused"
+    },
+    {
+      "phase": "held",
+      "case": "debrief validation",
+      "status": 400,
+      "code": "native_refused",
+      "audit": "refused"
+    },
+    {
+      "phase": "held",
+      "case": "debrief unavailable",
+      "status": 404,
+      "code": "record_unavailable",
+      "audit": "refused"
+    },
+    {
+      "phase": "held",
+      "case": "debrief precondition",
+      "status": 409,
+      "code": "native_conflict",
+      "audit": "refused"
+    }
+  ],
+  "providerAttempts": 0
+}

@@ -1,0 +1,294 @@
+diff --git a/sources.lock.json b/sources.lock.json
+index 2f2368a..5a8e377 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -1167,7 +1167,7 @@
+       "executable": false
+     },
+     "src/lodge/agent-door/context.ts": {
+-      "sha256": "0a853d246acddb0781e1513231f39150a92a4ee9866d166d6548cba3b220e973",
++      "sha256": "0b4536f68caca9e00eccc8cb5958c4b7e5afe8e6e6b8e1c693d0ec72ff4eb23b",
+       "executable": false
+     },
+     "src/lodge/agent-door/index.ts": {
+@@ -1402,6 +1402,10 @@
+       "sha256": "b10f58d5661eefa2f79eff22c66d24e27807cbedac46cb49d4988cb7d7e9929c",
+       "executable": false
+     },
++    "src/lodge/core/refusals.ts": {
++      "sha256": "8499dd003b2aa3e83af1c3dd0509e93cd0f2203318de57b2f46e737d5a139a38",
++      "executable": false
++    },
+     "src/lodge/core/state.ts": {
+       "sha256": "a5c55baac9032c570c1af96f190fb613ecf5ccfcb4a0ccd31bfedde1e602e704",
+       "executable": false
+@@ -1547,7 +1551,7 @@
+       "executable": false
+     },
+     "src/lodge/http/api.ts": {
+-      "sha256": "8d194860b817ebed1d18f8ce518cda0c7f7332b16e614eccfd61f1e51eaa1e86",
++      "sha256": "8e95239d307252a7fa0252d5ba235bd8f1ca8d47d8371896d95aeb2ba7b678cb",
+       "executable": false
+     },
+     "src/lodge/http/application-email-pages.ts": {
+@@ -4718,6 +4722,10 @@
+       "sha256": "525e4aaa043992f4030d0b20a0fd5e534454c00262e6f43df403ef2c425739e5",
+       "executable": false
+     },
++    "tests/agent-refusal-flow.mjs": {
++      "sha256": "31b7a44720e7940706ee18f4093fcb206cd41324fd6bb91d11af21e61b3e37dd",
++      "executable": false
++    },
+     "tests/agents.test.mjs": {
+       "sha256": "63fdf6985ad35fd15af50eb48a6dcc33a1b01e4530c4933107f44ad11acf0efe",
+       "executable": false
+@@ -5251,7 +5259,7 @@
+       "executable": false
+     },
+     "tests/security.test.mjs": {
+-      "sha256": "d3dbb552f92526948cb1dae38be93b2286735e555f4702a83c4b855c918ac9f4",
++      "sha256": "536d452cb0cd1551eb0a2fa720da7a44288a69efe9366db53db6f4a1fac240d0",
+       "executable": false
+     },
+     "tests/site/site.test.mjs": {
+diff --git a/src/lodge/agent-door/context.ts b/src/lodge/agent-door/context.ts
+index 4d3f107..0039643 100644
+--- a/src/lodge/agent-door/context.ts
++++ b/src/lodge/agent-door/context.ts
+@@ -3,6 +3,7 @@ import { ToolRefusal } from '../../modules/agent-door/errors.ts'
+ import type { ToolContext } from '../../modules/agent-door/types.ts'
+ import { actorFor, load } from '../core/store.ts'
+ import { Fault, type Actor } from '../core/types.ts'
++import { nativeRefusalCode } from '../core/refusals.ts'
+ import type { State } from '../core/state.ts'
+ 
+ export async function nativeContext(env: Bindings, ctx: ToolContext, admissions?: Map<string, string>): Promise<{ state: State; actor: Actor }> {
+@@ -29,7 +30,7 @@ export async function nativeContext(env: Bindings, ctx: ToolContext, admissions?
+ export async function native<T>(call: () => Promise<T>): Promise<T> {
+   try { return await call() }
+   catch (error) {
+-    if (error instanceof Fault) throw new ToolRefusal(error.status === 404 ? 'record_unavailable' : error.status === 409 ? 'native_conflict' : 'native_refused', undefined, { status: error.status })
++    if (error instanceof Fault) throw new ToolRefusal(nativeRefusalCode(error), undefined, { status: error.status })
+     throw error
+   }
+ }
+diff --git a/src/lodge/core/refusals.ts b/src/lodge/core/refusals.ts
+new file mode 100644
+index 0000000..ab033be
+--- /dev/null
++++ b/src/lodge/core/refusals.ts
+@@ -0,0 +1,8 @@
++import type { Fault } from './types'
++
++/** Stable business refusals shared by native preparation and its agent adapter.
++ * Use only the status: hidden records must disclose no more than missing ones.
++ */
++export function nativeRefusalCode(error: Fault): 'record_unavailable' | 'native_conflict' | 'native_refused' {
++  return error.status === 404 ? 'record_unavailable' : error.status === 409 ? 'native_conflict' : 'native_refused'
++}
+diff --git a/src/lodge/http/api.ts b/src/lodge/http/api.ts
+index 3a8ac0f..da037c0 100644
+--- a/src/lodge/http/api.ts
++++ b/src/lodge/http/api.ts
+@@ -31,6 +31,7 @@ import { isAgency, can, canSeeApplication, isAdmin, managesVacancy, onPanel, req
+ import { Fault, requireThat, type Actor, type Data } from '../core/types'
+ import type { State } from '../core/state'
+ import { run } from '../commands'
++import { nativeRefusalCode } from '../core/refusals'
+ import { invite } from '../core/invitation'
+ import { workspace, workspaceRecords } from '../views/workspace'
+ import { search, talentPool } from '../views/search'
+@@ -190,9 +191,17 @@ api.post('/api/lodge/command/:op', async c => {
+   }
+   if (op === 'crm-enroll' || op === 'crm-enable') { input.origin = runtimeBindings(c.env).AUTH_ORIGIN; input.replyAddress = c.env.CRM_REPLY_ADDRESS ?? state.find('application-email-transport', 'main')?.replyTo }
+   if (['careers-domain-verify', 'careers-domain-connect', 'careers-domain-disconnect'].includes(op)) return c.json(await careersDomainOperation(runtimeBindings(c.env), actor, op.slice('careers-domain-'.length) as 'verify' | 'connect' | 'disconnect', input))
+-  const result = op === 'careers-domain-challenge' ? careersDomainChallenge(state, actor, input, runtimeBindings(c.env)) : await run(state, actor, op, input)
+-  await save(c.env.DB, state, actor)
+-  return c.json(fieldResult(state, actor, blindResult(state, actor, result)))
++  try {
++    const result = op === 'careers-domain-challenge' ? careersDomainChallenge(state, actor, input, runtimeBindings(c.env)) : await run(state, actor, op, input)
++    await save(c.env.DB, state, actor)
++    return c.json(fieldResult(state, actor, blindResult(state, actor, result)))
++  } catch (error) {
++    // Admission and request parsing above keep their own errors. Only the two
++    // adopted native preparation actions share business codes with their tools.
++    if ((op === 'propose' || op === 'debrief') && error instanceof Fault)
++      return c.json({ error: error.message, code: nativeRefusalCode(error) }, error.status as 400)
++    throw error
++  }
+ })
+ 
+ api.get('/api/lodge/referral/export', async c => {
+diff --git a/tests/agent-refusal-flow.mjs b/tests/agent-refusal-flow.mjs
+new file mode 100644
+index 0000000..b80f43e
+--- /dev/null
++++ b/tests/agent-refusal-flow.mjs
+@@ -0,0 +1,150 @@
++import assert from 'node:assert/strict'
++import { readFile } from 'node:fs/promises'
++import { randomUUID, webcrypto } from 'node:crypto'
++import { businessHarness } from './harness.mjs'
++import initializeAgent from './initialize-agent.mjs'
++import prepareFixtures from './agent-phase-fixtures.mjs'
++import { createProtocol, errorCode } from '../src/modules/agent-door/conformance/protocol.mjs'
++import { autonomousPolicy, heldPolicy, seconds, signJws } from '../src/modules/agent-door/conformance/crypto.mjs'
++
++// Disposable signed Business fixtures use the existing bound agent and sponsor.
++// Both doors execute native commands; only the provider network edge is denied.
++export async function checkAgentRefusals({ observe } = {}) {
++  const surface = JSON.parse(await readFile('agent-surface.json', 'utf8'))
++  const ring = await webcrypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify'])
++  const kid = randomUUID(), issuer = 'https://synthetic-lodge-63.invalid', installationId = randomUUID()
++  const publicKeys = { [kid]: await webcrypto.subtle.exportKey('jwk', ring.publicKey) }
++  const attempts = []
++  const h = await businessHarness({ bindings: {
++    RER_OWNER_CLAIM_ISSUER: issuer, RER_OWNER_CLAIM_INSTALLATION_ID: installationId,
++    RER_OWNER_CLAIM_PUBLIC_KEYS: JSON.stringify(publicKeys),
++  }, outboundService: async request => {
++    attempts.push(new URL(request.url).origin)
++    return new Response('Synthetic provider refused', { status: 503 })
++  } })
++  try {
++    const request = (url, init = {}) => h.mf.dispatchFetch(url, init)
++    const ownerRequest = async (url, init = {}) => {
++      const headers = new Headers(init.headers)
++      headers.set('Origin', h.origin)
++      headers.set('Cookie', h.owner)
++      const response = await request(url, { ...init, headers: Object.fromEntries(headers) })
++      assert.ok(response.ok, `native fixture: HTTP ${response.status} ${await response.clone().text()}`)
++      return response
++    }
++    const { operator } = (await h.send('/auth/session', undefined, h.owner)).value
++    const email = operator.email, sub = randomUUID(), iat = seconds()
++    const settings = await signJws(ring.privateKey, kid, 'rer-business-settings+jwt', {
++      v: 1, iss: issuer, aud: h.origin, sub: installationId, business: 'synthetic-lodge-63',
++      email, owner_id: sub, jti: randomUUID(), iat, exp: iat + 300, rev: 1,
++      values: {}, logo: null, team: null,
++    })
++    assert.equal((await h.send('/api/rer/business-settings', { settings })).status, 200)
++    const c = createProtocol({ fetch: request, origin: h.origin, surface, points: [],
++      signer: { issuer, installationId, kid, privateKey: ring.privateKey },
++      person: { email, sub, cookie: h.owner }, business: 'synthetic-lodge-63',
++      agentId: randomUUID(), consent: randomUUID(), seq: 0, revision: 0,
++    })
++    await initializeAgent({ agentId: c.agentId, request: ownerRequest, origin: h.origin, email })
++    const bound = (await h.state()).members.find(member => member.businessAgentId === c.agentId)
++    assert.ok(bound?.agent && bound.actsFor === email)
++    const cookie = await h.member(bound.email, [], bound.name, { agent: true, actsFor: email, businessAgentId: c.agentId })
++    const fixtures = await prepareFixtures({ request: ownerRequest, origin: h.origin, cookie: h.owner, email, phase: 'autonomous' })
++    const application = fixtures.values.debrief.application
++    const app = (await h.state()).applications.find(row => row.id === application)
++    const restricted = await h.command('document', { application, kind: 'right-to-work', name: 'synthetic-lodge-63.txt', base64: Buffer.from('Synthetic restricted original').toString('base64') })
++    const { application: unreleased } = await h.command('candidate', { name: 'Synthetic Lodge 63',
++      email: email.replace(/^[^@]+/, 'synthetic-lodge-63'), source: 'Synthetic referral', consentBasis: 'referral', vacancy: app.vacancy })
++    const proposal = {
++      workflow: 'prepare-vacancy', summary: 'Synthetic unsent vacancy proposal', intake: 'Prepare a native vacancy for human review.', approver: email,
++      changes: [{ op: 'vacancy', input: { title: 'Synthetic Lodge 63 estimator', location: 'Brooklyn, NY', headcount: 1, manager: email, description: 'Prepare estimates from drawings.' } }],
++    }
++    const snapshot = async () => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
++    const audit = async () => (await h.send('/agents/api/audit?limit=200', undefined, h.owner)).value
++    const inventory = async () => {
++      const answer = await c.tool('lodge.proposals.list', {})
++      assert.equal(answer.result?.isError, false)
++      return answer.result.structuredContent
++    }
++    const receipts = []
++    for (const [phase, policy, disposition] of [
++      ['autonomous', autonomousPolicy(), 'autonomous'], ['held', heldPolicy(), 'review'],
++    ]) {
++      await c.adopt(policy)
++      // Seed nonempty inventory before refusals so an accidental deletion is seen.
++      const seededProposal = await h.command('propose', proposal, cookie)
++      const seededDebrief = await h.command('debrief', fixtures.values.debrief, cookie)
++      const cases = [
++        { label: 'proposal validation', op: 'propose', args: { ...proposal, changes: [] }, status: 400, code: 'native_refused', message: 'Propose between 1 and 20 changes' },
++        ...[restricted.id, 'synthetic-lodge-missing'].map(id => ({ label: id === restricted.id ? 'hidden source' : 'missing source', op: 'propose', args: { ...proposal, sources: [{ kind: 'document', id }] }, status: 404, code: 'record_unavailable', message: 'Source outside your scope' })),
++        { label: 'proposal precondition', op: 'propose', args: { workflow: 'rediscovery', approver: email, summary: 'Synthetic consent refusal', sources: [{ kind: 'candidate', id: app.candidate }], changes: [{ op: 'apply', input: { candidate: app.candidate, vacancy: app.vacancy } }] }, status: 409, code: 'native_conflict', message: 'This person has not given current permission to be contacted about other roles' },
++        { label: 'debrief validation', op: 'debrief', args: { application, statements: [{ kind: 'gap', criterion: 'synthetic-lodge-unknown', text: 'Synthetic missing criterion.' }] }, status: 400, code: 'native_refused', message: 'Statement 1: choose a criterion from this application’s rubric' },
++        { label: 'debrief unavailable', op: 'debrief', args: { ...fixtures.values.debrief, application: 'synthetic-lodge-missing' }, status: 404, code: 'record_unavailable', message: 'Application not found' },
++        { label: 'debrief precondition', op: 'debrief', args: { ...fixtures.values.debrief, application: unreleased.id }, status: 409, code: 'native_conflict', message: 'Feedback is not released yet; a debrief brief reads released scorecards only' },
++      ]
++      const hidden = []
++      for (const item of cases) {
++        const tool = item.op === 'propose' ? 'lodge.proposals.prepare' : 'lodge.debriefs.prepare'
++        const before = await snapshot(), drafts = await inventory(), priorAudit = await audit()
++        assert.ok(drafts.proposals.some(row => row.id === seededProposal.id))
++        assert.ok(drafts.debriefs.some(row => row.id === seededDebrief.id))
++        const native = await h.send('/api/lodge/command/' + item.op, item.args, cookie)
++        assert.equal(native.status, item.status, item.label)
++        assert.deepEqual(native.value, { error: item.message, code: item.code }, item.label)
++        assert.deepEqual(await snapshot(), before, item.label + ': native refusal preserves every value, revision and native audit')
++        const answer = await c.tool(tool, { ...item.args, idempotency_key: randomUUID() })
++        assert.equal(answer.status, 200, item.label)
++        assert.equal(answer.body.error, undefined, 'schema-valid native failures are tool results')
++        assert.equal(answer.result?.isError, true, item.label)
++        assert.equal(errorCode(answer), native.value.code, item.label)
++        assert.equal(answer.result._meta['com.runeditrun/error'].status, native.status)
++        assert.equal(answer.result.structuredContent, undefined, 'refusals expose no draft or source result')
++        assert.deepEqual(await snapshot(), before, item.label + ': MCP refusal preserves every value, revision and native audit')
++        const afterAudit = await audit()
++        const newRows = afterAudit.rows.filter(row => !priorAudit.rows.some(old => old.id === row.id) && row.tool === tool)
++        assert.equal(newRows.length, 1)
++        const row = newRows[0]
++        assert.equal(row.outcome, 'refused')
++        assert.equal(row.code, item.code)
++        assert.equal(row.agent.id, c.agentId)
++        assert.equal(row.sponsor.id, operator.id)
++        assert.equal(row.revision, c.revision)
++        assert.equal(row.approval, null)
++        assert.equal(row.review, null)
++        assert.equal(afterAudit.differs_from_policy, 0)
++        assert.deepEqual(await inventory(), drafts, item.label + ': nonempty draft inventory is unchanged')
++        if (item.label.endsWith('source')) hidden.push({ native: native.value, error: answer.result._meta['com.runeditrun/error'], content: answer.result.content })
++        receipts.push({ phase, case: item.label, status: native.status, code: native.value.code, audit: row.outcome })
++      }
++      assert.deepEqual(hidden[0], hidden[1], 'hidden and absent sources disclose identical refusals through both doors')
++      // A refusal grants no authority and leaves no poisoned draft state.
++      for (const [op, args, name] of [['propose', proposal, 'lodge.proposals.prepare'], ['debrief', fixtures.values.debrief, 'lodge.debriefs.prepare']]) {
++        const before = await snapshot()
++        const answer = await c.tool(name, { ...args, idempotency_key: randomUUID() })
++        assert.equal(answer.result?.isError, false, JSON.stringify(answer.body))
++        assert.equal(answer.decision?.disposition, disposition)
++        const id = answer.result.structuredContent.id
++        const current = await h.state()
++        assert.equal((op === 'propose' ? current.proposals : current.debriefs).find(row => row.id === id)?.status, op === 'propose' ? 'proposed' : 'draft')
++        const after = await snapshot()
++        assert.deepEqual(after.filter(row => !['proposal', 'debrief', 'audit'].includes(row.kind)), before.filter(row => !['proposal', 'debrief', 'audit'].includes(row.kind)), 'valid preparation never applies a hiring mutation')
++        const expectedAction = op === 'propose' ? 'proposal-created' : 'debrief-prepared'
++        assert.ok(after.some(row => row.kind === 'audit' && !before.some(old => old.id === row.id) && JSON.parse(row.value).action === expectedAction))
++      }
++    }
++    // Admission, malformed transport and other commands retain their old errors.
++    const before = await snapshot()
++    assert.deepEqual((await h.send('/api/lodge/command/propose', proposal)).value, { error: 'Sign in required' })
++    const malformed = await request(h.origin + '/api/lodge/command/propose', { method: 'POST', headers: { Origin: h.origin, Cookie: cookie, 'Content-Type': 'application/json' }, body: '{' })
++    assert.equal(malformed.status, 400)
++    assert.deepEqual(await malformed.json(), { error: 'Send a JSON object' })
++    const direct = await h.send('/api/lodge/command/vacancy', proposal.changes[0].input, cookie)
++    assert.equal(direct.status, 403)
++    assert.equal(direct.value.code, undefined)
++    assert.deepEqual(await snapshot(), before)
++    assert.deepEqual(attempts, [], 'neither refused nor successful draft preparation attempts a provider')
++    assert.ok(c.points.every(point => point.ok), JSON.stringify(c.points.filter(point => !point.ok)))
++    await observe?.({ h, c, cookie, fixtures, receipts, attempts })
++    return { refusals: receipts, providerAttempts: attempts.length }
++  } finally { await h.close() }
++}
+diff --git a/tests/security.test.mjs b/tests/security.test.mjs
+index 6bd8ab6..9ad3e88 100644
+--- a/tests/security.test.mjs
++++ b/tests/security.test.mjs
+@@ -15,9 +15,12 @@ import { commandBodies } from './security-commands.mjs'
+ import { checkLevels } from './security-levels.mjs'
+ import { checkOperations } from './operations-driver.mjs'
+ import { checkAgentPrompts } from './agent-prompts-flow.mjs'
++import { checkAgentRefusals } from './agent-refusal-flow.mjs'
+ 
+ const snapshot = async h => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
+ 
++test('Native proposal and debrief refusals keep stable MCP codes, authority and unsent drafts', async () => { await checkAgentRefusals() })
++
+ test('Recruiting coordinator prompt stays static and preserves native human review, policy, Pause and consent authority', checkAgentPrompts)
+ 
+ test('OPS-003 selected workflow trials isolate production, bind reviewed deployment and rollback, and expose confirmed provider setup estimates', async () => {

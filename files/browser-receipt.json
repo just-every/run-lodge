@@ -1,0 +1,40 @@
+{
+  "head": "f8f8782541d13aac48993dd59879131ab060409b",
+  "screens": [
+    {
+      "screen": "Shared agent refusal and review end states",
+      "width": 1440,
+      "file": "agents-refusals-1440.png"
+    },
+    {
+      "screen": "Native proposed drafts retain separate human decisions",
+      "width": 1440,
+      "file": "unsent-proposals-1440.png"
+    },
+    {
+      "screen": "Native draft debriefs retain separate human keep decisions",
+      "width": 1440,
+      "file": "unsent-debriefs-1440.png"
+    },
+    {
+      "screen": "Shared agent refusal and review end states",
+      "width": 390,
+      "file": "agents-refusals-390.png"
+    },
+    {
+      "screen": "Native proposed drafts retain separate human decisions",
+      "width": 390,
+      "file": "unsent-proposals-390.png"
+    },
+    {
+      "screen": "Native draft debriefs retain separate human keep decisions",
+      "width": 390,
+      "file": "unsent-debriefs-390.png"
+    }
+  ],
+  "assertionsAt": 1440,
+  "worker": "real disposable Worker and D1, signed Business fixture",
+  "renderer": "unchanged native local app and shared agent pages",
+  "refusals": 14,
+  "providerAttempts": 0
+}

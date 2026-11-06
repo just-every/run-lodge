@@ -1,0 +1,88 @@
+{
+  "head": "f8f8782541d13aac48993dd59879131ab060409b",
+  "checks": [
+    {
+      "check": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "check": "views-write",
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-002",
+      "exit": 0
+    },
+    {
+      "check": "views-check",
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-002",
+      "exit": 0
+    },
+    {
+      "check": "source-lock",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "check": "first-party",
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "check": "migration-ledger",
+      "command": "none, no migration changes",
+      "exit": 0
+    },
+    {
+      "check": "touched-tests",
+      "command": "node --test --test-name-pattern='Native proposal and debrief refusals|Recruiting coordinator prompt|LDG-013 agents' tests/security.test.mjs tests/agents.test.mjs",
+      "exit": 0,
+      "tests": 3,
+      "pass": 3
+    },
+    {
+      "check": "build",
+      "command": "npx -y @runeditrun/rer build (via cloud_run)",
+      "exit": 0
+    },
+    {
+      "check": "browser-proof",
+      "command": "timeout 1200 node <packet>/browser-proof.mjs (via cloud_run)",
+      "exit": 0,
+      "screens": 6,
+      "widths": [
+        1440,
+        390
+      ],
+      "assertionsAt": 1440
+    }
+  ],
+  "clean": true,
+  "counts": {
+    "before": {
+      "done": 70,
+      "partial": 44,
+      "missing": 31,
+      "total": 145
+    },
+    "after": {
+      "done": 70,
+      "partial": 44,
+      "missing": 31,
+      "total": 145
+    }
+  },
+  "contractChanged": false,
+  "generatedViewsCommitted": false,
+  "authorityChanged": false,
+  "newEmailShapedLiterals": 0,
+  "publicationScan": {
+    "status": "not run in cloud",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "custody": "maintained fleet lander"
+  },
+  "mainEquality": false,
+  "mainAtSync": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+  "runSite": "not run; branch only",
+  "branch": "cloud/sx-lodge-c-f63"
+}
