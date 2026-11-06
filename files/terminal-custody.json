@@ -1,0 +1,13 @@
+{
+  "at": "2026-11-06T08:04:05.126368+00:00",
+  "observedRemoteRefs": {
+    "refs/heads/cloud/sx-lodge-c-f54": "0809694061df40ee04685fed143c6dd3564a6d81",
+    "refs/heads/evidence/sx-lodge-c-f54": "42d5463b3df5a29cb4a5af6aafdfe2becc90b122"
+  },
+  "cleanProductCloneRemoved": "/workspace/run-lodge-sx-lodge-c-f54",
+  "proofPacket": "/home/agent/rer-consolidation/work/sx-lodge-c-f54/packet",
+  "verifyRun": 42183233313,
+  "verifyConclusion": "success",
+  "verifyHead": "0809694061df40ee04685fed143c6dd3564a6d81",
+  "observedEvidenceLineAtCleanup": "EVIDENCE repo=just-every/run-lodge ref=refs/heads/evidence/sx-lodge-c-f54 head=42d5463b3df5a29cb4a5af6aafdfe2becc90b122"
+}

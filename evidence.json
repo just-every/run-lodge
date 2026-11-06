@@ -205,6 +205,12 @@
       "sha256": "8049c69c07d958409ad3be62d10f8a534c02b54f8799e48aa5e356ec159b072d"
     },
     {
+      "blob": "5fdc6b3b78473ddae07b7f1763e8f0c1630aa60d",
+      "bytes": 671,
+      "path": "terminal-custody.json",
+      "sha256": "1c4e31759e3cc6e03b19a55e2244bf53724b24576a1fec71af43b4f0eeb8173a"
+    },
+    {
       "blob": "51e27504a5d7a05e6784e167f2c8f33142b971e0",
       "bytes": 204,
       "path": "typecheck.log",
