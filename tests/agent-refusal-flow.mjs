@@ -66,7 +66,7 @@ export async function checkAgentRefusals({ observe } = {}) {
       assert.equal(answer.result?.isError, false)
       return answer.result.structuredContent
     }
-    const receipts = []
+    const receipts = [], recoveries = []
     for (const [phase, policy, disposition] of [
       ['autonomous', autonomousPolicy(), 'autonomous'], ['held', heldPolicy(), 'review'],
     ]) {
@@ -76,6 +76,7 @@ export async function checkAgentRefusals({ observe } = {}) {
       const seededDebrief = await h.command('debrief', fixtures.values.debrief, cookie)
       const cases = [
         { label: 'proposal validation', op: 'propose', args: { ...proposal, changes: [] }, status: 400, code: 'native_refused', message: 'Propose between 1 and 20 changes' },
+        { label: 'proposal trial validation', op: 'propose', args: { ...proposal, changes: [{ op: 'vacancy', input: { ...proposal.changes[0].input, headcount: 0 } }] }, status: 400, code: 'native_refused', message: `Change 1 (vacancy) would fail for ${email}: Headcount must be a whole number from 1 to 500` },
         ...[restricted.id, 'synthetic-lodge-missing'].map(id => ({ label: id === restricted.id ? 'hidden source' : 'missing source', op: 'propose', args: { ...proposal, sources: [{ kind: 'document', id }] }, status: 404, code: 'record_unavailable', message: 'Source outside your scope' })),
         { label: 'proposal precondition', op: 'propose', args: { workflow: 'rediscovery', approver: email, summary: 'Synthetic consent refusal', sources: [{ kind: 'candidate', id: app.candidate }], changes: [{ op: 'apply', input: { candidate: app.candidate, vacancy: app.vacancy } }] }, status: 409, code: 'native_conflict', message: 'This person has not given current permission to be contacted about other roles' },
         { label: 'debrief validation', op: 'debrief', args: { application, statements: [{ kind: 'gap', criterion: 'synthetic-lodge-unknown', text: 'Synthetic missing criterion.' }] }, status: 400, code: 'native_refused', message: 'Statement 1: choose a criterion from this application’s rubric' },
@@ -145,17 +146,36 @@ export async function checkAgentRefusals({ observe } = {}) {
       }
       // A refusal grants no authority and leaves no poisoned draft state.
       for (const [op, args, name] of [['propose', proposal, 'lodge.proposals.prepare'], ['debrief', fixtures.values.debrief, 'lodge.debriefs.prepare']]) {
-        const before = await snapshot()
-        const answer = await c.tool(name, { ...args, idempotency_key: randomUUID() })
-        assert.equal(answer.result?.isError, false, JSON.stringify(answer.body))
-        assert.equal(answer.decision?.disposition, disposition)
-        const id = answer.result.structuredContent.id
-        const current = await h.state()
-        assert.equal((op === 'propose' ? current.proposals : current.debriefs).find(row => row.id === id)?.status, op === 'propose' ? 'proposed' : 'draft')
-        const after = await snapshot()
-        assert.deepEqual(after.filter(row => !['proposal', 'debrief', 'audit'].includes(row.kind)), before.filter(row => !['proposal', 'debrief', 'audit'].includes(row.kind)), 'valid preparation never applies a hiring mutation')
-        const expectedAction = op === 'propose' ? 'proposal-created' : 'debrief-prepared'
-        assert.ok(after.some(row => row.kind === 'audit' && !before.some(old => old.id === row.id) && JSON.parse(row.value).action === expectedAction))
+        for (const door of ['native', 'MCP']) {
+          const before = await snapshot(), drafts = await inventory()
+          let id
+          if (door === 'native') {
+            const answer = await h.send('/api/lodge/command/' + op, args, cookie)
+            assert.equal(answer.status, 200, JSON.stringify(answer.value))
+            id = answer.value.id
+          } else {
+            const answer = await c.tool(name, { ...args, idempotency_key: randomUUID() })
+            assert.equal(answer.result?.isError, false, JSON.stringify(answer.body))
+            assert.equal(answer.decision?.disposition, disposition)
+            id = answer.result.structuredContent.id
+          }
+          const kind = op === 'propose' ? 'proposal' : 'debrief'
+          const status = op === 'propose' ? 'proposed' : 'draft'
+          const current = await h.state()
+          assert.equal((op === 'propose' ? current.proposals : current.debriefs).find(row => row.id === id)?.status, status)
+          const after = await snapshot()
+          assert.deepEqual(after.filter(row => !['proposal', 'debrief', 'audit'].includes(row.kind)), before.filter(row => !['proposal', 'debrief', 'audit'].includes(row.kind)), door + ': valid preparation never applies a hiring mutation')
+          assert.deepEqual(after.filter(row => before.some(old => old.kind === row.kind && old.id === row.id)), before, door + ': recovery preserves every existing draft, value, revision and audit')
+          assert.deepEqual(after.filter(row => row.kind !== 'audit' && !before.some(old => old.kind === row.kind && old.id === row.id)).map(row => [row.kind, row.id]), [[kind, id]], door + ': recovery creates only its own unsent draft')
+          const expectedAction = op === 'propose' ? 'proposal-created' : 'debrief-prepared'
+          assert.ok(after.some(row => row.kind === 'audit' && !before.some(old => old.id === row.id) && JSON.parse(row.value).action === expectedAction))
+          const recovered = await inventory(), key = op === 'propose' ? 'proposals' : 'debriefs'
+          assert.deepEqual(recovered.records, drafts.records)
+          for (const family of ['proposals', 'debriefs'])
+            assert.deepEqual(recovered[family].filter(row => row.id !== id), drafts[family], door + ': recovery preserves existing inventory')
+          assert.equal(recovered[key].find(row => row.id === id)?.status, status)
+          recoveries.push({ phase, door, action: op, status, hiringRecordsUnchanged: true, existingDraftsUnchanged: true })
+        }
       }
     }
     // Admission, malformed transport and other commands retain their old errors.
@@ -195,6 +215,6 @@ export async function checkAgentRefusals({ observe } = {}) {
     assert.deepEqual(attempts, [], 'neither refused nor successful draft preparation attempts a provider')
     assert.ok(c.points.every(point => point.ok), JSON.stringify(c.points.filter(point => !point.ok)))
     await observe?.({ h, c, cookie, fixtures, receipts, attempts })
-    return { refusals: receipts, providerAttempts: attempts.length }
+    return { refusals: receipts, recoveries, providerAttempts: attempts.length }
   } finally { await h.close() }
 }
