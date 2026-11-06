@@ -7,9 +7,9 @@ Required starting head: 9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a
 New commit: af2219aacebf412b59f404845537c3a932359321, Prove refusal parity survives restart and revoked credentials.
 PR: none; the branch push has a Verify entry point.
 
-CLAIM BASE-AGENT-002 PARTIAL points=4 tests=tests/security.test.mjs#Native proposal and debrief refusals keep stable MCP codes, authority and unsent drafts
+CLAIM BASE-AGENT-002 PARTIAL points=none tests=tests/security.test.mjs#Native proposal and debrief refusals keep stable MCP codes, authority and unsent drafts
 
-The point number identifies the bounded acceptance-4 increment only. It does not establish every tool's refusal parity or close the complete acceptance sentence. BASE-AGENT-002 remains PARTIAL. Counts before and after: 70 DONE, 44 PARTIAL, 31 MISSING, total 145; no status transitions and no acceptance text changes. No plan file was rewritten. Plan-row return: BASE-AGENT-002 PARTIAL to PARTIAL, add the refusal parity proof for the two adopted preparation commands and retain every existing hold.
+The bounded acceptance-4 increment is proven for the two adopted preparation commands. No original acceptance sentence is closed in its entirety: read-tool refusal parity and the broader obligations remain open. BASE-AGENT-002 remains PARTIAL. Counts before and after: 70 DONE, 44 PARTIAL, 31 MISSING, total 145; no status transitions and no acceptance text changes. No plan file was rewritten. Plan-row return: BASE-AGENT-002 PARTIAL to PARTIAL, add the refusal parity proof for the two adopted preparation commands and retain every existing hold.
 
 ## Plan and implementation
 
@@ -69,7 +69,7 @@ This is an honest PARTIAL claim, not a DONE gate submission. All rows are record
 | --- | --- | --- |
 | 1 | FAIL for full clause; scoped point PASS locally | Only two preparations are covered by the scoped refusal journey. Whole-Core, wider tools and other original acceptance outcomes remain unproved. |
 | 2 | PASS for scoped increment | Real seeded nonempty inventory, unsafe native and MCP failures, unchanged durable records and successful unsent recovery, flow lines 74 to 158. |
-| 3 | PENDING exact-SHA CI | The journey is in the security Verify shard through tests/security.test.mjs:22; the browser journey is in tests/browser.mjs:107. Candidate run 42250407201 is tracked separately below. |
+| 3 | PASS for registered scoped proof | The journey is in the security Verify shard through tests/security.test.mjs:22; the browser journey is in tests/browser.mjs:107. Candidate push Verify 42250407201 completed successfully on af2219aacebf412b59f404845537c3a932359321. |
 | 4 | PASS locally | Touched registered test and six browser screens ran after candidate commit; relevant source and dependency bytes did not change after the other local checks. |
 | 5 | INSPECTED, no new inheritance claim | Existing clause text and LDG-013 preparation boundary remain unchanged; no duty was moved or declared complete. |
 | 6 | PASS scoped mechanical checks | Selected contract generator write and check pass; all generated views restored from main, all status cells and counts unchanged. Wider proof gaps stay in this report. |
@@ -101,3 +101,7 @@ Run site: no candidate main run, because landing has not occurred.
 GitHub calls used initially: two, one for the required starting SHA's existing run and one discovery for this candidate. One watcher respects at least 300 seconds between calls for a run; no workflow dispatch, rerun or PR was performed.
 
 Observation at 2026-11-06T16:20:53Z: Verify 42250407201 is in_progress, conclusion null, on the exact candidate. Three GitHub API calls used. One more status observation is scheduled at least 300 seconds later.
+
+Final CI observation at 2026-11-06T16:26:42.396362+00:00: Verify 42250407201 completed with success on af2219aacebf412b59f404845537c3a932359321. Four total GitHub API calls; one discovery and two status observations for the candidate, each status observation more than 300 seconds apart. No dispatch or rerun. All local checks and exact-SHA branch Verify are green. Rider 3 passes for the scoped registered proof; rider 1 still prevents whole-clause completion and rider 11 awaits fleet landing, main equality, publication scan and Run site. No product blocker is known.
+
+Evidence return was independently fetched from the first report-only head 9ac791603ae8d4806680dd33ca3558d905022ee2 and verified all 19 selected file lengths, blobs and hashes. This final revision replaces the initial CI observation with the completed exact-SHA result. Product checkout, index and branch head remain unchanged. The product clone and its dependencies will be deleted after the final evidence publication; the actual packet remains under the fleet work directory.
