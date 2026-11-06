@@ -1,0 +1,62 @@
+{
+  "head": "fa1043c9936eca09c6146f4f9c3f397a01de1c18",
+  "at": "2026-11-06T07:39:53.170948+00:00",
+  "checks": [
+    {
+      "name": "views-write",
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-006",
+      "exit": 0,
+      "outputSha256": "7888f138f0f5cf8a33e806e31fea9ac552dac3417146e27df0749c1969db3d9c"
+    },
+    {
+      "name": "views-check",
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-006",
+      "exit": 0,
+      "outputSha256": "936855b7bc6db6c2f048f6c8e396a5bad822650ef193fd602f91d190d86a036e"
+    },
+    {
+      "name": "restore-views",
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "outputSha256": "041c7de6739446cb6684479a0feaf791d5b4100ccc6e3c2982dbfb504fe5e86d"
+    },
+    {
+      "name": "lock-check",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "outputSha256": "d93700293d1697891226c1b1f85b7909c330c5c29613537b40d5057684ae0904"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm run typecheck",
+      "exit": 0,
+      "outputSha256": "033460d411a41f263bf79695936614cf3207e04c0af8c1e4b1ef12541e4bf728"
+    },
+    {
+      "name": "first-party",
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "exit": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "ledger": {
+    "command": "none",
+    "exit": 0,
+    "reason": "No migration changed"
+  },
+  "cleanWorktree": true,
+  "generatedViewsRestored": true,
+  "sourceLockFresh": true
+}

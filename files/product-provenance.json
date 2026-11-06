@@ -1,0 +1,40 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f53",
+  "head": "fa1043c9936eca09c6146f4f9c3f397a01de1c18",
+  "base": "6dde78ef4ffe52cfc66fb5c9751b1f6b7bf873b3",
+  "changedProductFiles": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "runtimeTestsManifestAndWorkflowUnchanged": true,
+  "noExistingAssertionRemovedNarrowedOrSkipped": true,
+  "permanentTestsAdded": 0,
+  "testCountDelta": 0,
+  "statusCountsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "statusCountsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "relevantFiles": {
+    "src/lodge/agent-door/tools.ts": "ee3dcf0128925ad2bae44c4a41eaec0986d23d3736d864d07c64cdd0586e73c6",
+    "src/lodge/agent-door/context.ts": "0a853d246acddb0781e1513231f39150a92a4ee9866d166d6548cba3b220e973",
+    "src/modules/agent-door/pipeline.ts": "c1a1072f3f1fec84f33c365719c61fa4cdfdba384155385f6ad300da964e8eed",
+    "src/modules/agent-door/conformance/journey.mjs": "8f1150f23271d0dc2acaf03b7737932ed8ab04473fee1fd534ef1dd07da34b1c",
+    "src/modules/agent-door/conformance/injection.mjs": "677874564cd7e3d6a6f083cffd358c22a05f28cd129b4f22bdb4743186d0b472",
+    "src/modules/agent-door/conformance/audit.mjs": "77d720ebb0c8d2fdc8ef60f59cb24b36dc378e34f11ed0c5de0527235d1a8061",
+    "tests/harness.mjs": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
+    "tests/initialize-agent.mjs": "8a8b79c94adb1024c4e838259cac1802ea955fbb7c8612b070dceef59367f065",
+    "tests/agent-phase-fixtures.mjs": "3000e4c0d5af78cc3f0b749370f5f93c321281e22f1b4bc5745c01480477f63e"
+  },
+  "driverSha256": "cc2c5e513ae57772fa74f588457ca44c199a0396dd57d1f2f23548041d261708",
+  "at": "2026-11-06T07:40:39.461999+00:00"
+}

@@ -1,0 +1,16 @@
+{
+  "head": "6dde78ef4ffe52cfc66fb5c9751b1f6b7bf873b3",
+  "Verify": {
+    "run": 42175606868,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "Run site": {
+    "run": 42175606960,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "candidateClaim": false
+}

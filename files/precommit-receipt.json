@@ -1,0 +1,17 @@
+{
+  "parent": "6dde78ef4ffe52cfc66fb5c9751b1f6b7bf873b3",
+  "statusRowsBefore": 145,
+  "statusRowsAfter": 145,
+  "changedRows": [
+    "BASE-AGENT-006"
+  ],
+  "statusChange": "partial to partial",
+  "acceptanceUnchanged": true,
+  "addedTextEmails": 0,
+  "generatedViewsCommitted": false,
+  "files": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ]
+}

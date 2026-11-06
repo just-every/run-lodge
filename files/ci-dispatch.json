@@ -1,0 +1,10 @@
+{
+  "repository": "just-every/run-lodge",
+  "workflow": "verify.yml",
+  "ref": "cloud/sx-lodge-c-f53",
+  "head": "fa1043c9936eca09c6146f4f9c3f397a01de1c18",
+  "at": "2026-11-06T07:39:22.170314+00:00",
+  "reason": "No Verify was created by the required documentation-only skip-ci commit",
+  "dispatches": 1,
+  "exit": 0
+}

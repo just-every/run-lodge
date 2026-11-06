@@ -1,0 +1,4668 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f53",
+  "head": "fa1043c9936eca09c6146f4f9c3f397a01de1c18",
+  "at": "2026-11-06T07:39:08.334Z",
+  "scope": "BASE-AGENT-006 acceptance 3 for five existing standard tools only",
+  "passed": true,
+  "comparisons": 80,
+  "callsIncludingPriming": 84,
+  "summaries": [
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "calls": 21,
+      "audited": 21,
+      "differsFromPolicy": 0,
+      "successfulNativeReadsOrDrafts": true,
+      "freshWriteKeys": 9,
+      "nativeHiringAndGrantHashBefore": "a99dd43df5fed59b165e0ecd2a02585176561cf72f7d26189aee520230082269",
+      "nativeHiringAndGrantHashAfter": "a99dd43df5fed59b165e0ecd2a02585176561cf72f7d26189aee520230082269",
+      "grantsUnchanged": true,
+      "proposalsAdded": 4,
+      "debriefsAdded": 4,
+      "providerCalls": 0,
+      "newMail": 0
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "calls": 21,
+      "audited": 21,
+      "differsFromPolicy": 0,
+      "successfulNativeReadsOrDrafts": true,
+      "freshWriteKeys": 9,
+      "nativeHiringAndGrantHashBefore": "713b21a515aed3c33e3524d3f1dfc9cf41cad002c4ccb4c89ffc502671840b50",
+      "nativeHiringAndGrantHashAfter": "713b21a515aed3c33e3524d3f1dfc9cf41cad002c4ccb4c89ffc502671840b50",
+      "grantsUnchanged": true,
+      "proposalsAdded": 4,
+      "debriefsAdded": 4,
+      "providerCalls": 0,
+      "newMail": 0
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "calls": 21,
+      "audited": 21,
+      "differsFromPolicy": 0,
+      "successfulNativeReadsOrDrafts": true,
+      "freshWriteKeys": 9,
+      "nativeHiringAndGrantHashBefore": "46b7cbb7ede34365852daa0ffbed9a05c5a5cc49d06232c623bd1b9747ee58dd",
+      "nativeHiringAndGrantHashAfter": "46b7cbb7ede34365852daa0ffbed9a05c5a5cc49d06232c623bd1b9747ee58dd",
+      "grantsUnchanged": true,
+      "proposalsAdded": 4,
+      "debriefsAdded": 4,
+      "providerCalls": 0,
+      "newMail": 0
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "calls": 21,
+      "audited": 21,
+      "differsFromPolicy": 0,
+      "successfulNativeReadsOrDrafts": true,
+      "freshWriteKeys": 9,
+      "nativeHiringAndGrantHashBefore": "c3de6f536119df667eedbdd12ccacdbe5b2a8eb1b52bf465fb2915937a61b1b6",
+      "nativeHiringAndGrantHashAfter": "c3de6f536119df667eedbdd12ccacdbe5b2a8eb1b52bf465fb2915937a61b1b6",
+      "grantsUnchanged": true,
+      "proposalsAdded": 4,
+      "debriefsAdded": 4,
+      "providerCalls": 0,
+      "newMail": 0
+    }
+  ],
+  "records": [
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.jobs.list",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "f04d2a7f-e9c5-4fd9-a069-633a15271ee1",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "f04d2a7f-e9c5-4fd9-a069-633a15271ee1",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.jobs.list",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "53c7f563-5dfe-4101-bbd8-4b2d11462b89",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "53c7f563-5dfe-4101-bbd8-4b2d11462b89",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.jobs.list",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "4aad5ae6-b4cc-485e-9d62-b01796c36783",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "4aad5ae6-b4cc-485e-9d62-b01796c36783",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.jobs.list",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "80c1cb35-186d-4132-8ba1-8602a332c9a0",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "80c1cb35-186d-4132-8ba1-8602a332c9a0",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.records.read",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "1bea9611-aed2-4e67-a97d-7406798dd035",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "1bea9611-aed2-4e67-a97d-7406798dd035",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.records.read",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "e7e9ca8f-cb3f-4060-a8bc-49fa0abe91ad",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "e7e9ca8f-cb3f-4060-a8bc-49fa0abe91ad",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.records.read",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "d227ea8f-2206-43c0-9fd4-2941ea41f819",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "d227ea8f-2206-43c0-9fd4-2941ea41f819",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.records.read",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "ae0c23ad-c2a3-4e1a-969b-ba69e2d32c0f",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "ae0c23ad-c2a3-4e1a-969b-ba69e2d32c0f",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.list",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "bf50040a-db34-48a9-8fa9-677921ddc129",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "bf50040a-db34-48a9-8fa9-677921ddc129",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.list",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "ab48415f-3864-4f64-b584-45c0e83a8011",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "ab48415f-3864-4f64-b584-45c0e83a8011",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.list",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "90c38ae5-30cf-4cfd-a748-7e6bb590751c",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "90c38ae5-30cf-4cfd-a748-7e6bb590751c",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.list",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "b9b75e9d-2df5-4565-9a06-68aac58db36d",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "b9b75e9d-2df5-4565-9a06-68aac58db36d",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "1ee71449-a8d2-49a6-838a-6bc172ba11ef",
+      "key": "327624b6-3fb9-463f-9664-ee925f172434",
+      "result": {
+        "id": "9f52dda0-8ca3-4da3-8848-3f124f403cb6",
+        "state": "proposed"
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "1ee71449-a8d2-49a6-838a-6bc172ba11ef",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "41090c88-ee8f-41d1-950b-f7adf1ddbfdd",
+      "key": "0008e8fc-5480-4948-b1bd-9cdb4d336a29",
+      "result": {
+        "id": "c379f4f7-419d-45bd-ac09-0ee984b8a5a3",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "41090c88-ee8f-41d1-950b-f7adf1ddbfdd",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "3a08d96e-749f-48e8-ad06-f8fcffe90706",
+      "key": "8f0a5218-b31a-44bb-abd3-c18a10e31df5",
+      "result": {
+        "id": "05c07382-06da-46db-ad1c-5c7b8d1ceac4",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "3a08d96e-749f-48e8-ad06-f8fcffe90706",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "efa7adb0-b188-4b9d-a504-805a5c15c152",
+      "key": "15a7996b-43d0-44c8-b7e3-01dc32b01094",
+      "result": {
+        "id": "88ddf030-88fa-4d4c-98b2-578ecf865363",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "efa7adb0-b188-4b9d-a504-805a5c15c152",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "bcebe3c2-67d8-40cd-991f-20852b2e1deb",
+      "key": "b2a6cd2a-a8ce-47a2-9460-93c5c09db1d5",
+      "result": {
+        "id": "e2876476-9f05-427e-885a-8bad61a4f636",
+        "state": "draft"
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "bcebe3c2-67d8-40cd-991f-20852b2e1deb",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "da5dfaf5-d9ad-48cd-9aee-bfac89d65208",
+      "key": "38a43f3b-fd80-4f19-9e38-6dca315e443e",
+      "result": {
+        "id": "5840f4d9-2021-43a5-aff9-411cce3bd9e2",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "da5dfaf5-d9ad-48cd-9aee-bfac89d65208",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "af15cff5-8545-43a2-8f27-226abc808a54",
+      "key": "f634399e-9ae5-4a63-8e5e-3d0278058c0c",
+      "result": {
+        "id": "76c0a1d8-aaaf-4296-9f3e-d71aa758ed97",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "af15cff5-8545-43a2-8f27-226abc808a54",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "c47b8746-7344-42e7-acd3-e80ff7aeb4e3",
+      "key": "d21dff22-3cff-4cfc-b586-eed93cc218a4",
+      "result": {
+        "id": "57774158-2630-4965-b906-d420c841a6fa",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "c47b8746-7344-42e7-acd3-e80ff7aeb4e3",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.jobs.list",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "d424e896-e623-4fb0-ac7e-49a545f41c38",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "d424e896-e623-4fb0-ac7e-49a545f41c38",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.jobs.list",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "80cc57cb-290f-43d3-b918-a4c571b5d310",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "80cc57cb-290f-43d3-b918-a4c571b5d310",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.jobs.list",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "bfc9ed7e-2b8f-420c-a331-9f82397f6240",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "bfc9ed7e-2b8f-420c-a331-9f82397f6240",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.jobs.list",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "bed9efd4-9a0e-44fe-bef3-aed2e3a0cdcb",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "bed9efd4-9a0e-44fe-bef3-aed2e3a0cdcb",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.records.read",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "78cb8226-7755-4c84-83aa-dd93720afad1",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "78cb8226-7755-4c84-83aa-dd93720afad1",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.records.read",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "976a0450-3344-4fce-9ebe-f22a67ac2535",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "976a0450-3344-4fce-9ebe-f22a67ac2535",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.records.read",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "07c7735f-d762-42d3-9fd5-0ed45ffaa71d",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "07c7735f-d762-42d3-9fd5-0ed45ffaa71d",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.records.read",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "50de65ec-dde3-4ddd-a033-b0d36f75b03d",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "50de65ec-dde3-4ddd-a033-b0d36f75b03d",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.list",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "304b2085-d60c-414a-8f8b-485b962c3ffd",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "304b2085-d60c-414a-8f8b-485b962c3ffd",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.list",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "81837228-221b-47c6-90f3-83612757a26f",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "81837228-221b-47c6-90f3-83612757a26f",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.list",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "d5b44131-49cd-44c5-91ab-c62e7e77cf9b",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "d5b44131-49cd-44c5-91ab-c62e7e77cf9b",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.list",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "366bc202-b6bd-43e5-809b-c1ea4920e810",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "366bc202-b6bd-43e5-809b-c1ea4920e810",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "95fb3b44-b316-47c1-9957-ce65e26a66d2",
+      "key": "7049d109-336f-4f4d-9688-116c9d16e1a7",
+      "result": {
+        "id": "fc16659c-0ee8-4458-a19b-fda3d6f29c99",
+        "state": "proposed"
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "95fb3b44-b316-47c1-9957-ce65e26a66d2",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "7fb31562-dae3-4b22-8236-bbca914a8d23",
+      "key": "726c0baf-357f-44f9-aa35-4f71ffbbdb82",
+      "result": {
+        "id": "780dcf2d-f7df-487a-8355-6ba30b93ad94",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "7fb31562-dae3-4b22-8236-bbca914a8d23",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "f4acc776-3c9e-4910-b725-4e19e727112d",
+      "key": "01cdc593-0898-4afa-93b3-698c835db35c",
+      "result": {
+        "id": "afc3b638-ac46-43d8-8307-2c5a6217a161",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "f4acc776-3c9e-4910-b725-4e19e727112d",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "9ef65181-0d99-4436-8744-9ae77088a18c",
+      "key": "124beb21-7492-4e3b-8b88-5b9fcd50009e",
+      "result": {
+        "id": "d6924c0f-fc2f-4e62-9e25-91e17f3c020c",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "9ef65181-0d99-4436-8744-9ae77088a18c",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "4098cc99-8377-452a-af0c-62134cbe0949",
+      "key": "d3738303-cc3c-45c9-954e-348e63b285bd",
+      "result": {
+        "id": "c4b92680-e0e1-4253-95be-7a7da650c2e9",
+        "state": "draft"
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "4098cc99-8377-452a-af0c-62134cbe0949",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "93db19ad-f6d4-4dd7-afb9-e3b7f5f0dac4",
+      "key": "6ff03e03-99aa-4cbe-baa4-5f6a3b612074",
+      "result": {
+        "id": "adab8d09-f77c-46cc-bf67-1144a2489496",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "93db19ad-f6d4-4dd7-afb9-e3b7f5f0dac4",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "f46260fd-90cc-4422-9741-196899203d5c",
+      "key": "e80046b5-092a-4895-9c36-81e83670c78b",
+      "result": {
+        "id": "aee825cb-ef9d-458e-9640-54145f16c3d1",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "f46260fd-90cc-4422-9741-196899203d5c",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "autonomous",
+      "sourceMode": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "autonomous",
+      "revision": 1,
+      "decisionId": "7de06fac-9bbe-40a1-8f74-463d325c6609",
+      "key": "07da233f-337f-4bc0-9d26-cae3f58b8fdd",
+      "result": {
+        "id": "79ac7aca-41dc-4339-aa02-4c1b9a2ba311",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "7de06fac-9bbe-40a1-8f74-463d325c6609",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "autonomous",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": null,
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.jobs.list",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "fd2f64e8-ae51-4a97-9358-356bd58d0975",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "fd2f64e8-ae51-4a97-9358-356bd58d0975",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "23b58c57-1007-4072-b7ff-904768a5fa48",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.jobs.list",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "727895a6-8ce6-47ef-8385-39c4294cf93e",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "727895a6-8ce6-47ef-8385-39c4294cf93e",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "53127d39-6337-4696-a2d5-f030af800512",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.jobs.list",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "6a96a43e-0c67-4109-91e3-95131d24f669",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "6a96a43e-0c67-4109-91e3-95131d24f669",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "2ad0d77f-8ffb-49bb-97a7-934a9637d6a2",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.jobs.list",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "354a2483-0768-42f3-b95d-525f0982adb8",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "354a2483-0768-42f3-b95d-525f0982adb8",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "1dde0fec-cb05-4308-809f-e418344544b3",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.records.read",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "f1897de0-34b0-4e57-a61e-e0aa16b8e637",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "f1897de0-34b0-4e57-a61e-e0aa16b8e637",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "a86d4c32-420f-4b35-b410-1fc63518a48d",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.records.read",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "0bcf3ab0-863c-4cab-808d-566ff1e54970",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "0bcf3ab0-863c-4cab-808d-566ff1e54970",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "0e878026-080f-4dca-b0b4-40a9b3ca8968",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.records.read",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "3b6a7c5f-64d7-4a53-a843-7edf7690e0a6",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "3b6a7c5f-64d7-4a53-a843-7edf7690e0a6",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "53ce2c5d-0187-4cd9-a337-af95b8f66dab",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.records.read",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "60d9bff0-b6a4-47ab-9bcd-e83d1915d377",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "60d9bff0-b6a4-47ab-9bcd-e83d1915d377",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "a1c38cd3-9be8-4bf8-a3c9-b07b59fe98e3",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.list",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "85d0173f-71db-41d2-b880-5851b0261786",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "85d0173f-71db-41d2-b880-5851b0261786",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "615faf2d-8d00-4e34-856a-74ceb5b59e7b",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.list",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "146f3650-de6b-4dd7-ac1f-5c463e503ba1",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "146f3650-de6b-4dd7-ac1f-5c463e503ba1",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "5ae23cc2-0b2d-4897-acd1-c61b9b1ae7a8",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.list",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "e2f40688-2b6c-4bf2-8cfb-a7d3e468fde4",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "e2f40688-2b6c-4bf2-8cfb-a7d3e468fde4",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "d6f8e716-e440-4ad3-b82d-65b48a92949b",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.list",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "fa5c79aa-2c70-47ef-a5d7-072990ed0821",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "fa5c79aa-2c70-47ef-a5d7-072990ed0821",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "cf4d8621-4c07-48aa-97f9-14093a708dc2",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "06b1d3ea-69d6-40c2-98bb-d81adc309156",
+      "key": "783b3104-e220-464e-956d-ed2b20fb7f00",
+      "result": {
+        "id": "5cb89638-f2c5-4974-9b90-648761f7b475",
+        "state": "proposed"
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "06b1d3ea-69d6-40c2-98bb-d81adc309156",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "b0505c99-d067-4d28-8f7a-09a5283e32ed",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "92b9ce0a-b2e4-464e-92a0-684a47cc1266",
+      "key": "24b64672-b92f-4705-85cb-e09b0262a2e3",
+      "result": {
+        "id": "14111309-c67d-4084-b9b1-2ceb4e54fe6b",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "92b9ce0a-b2e4-464e-92a0-684a47cc1266",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "e752eb44-658f-42df-a50a-e1b604f4f80b",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "b3bffe8b-3ade-4c49-adf6-465ed1dd4d39",
+      "key": "4f9445da-e4db-49f5-9b49-da9ff1c492b1",
+      "result": {
+        "id": "92b393a2-ec9f-4b0a-b14a-d65de5e94cec",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "b3bffe8b-3ade-4c49-adf6-465ed1dd4d39",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "7ca9c9f1-229a-4bc8-8400-d57def10575d",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "cac994e6-c7a9-4206-a58f-f8115efb0dc8",
+      "key": "df8bdf60-adc2-4c92-a742-487a72fef4a3",
+      "result": {
+        "id": "41f74b4a-ebbd-4234-9bec-7f3d4c9133a8",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "cac994e6-c7a9-4206-a58f-f8115efb0dc8",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "27bf4a51-57ae-4e8c-93ae-2dd8737ec24a",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "b78368a6-df92-41a9-973b-c9b51e4587f6",
+      "key": "d5c0389d-1bd2-4610-b72d-4fa6be68c7c7",
+      "result": {
+        "id": "e3c0e06e-15af-4a0e-b7fd-38969166d06c",
+        "state": "draft"
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "b78368a6-df92-41a9-973b-c9b51e4587f6",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "1d8d631d-d81e-4bc6-9c2a-8ff5d5dd6fc0",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "e0967bd7-1b8e-41c3-9aeb-234e6917617b",
+      "key": "6c54a7ff-0009-4583-8a2f-260644ae066c",
+      "result": {
+        "id": "9315c10d-af99-4efc-ae9e-042018b45354",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "e0967bd7-1b8e-41c3-9aeb-234e6917617b",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "a027d841-fdb8-4b67-b1b2-bba83d7a5a5f",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "07a832d9-f373-41f8-a372-50119f147b4c",
+      "key": "01b7ca61-6d17-45e2-aef1-244bc99aeb00",
+      "result": {
+        "id": "1ab1ba38-f1bf-459a-b9ce-d678517148a1",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "07a832d9-f373-41f8-a372-50119f147b4c",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "debe5617-506f-47f1-9712-05e0c91ac38f",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "debf7257-2453-4544-a3c2-953a4747b177",
+      "key": "ce9370a5-2abe-485f-b0d0-788314da7d5b",
+      "result": {
+        "id": "87c11ea7-721d-4132-a229-cb2412ad8b1d",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "debf7257-2453-4544-a3c2-953a4747b177",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "a445c826-5540-4b85-91b7-5dd459d521b4",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.jobs.list",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "10bcde27-5e57-4ecf-a7f4-fb536aef7b63",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "10bcde27-5e57-4ecf-a7f4-fb536aef7b63",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "2c2fd415-7ccb-4745-9ff1-590b176b16d5",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.jobs.list",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "d443da30-693e-4e29-a6e8-7af51287b3fe",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "d443da30-693e-4e29-a6e8-7af51287b3fe",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "cda543b8-beaa-411a-a142-88e144a81a90",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.jobs.list",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "7eecf814-b2bc-4a41-8369-dc4b3d1e1c9a",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "7eecf814-b2bc-4a41-8369-dc4b3d1e1c9a",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "8dfe028e-395e-4a23-9f34-9ffdfacaee65",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.jobs.list",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "bdab0f1e-82a0-4a3c-b58d-0e549bbbc418",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "bdab0f1e-82a0-4a3c-b58d-0e549bbbc418",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "705753c8-fc48-4287-abf8-415ced2319ce",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.records.read",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "9aed08bf-4992-47bf-86bf-394d95a61844",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "9aed08bf-4992-47bf-86bf-394d95a61844",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "234b5e23-fd63-43c0-b220-e46319a7f29b",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.records.read",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "0bed3558-11d2-4464-ba09-37cf9fd2489a",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "0bed3558-11d2-4464-ba09-37cf9fd2489a",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "5549e517-a9d6-4d7a-b15d-c7e2db7b0241",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.records.read",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "b82638d4-0ff8-4956-9319-79f91c17ab85",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "b82638d4-0ff8-4956-9319-79f91c17ab85",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "dd199d40-8356-4c75-ad00-95725027ee3f",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.records.read",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "a2baf451-2643-444e-b852-b78def97ac20",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "a2baf451-2643-444e-b852-b78def97ac20",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "9f9e6f60-33c0-46e8-b9e0-813f49a40cbd",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.list",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "d429c982-2807-4be2-bdfb-379193bc108a",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "d429c982-2807-4be2-bdfb-379193bc108a",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "ea9cfafa-792c-408c-a5a4-e8c672bd3fd6",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.list",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "8497266e-2801-4177-a3f4-aa7b66641747",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "8497266e-2801-4177-a3f4-aa7b66641747",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "a1e9a7e3-754c-4855-a94e-6aa06a92e4e1",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.list",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "7615533d-3ced-4f81-a56e-04dc39fe7b36",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "7615533d-3ced-4f81-a56e-04dc39fe7b36",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "9ff1a656-f96a-4385-a90f-a4a9843af4d2",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.list",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "7451e599-a887-41af-a006-68e51753a534",
+      "key": null,
+      "result": {
+        "nativeRead": true
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "7451e599-a887-41af-a006-68e51753a534",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "f76a6bdb-9135-4527-86e8-f19442960f0d",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "3b080384-c25d-4e63-89c9-85ce56b4f09c",
+      "key": "c245ae34-5746-4d5b-891d-b983b00681e2",
+      "result": {
+        "id": "54217794-b8f8-4f61-b653-ffa684c3fe85",
+        "state": "proposed"
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "3b080384-c25d-4e63-89c9-85ce56b4f09c",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "2d3c4f33-91ed-4e05-b0a7-94651c6c8784",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "f64c0f88-e7de-4b35-b823-1bc2365c8107",
+      "key": "b43d8b5b-c316-4a98-bd2f-c46854157a95",
+      "result": {
+        "id": "3e540be1-cb04-49c4-add8-93a99159efa4",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "f64c0f88-e7de-4b35-b823-1bc2365c8107",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "54d2fe5b-28cd-49a4-83fb-b85b1e8b0d2e",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "fc53c766-61d2-4a96-b0e7-767c288bc071",
+      "key": "63b2fc99-60e7-4d6c-bb07-b3fccfddc254",
+      "result": {
+        "id": "21b7b4e1-5b8d-44ae-9956-b72f6b32c971",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "fc53c766-61d2-4a96-b0e7-767c288bc071",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "e63d77b9-d623-472c-9b0b-165d97a96de0",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "476f5719-b4b5-434f-b82f-7cf1bd19cbda",
+      "key": "da5996a7-266a-449e-8c3a-5d0e90c76da8",
+      "result": {
+        "id": "8a6296b3-1037-4911-bd28-7016fc374b64",
+        "state": "proposed"
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "476f5719-b4b5-434f-b82f-7cf1bd19cbda",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "d94975f1-98b5-4049-98b4-fb3dafa946e4",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "baseline",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "df4d2d32-5e82-4b04-880a-00f187de77bc",
+      "key": "16aa9ac4-9299-45f0-916f-7321f13fc51c",
+      "result": {
+        "id": "38cfce61-286c-4475-8fa4-d282cce9c956",
+        "state": "draft"
+      },
+      "ignoredArguments": [],
+      "ok": true,
+      "audit": {
+        "id": "df4d2d32-5e82-4b04-880a-00f187de77bc",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [],
+        "review": {
+          "id": "3351699c-8813-4a8a-94ab-6fb155878a90",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "class",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "bfaa6df0-e07c-48ca-809c-ed4ba77ba146",
+      "key": "1d8de357-e1c9-46f0-8192-bfb424d83061",
+      "result": {
+        "id": "7c9711cc-c9d5-4768-9a5d-5acf877cd8c4",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "class",
+        "classes",
+        "riskClass"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "bfaa6df0-e07c-48ca-809c-ed4ba77ba146",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "class",
+          "classes",
+          "riskClass"
+        ],
+        "review": {
+          "id": "e4a24414-8566-446b-8fa9-56c0ddcdec8c",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "confirmation",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "dbd951c4-0d7b-4ae7-bfd4-4b3d76b7c126",
+      "key": "8817e531-efce-4310-8963-b28d2c49b2e2",
+      "result": {
+        "id": "58c937cc-80d7-4b2a-b94a-4dbce8dac30c",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "confirmExternal",
+        "confirmation",
+        "confirmed"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "dbd951c4-0d7b-4ae7-bfd4-4b3d76b7c126",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "confirmExternal",
+          "confirmation",
+          "confirmed"
+        ],
+        "review": {
+          "id": "d9a60685-c441-469b-a592-85b00144b5c5",
+          "by": null
+        },
+        "replayOf": null
+      }
+    },
+    {
+      "phase": "review",
+      "sourceMode": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variant": "internal",
+      "expected": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "computed": [
+        {
+          "class": "standard",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "disposition": "review",
+      "revision": 1,
+      "decisionId": "baed5995-0738-4957-8c50-030049241743",
+      "key": "d7330afd-0713-448a-9d0b-fd37a21edf32",
+      "result": {
+        "id": "4250b175-5f30-4b64-88ce-c3d33e2dccc5",
+        "state": "draft"
+      },
+      "ignoredArguments": [
+        "counterparty",
+        "internal",
+        "role"
+      ],
+      "ok": true,
+      "audit": {
+        "id": "baed5995-0738-4957-8c50-030049241743",
+        "classes": [
+          {
+            "class": "standard",
+            "facts": {
+              "measure": 1
+            }
+          }
+        ],
+        "decision": "review",
+        "outcome": "done",
+        "code": null,
+        "revision": 1,
+        "ignoredArguments": [
+          "counterparty",
+          "internal",
+          "role"
+        ],
+        "review": {
+          "id": "cd0b9901-5dfd-4078-bf68-11190f9f0942",
+          "by": null
+        },
+        "replayOf": null
+      }
+    }
+  ],
+  "browser": [
+    {
+      "screen": "native-source",
+      "width": 1440,
+      "file": "native-source-1440.png",
+      "bytes": 438290
+    },
+    {
+      "screen": "native-source",
+      "width": 390,
+      "file": "native-source-390.png",
+      "bytes": 349007
+    },
+    {
+      "screen": "native-proposal-drafts",
+      "width": 1440,
+      "file": "native-proposal-drafts-1440.png",
+      "bytes": 363262
+    },
+    {
+      "screen": "native-proposal-drafts",
+      "width": 390,
+      "file": "native-proposal-drafts-390.png",
+      "bytes": 283876
+    },
+    {
+      "screen": "native-debrief-drafts",
+      "width": 1440,
+      "file": "native-debrief-drafts-1440.png",
+      "bytes": 577230
+    },
+    {
+      "screen": "native-debrief-drafts",
+      "width": 390,
+      "file": "native-debrief-drafts-390.png",
+      "bytes": 438964
+    }
+  ]
+}

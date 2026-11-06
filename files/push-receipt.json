@@ -1,0 +1,12 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f53",
+  "head": "fa1043c9936eca09c6146f4f9c3f397a01de1c18",
+  "productPushGuard": "cloud-push.py",
+  "firstPushExit": 0,
+  "firstPushAttempt": 1,
+  "identityAndMessagesChecked": true,
+  "publishedHistoryRewritten": false,
+  "mainChanged": false,
+  "at": "2026-11-06T07:43:36.636844+00:00"
+}
