@@ -101,6 +101,32 @@ acceptance 1 for the existing authenticated MCP door only. It does not prove byt
 budgets, provider spending, outside mail, queued continuations, complete usage
 or the remaining Pause and resume duties. The clause remains partial.
 
+A fresh one-off qualification of BASE-AGENT-009 acceptance 3 and the existing
+Mark reviewed portion of acceptance 4 reused that disposable signed Business
+setup and the existing fixture modules. All five adopted tools performed real
+Worker and D1 reads or saved unsent preparations under autonomous and held
+policies, with no applied hiring changes. The test-only clock generated 232 audit
+rows across three pages: 212 within the fixture period, ten before the week and
+ten after the selected as-of time. Independent aggregation of every paginated
+row matched every displayed class and decision total on `/agents` at 1440 and
+390. Open and flagged review handles matched exactly, including eligible reviews
+outside the displayed weekly totals.
+
+At each width the signed-in human used Mark reviewed. Review state retained
+that person and the pinned time, audit readback retained the same audit identity
+and review person, and the marked handle disappeared from the open feed.
+Every native record value and revision, hiring decision, unsent preparation and
+draft content stayed unchanged. Signed-out and agent-only marks were refused
+without changing review state. The
+[qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f51/files)
+retains the one-off driver, actual receipt and both-width screens. This is bounded
+qualification, with no permanent test, runtime or approved-screen change.
+BASE-AGENT-009 remains partial: native Undo, independently named approvers,
+broader filtering, export, removal, retained-data lifecycle, undeclared events
+and subscriptions, outside providers and multiple active sponsors remain unproved.
+All live Business, communications, identity, custody, Base and specialist holds
+and the complete original acceptance remain in force.
+
 Run `pnpm exec rer verify` for the production-build conformance journey. It
 creates a disposable owner through native setup-token admission, finishes
 first-run and business setup, binds a native agent, and uses fresh native
