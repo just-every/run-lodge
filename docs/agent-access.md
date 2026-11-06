@@ -95,10 +95,9 @@ clock, real HTTP to the Worker socket and real D1; the refusal comparison covere
 every native record value and revision as well as the nonempty human state.
 The raw client bypassed the verifier's automatic capacity retries, and derived
 its bounded fill count from discovery rather than asserting a fixed threshold.
-The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f45/files)
+The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f47/files)
 retains the one-off driver and actual receipts. This qualifies BASE-AGENT-011
-acceptance 1
-for the existing authenticated MCP door only. It does not prove byte or business
+acceptance 1 for the existing authenticated MCP door only. It does not prove byte or business
 budgets, provider spending, outside mail, queued continuations, complete usage
 or the remaining Pause and resume duties. The clause remains partial.
 
