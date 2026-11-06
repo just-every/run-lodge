@@ -101,6 +101,48 @@ acceptance 1 for the existing authenticated MCP door only. It does not prove byt
 budgets, provider spending, outside mail, queued continuations, complete usage
 or the remaining Pause and resume duties. The clause remains partial.
 
+## Oversized-body no-effect qualification
+
+A one-off BASE-AGENT-001 acceptance-6 qualification uses the emitted production
+Worker, migrated local D1, the current owner sponsor and disposable signed
+Business settings, credentials and company policies. It reuses the native
+fixtures in `tests/agent-prompts-flow.mjs`, `tests/initialize-agent.mjs` and
+`tests/agent-phase-fixtures.mjs`. No production signing key or live Business
+account is involved.
+
+For each of the autonomous and held policies, the raw HTTP driver derives
+`maxBodyBytes` from discovery and pads an otherwise valid
+`lodge.proposals.prepare` request with JSON whitespace. Separate requests
+exercise an explicit oversized Content-Length and an actual chunked body with
+no Content-Length. Each returns HTTP 413 without a tool result. Every native
+record value and revision, the nonempty proposal and debrief inventories,
+hiring decisions, shared calls, reviews, approvals, audit, usage, events and
+captured mail remain identical. No provider call occurs.
+
+The same valid arguments and idempotency key then succeed within capacity,
+creating exactly one unsent proposed draft with the current policy revision
+and disposition. Held-policy drafts have the corresponding open review linked
+to that decision. Native hiring values and revisions stay unchanged; no vacancy
+is applied and no provider is called. Replaying the within-capacity request
+returns the same draft without adding another. Existing proposal, retained
+debrief and native policy-refusal screens are inspected at 1440 and 390.
+The policy-refusal screen is separate from the transport's HTTP 413 response;
+oversized requests create no tool audit entry.
+
+The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f59/files)
+retains the one-off raw driver, production fixture helper, actual receipt and
+screenshots. No permanent test, runtime, manifest, copied Base or production
+screen changes accompany this qualification. Other transport, version,
+discovery, cache, Origin and header acceptance remains required. Resources and
+subscriptions remain undeclared; standalone local token issuance is not
+adopted. Wider surface tools and embedded automation, access and security
+families, live Business admission, additional sponsor and excluded-client
+fixtures, active cross-sponsor isolation, unpairing, local sign-in fallback,
+retained-client-data custody and erasure, queued continuation, stranger-specialist
+completion and every omitted original obligation remain held or unproved.
+BASE-AGENT-003 resource work and live BASE-AGENT-012 qualification are not
+retargeted. BASE-AGENT-001 stays partial, with all existing holds unchanged.
+
 ## Dropped-response recovery qualification
 
 A one-off acceptance-2 qualification for BASE-AGENT-012 runs the production
