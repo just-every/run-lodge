@@ -1,0 +1,289 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f52",
+  "head": "a6bc234fc9386eb250f38585c0ecac3bda54bbe0",
+  "runtime": "built production Worker and D1",
+  "started": "2026-11-06T07:04:17.931Z",
+  "policy": [
+    {
+      "tool": "lodge.jobs.list",
+      "disposition": "blocked",
+      "revision": 2,
+      "facts": {
+        "measure": 1
+      },
+      "noContent": true,
+      "noNativeEffect": true,
+      "beforeDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec",
+      "afterDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec"
+    },
+    {
+      "tool": "lodge.records.read",
+      "disposition": "blocked",
+      "revision": 2,
+      "facts": {
+        "measure": 1
+      },
+      "noContent": true,
+      "noNativeEffect": true,
+      "beforeDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec",
+      "afterDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec"
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "disposition": "blocked",
+      "revision": 2,
+      "facts": {
+        "measure": 1
+      },
+      "noContent": true,
+      "noNativeEffect": true,
+      "beforeDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec",
+      "afterDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec"
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "disposition": "blocked",
+      "revision": 2,
+      "facts": {
+        "measure": 1
+      },
+      "noContent": true,
+      "noNativeEffect": true,
+      "beforeDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec",
+      "afterDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec"
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "disposition": "blocked",
+      "revision": 2,
+      "facts": {
+        "measure": 1
+      },
+      "noContent": true,
+      "noNativeEffect": true,
+      "beforeDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec",
+      "afterDigest": "6c608cd9ad44806a27724f1321325b357d1aefda26a9afdff545c8e58d378bec"
+    },
+    {
+      "tool": "lodge.jobs.list",
+      "disposition": "approval",
+      "revision": 3,
+      "facts": {
+        "measure": 2
+      },
+      "pendingNoContent": true,
+      "pendingNoNativeEffect": true,
+      "sameOriginHumanUrl": true,
+      "exactRevisionBrowserDecision": true,
+      "receiptLinked": true,
+      "nativeExecutions": 1,
+      "replayNoNativeEffect": true,
+      "repeatedDecisionNoNativeEffect": true,
+      "beforeDigest": "edb473e3c8a73db13d01c5ae17175bdf5d74f46208995d79ac0ff5884ec012d8",
+      "afterDecisionDigest": "edb473e3c8a73db13d01c5ae17175bdf5d74f46208995d79ac0ff5884ec012d8"
+    },
+    {
+      "tool": "lodge.records.read",
+      "disposition": "approval",
+      "revision": 3,
+      "facts": {
+        "measure": 1
+      },
+      "pendingNoContent": true,
+      "pendingNoNativeEffect": true,
+      "sameOriginHumanUrl": true,
+      "exactRevisionBrowserDecision": true,
+      "receiptLinked": true,
+      "nativeExecutions": 1,
+      "replayNoNativeEffect": true,
+      "repeatedDecisionNoNativeEffect": true,
+      "beforeDigest": "edb473e3c8a73db13d01c5ae17175bdf5d74f46208995d79ac0ff5884ec012d8",
+      "afterDecisionDigest": "edb473e3c8a73db13d01c5ae17175bdf5d74f46208995d79ac0ff5884ec012d8"
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "disposition": "approval",
+      "revision": 3,
+      "facts": {
+        "measure": 1
+      },
+      "pendingNoContent": true,
+      "pendingNoNativeEffect": true,
+      "sameOriginHumanUrl": true,
+      "exactRevisionBrowserDecision": true,
+      "receiptLinked": true,
+      "nativeExecutions": 1,
+      "replayNoNativeEffect": true,
+      "repeatedDecisionNoNativeEffect": true,
+      "beforeDigest": "edb473e3c8a73db13d01c5ae17175bdf5d74f46208995d79ac0ff5884ec012d8",
+      "afterDecisionDigest": "edb473e3c8a73db13d01c5ae17175bdf5d74f46208995d79ac0ff5884ec012d8"
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "disposition": "approval",
+      "revision": 3,
+      "facts": {
+        "measure": 1
+      },
+      "pendingNoContent": true,
+      "pendingNoNativeEffect": true,
+      "sameOriginHumanUrl": true,
+      "exactRevisionBrowserDecision": true,
+      "receiptLinked": true,
+      "nativeExecutions": 1,
+      "replayNoNativeEffect": true,
+      "repeatedDecisionNoNativeEffect": true,
+      "beforeDigest": "edb473e3c8a73db13d01c5ae17175bdf5d74f46208995d79ac0ff5884ec012d8",
+      "afterDecisionDigest": "d19be9d40b17b894af013b1e4a60ff10a926ac5a68e467655cc54905743cff1d"
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "disposition": "approval",
+      "revision": 3,
+      "facts": {
+        "measure": 1
+      },
+      "pendingNoContent": true,
+      "pendingNoNativeEffect": true,
+      "sameOriginHumanUrl": true,
+      "exactRevisionBrowserDecision": true,
+      "receiptLinked": true,
+      "nativeExecutions": 1,
+      "replayNoNativeEffect": true,
+      "repeatedDecisionNoNativeEffect": true,
+      "beforeDigest": "d19be9d40b17b894af013b1e4a60ff10a926ac5a68e467655cc54905743cff1d",
+      "afterDecisionDigest": "9d0f5b7edfafad69083deda66b70cdb637fa0906bf8b8f19e2ba92560f481820"
+    }
+  ],
+  "screens": [
+    {
+      "name": "jobs-pending",
+      "width": 1440,
+      "file": "jobs-pending-1440.png"
+    },
+    {
+      "name": "jobs-pending",
+      "width": 390,
+      "file": "jobs-pending-390.png"
+    },
+    {
+      "name": "source-pending",
+      "width": 1440,
+      "file": "source-pending-1440.png"
+    },
+    {
+      "name": "source-pending",
+      "width": 390,
+      "file": "source-pending-390.png"
+    },
+    {
+      "name": "drafts-pending",
+      "width": 1440,
+      "file": "drafts-pending-1440.png"
+    },
+    {
+      "name": "drafts-pending",
+      "width": 390,
+      "file": "drafts-pending-390.png"
+    },
+    {
+      "name": "proposal-pending",
+      "width": 1440,
+      "file": "proposal-pending-1440.png"
+    },
+    {
+      "name": "proposal-pending",
+      "width": 390,
+      "file": "proposal-pending-390.png"
+    },
+    {
+      "name": "debrief-pending",
+      "width": 1440,
+      "file": "debrief-pending-1440.png"
+    },
+    {
+      "name": "debrief-pending",
+      "width": 390,
+      "file": "debrief-pending-390.png"
+    },
+    {
+      "name": "native-proposal-draft",
+      "width": 1440,
+      "file": "native-proposal-draft-1440.png"
+    },
+    {
+      "name": "native-debrief-draft",
+      "width": 1440,
+      "file": "native-debrief-draft-1440.png"
+    },
+    {
+      "name": "native-proposal-draft",
+      "width": 390,
+      "file": "native-proposal-draft-390.png"
+    },
+    {
+      "name": "native-debrief-draft",
+      "width": 390,
+      "file": "native-debrief-draft-390.png"
+    }
+  ],
+  "assertions": [
+    {
+      "id": "jobs.blocked",
+      "pass": true
+    },
+    {
+      "id": "source.blocked",
+      "pass": true
+    },
+    {
+      "id": "drafts.blocked",
+      "pass": true
+    },
+    {
+      "id": "proposal.blocked",
+      "pass": true
+    },
+    {
+      "id": "debrief.blocked",
+      "pass": true
+    },
+    {
+      "id": "jobs.blocked-current-facts",
+      "pass": true,
+      "measure": 2
+    },
+    {
+      "id": "jobs.approval-and-replay",
+      "pass": true
+    },
+    {
+      "id": "source.approval-and-replay",
+      "pass": true
+    },
+    {
+      "id": "drafts.approval-and-replay",
+      "pass": true
+    },
+    {
+      "id": "proposal.approval-and-replay",
+      "pass": true
+    },
+    {
+      "id": "debrief.approval-and-replay",
+      "pass": true
+    },
+    {
+      "id": "preparations.require-separate-native-human-decisions",
+      "pass": true
+    },
+    {
+      "id": "native-human-decisions.complete-with-unchanged-application",
+      "pass": true
+    }
+  ],
+  "outboundCalls": 0,
+  "status": "passed",
+  "finished": "2026-11-06T07:04:30.089Z"
+}

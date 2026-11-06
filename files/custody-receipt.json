@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f52",
+  "head": "a6bc234fc9386eb250f38585c0ecac3bda54bbe0",
+  "remoteHead": "a6bc234fc9386eb250f38585c0ecac3bda54bbe0",
+  "productPushed": true,
+  "pushAttempts": 1,
+  "verifyDispatchRequested": true,
+  "dispatchReason": "documentation-only commit has skip ci; exact-SHA discovery returned no run",
+  "githubCallsUsed": 7,
+  "timestamp": "2026-11-06T07:02:28.493387+00:00",
+  "verifyRunId": 42178245128,
+  "verifyEvent": "workflow_dispatch",
+  "verifyStatus": "completed",
+  "verifyConclusion": "success",
+  "verifyHead": "a6bc234fc9386eb250f38585c0ecac3bda54bbe0",
+  "verifiedAt": "2026-11-06T07:14:16.889868+00:00"
+}

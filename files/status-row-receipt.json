@@ -1,0 +1,11 @@
+{
+  "head": "a6bc234fc9386eb250f38585c0ecac3bda54bbe0",
+  "parent": "6dde78ef4ffe52cfc66fb5c9751b1f6b7bf873b3",
+  "statusRowsBefore": 145,
+  "statusRowsAfter": 145,
+  "tableLinesBefore": 169,
+  "tableLinesAfter": 169,
+  "noDroppedParentRows": true,
+  "unchangedAcceptanceAndGap": true,
+  "changedCell": "BASE-AGENT-007 Evidence only"
+}

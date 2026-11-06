@@ -1,0 +1,29 @@
+{
+  "head": "a6bc234fc9386eb250f38585c0ecac3bda54bbe0",
+  "startingMain": "6dde78ef4ffe52cfc66fb5c9751b1f6b7bf873b3",
+  "predecessor": "fa213b4924355222e7d3594b85af2c4f1b26118c",
+  "predecessorContractAlreadyOnMain": true,
+  "noRuntimeManifestScreenOrPermanentTestChanges": true,
+  "productFiles": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ],
+  "proofFiles": [
+    {
+      "path": "standard-policy-driver.mjs",
+      "sha256": "08f1ef41c2deaafc1002b4ec94db4f37f118ecd7e350b2f000641543a23e09f7"
+    },
+    {
+      "path": "standard-policy-receipt.json",
+      "sha256": "d55e8c3c67d2bdc39a6bf711cd4270f09bb588d95a6e66c5af20e4fd7ff22367"
+    },
+    {
+      "path": "mechanical-receipt.json",
+      "sha256": "ef3d9ace163380d9257970a395b207047a14319e5479192d65d3c4fa3ac7b11b"
+    },
+    {
+      "path": "status-row-receipt.json",
+      "sha256": "cac840f6b226e76154a191fd60d1e39f6de8eb85bda2c8a10352e343d76e0431"
+    }
+  ]
+}

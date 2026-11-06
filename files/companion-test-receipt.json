@@ -1,0 +1,15 @@
+{
+  "initialRuntime": "Node 24.19.0",
+  "initialResult": "stopped by task after more than four minutes without completion; no assertion failure reported",
+  "initialExitSignal": "SIGTERM followed by SIGKILL after shutdown stalled",
+  "retryRuntime": "repository pin Node 22.20.0",
+  "claim": "NOT COMPLETE; no passing claim and no assertion failure observed",
+  "head": "a6bc234fc9386eb250f38585c0ecac3bda54bbe0",
+  "initialObservedWrapperExit": 247,
+  "retryResult": "did not complete within 120 seconds; timeout sent SIGTERM, then task killed only its own stalled Node and Worker processes",
+  "retryExitSignal": "SIGKILL",
+  "productTestEdits": false,
+  "sourceByteIdenticalToStartingMain": true,
+  "retryObservedWrapperExit": 137,
+  "command": "node --input-type=module -e \"const { checkAgentPrompts } = await import('./tests/agent-prompts-flow.mjs'); await checkAgentPrompts(); console.log('PASS existing prompt and native decision flow')\""
+}
