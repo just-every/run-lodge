@@ -1,0 +1,28 @@
+{
+  "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+  "runtime": "emitted production Worker with persistent disposable D1 and built client assets",
+  "classification": "Pre-existing native application projection and shared JSON-output boundary; no runtime repair authorized",
+  "policies": [
+    {
+      "policy": "autonomous",
+      "tool": "lodge.records.read",
+      "kind": "application",
+      "status": 200,
+      "isError": true,
+      "code": "output_invalid",
+      "noNativeEffect": true,
+      "observation": "Existing native application projection returns output_invalid; outside the qualified vacancy-source fixture."
+    },
+    {
+      "policy": "held",
+      "tool": "lodge.records.read",
+      "kind": "application",
+      "status": 200,
+      "isError": true,
+      "code": "output_invalid",
+      "noNativeEffect": true,
+      "observation": "Existing native application projection returns output_invalid; outside the qualified vacancy-source fixture."
+    }
+  ],
+  "outboundCalls": 0
+}

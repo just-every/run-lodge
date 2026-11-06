@@ -1,0 +1,62 @@
+{
+  "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+  "checks": [
+    {
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-005",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": "contract-docs write: BASE-AGENT-005; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-005",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": "contract-docs check: BASE-AGENT-005; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": ""
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": "Generated source lock"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": "Source lock and retained source integrity checked"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": "WARN\u2009 Unsupported engine: wanted: {\"node\":\"22.20.0\"} (current: {\"node\":\"v24.19.0\",\"pnpm\":\"10.12.4\"})\n\n> @hiring/lodge@0.1.1 typecheck /workspace/run-lodge\n> tsc --build --incremental"
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": ""
+    },
+    {
+      "command": "git diff --exit-code",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": ""
+    },
+    {
+      "command": "git diff --cached --exit-code",
+      "exit": 0,
+      "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+      "output": ""
+    }
+  ],
+  "viewsRestored": true,
+  "generatedViewsCommitted": false,
+  "migrationLedger": "not applicable; no migration changed"
+}

@@ -1,0 +1,417 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f61",
+  "clause": "BASE-AGENT-005",
+  "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+  "sourceTree": "3c014b2c05fa21e223a8105b2bbd53b99c033073",
+  "runtime": "emitted production Worker with persistent disposable D1 and built client assets",
+  "scope": "existing action-scope and caller-argument widening slice of acceptance 2",
+  "sourceDirectory": "096aa3ac0946b3e1d15c9d800ac46615833d4f81",
+  "testsDirectory": "461e39294fb247be9bc6d8a41a624aa8a205f4d6",
+  "emittedWorkerSha256": "d3a645af77219415ee61f531ae774eb31be488650159d36bdf70894a9aeee52c",
+  "driverSha256": "cde26f867ad6c7769e2aa3dd6889f18893ecb2dbd33f13a2c810918f879a58ef",
+  "result": "pass",
+  "policies": [
+    {
+      "policy": "autonomous",
+      "revision": 1,
+      "disposition": "autonomous",
+      "reads": [
+        {
+          "tool": "lodge.jobs.list",
+          "status": 200,
+          "nonemptyNativeResult": true,
+          "disposition": "autonomous",
+          "revision": 1
+        },
+        {
+          "tool": "lodge.records.read",
+          "status": 200,
+          "nonemptyNativeResult": true,
+          "disposition": "autonomous",
+          "revision": 1
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "status": 200,
+          "nonemptyNativeResult": true,
+          "disposition": "autonomous",
+          "revision": 1
+        }
+      ],
+      "refusals": [
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "role",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "c37b072c-d189-46b4-a97f-176a6d0c6ddc",
+          "auditMatched": true,
+          "keySha256": "6acb546ebaec124fa44d691b96e726430b76f86de435aaae201d73f8ad3e6328"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "scope",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "830b4a0d-b7e7-4b4e-b268-80ea0fc9b2ab",
+          "auditMatched": true,
+          "keySha256": "3ec7c658cec5e1dc02ff04d0dc5c086394bd013bb6d41ff85e9f3c0aaa012ee4"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "grant",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "63884ba1-79bc-403e-94b5-b246fd06b2a8",
+          "auditMatched": true,
+          "keySha256": "6ee7c83f97cc99b97efd94ab29e1352f8add501e1ee810bc0cee1928e16b55da"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "role",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "06137350-fb84-48db-a104-60b7f4b45cb9",
+          "auditMatched": true,
+          "keySha256": "3151c88aca1a5d4cc91a0f83d09da1680678fe399a34d562bee30af1d41a09ce"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "scope",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "05e152f7-409f-484a-b0a8-7a87b9548c7a",
+          "auditMatched": true,
+          "keySha256": "cb79cdcc79ccbeef8c8a1d68cb12c6caa9eef06362335cfb41cd675ff7cf5040"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "grant",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "798248e0-3ff4-4b88-8e55-92be2eda4c5a",
+          "auditMatched": true,
+          "keySha256": "a6e747db74521a7b233f5f0bb3e65d5756c862b3b2a1e901648e5bfca95309fb"
+        }
+      ],
+      "allowed": [
+        {
+          "tool": "lodge.proposals.prepare",
+          "status": 200,
+          "recoveredRefusedKey": true,
+          "id": "a027b7a4-5bf4-4b1b-94cf-2c79e0669ba9",
+          "recoveredClaim": "grant",
+          "keySha256": "6ee7c83f97cc99b97efd94ab29e1352f8add501e1ee810bc0cee1928e16b55da",
+          "decisionId": "2e58ac92-46c2-4c54-bfa3-b89ae2b89b2f",
+          "revision": 1,
+          "disposition": "autonomous",
+          "reviewId": null,
+          "currentAuditAndPolicyLink": true
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "status": 200,
+          "recoveredRefusedKey": true,
+          "id": "e802c276-97df-419a-b945-5b6f62bf0544",
+          "recoveredClaim": "grant",
+          "keySha256": "a6e747db74521a7b233f5f0bb3e65d5756c862b3b2a1e901648e5bfca95309fb",
+          "decisionId": "c5bf9d7e-4e87-4190-8fe8-5304dfc2203f",
+          "revision": 1,
+          "disposition": "autonomous",
+          "reviewId": null,
+          "currentAuditAndPolicyLink": true
+        }
+      ],
+      "applicationSourceProbe": {
+        "tool": "lodge.records.read",
+        "kind": "application",
+        "status": 200,
+        "isError": true,
+        "code": "output_invalid",
+        "noNativeEffect": true,
+        "observation": "Existing native application projection returns output_invalid; outside the qualified vacancy-source fixture."
+      },
+      "refusalSnapshotSha256": "f54224fd57280fc41860568f5bcc8b239d72fe711d69c839a4cfe18eeecb610a",
+      "retainedDraftReadbackWithReadOnlyToken": true,
+      "exactlyOneProposalAndDebrief": true,
+      "unchangedHiringValuesAndRevisions": true,
+      "replayNoDuplicate": true,
+      "bindingUnchanged": true
+    },
+    {
+      "policy": "held",
+      "revision": 2,
+      "disposition": "review",
+      "reads": [
+        {
+          "tool": "lodge.jobs.list",
+          "status": 200,
+          "nonemptyNativeResult": true,
+          "disposition": "review",
+          "revision": 2
+        },
+        {
+          "tool": "lodge.records.read",
+          "status": 200,
+          "nonemptyNativeResult": true,
+          "disposition": "review",
+          "revision": 2
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "status": 200,
+          "nonemptyNativeResult": true,
+          "disposition": "review",
+          "revision": 2
+        }
+      ],
+      "refusals": [
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "role",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "60fc6c8c-1e06-40ca-9376-654437eae69e",
+          "auditMatched": true,
+          "keySha256": "fde5a2811f51ec1358706a6f5898552503529bac02a841c268574f8d4b53d8ce"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "scope",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "b67092dd-b002-41c8-b569-84f22f1e2e60",
+          "auditMatched": true,
+          "keySha256": "09b7b01e19ee19db8ae4084451b037e20cb1caff6e5a52f5ed9094722f5b8e76"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "claim": "grant",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "95a16db8-fe62-4164-9f0c-dfdc2ca36f78",
+          "auditMatched": true,
+          "keySha256": "cde5208b03de2e23762591ffb0c88e279de3b42cf1dcb090362b7cc85f049f3c"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "role",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "237b49bf-0c78-4628-8746-7232cddc0060",
+          "auditMatched": true,
+          "keySha256": "96c796ee994d5f3e371be8e864d502e559e18818149d09548547f441d22d0883"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "scope",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "a06f0fc1-61e1-41ac-ab08-651abee1465e",
+          "auditMatched": true,
+          "keySha256": "6ad5f4de1e2161473df3b60959c5d671a8f4921a8b948398ad0122ad28642d11"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "claim": "grant",
+          "status": 403,
+          "code": "insufficient_scope",
+          "challenge": "Bearer error=\"insufficient_scope\", scope=\"lodge:prepare\", resource_metadata=\"http://127.0.0.1:35783/.well-known/oauth-protected-resource/mcp\"",
+          "noResult": true,
+          "unchangedNativeAndDoorState": true,
+          "unusedKey": true,
+          "auditId": "f0ecb48c-ef39-4e87-b6b1-6535beb53531",
+          "auditMatched": true,
+          "keySha256": "5b8daea571d88bd8cbadbadd549db4fa838c5b2fadaaf08a7a6d5719217e1aeb"
+        }
+      ],
+      "allowed": [
+        {
+          "tool": "lodge.proposals.prepare",
+          "status": 200,
+          "recoveredRefusedKey": true,
+          "id": "b1738884-7cf7-4968-990d-75cc7d9cfa22",
+          "recoveredClaim": "grant",
+          "keySha256": "cde5208b03de2e23762591ffb0c88e279de3b42cf1dcb090362b7cc85f049f3c",
+          "decisionId": "05c3ea81-7dbd-49ab-b83a-4050559e582c",
+          "revision": 2,
+          "disposition": "review",
+          "reviewId": "a7e29375-040d-40ef-b142-778ee7d1f2aa",
+          "currentAuditAndPolicyLink": true
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "status": 200,
+          "recoveredRefusedKey": true,
+          "id": "e630252f-d2b9-4270-8f46-f51bf099782c",
+          "recoveredClaim": "grant",
+          "keySha256": "5b8daea571d88bd8cbadbadd549db4fa838c5b2fadaaf08a7a6d5719217e1aeb",
+          "decisionId": "6aa7a76b-a33b-46e1-b500-8b78a56f46f4",
+          "revision": 2,
+          "disposition": "review",
+          "reviewId": "a6907cfc-44d8-4458-ab83-6447db6de125",
+          "currentAuditAndPolicyLink": true
+        }
+      ],
+      "applicationSourceProbe": {
+        "tool": "lodge.records.read",
+        "kind": "application",
+        "status": 200,
+        "isError": true,
+        "code": "output_invalid",
+        "noNativeEffect": true,
+        "observation": "Existing native application projection returns output_invalid; outside the qualified vacancy-source fixture."
+      },
+      "refusalSnapshotSha256": "9984e1e9a6fcc3c72a037dd12e9b847a42d5ee13165d2e23b50fccd470ffdb07",
+      "retainedDraftReadbackWithReadOnlyToken": true,
+      "exactlyOneProposalAndDebrief": true,
+      "unchangedHiringValuesAndRevisions": true,
+      "replayNoDuplicate": true,
+      "bindingUnchanged": true
+    }
+  ],
+  "browser": [
+    {
+      "policy": "autonomous",
+      "screen": "source",
+      "width": 1440,
+      "screenshot": "autonomous-source-1440.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 0
+    },
+    {
+      "policy": "autonomous",
+      "screen": "source",
+      "width": 390,
+      "screenshot": "autonomous-source-390.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 0
+    },
+    {
+      "policy": "autonomous",
+      "screen": "proposal",
+      "width": 1440,
+      "screenshot": "autonomous-proposal-1440.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 0
+    },
+    {
+      "policy": "autonomous",
+      "screen": "proposal",
+      "width": 390,
+      "screenshot": "autonomous-proposal-390.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 0
+    },
+    {
+      "policy": "autonomous",
+      "screen": "debrief",
+      "width": 1440,
+      "screenshot": "autonomous-debrief-1440.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 1
+    },
+    {
+      "policy": "autonomous",
+      "screen": "debrief",
+      "width": 390,
+      "screenshot": "autonomous-debrief-390.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 1
+    },
+    {
+      "policy": "held",
+      "screen": "source",
+      "width": 1440,
+      "screenshot": "held-source-1440.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 0
+    },
+    {
+      "policy": "held",
+      "screen": "source",
+      "width": 390,
+      "screenshot": "held-source-390.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 0
+    },
+    {
+      "policy": "held",
+      "screen": "proposal",
+      "width": 1440,
+      "screenshot": "held-proposal-1440.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 0
+    },
+    {
+      "policy": "held",
+      "screen": "proposal",
+      "width": 390,
+      "screenshot": "held-proposal-390.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 0
+    },
+    {
+      "policy": "held",
+      "screen": "debrief",
+      "width": 1440,
+      "screenshot": "held-debrief-1440.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 1
+    },
+    {
+      "policy": "held",
+      "screen": "debrief",
+      "width": 390,
+      "screenshot": "held-debrief-390.png",
+      "visible": true,
+      "iconTooltipsCheckedAt1440": 1
+    }
+  ],
+  "outboundCalls": 0
+}

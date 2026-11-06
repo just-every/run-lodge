@@ -1,0 +1,41 @@
+{
+  "tag": "sx-lodge-c-f61",
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f61",
+  "head": "7dfc2ef6ba712ba031771ed94ac8a8ff94c455a0",
+  "base": "2847114868079ad6e85a6aa1c3e4f46986693dbc",
+  "productFiles": {
+    "CONTRACT.md": "cbde564de7db807701dec3c6672b6b73d5f3d3bc6ea8e5fefee4376bad68c3d3",
+    "sources.lock.json": "6a6941b90d36dfaee8b913135351cbf6c7d5d7932c98867b910f10cb46081716"
+  },
+  "candidateCommitCount": 1,
+  "allCandidateIdentitiesAndTrailers": "pass; fleet identity; no trailers",
+  "published": true,
+  "pushGuard": "cloud-push.py",
+  "pushAttempts": 1,
+  "productIndexAndWorktreeClean": true,
+  "sourceAndPermanentTestsUnchanged": true,
+  "generatedViewsUnchanged": true,
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "verifyRun": 42215430262,
+  "verifyEvent": "push",
+  "verifyConclusion": null,
+  "publicationScan": "not run in cloud; maintained fleet lander gate",
+  "mainLanding": "not performed",
+  "runSite": "not run for branch candidate",
+  "githubCallsUsed": 3,
+  "pr": null,
+  "verifyStatus": "in_progress",
+  "terminalCustody": "PUSHED; exact-SHA Verify remains in progress; no READY or landing claim"
+}

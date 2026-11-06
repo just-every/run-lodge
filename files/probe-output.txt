@@ -1,0 +1,5 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PROBE BASE-AGENT-005 acceptance-2 autonomous: three read tools succeed; six widening calls refused; one proposal and debrief recovered; replay creates no duplicate
+PROBE BASE-AGENT-005 acceptance-2 held: three read tools succeed; six widening calls refused; one proposal and debrief recovered; replay creates no duplicate
