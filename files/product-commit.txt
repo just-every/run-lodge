@@ -1,0 +1,7 @@
+commit 1add06ec88cb63efaf638b16bd76a649213922c2
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Fri Nov 6 09:53:14 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Fri Nov 6 09:53:57 2026 +0000
+
+    Document combined native classifier injection qualification [skip ci]

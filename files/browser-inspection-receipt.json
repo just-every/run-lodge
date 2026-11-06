@@ -1,0 +1,21 @@
+{
+  "head": "1add06ec88cb63efaf638b16bd76a649213922c2",
+  "files": [
+    "native-source-1440.png",
+    "native-source-390.png",
+    "native-proposal-drafts-1440.png",
+    "native-proposal-drafts-390.png",
+    "native-debrief-drafts-1440.png",
+    "native-debrief-drafts-390.png"
+  ],
+  "widths": [
+    1440,
+    390
+  ],
+  "allSixInspected": true,
+  "sourceClaimsRetainedAsText": true,
+  "proposalsUnapplied": true,
+  "debriefsDraft": true,
+  "humanDecisionControlsRetained": true,
+  "screenCodeChanges": 0
+}

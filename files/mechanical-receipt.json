@@ -1,0 +1,25 @@
+{
+  "head": "1add06ec88cb63efaf638b16bd76a649213922c2",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock and check",
+    "exit": 0
+  },
+  "views": {
+    "command": "node scripts/contract-docs.mjs write and check BASE-AGENT-006",
+    "exit": 0,
+    "restoredFromMain": true,
+    "committed": false
+  },
+  "ledger": {
+    "command": "none",
+    "exit": 0
+  },
+  "typecheck": {
+    "command": "pnpm run typecheck",
+    "exit": 0
+  },
+  "firstParty": {
+    "command": "pnpm exec rer check --profile first-party",
+    "exit": 0
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f57",
+  "head": "1add06ec88cb63efaf638b16bd76a649213922c2",
+  "productPushed": true,
+  "qualificationPassed": true,
+  "ci": {
+    "id": 42198589614,
+    "name": "Verify",
+    "event": "workflow_dispatch",
+    "head_sha": "1add06ec88cb63efaf638b16bd76a649213922c2",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42198589614",
+    "observedAt": "2026-11-06T09:59:46.247912+00:00"
+  },
+  "clauseBefore": "partial",
+  "clauseAfter": "partial",
+  "counts": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "publicationScan": "fleet duty; not run in cloud",
+  "landing": "not claimed",
+  "wholeClauseDone": false,
+  "localFailures": false,
+  "provisional": true
+}

@@ -1,0 +1,49 @@
+{
+  "limit": 10,
+  "callsUsed": 5,
+  "calls": [
+    {
+      "at": "2026-11-06T09:49:58.813293+00:00",
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs?head_sha=5aee0e4a61538de1badef2a3e38ab8903ba4d43b&per_page=100",
+        "--jq",
+        "[.workflow_runs[] | {id,name,status,conclusion,head_sha,event,html_url}]"
+      ]
+    },
+    {
+      "at": "2026-11-06T09:50:23.239681+00:00",
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs?head_sha=5aee0e4da22aee14b7adc5bed7d184a4fdae3234&per_page=100",
+        "--jq",
+        "[.workflow_runs[] | {id,name,status,conclusion,head_sha,event,html_url}]"
+      ]
+    },
+    {
+      "at": "2026-11-06T09:54:40.407664+00:00",
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs?head_sha=1add06ec88cb63efaf638b16bd76a649213922c2&per_page=100"
+      ]
+    },
+    {
+      "at": "2026-11-06T09:54:42.012910+00:00",
+      "args": [
+        "api",
+        "--method",
+        "POST",
+        "repos/just-every/run-lodge/actions/workflows/verify.yml/dispatches",
+        "-f",
+        "ref=cloud/sx-lodge-c-f57"
+      ]
+    },
+    {
+      "at": "2026-11-06T09:59:44.891482+00:00",
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs?head_sha=1add06ec88cb63efaf638b16bd76a649213922c2&per_page=100"
+      ]
+    }
+  ]
+}

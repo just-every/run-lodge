@@ -1,0 +1,13 @@
+{
+  "main": "7091069f6524f1c0d1ecd90b0b54bcae2f01d8f1",
+  "predecessorAlreadyInMain": true,
+  "sourceResolvedFirst": true,
+  "generatedViewsRestored": true,
+  "lockRegenerated": true,
+  "statusRowsBefore": 145,
+  "statusRowsAfter": 145,
+  "changedRows": [
+    "BASE-AGENT-006"
+  ],
+  "gapUnchanged": true
+}

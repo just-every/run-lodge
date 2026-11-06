@@ -1,0 +1,19 @@
+{
+  "statusRowsBefore": 145,
+  "statusRowsAfter": 145,
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "allParentIdsRetained": true,
+  "acceptanceUnchanged": true,
+  "newEmailStrings": 0,
+  "newIncidentalSlashTokens": 0,
+  "head": "1add06ec88cb63efaf638b16bd76a649213922c2"
+}

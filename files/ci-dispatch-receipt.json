@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "/tmp/fleet-gh.py",
+    "api",
+    "--method",
+    "POST",
+    "repos/just-every/run-lodge/actions/workflows/verify.yml/dispatches",
+    "-f",
+    "ref=cloud/sx-lodge-c-f57"
+  ],
+  "at": "2026-11-06T09:54:44.870147+00:00",
+  "exit": 0,
+  "output": ""
+}

@@ -1,0 +1,10 @@
+{
+  "head": "1add06ec88cb63efaf638b16bd76a649213922c2",
+  "comparisons": 120,
+  "auditRows": 124,
+  "freshPreparationKeysIncludingPriming": 52,
+  "screens": 6,
+  "driverPassed": true,
+  "receiptBoundToExactHead": true,
+  "allScreenHashesVerified": true
+}

@@ -1,0 +1,329 @@
+{
+  "head": "1add06ec88cb63efaf638b16bd76a649213922c2",
+  "clause": "BASE-AGENT-006",
+  "acceptance": 3,
+  "scope": "existing five standard tools only",
+  "matrix": [
+    {
+      "phase": "autonomous",
+      "source": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "clean",
+      "tool": "lodge.jobs.list",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "clean",
+      "tool": "lodge.proposals.list",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "clean",
+      "tool": "lodge.records.read",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "hostile",
+      "tool": "lodge.jobs.list",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "hostile",
+      "tool": "lodge.proposals.list",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "autonomous",
+      "source": "hostile",
+      "tool": "lodge.records.read",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "clean",
+      "tool": "lodge.debriefs.prepare",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "clean",
+      "tool": "lodge.jobs.list",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "clean",
+      "tool": "lodge.proposals.list",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "clean",
+      "tool": "lodge.proposals.prepare",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "clean",
+      "tool": "lodge.records.read",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "hostile",
+      "tool": "lodge.debriefs.prepare",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "hostile",
+      "tool": "lodge.jobs.list",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "hostile",
+      "tool": "lodge.proposals.list",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "hostile",
+      "tool": "lodge.proposals.prepare",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    },
+    {
+      "phase": "review",
+      "source": "hostile",
+      "tool": "lodge.records.read",
+      "variants": [
+        "baseline",
+        "class",
+        "confirmation",
+        "internal",
+        "combined",
+        "facts"
+      ],
+      "comparisons": 6,
+      "allSucceeded": true,
+      "auditRowsVerified": true
+    }
+  ],
+  "newPermanentTests": 0
+}

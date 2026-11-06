@@ -1,0 +1,77 @@
+diff --git a/CONTRACT.md b/CONTRACT.md
+index 55b9eed..08795d7 100644
+--- a/CONTRACT.md
++++ b/CONTRACT.md
+@@ -710,7 +710,7 @@ Judged from the code and tests at commit `c35544c6` (22 October 2026).
+ | `BASE-AGENT-003` | Records are resources | target | partial | `agent-surface.json`; `tests/initialize-agent-owner.mjs`; `tests/initialize-agent.mjs`; `tests/agent-phase-fixtures.mjs`; `tests/agent-native-journey.mjs`; `src/lodge/agent-door`; normal rer verify BASE-AGENT conformance | Gap: resources and resource refresh are undeclared families; source metadata reads use native scoped tools instead. |
+ | `BASE-AGENT-004` | Business identity and short-lived, audience-bound tokens | target | partial | `agent-surface.json`; `tests/initialize-agent-owner.mjs`; `tests/initialize-agent-sponsor.mjs` native invitation, signed subject binding and owner suspension; `tests/initialize-agent.mjs`; `tests/agent-phase-fixtures.mjs` negative preparation; `tests/agent-native-journey.mjs` suspended-session readback and retained owner job access; normal rer verify BASE-AGENT conformance including BASE-AGENT-004.sponsor.inactive; `src/lodge/agent-door` | Owner binding, consent, unknown-subject, changed-email and inactive-native-sponsor checks run in production-build conformance. The inactive probe uses a fresh agent identity and verifier-signed credentials, requires HTTP 401 or 403 with a typed error and no content, and checks unchanged native state. Gap: extra active sponsors, active cross-sponsor isolation and allow-list-excluded token fixtures remain undeclared. Standalone local token issuance is not adopted; unpairing and local sign-in fallback beyond existing proof remain unproved. This disposable signed-fixture proof establishes no live Business-provider admission, provider receipt, new agent authority or whole-clause completion. Wider omitted shared-agent obligations and existing ct, Base, account, device, lifecycle and custody holds remain unchanged. |
+ | `BASE-AGENT-005` | An agent acts as a person in a role, never more | target | partial | `agent-surface.json`; `tests/initialize-agent-owner.mjs`; `tests/initialize-agent.mjs`; `tests/agent-phase-fixtures.mjs`; `tests/agent-native-journey.mjs`; `src/lodge/agent-door`; normal rer verify BASE-AGENT conformance | Native membership, agent binding and source grants remain authoritative. Gap: access/security tool families and cross-sponsor fixtures are not declared. |
+-| `BASE-AGENT-006` | Every action declares its risk class | target | partial | `agent-surface.json`; `tests/initialize-agent-owner.mjs`; `tests/initialize-agent.mjs`; `tests/agent-phase-fixtures.mjs`; `tests/agent-native-journey.mjs`; `src/lodge/agent-door`; normal rer verify BASE-AGENT conformance; `docs/agent-access.md` records sx-lodge-c-f55 one-off signed Business qualification on the built production Worker and D1 of acceptance 3 for all five adopted tools: successful baseline, caller class, confirmation, internal and fact claims, and native authority-claiming source text under autonomous and review policies; fresh preparation keys, independent standard facts with two native jobs, matching audit readback, unchanged grants and hiring decisions, zero provider calls; complete driver and receipts on its evidence branch | Declared tools compute standard read and unsent draft effects. Acceptance 3 is qualified only for those five tools by the one-off comparison; the shared manifest declares no injection steps, so no new shared conformance coverage is claimed. Gap: no provider, spending, mail, sensitive-transfer, authority-change or production-service tool family is adopted. Nonstandard class and fact duties, additional tool families, broader role qualification and complete original acceptance remain required. The unmerged SURFACE specialist week, live Business admission, extra active-sponsor and allow-list-excluded fixtures, active cross-sponsor isolation, unpairing and local sign-in fallback, retained client-data custody and erasure, and queued continuation remain held or unproved; standalone local token issuance is not adopted. Existing BASE-AGENT-007 policy qualification and every queue entry, prerequisite and ct, Base, account, device and lifecycle hold remain unchanged. |
++| `BASE-AGENT-006` | Every action declares its risk class | target | partial | `agent-surface.json`; `tests/initialize-agent-owner.mjs`; `tests/initialize-agent.mjs`; `tests/agent-phase-fixtures.mjs`; `tests/agent-native-journey.mjs`; `src/lodge/agent-door`; normal rer verify BASE-AGENT conformance; `docs/agent-access.md` records sx-lodge-c-f57 repeated one-off signed Business qualification on the built production Worker and D1 of acceptance 3 for all five adopted tools: 120 successful comparisons of baseline, separate and combined caller class, confirmation, internal and fact claims, and native authority-claiming source text under autonomous and review policies; fresh preparation keys, independent standard facts with two native jobs, 124 matching audit rows and saved draft and rubric readback, unchanged grants and hiring decisions, zero provider calls; complete driver and receipts on its evidence branch | Declared tools compute standard read and unsent draft effects. Acceptance 3 is qualified only for those five tools by the one-off comparison; the shared manifest declares no injection steps, so no new shared conformance coverage is claimed. Gap: no provider, spending, mail, sensitive-transfer, authority-change or production-service tool family is adopted. Nonstandard class and fact duties, additional tool families, broader role qualification and complete original acceptance remain required. The unmerged SURFACE specialist week, live Business admission, extra active-sponsor and allow-list-excluded fixtures, active cross-sponsor isolation, unpairing and local sign-in fallback, retained client-data custody and erasure, and queued continuation remain held or unproved; standalone local token issuance is not adopted. Existing BASE-AGENT-007 policy qualification and every queue entry, prerequisite and ct, Base, account, device and lifecycle hold remain unchanged. |
+ | `BASE-AGENT-007` | The company's policy decides, at one chokepoint | target | partial | `agent-surface.json`; `tests/initialize-agent-owner.mjs`; `tests/initialize-agent.mjs`; `tests/agent-phase-fixtures.mjs`; `tests/agent-native-journey.mjs`; `src/lodge/agent-door`; normal rer verify BASE-AGENT conformance; sx-lodge-c-f48 and independent sx-lodge-c-f50 one-off signed-Business Worker and D1 qualifications call all five real MCP tools under standard blocked and approval policies, including exact-revision sponsor browser approval, linked receipts, duplicate prevention and separate native draft decisions; complete drivers, receipts and browser captures on their evidence branches; sx-lodge-c-f52 independently qualifies all five blocked and sponsor-approved standard paths on the built production Worker with D1, current computed facts, exact-revision browser decisions, linked replay receipts and unchanged native records on retry; its complete one-off packet is on the evidence branch | Declared core policy, unset, review, invalid envelope and Pause checks run through the shared door. The five adopted standard-class tools additionally have one-off blocked and approval qualification; standard variants remain excluded from shared conformance. Gap: nonstandard-class named approval and outside-family journeys are not declared. Complete setup and upgrade qualification, money and daily caps, mixed classes, independently named approvers, changed-input, rejection and expiry duties, and integration API and embedded-agent parity beyond existing proof remain required. Live Business admission, additional active-sponsor and excluded allow-list fixtures, active cross-sponsor isolation, unpairing and local-sign-in fallback, retained-client-data custody and erasure, and queued continuation remain held or unproved. Standalone local token issuance is not adopted. The unmerged SURFACE specialist week, other optional families, stranger completion and complete original acceptance remain required; existing prerequisites and ct, Base, account, device and lifecycle holds are unchanged. |
+ | `BASE-AGENT-008` | Truthful attribution | target | partial | `agent-surface.json`; `tests/initialize-agent-owner.mjs`; `tests/initialize-agent.mjs`; `tests/agent-phase-fixtures.mjs`; `tests/agent-native-journey.mjs`; `src/lodge/agent-door`; normal rer verify BASE-AGENT conformance | Native drafts and audit retain agent/sponsor attribution. Gap: outbound content, native Undo and independently named approver journeys are not declared. |
+ | `BASE-AGENT-009` | Every agent action is audited with its class and decision | target | partial | `agent-surface.json`; `tests/initialize-agent-owner.mjs`; `tests/initialize-agent.mjs`; `tests/agent-phase-fixtures.mjs`; `tests/agent-native-journey.mjs`; `src/lodge/agent-door`; normal rer verify BASE-AGENT conformance | Declared tool calls, refusals, retained decisions and zero policy divergence are checked. Gap: undeclared events/subscriptions, outside-provider and multi-sponsor audit journeys remain unproved. |
+diff --git a/docs/agent-access.md b/docs/agent-access.md
+index 857514f..0390dec 100644
+--- a/docs/agent-access.md
++++ b/docs/agent-access.md
+@@ -160,27 +160,29 @@ stay open in CONTRACT.md.
+ 
+ ## Native classifier injection qualification
+ 
+-The sx-lodge-c-f55 one-off qualification compares all five adopted tools through
+-the real MCP door on the built production Worker and migrated D1 under autonomous
++The sx-lodge-c-f57 one-off qualification repeats and extends the predecessor
++comparison of all five adopted tools through the real MCP door on the built
++production Worker and migrated D1 under autonomous
+ and standard review company policies. Each policy uses isolated clean and
+ native job and rubric sources containing claims of owner authority, class and
+ confirmation. For every tool it compares successful baseline calls with caller
+-class, confirmation, internal and fact claims. Every preparation uses a fresh
+-idempotency key, so a cached draft cannot stand in for a new classification.
++class, confirmation, internal and fact claims, individually and together. Every
++preparation uses a fresh idempotency key, so a cached draft cannot stand in for a new classification.
+ The independently expected class is standard; two seeded native jobs establish
+ the jobs measure of two, while the remaining tools have a measure of one.
+ 
+-All 100 comparisons complete as native reads or unsent proposal and debrief
+-drafts. The 104 calls, including inventory priming, have corresponding audit
++All 120 comparisons complete as native reads or unsent proposal and debrief
++drafts. The 124 calls, including inventory priming, have corresponding audit
+ readback with the expected classes, facts, policy revision and current
+ disposition. Additional caller arguments are filtered and named in the audit;
+ the review calls have linked review records. Native sources retain their
+-claims as ordinary data. Hiring records, native grants and policy stay
++claims as ordinary data; native readback also checks the saved proposal text
++and current application rubric. Hiring records, native grants and policy stay
+ unchanged, no proposal is applied, no debrief is kept, and neither provider
+ calls nor new captured mail occur. The existing source and draft screens are
+ inspected at 1440 and 390 through the same production Worker and native session.
+ 
+-The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f55/files)
++The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f57/files)
+ contains the disposable driver, production fixture helper and actual receipts.
+ It qualifies only BASE-AGENT-006 acceptance 3 for the five existing standard
+ class tools and the existing owner sponsor. The shared manifest has no injection
+diff --git a/sources.lock.json b/sources.lock.json
+index 0959723..7fe15ef 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -171,7 +171,7 @@
+       "executable": false
+     },
+     "CONTRACT.md": {
+-      "sha256": "f3fa4963333bcea32d1cd14cf777bdfc1aa69ad7909dc023dcfa9a786021a64d",
++      "sha256": "29f7c6dd27257ad7e7fad547e02b18ef86160ae2d8fb174b7fa70ad025e7dced",
+       "executable": false
+     },
+     "DEMO.md": {
+@@ -191,7 +191,7 @@
+       "executable": false
+     },
+     "docs/agent-access.md": {
+-      "sha256": "b5ce8bb1a49d84b32614856cfe29046367661bed06160762d430a97bf9a59e24",
++      "sha256": "d7f15d32233154d47e2b59559a9ab52fdcc46b08eaad4be6c66f838c34f9c07e",
+       "executable": false
+     },
+     "docs/applications.md": {
