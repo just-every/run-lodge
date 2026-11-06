@@ -4727,7 +4727,7 @@
       "executable": false
     },
     "tests/agent-refusal-flow.mjs": {
-      "sha256": "7aea0c4024b0b0ab0e9556a8348c8ea4db3660a1cd5a7f144eeb93d03140947f",
+      "sha256": "2cf2a420d2f66671794b160c911e89905424fab7f6f0ec5bae7d3ddc79978b77",
       "executable": false
     },
     "tests/agents.test.mjs": {

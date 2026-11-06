@@ -120,6 +120,11 @@ export async function checkAgentRefusals({ observe } = {}) {
         assert.deepEqual(replay.result._meta['com.runeditrun/error'], answer.result._meta['com.runeditrun/error'])
         assert.deepEqual(await snapshot(), before, item.label + ': repeated refusal cannot create or alter native records')
         assert.deepEqual(await inventory(), drafts, item.label + ': repeated refusal leaves existing drafts intact')
+        const replayAudit = await audit()
+        const attemptsForTool = replayAudit.rows.filter(row => !priorAudit.rows.some(old => old.id === row.id) && row.tool === tool)
+        assert.ok(attemptsForTool.length > 0)
+        assert.ok(attemptsForTool.every(row => row.outcome === 'refused' && row.code === item.code && row.agent.id === c.agentId && row.sponsor.id === operator.id && row.approval === null && row.review === null), 'repeated business failures cannot be audited as a draft or an approval')
+        assert.equal(replayAudit.differs_from_policy, 0)
         if (item.label.endsWith('source')) hidden.push({ native: native.value, error: answer.result._meta['com.runeditrun/error'], content: answer.result.content })
         receipts.push({ phase, case: item.label, status: native.status, code: native.value.code, audit: row.outcome })
       }
@@ -145,6 +150,10 @@ export async function checkAgentRefusals({ observe } = {}) {
       const signedOut = await h.send('/api/lodge/command/' + op, args)
       assert.equal(signedOut.status, 401)
       assert.deepEqual(signedOut.value, { error: 'Sign in required' })
+      const tool = op === 'propose' ? 'lodge.proposals.prepare' : 'lodge.debriefs.prepare'
+      const noConsent = await c.tool(tool, { ...args, idempotency_key: randomUUID() }, { token: '' })
+      assert.equal(noConsent.status, 401, 'MCP admission stays distinct from a native business refusal')
+      assert.equal(noConsent.result, undefined)
     }
     const malformed = await request(h.origin + '/api/lodge/command/propose', { method: 'POST', headers: { Origin: h.origin, Cookie: cookie, 'Content-Type': 'application/json' }, body: '{' })
     assert.equal(malformed.status, 400)
