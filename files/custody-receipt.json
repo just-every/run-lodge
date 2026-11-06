@@ -1,0 +1,12 @@
+{
+  "productHead": "1add06ec88cb63efaf638b16bd76a649213922c2",
+  "productBranch": "cloud/sx-lodge-c-f57",
+  "productPushSucceeded": true,
+  "remoteProductRefVerified": true,
+  "firstEvidenceHead": "d7adc7cdf706af0a416429cb9ade3e094e813224",
+  "firstEvidenceFilesVerified": 39,
+  "firstEvidenceManifestSha256": "3eb14480b41b3bfcbb35817170937b1231d769511f225a46b30347e85e244e9e",
+  "evidenceCommitIdentity": "fleet author and committer",
+  "evidenceCommitTrailers": "absent",
+  "productCheckoutAndIndexUnchanged": true
+}

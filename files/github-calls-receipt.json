@@ -1,6 +1,8 @@
 {
   "limit": 10,
-  "callsUsed": 5,
+  "callsUsed": 7,
+  "oneWatcher": true,
+  "minimumObservationIntervalSeconds": 300,
   "calls": [
     {
       "at": "2026-11-06T09:49:58.813293+00:00",
@@ -43,6 +45,24 @@
       "args": [
         "api",
         "repos/just-every/run-lodge/actions/runs?head_sha=1add06ec88cb63efaf638b16bd76a649213922c2&per_page=100"
+      ]
+    },
+    {
+      "at": "2026-11-06T10:04:46.278491+00:00",
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs/42198589614",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ]
+    },
+    {
+      "at": "2026-11-06T10:09:47.817305+00:00",
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs/42198589614",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
       ]
     }
   ]

@@ -1,0 +1,21 @@
+{
+  "head": "5aee0e4da22aee14b7adc5bed7d184a4fdae3234",
+  "source": "actual REST observation at 2026-11-06T09:50:23Z",
+  "runs": [
+    {
+      "id": 42195557575,
+      "name": "Verify",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42195557670,
+      "name": "Run site",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "candidateEvidence": false
+}
