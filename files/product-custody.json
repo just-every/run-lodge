@@ -1,0 +1,31 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f47",
+  "head": "f8f09a182d975d83e75a3152e55c9be063c1f157",
+  "base": "feda54c354a50535a19347ddbdef1339d2680c02",
+  "predecessor": "e2021b327c1c84647c2fea0f1fc63b6e129f6223",
+  "productFiles": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "treeClean": true,
+  "generatedViewsCommitted": false,
+  "identityAndTrailers": "all candidate commits inspected; fleet identity; no trailers",
+  "messages": "f8f09a182d975d83e75a3152e55c9be063c1f157\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\ndocs: qualify native request-capacity recovery [skip ci]\n\n",
+  "publicDiffReview": [
+    {
+      "file": "CONTRACT.md",
+      "addedLines": 1,
+      "emailShapedLiteralsAdded": 0
+    },
+    {
+      "file": "docs/agent-access.md",
+      "addedLines": 2,
+      "emailShapedLiteralsAdded": 0
+    }
+  ],
+  "publicationScan": "deferred to maintained Mac lander; not run in cloud",
+  "mainPush": false,
+  "pr": null
+}

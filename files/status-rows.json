@@ -1,0 +1,19 @@
+{
+  "parentRows": 145,
+  "stagedRows": 145,
+  "droppedRows": [],
+  "parentPipeRows": 169,
+  "stagedPipeRows": 169,
+  "before": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "after": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "head": "f8f09a182d975d83e75a3152e55c9be063c1f157",
+  "base": "feda54c354a50535a19347ddbdef1339d2680c02"
+}

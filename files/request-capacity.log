@@ -1,0 +1,5 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+PROBE BASE-AGENT-011 acceptance-1 autonomous: authenticated raw MCP, discovered capacity 600 -> HTTP 429 rate_limited, Retry-After 55; native state unchanged; human HTTP 200; same input succeeds after wait
+PROBE BASE-AGENT-011 acceptance-1 held: authenticated raw MCP, discovered capacity 600 -> HTTP 429 rate_limited, Retry-After 55; native state unchanged; human HTTP 200; same input succeeds after wait

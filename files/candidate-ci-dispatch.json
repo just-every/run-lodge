@@ -1,0 +1,6 @@
+{
+  "exit": 0,
+  "command": "gh api --method POST repos/just-every/run-lodge/actions/workflows/verify.yml/dispatches -f ref=cloud/sx-lodge-c-f47",
+  "stdout": "",
+  "stderr": ""
+}

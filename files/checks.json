@@ -1,0 +1,29 @@
+{
+  "head": "f8f09a182d975d83e75a3152e55c9be063c1f157",
+  "branch": "cloud/sx-lodge-c-f47",
+  "checks": [
+    {
+      "command": "node packet/qualify-request-capacity.mjs CHECKOUT packet/request-capacity.json",
+      "exit": 0,
+      "receipt": "request-capacity.json"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    }
+  ],
+  "permanentTestsAdded": 0,
+  "permanentTestsChanged": 0,
+  "uiChanged": false
+}
