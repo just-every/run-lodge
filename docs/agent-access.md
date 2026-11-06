@@ -160,27 +160,29 @@ stay open in CONTRACT.md.
 
 ## Native classifier injection qualification
 
-The sx-lodge-c-f55 one-off qualification compares all five adopted tools through
-the real MCP door on the built production Worker and migrated D1 under autonomous
+The sx-lodge-c-f57 one-off qualification repeats and extends the predecessor
+comparison of all five adopted tools through the real MCP door on the built
+production Worker and migrated D1 under autonomous
 and standard review company policies. Each policy uses isolated clean and
 native job and rubric sources containing claims of owner authority, class and
 confirmation. For every tool it compares successful baseline calls with caller
-class, confirmation, internal and fact claims. Every preparation uses a fresh
-idempotency key, so a cached draft cannot stand in for a new classification.
+class, confirmation, internal and fact claims, individually and together. Every
+preparation uses a fresh idempotency key, so a cached draft cannot stand in for a new classification.
 The independently expected class is standard; two seeded native jobs establish
 the jobs measure of two, while the remaining tools have a measure of one.
 
-All 100 comparisons complete as native reads or unsent proposal and debrief
-drafts. The 104 calls, including inventory priming, have corresponding audit
+All 120 comparisons complete as native reads or unsent proposal and debrief
+drafts. The 124 calls, including inventory priming, have corresponding audit
 readback with the expected classes, facts, policy revision and current
 disposition. Additional caller arguments are filtered and named in the audit;
 the review calls have linked review records. Native sources retain their
-claims as ordinary data. Hiring records, native grants and policy stay
+claims as ordinary data; native readback also checks the saved proposal text
+and current application rubric. Hiring records, native grants and policy stay
 unchanged, no proposal is applied, no debrief is kept, and neither provider
 calls nor new captured mail occur. The existing source and draft screens are
 inspected at 1440 and 390 through the same production Worker and native session.
 
-The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f55/files)
+The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f57/files)
 contains the disposable driver, production fixture helper and actual receipts.
 It qualifies only BASE-AGENT-006 acceptance 3 for the five existing standard
 class tools and the existing owner sponsor. The shared manifest has no injection
