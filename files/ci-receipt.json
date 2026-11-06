@@ -1,13 +1,25 @@
 {
   "head": "a4b1221a01c5dd89baa793e208ba1c864709686d",
   "dispatchInitial": {
-    "exit": 1,
+    "exit": null,
     "http": 503,
-    "diagnostic": "upstream connect error or disconnect/reset before headers. reset reason: remote refused stream reset"
+    "diagnostic": "upstream connect error or disconnect/reset before headers. reset reason: remote refused stream reset",
+    "exitNote": "Initial command exit was not separately captured by the shell; HTTP 503 and diagnostic were observed."
   },
-  "runs": [],
+  "runs": [
+    {
+      "conclusion": "success",
+      "head_sha": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42166569787",
+      "id": 42166569787,
+      "status": "completed"
+    }
+  ],
   "dispatchRetry": {
     "exit": 0,
     "confirmedNoExactHeadRun": true
-  }
+  },
+  "event": "workflow_dispatch",
+  "githubCallsUsed": 7,
+  "completedReceiptAt": "2026-11-06T05:23:35.224333+00:00"
 }

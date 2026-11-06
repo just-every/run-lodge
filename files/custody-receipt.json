@@ -1,0 +1,17 @@
+{
+  "head": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+  "branch": "cloud/sx-lodge-c-f48",
+  "remoteRef": "refs/heads/cloud/sx-lodge-c-f48",
+  "remoteHead": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+  "productPush": "success",
+  "identityChecks": [
+    {
+      "head": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+      "author": "fleet",
+      "committer": "fleet",
+      "trailers": []
+    }
+  ],
+  "noHistoryRewrite": true,
+  "recorded": "2026-11-06T05:10:43.349732+00:00"
+}

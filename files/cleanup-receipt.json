@@ -1,0 +1,13 @@
+{
+  "recorded": "2026-11-06T05:11:55.245903+00:00",
+  "ownedDevPidsStopped": [
+    3586,
+    3597,
+    3710,
+    3739
+  ],
+  "activeOwnedDevPids": [],
+  "browserClosedInFinally": true,
+  "disposableWorkerClosedInFinally": true,
+  "productCloneDeletion": "after final evidence return verification"
+}
