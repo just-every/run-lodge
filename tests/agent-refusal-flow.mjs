@@ -82,7 +82,7 @@ export async function checkAgentRefusals({ observe } = {}) {
         { label: 'debrief unavailable', op: 'debrief', args: { ...fixtures.values.debrief, application: 'synthetic-lodge-missing' }, status: 404, code: 'record_unavailable', message: 'Application not found' },
         { label: 'debrief precondition', op: 'debrief', args: { ...fixtures.values.debrief, application: unreleased.id }, status: 409, code: 'native_conflict', message: 'Feedback is not released yet; a debrief brief reads released scorecards only' },
       ]
-      const hidden = []
+      const hidden = [], refused = []
       for (const item of cases) {
         const tool = item.op === 'propose' ? 'lodge.proposals.prepare' : 'lodge.debriefs.prepare'
         const before = await snapshot(), drafts = await inventory(), priorAudit = await audit()
@@ -126,9 +126,23 @@ export async function checkAgentRefusals({ observe } = {}) {
         assert.ok(attemptsForTool.every(row => row.outcome === 'refused' && row.code === item.code && row.agent.id === c.agentId && row.sponsor.id === operator.id && row.approval === null && row.review === null), 'repeated business failures cannot be audited as a draft or an approval')
         assert.equal(replayAudit.differs_from_policy, 0)
         if (item.label.endsWith('source')) hidden.push({ native: native.value, error: answer.result._meta['com.runeditrun/error'], content: answer.result.content })
+        refused.push({ item, tool, key, error: answer.result._meta['com.runeditrun/error'] })
         receipts.push({ phase, case: item.label, status: native.status, code: native.value.code, audit: row.outcome })
       }
       assert.deepEqual(hidden[0], hidden[1], 'hidden and absent sources disclose identical refusals through both doors')
+      const checkpoint = await snapshot(), drafts = await inventory()
+      await h.restart()
+      assert.deepEqual(await snapshot(), checkpoint, 'restart preserves the refusal end state')
+      for (const { item, tool, key, error } of refused) {
+        const native = await h.send('/api/lodge/command/' + item.op, item.args, cookie)
+        assert.equal(native.status, item.status, item.label + ': native status survives restart')
+        assert.deepEqual(native.value, { error: item.message, code: item.code })
+        const answer = await c.tool(tool, { ...item.args, idempotency_key: key })
+        assert.equal(answer.result?.isError, true, item.label + ': replay after restart remains refused')
+        assert.deepEqual(answer.result._meta['com.runeditrun/error'], error)
+        assert.deepEqual(await snapshot(), checkpoint, item.label + ': restart cannot turn a refusal into a write')
+        assert.deepEqual(await inventory(), drafts)
+      }
       // A refusal grants no authority and leaves no poisoned draft state.
       for (const [op, args, name] of [['propose', proposal, 'lodge.proposals.prepare'], ['debrief', fixtures.values.debrief, 'lodge.debriefs.prepare']]) {
         const before = await snapshot()
@@ -162,6 +176,22 @@ export async function checkAgentRefusals({ observe } = {}) {
     assert.equal(direct.status, 403)
     assert.equal(direct.value.code, undefined)
     assert.deepEqual(await snapshot(), before)
+    // Revoke the already bound credentials; neither door may reuse prior draft
+    // authority or normalize an admission failure into a business refusal.
+    await c.adopt(autonomousPolicy(), { revoked: { agents: [], consents: [c.consent] } })
+    await h.db.prepare('UPDATE oa_sessions SET revoked_at=1 WHERE operator_id=(SELECT id FROM oa_operators WHERE email=?)').bind(bound.email).run()
+    for (const [op, args, tool] of [
+      ['propose', proposal, 'lodge.proposals.prepare'],
+      ['debrief', fixtures.values.debrief, 'lodge.debriefs.prepare'],
+    ]) {
+      const native = await h.send('/api/lodge/command/' + op, args, cookie)
+      assert.equal(native.status, 401)
+      assert.deepEqual(native.value, { error: 'Sign in required' })
+      const answer = await c.tool(tool, { ...args, idempotency_key: randomUUID() })
+      assert.equal(answer.status, 401)
+      assert.equal(answer.result, undefined)
+    }
+    assert.deepEqual(await snapshot(), before, 'revoked credentials cannot resurrect or alter a native draft')
     assert.deepEqual(attempts, [], 'neither refused nor successful draft preparation attempts a provider')
     assert.ok(c.points.every(point => point.ok), JSON.stringify(c.points.filter(point => !point.ok)))
     await observe?.({ h, c, cookie, fixtures, receipts, attempts })
