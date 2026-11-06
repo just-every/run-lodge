@@ -27,5 +27,17 @@
   ],
   "publicationScan": "deferred to maintained Mac lander; not run in cloud",
   "mainPush": false,
-  "pr": null
+  "pr": null,
+  "remoteHead": "f8f09a182d975d83e75a3152e55c9be063c1f157",
+  "verify": {
+    "id": 42153581501,
+    "event": "workflow_dispatch",
+    "conclusion": "success",
+    "head_sha": "f8f09a182d975d83e75a3152e55c9be063c1f157",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42153581501",
+    "status": "completed"
+  },
+  "handoff": "READY",
+  "landed": false,
+  "sourceCloneCleanup": "scheduled after final evidence publication"
 }

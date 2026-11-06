@@ -1,0 +1,29 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f47",
+  "head": "f8f09a182d975d83e75a3152e55c9be063c1f157",
+  "status": "READY",
+  "verifyRunId": 42153581501,
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "f8f09a182d975d83e75a3152e55c9be063c1f157",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42153581501",
+    "status": "completed"
+  },
+  "clause": "BASE-AGENT-011",
+  "before": "partial",
+  "after": "partial",
+  "counts": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "acceptanceQualified": [
+    1
+  ],
+  "githubCalls": 6,
+  "blockers": [],
+  "remaining": "All other original acceptance and all existing Base, provider, account, lifecycle and custody obligations remain open.",
+  "at": "2026-11-06T03:14:01.747768+00:00"
+}

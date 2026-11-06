@@ -78,3 +78,11 @@ Build: npx -y @runeditrun/rer build exited 0 on the candidate. Typecheck, first-
 Verify 42153581501 was created by the single authorized workflow_dispatch after exact-head discovery found no push run for the documentation commit. The first eligible poll reported in_progress on f8f09a182d975d83e75a3152e55c9be063c1f157. No success is inferred from that state. The current-main baseline has successful Verify 42149354226 and Run site 42149354223 on feda54c354a50535a19347ddbdef1339d2680c02; those runs are context only and are never offered as candidate success.
 
 No PR was created: this repository's cloud route is its named branch and the maintained Mac lander. The branch is pushed; this receipt confers no landing or DONE. The complete current CI observations are in candidate-ci.json and the GitHub call ledger, with a minimum of 300 seconds between observations for the run.
+
+## Final exact-head CI observation and handoff
+
+Verify 42153581501, event workflow_dispatch, completed SUCCESS on f8f09a182d975d83e75a3152e55c9be063c1f157. The single watcher made six total GitHub API calls for the entire round, observing the candidate run no more often than once per 300 seconds. No failed-job log call, rerun or duplicate dispatch was needed. candidate-ci-status.json is the actual final REST response.
+
+The named remote product branch was independently read back and matches the candidate exactly. The initial evidence publication was fetched into isolated temporary storage and all 24 file hashes were verified before that temporary storage was removed; evidence-transfer.json records that earlier packet head. The final publication additionally contains the completed CI receipt, remote readback and this terminal report. The publication manifest is the authoritative file list and product provenance.
+
+Product handoff is READY for the independent lander, with no product blocker. This is not a DONE claim for BASE-AGENT-011. Full-history publication scanning and the eventual merged main Run site remain independent lander duties. No cloud scan, main equality or candidate Run site success is asserted. No PR or default-branch push occurred. After final evidence publication, delete this task's clone and node_modules as requested; the complete packet remains outside the clone.
