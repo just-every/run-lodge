@@ -66,5 +66,12 @@
     "partial": 44,
     "missing": 31,
     "total": 145
+  },
+  "verify": {
+    "id": 42221682842,
+    "event": "push",
+    "head": "effd7cf46a52a43b89b7ed60a35b52d73e8e1eea",
+    "status": "completed",
+    "conclusion": "success"
   }
 }
