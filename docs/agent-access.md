@@ -128,7 +128,16 @@ The existing proposal and debrief screens are inspected at 1440 and 390; no
 production screen or permanent test is changed. The complete one-off driver,
 actual response bytes, failure observations, comparisons and screenshots are
 in the [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f56/files).
-This independently confirms the predecessor's bounded proof. It does not
+The sx-lodge-c-f58 [independent repeat](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f58/files)
+qualifies the same four cases on current main. Each caller observes an incomplete
+HTTP body and a content-length failure after the driver has captured the complete
+upstream bytes and checked the durable outcome. The same-D1 restart and new-id
+retry preserve the original structured result, native draft content and review
+handle, every native record value and revision, and both draft counts. The
+existing proposal and debrief end states are inspected at 1440 and 390. No
+permanent test or production code is added.
+
+These independent repeats confirm the predecessor's bounded proof. They do not
 qualify an interruption between native mutation and durable outcome, 24-hour
 retention, provider uncertainty, queued continuation, retained client-data
 custody or erasure, wider revision conflicts, long work or cross-person job
