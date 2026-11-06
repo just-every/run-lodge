@@ -1,0 +1,15 @@
+{
+  "head": "158f137efd55796a2b4f51cf98d3b090b16bead6",
+  "command": "LODGE_TEST_AREA=candidates pnpm run test:lodge",
+  "node": "22.20.0",
+  "nodeTestExit": 0,
+  "nodeTestSummary": {
+    "tests": 65,
+    "pass": 65,
+    "fail": 0,
+    "skipped": 0
+  },
+  "outerToolSessionExit": 1,
+  "note": "The diagnostic Node shard reported exit zero and 65 passing tests; the surrounding tool session reported exit one. This is not claimed as a clean wrapper result. Exact-head CI is the required full-workflow gate.",
+  "runtimeAndTestDiffFromMain": []
+}

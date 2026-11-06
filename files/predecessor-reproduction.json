@@ -1,0 +1,18 @@
+{
+  "failedHead": "6286c622743c86ec76a94f790dc6eed3dfc5f132",
+  "run": 42165835994,
+  "job": 127722059524,
+  "failedTest": "DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration",
+  "failure": "typed identity and restricted fields stay out of blind reads",
+  "location": "tests/fields-driver.mjs:102",
+  "reproduction": {
+    "command": "LODGE_TEST_AREA=candidates pnpm run test:lodge",
+    "node": "22.20.0",
+    "exit": 0,
+    "tests": 65,
+    "pass": 65,
+    "fail": 0
+  },
+  "repair": "none; failing assertion did not reproduce",
+  "failedLogExcerpt": "lodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6950124Z not ok 15 - DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6950913Z   ---\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6951135Z   duration_ms: 2026.539456\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6951755Z   type: 'test'\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6952230Z   location: '/home/runner/work/run-lodge/run-lodge/tests/hiring-candidates.test.mjs:1288:1'\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6952761Z   failureType: 'testCodeFailure'\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6953177Z   error: 'typed identity and restricted fields stay out of blind reads'\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6953566Z   code: 'ERR_ASSERTION'\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6953800Z   name: 'AssertionError'\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6954032Z   expected: true\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6954236Z   actual: false\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6954449Z   operator: '=='\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6954653Z   stack: |-\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6955092Z     checkFields (file:///home/runner/work/run-lodge/run-lodge/tests/fields-driver.mjs:102:10)\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6955753Z     process.processTicksAndRejections (node:internal/process/task_queues:105:5)\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6957177Z     async TestContext.<anonymous> (file:///home/runner/work/run-lodge/run-lodge/tests/hiring-candidates.test.mjs:1290:3)\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6957844Z     async Test.run (node:internal/test_runner/test:1054:7)\nlodge (candidates)\tRun pnpm run test:lodge\t2026-11-06T05:04:20.6958426Z     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)\n"
+}

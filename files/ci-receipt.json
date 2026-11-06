@@ -1,0 +1,24 @@
+{
+  "head": "158f137efd55796a2b4f51cf98d3b090b16bead6",
+  "branch": "cloud/sx-lodge-c-f51",
+  "workflow": "Verify",
+  "discovery": "No run existed after the docs-only skip-ci push",
+  "dispatch": "one workflow_dispatch requested",
+  "requestedAt": "2026-11-06T05:58:01.597608+00:00",
+  "githubCallsUsed": 8,
+  "runs": [
+    {
+      "id": 42171498590,
+      "name": "Verify",
+      "event": "workflow_dispatch",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "158f137efd55796a2b4f51cf98d3b090b16bead6",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42171498590"
+    }
+  ],
+  "lastObservedAt": "2026-11-06T06:08:39.594325+00:00",
+  "handoff": "PUSHED",
+  "noGreenClaim": true,
+  "reason": "Verify still running with eight of the ten GitHub calls used"
+}

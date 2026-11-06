@@ -1,0 +1,322 @@
+{
+  "schema": 1,
+  "head": "158f137efd55796a2b4f51cf98d3b090b16bead6",
+  "clause": "BASE-AGENT-009",
+  "scope": "acceptance 3 and existing human Mark reviewed",
+  "clock": "2026-11-04T12:00:00.000Z",
+  "phases": [
+    {
+      "phase": "autonomous",
+      "at": "2026-11-01T23:59:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "autonomous",
+          "id": "ef25aa4e-f7a6-4536-8b55-e3cfd2ad2034"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "autonomous",
+          "id": "b8066890-cd29-4eb6-a7b5-9437ac7be245"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "autonomous",
+          "id": "54b40307-4bd2-4f36-b55b-b54024c6af43"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "autonomous",
+          "id": "fabde75d-7b97-4f20-b9ba-30ca783d3014"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "autonomous",
+          "id": "2b5c641a-6c57-4902-9033-61f24c90cb10"
+        }
+      ]
+    },
+    {
+      "phase": "held",
+      "at": "2026-11-01T23:59:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "review",
+          "id": "e9e01436-e7ff-41ba-9de5-967475847ae6"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "review",
+          "id": "424f1969-9c72-449e-be17-3a4dca31fb18"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "review",
+          "id": "8ecb89c6-3938-41d6-aec7-0072f523e0a8"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "review",
+          "id": "854e958b-096a-457a-9668-4d94b1105cd8"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "review",
+          "id": "60556ffc-56d1-4055-9693-eeb99e362be6"
+        }
+      ]
+    },
+    {
+      "phase": "autonomous",
+      "at": "2026-11-04T12:04:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "autonomous",
+          "id": "fd4da08e-2c95-451a-9f9d-5826c75442d0"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "autonomous",
+          "id": "b2c94dd3-0ec4-4c7e-b3d2-1f4ecfddb352"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "autonomous",
+          "id": "9aaa44b4-bf4c-435c-bc05-00b5b640a12d"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "autonomous",
+          "id": "6b58a350-6f6e-4295-8bea-2c526a735ac3"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "autonomous",
+          "id": "ad10c5d3-539b-462b-b1bc-02e2c20d4a44"
+        }
+      ]
+    },
+    {
+      "phase": "held",
+      "at": "2026-11-04T12:04:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "review",
+          "id": "10817d5f-f774-4515-8634-687443e4e573"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "review",
+          "id": "bd8ac170-6601-447e-adb6-031bc3a3e8bc"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "review",
+          "id": "6322023c-cb70-408f-95cc-ccaa44c615a6"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "review",
+          "id": "a4b95013-3de4-4ddb-a2b1-f25a0bdd70dd"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "review",
+          "id": "837468d7-4224-4a50-993f-df8f6e2332cc"
+        }
+      ]
+    },
+    {
+      "phase": "autonomous",
+      "at": "2026-11-04T13:00:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "autonomous",
+          "id": "c2905536-9069-4b93-b153-5f92e0e89977"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "autonomous",
+          "id": "f83b4d51-56a5-41a0-875a-639dadecec0f"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "autonomous",
+          "id": "c77a3951-fa75-45dd-99b0-4a14e64cede5"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "autonomous",
+          "id": "5b296243-f97a-44b6-bb03-82aba7270374"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "autonomous",
+          "id": "bd8bbfc7-e33d-49f2-9066-3187c8039e78"
+        }
+      ]
+    },
+    {
+      "phase": "held",
+      "at": "2026-11-04T13:00:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "review",
+          "id": "92df615f-fd63-422e-ba5e-1d256f038326"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "review",
+          "id": "0adf7100-98b2-4a09-9478-f8df85270ec5"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "review",
+          "id": "04e3471e-2ca5-41ef-9d35-528e681dd794"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "review",
+          "id": "511d95a5-07f3-4d8d-978b-0f0e16f0b739"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "review",
+          "id": "6e02fe53-98f9-450f-888e-7fb77e8e42d1"
+        }
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "width": 1440,
+      "counts": {
+        "standard:autonomous": 205,
+        "standard:review": 5,
+        "standard:blocked": 1
+      },
+      "openBefore": [
+        "26e158a8-4bf9-4b04-9af9-f730840e9585",
+        "2f26232b-4d59-44e5-ae57-72942e763ccd",
+        "32090a66-a5ad-4856-a0a5-c4c06da94708",
+        "44fa8416-3fff-44a4-b11f-3d3411910aba",
+        "5ee7b803-5fb7-4e3e-9940-ccdbb9b826e6",
+        "6698153d-0f29-4500-91f2-93f913c10267",
+        "79bdbe8a-4c02-4da1-88fa-21f8144497de",
+        "8c8454b5-beca-4bc6-a067-516be5ed7210",
+        "b4ab5dec-6c93-40ee-9897-46d35bd2d8f5",
+        "ba642def-e511-4e76-8221-74d92afea7cf",
+        "d064b7bc-7220-44c6-85b8-5aad86b11f21",
+        "e3fb112d-de94-4040-8043-64c1a569e340",
+        "e967b02b-57b3-42f2-9db5-6b3d9e1c5c9a",
+        "f0e7761e-e394-4c05-805e-f462085cf230",
+        "f4323458-f65a-42d8-9224-769a5a5cb836"
+      ],
+      "openAfter": [
+        "26e158a8-4bf9-4b04-9af9-f730840e9585",
+        "2f26232b-4d59-44e5-ae57-72942e763ccd",
+        "32090a66-a5ad-4856-a0a5-c4c06da94708",
+        "44fa8416-3fff-44a4-b11f-3d3411910aba",
+        "5ee7b803-5fb7-4e3e-9940-ccdbb9b826e6",
+        "6698153d-0f29-4500-91f2-93f913c10267",
+        "79bdbe8a-4c02-4da1-88fa-21f8144497de",
+        "8c8454b5-beca-4bc6-a067-516be5ed7210",
+        "b4ab5dec-6c93-40ee-9897-46d35bd2d8f5",
+        "ba642def-e511-4e76-8221-74d92afea7cf",
+        "d064b7bc-7220-44c6-85b8-5aad86b11f21",
+        "e3fb112d-de94-4040-8043-64c1a569e340",
+        "e967b02b-57b3-42f2-9db5-6b3d9e1c5c9a",
+        "f4323458-f65a-42d8-9224-769a5a5cb836"
+      ],
+      "marked": {
+        "id": "f0e7761e-e394-4c05-805e-f462085cf230",
+        "person": "46a20bb1-5b17-4c75-aff9-23b5337a172f",
+        "at": "2026-11-04T12:05:00.000Z"
+      },
+      "audit": "6e02fe53-98f9-450f-888e-7fb77e8e42d1"
+    },
+    {
+      "width": 390,
+      "counts": {
+        "standard:autonomous": 205,
+        "standard:review": 5,
+        "standard:blocked": 1
+      },
+      "openBefore": [
+        "26e158a8-4bf9-4b04-9af9-f730840e9585",
+        "2f26232b-4d59-44e5-ae57-72942e763ccd",
+        "32090a66-a5ad-4856-a0a5-c4c06da94708",
+        "44fa8416-3fff-44a4-b11f-3d3411910aba",
+        "5ee7b803-5fb7-4e3e-9940-ccdbb9b826e6",
+        "6698153d-0f29-4500-91f2-93f913c10267",
+        "79bdbe8a-4c02-4da1-88fa-21f8144497de",
+        "8c8454b5-beca-4bc6-a067-516be5ed7210",
+        "b4ab5dec-6c93-40ee-9897-46d35bd2d8f5",
+        "ba642def-e511-4e76-8221-74d92afea7cf",
+        "d064b7bc-7220-44c6-85b8-5aad86b11f21",
+        "e3fb112d-de94-4040-8043-64c1a569e340",
+        "e967b02b-57b3-42f2-9db5-6b3d9e1c5c9a",
+        "f4323458-f65a-42d8-9224-769a5a5cb836"
+      ],
+      "openAfter": [
+        "26e158a8-4bf9-4b04-9af9-f730840e9585",
+        "2f26232b-4d59-44e5-ae57-72942e763ccd",
+        "32090a66-a5ad-4856-a0a5-c4c06da94708",
+        "44fa8416-3fff-44a4-b11f-3d3411910aba",
+        "5ee7b803-5fb7-4e3e-9940-ccdbb9b826e6",
+        "6698153d-0f29-4500-91f2-93f913c10267",
+        "79bdbe8a-4c02-4da1-88fa-21f8144497de",
+        "8c8454b5-beca-4bc6-a067-516be5ed7210",
+        "b4ab5dec-6c93-40ee-9897-46d35bd2d8f5",
+        "ba642def-e511-4e76-8221-74d92afea7cf",
+        "d064b7bc-7220-44c6-85b8-5aad86b11f21",
+        "e967b02b-57b3-42f2-9db5-6b3d9e1c5c9a",
+        "f4323458-f65a-42d8-9224-769a5a5cb836"
+      ],
+      "marked": {
+        "id": "e3fb112d-de94-4040-8043-64c1a569e340",
+        "person": "46a20bb1-5b17-4c75-aff9-23b5337a172f",
+        "at": "2026-11-04T12:05:00.000Z"
+      },
+      "audit": "511d95a5-07f3-4d8d-978b-0f0e16f0b739"
+    }
+  ],
+  "assertions": [
+    "all five tools under both policies",
+    "unsent preparations only",
+    "independent pagination and weekly totals",
+    "past and future exclusions",
+    "exact open and flagged handles",
+    "signed-in human mark and time",
+    "retained audit identity and human readback",
+    "unchanged hiring records and draft contents",
+    "signed-out and agent marks refused"
+  ],
+  "status": "passed",
+  "audit": {
+    "rows": 232,
+    "pages": 3,
+    "inPeriod": 212,
+    "beforePeriod": 10,
+    "afterAsOf": 10,
+    "since": "2026-11-02T00:00:00.000Z",
+    "asOf": "2026-11-04T12:05:00.000Z",
+    "counts": {
+      "standard:autonomous": 205,
+      "standard:review": 5,
+      "standard:blocked": 1
+    },
+    "differs": 0
+  },
+  "refusals": {
+    "signedOut": 401,
+    "agent": 403,
+    "unchangedReviewState": true
+  },
+  "nativeStateSha256": "ecb705a8de04e5cb96795ced12a2a8ff45becdcbe85fe45f5c7e990b2a5334b8"
+}

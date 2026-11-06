@@ -1,0 +1,13 @@
+{
+  "branch": "cloud/sx-lodge-c-f51",
+  "head": "158f137efd55796a2b4f51cf98d3b090b16bead6",
+  "remoteRef": "158f137efd55796a2b4f51cf98d3b090b16bead6\trefs/heads/cloud/sx-lodge-c-f51",
+  "push": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-lodge-c-f51",
+    "exit": 0,
+    "attempts": 1
+  },
+  "candidateIdentityLog": "158f137efd55796a2b4f51cf98d3b090b16bead6\nRun Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\n",
+  "forcePush": false,
+  "mainPushed": false
+}

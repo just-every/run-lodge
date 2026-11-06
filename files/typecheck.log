@@ -1,0 +1,4 @@
+
+> @hiring/lodge@0.1.1 typecheck /home/agent/rer-consolidation/work/sx-lodge-c-f51/run-lodge
+> tsc --build --incremental
+

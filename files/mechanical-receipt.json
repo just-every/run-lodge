@@ -1,0 +1,101 @@
+{
+  "head": "158f137efd55796a2b4f51cf98d3b090b16bead6",
+  "before": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "after": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "status": "PARTIAL to PARTIAL",
+  "commands": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email [fleet owner] --non-interactive",
+      "exit": 0,
+      "note": "Executed through cloud_run; private local settings excluded from evidence"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "node": "22.20.0"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-009",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-009",
+      "exit": 0
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "timeout 1200 node [packet]/qualification.mjs",
+      "exit": 0,
+      "head": "158f137efd55796a2b4f51cf98d3b090b16bead6"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "head": "158f137efd55796a2b4f51cf98d3b090b16bead6",
+      "note": "Executed through cloud_run; ignored build output excluded from packet"
+    }
+  ],
+  "ledger": {
+    "command": "none",
+    "exit": 0,
+    "reason": "No migration added or edited"
+  },
+  "statusRows": {
+    "parent": 145,
+    "candidate": 145,
+    "retained": true,
+    "textRowsParent": 169,
+    "textRowsCandidate": 169
+  },
+  "changedFiles": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "runtimeAndTestDiffFromMain": [],
+  "newPermanentTests": 0,
+  "assertionsRemovedOrNarrowed": false,
+  "generatedViewsCommitted": false,
+  "introducedEmailShapedText": false,
+  "driverCorrection": "First exact-head run compared D1 timing metadata as well as rows; final driver compares all native kind, id, revision and value results, excluding query timing only. Actual failed receipt retained separately.",
+  "main": {
+    "head": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+    "verify": [
+      42161005574,
+      42157452030
+    ],
+    "runSite": 42161005701,
+    "conclusion": "success"
+  },
+  "publicationScan": {
+    "status": "not run in cloud",
+    "owner": "Mac guarded lander",
+    "newFindings": "not claimed"
+  }
+}

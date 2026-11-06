@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "head": "158f137efd55796a2b4f51cf98d3b090b16bead6",
+  "clause": "BASE-AGENT-009",
+  "scope": "acceptance 3 and existing human Mark reviewed",
+  "clock": "2026-11-04T12:00:00.000Z",
+  "phases": [
+    {
+      "phase": "autonomous",
+      "at": "2026-11-01T23:59:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "autonomous",
+          "id": "743c6429-7389-47ab-a33c-c6cbab4c68e7"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "autonomous",
+          "id": "92262b1f-4200-4af1-8a8d-4b201e48eaa6"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "autonomous",
+          "id": "3574df75-bb1b-47ae-be57-03bc783c69a4"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "autonomous",
+          "id": "5e3c0f06-7f56-474f-aa71-e1b2531436ce"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "autonomous",
+          "id": "9150dedd-8b50-4a6f-9118-23f6fe334867"
+        }
+      ]
+    },
+    {
+      "phase": "held",
+      "at": "2026-11-01T23:59:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "review",
+          "id": "9ff1435d-efbe-4bb8-a19f-9b9a0d2365fc"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "review",
+          "id": "ac18cfcd-7def-4ba6-83f3-7c77cc4c5c16"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "review",
+          "id": "8c5a761e-b988-4e52-9d09-a6fb8179fa5b"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "review",
+          "id": "bc26e6db-ffc5-43a7-b64b-eb8695334022"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "review",
+          "id": "3e2c4f52-c0ff-4cc3-a178-78cac78bc476"
+        }
+      ]
+    },
+    {
+      "phase": "autonomous",
+      "at": "2026-11-04T12:04:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "autonomous",
+          "id": "3838e6a9-f2ac-425b-9307-2e07c7fe46a4"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "autonomous",
+          "id": "e1b23a08-e369-4236-877b-6d630979f596"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "autonomous",
+          "id": "d439c69a-2a52-4752-bda0-748dbabd02d6"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "autonomous",
+          "id": "8bdb6279-4b2e-4f95-8728-abaf846acf24"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "autonomous",
+          "id": "492d0f7f-26cb-4e44-84c0-6bb6539b5d6c"
+        }
+      ]
+    },
+    {
+      "phase": "held",
+      "at": "2026-11-04T12:04:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "review",
+          "id": "464a0017-9789-49f8-8b49-7c357f18ece6"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "review",
+          "id": "b18c6503-00ab-4900-8459-f7cd59be5a80"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "review",
+          "id": "1d26a96b-268a-4428-9c8e-f6b6392fc614"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "review",
+          "id": "67ec9642-a0b6-4d1a-b32c-f87e8933084f"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "review",
+          "id": "5f2f134d-32c8-4b90-a959-081905f3638f"
+        }
+      ]
+    },
+    {
+      "phase": "autonomous",
+      "at": "2026-11-04T13:00:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "autonomous",
+          "id": "3ce2580d-0164-4eaa-a383-ef308ab8f566"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "autonomous",
+          "id": "c76aa028-faa2-4d85-9539-a36e7fa0a5b2"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "autonomous",
+          "id": "007b86a3-d80f-4e78-87be-6e523b831651"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "autonomous",
+          "id": "83552755-13bc-4153-8b17-6e49c40c11c2"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "autonomous",
+          "id": "8c7031b2-d967-45c0-a602-a510b76dc839"
+        }
+      ]
+    },
+    {
+      "phase": "held",
+      "at": "2026-11-04T13:00:00.000Z",
+      "calls": [
+        {
+          "tool": "lodge.jobs.list",
+          "decision": "review",
+          "id": "33d85d57-cd07-4ca9-b267-469fbc2ba618"
+        },
+        {
+          "tool": "lodge.records.read",
+          "decision": "review",
+          "id": "5e91aaee-a764-4041-a470-e178610470cf"
+        },
+        {
+          "tool": "lodge.proposals.list",
+          "decision": "review",
+          "id": "600fd0db-b2ed-41e8-803b-2631ef9cffd5"
+        },
+        {
+          "tool": "lodge.proposals.prepare",
+          "decision": "review",
+          "id": "34b5881d-d7c9-4a61-ad64-b059a97ed4a4"
+        },
+        {
+          "tool": "lodge.debriefs.prepare",
+          "decision": "review",
+          "id": "35b599d7-2b20-4577-ae69-5531472e7bab"
+        }
+      ]
+    }
+  ],
+  "screens": [],
+  "assertions": [],
+  "status": "failed",
+  "failure": "Human review changes no hiring record, unsent preparation or draft bytes\n+ actual - expected\n\n  {\n    meta: {\n      changed_db: false,\n      changes: 0,\n+     duration: 1,\n-     duration: 0,\n      last_row_id: 14,\n      rows_read: 43,\n      rows_written: 0,\n      served_by: 'miniflare.db',\n      size_after: 1601536\n"
+}
