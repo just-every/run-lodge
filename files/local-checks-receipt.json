@@ -38,5 +38,17 @@
     "Setup and build execute through cloud_run; actual retained build was rebuilt on the candidate.",
     "The source flow used repository Node 22.20.0. pnpm typecheck used the available Node 24.19.0; the TypeScript pin is unchanged.",
     "Only CONTRACT.md and sources.lock.json changed after the initial native flow and typecheck. No relevant runtime, fixture or assertion byte changed."
-  ]
+  ],
+  "sourceContinuity": {
+    "baselineHead": "6dde78ef4ffe52cfc66fb5c9751b1f6b7bf873b3",
+    "candidateHead": "0809694061df40ee04685fed143c6dd3564a6d81",
+    "changedTrackedFiles": [
+      "ACCEPTANCE.md",
+      "CONTRACT.md",
+      "docs/CLAIMS.md",
+      "sources.lock.json"
+    ],
+    "runtimeUiTestsAndDependenciesDiffer": false,
+    "observedAt": "2026-11-06T08:01:06.286987+00:00"
+  }
 }

@@ -34,19 +34,21 @@
     "reason": "guarded Mac lander owns the complete publication scan"
   },
   "ci": {
-    "conclusion": null,
+    "conclusion": "success",
     "event": "workflow_dispatch",
     "head_sha": "0809694061df40ee04685fed143c6dd3564a6d81",
     "html_url": "https://github.com/just-every/run-lodge/actions/runs/42183233313",
     "id": 42183233313,
     "name": "Verify",
-    "status": "in_progress",
-    "observedAt": "2026-11-06T07:58:13.354805+00:00"
+    "status": "completed",
+    "observedAt": "2026-11-06T08:03:26.304427+00:00"
   },
   "at": "2026-11-06T07:51:52.217677+00:00",
   "remoteProductRef": {
     "ref": "refs/heads/cloud/sx-lodge-c-f54",
     "head": "0809694061df40ee04685fed143c6dd3564a6d81",
     "verifiedAt": "2026-11-06T07:53:46.870421+00:00"
-  }
+  },
+  "handoff": "READY; guarded Mac lander owns publication scan, generated views, landing and Run site",
+  "blockersToScopedHandoff": []
 }
