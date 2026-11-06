@@ -47,13 +47,13 @@
     "runSiteConclusion": "success"
   },
   "candidateVerify": {
-    "conclusion": null,
+    "conclusion": "success",
     "event": "workflow_dispatch",
     "head_sha": "db5923d14eaf67f2f079956979d03269903717ff",
     "html_url": "https://github.com/just-every/run-lodge/actions/runs/42201626242",
     "id": 42201626242,
     "name": "Verify",
-    "status": "in_progress"
+    "status": "completed"
   },
   "publicationScan": {
     "status": "NOT_RUN_CLOUD",
@@ -76,5 +76,7 @@
       "missing": 31,
       "total": 145
     }
-  }
+  },
+  "githubCalls": 6,
+  "browserInspectedAllSix": true
 }

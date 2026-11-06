@@ -69,3 +69,7 @@ CI and custody results are recorded in gates-receipt.json and ci-result.json whe
 Publication evidence is transported only to the declared repository on refs/heads/evidence/sx-lodge-c-f58 with explicit file selection. Product custody and report custody are separate; this packet makes no landing or publication-scan claim.
 
 Exact-head Verify 42201626242, event workflow_dispatch, was in progress at 2026-11-06T10:23:19Z on db5923d14eaf67f2f079956979d03269903717ff. No other workflow was dispatched. Later exact-head status is retained in ci-result.json.
+
+Local toolchain: Node v24.19.0, pnpm 10.12.4, existing rer 0.2.91; the provided cloud toolchain retains a newer installed Node. CI selects the repository pin Node 22.20.0. The typecheck reports the non-fatal engine warning; no dependency pin changed.
+
+Final branch Verify: run 42201626242, event workflow_dispatch, COMPLETED SUCCESS on db5923d14eaf67f2f079956979d03269903717ff, observed 2026-11-06T10:28:31Z. URL: https://github.com/just-every/run-lodge/actions/runs/42201626242 . Six task-owned GitHub API calls were used. No failed job, rerun or repair occurred. The final exact-head browser captures were all inspected. No blocker applies to landing this bounded partial-evidence update. Full-clause holds and the Mac publication scan, generated-view regeneration, main equality and Run site remain unchanged.
