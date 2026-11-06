@@ -22,5 +22,11 @@
     "done": 70,
     "partial": 44,
     "missing": 31
-  }
+  },
+  "verifyRunId": 42203530892,
+  "verifyEvent": "workflow_dispatch",
+  "verifyConclusion": "success",
+  "productWorktree": "clean",
+  "handoff": "READY",
+  "sourceLockSha256": "a03ecc34fab283a16b0c41856cf8a8dc9fdd5b3a7b77e9c7b5d50a5ec98b34f9"
 }

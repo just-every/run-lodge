@@ -2,19 +2,79 @@
   "head": "0982834f66d9b018af720e12992908160a887e47",
   "runs": [
     {
-      "conclusion": null,
-      "event": "workflow_dispatch",
-      "head_sha": "0982834f66d9b018af720e12992908160a887e47",
-      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42203530892",
       "id": 42203530892,
       "name": "Verify",
-      "status": "in_progress"
+      "event": "workflow_dispatch",
+      "conclusion": "success",
+      "head_sha": "0982834f66d9b018af720e12992908160a887e47",
+      "html_url": "https://github.com/just-every/run-lodge/actions/runs/42203530892",
+      "status": "completed"
     }
   ],
-  "githubCallsUsed": 3,
+  "githubCallsUsed": 5,
   "dispatchCount": 1,
   "reruns": 0,
-  "status": "in_progress",
+  "status": "completed",
   "publicationScan": "Mac lander gate; not run in cloud",
-  "runSite": "main-only lander gate; not run in cloud"
+  "runSite": "main-only lander gate; not run in cloud",
+  "calls": [
+    {
+      "at": 1793961140.6637228,
+      "call": 1,
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs?head_sha=0982834f66d9b018af720e12992908160a887e47&per_page=100",
+        "--jq",
+        ".workflow_runs | map({id,name,event,status,conclusion,head_sha,html_url})"
+      ],
+      "exit": 0
+    },
+    {
+      "at": 1793961188.5859153,
+      "call": 2,
+      "args": [
+        "api",
+        "--method",
+        "POST",
+        "repos/just-every/run-lodge/actions/workflows/verify.yml/dispatches",
+        "-f",
+        "ref=cloud/sx-lodge-c-f59"
+      ],
+      "exit": 0
+    },
+    {
+      "at": 1793961479.4138463,
+      "call": 3,
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs?head_sha=0982834f66d9b018af720e12992908160a887e47&per_page=100",
+        "--jq",
+        ".workflow_runs | map({id,name,event,status,conclusion,head_sha,html_url})"
+      ],
+      "exit": 0
+    },
+    {
+      "at": 1793961782.1801143,
+      "call": 4,
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs/42203530892",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    },
+    {
+      "at": 1793962083.7078445,
+      "call": 5,
+      "args": [
+        "api",
+        "repos/just-every/run-lodge/actions/runs/42203530892",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0
+    }
+  ],
+  "conclusion": "success"
 }
