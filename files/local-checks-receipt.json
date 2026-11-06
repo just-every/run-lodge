@@ -1,0 +1,42 @@
+{
+  "head": "0809694061df40ee04685fed143c6dd3564a6d81",
+  "commands": [
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "output": "typecheck.log"
+    },
+    {
+      "name": "existing native flow",
+      "command": "node -e \"import('./tests/agent-prompts-flow.mjs').then(m => m.checkAgentPrompts())\"",
+      "exit": 0,
+      "output": "existing-flow.log"
+    },
+    {
+      "name": "first party",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "output": "first-party-check.log"
+    },
+    {
+      "name": "production build",
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "output": "build.log"
+    },
+    {
+      "name": "exact head transport and browser qualification",
+      "command": "timeout --kill-after=5 1200 node replay-driver.mjs <checkout>",
+      "exit": 0,
+      "output": "replay-run.log",
+      "receipt": "replay-receipt.json",
+      "head": "0809694061df40ee04685fed143c6dd3564a6d81"
+    }
+  ],
+  "notes": [
+    "Setup and build execute through cloud_run; actual retained build was rebuilt on the candidate.",
+    "The source flow used repository Node 22.20.0. pnpm typecheck used the available Node 24.19.0; the TypeScript pin is unchanged.",
+    "Only CONTRACT.md and sources.lock.json changed after the initial native flow and typecheck. No relevant runtime, fixture or assertion byte changed."
+  ]
+}

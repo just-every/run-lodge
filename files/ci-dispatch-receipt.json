@@ -1,0 +1,9 @@
+{
+  "at": "2026-11-06T07:47:54.610084+00:00",
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f54",
+  "head": "0809694061df40ee04685fed143c6dd3564a6d81",
+  "reason": "Documentation-only candidate carries required skip annotation; exact-SHA discovery returned no run. Started exactly one allowed workflow dispatch.",
+  "command": "gh api -X POST repos/just-every/run-lodge/actions/workflows/verify.yml/dispatches -f ref=cloud/sx-lodge-c-f54",
+  "exit": 0
+}

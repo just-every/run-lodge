@@ -1,0 +1,41 @@
+{
+  "head": "0809694061df40ee04685fed143c6dd3564a6d81",
+  "at": "2026-11-06T07:47:54.990037+00:00",
+  "commands": [
+    {
+      "name": "views-write",
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-012",
+      "exit": 0,
+      "output": "views-write.log"
+    },
+    {
+      "name": "views-check",
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-012",
+      "exit": 0,
+      "output": "views-check.log"
+    },
+    {
+      "name": "restore-generated-views",
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "output": "restore-generated-views.log"
+    },
+    {
+      "name": "lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "output": "lock.log"
+    },
+    {
+      "name": "lock-check",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "output": "lock-check.log"
+    }
+  ],
+  "ledger": {
+    "command": "none",
+    "exit": 0,
+    "reason": "no migrations changed"
+  }
+}

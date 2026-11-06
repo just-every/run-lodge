@@ -1,0 +1,52 @@
+{
+  "tag": "sx-lodge-c-f54",
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f54",
+  "head": "0809694061df40ee04685fed143c6dd3564a6d81",
+  "parent": "344311f699b83893012ce6bb5417539ada46ed19",
+  "changedFiles": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ],
+  "productPush": "succeeded on first guarded attempt",
+  "clause": {
+    "id": "BASE-AGENT-012",
+    "before": "partial",
+    "after": "partial",
+    "qualified": "acceptance 2 for both existing draft tools under autonomous and review policies"
+  },
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "permanentTestsAdded": 0,
+  "runtimeChanges": false,
+  "publicationScan": {
+    "status": "not run in cloud",
+    "reason": "guarded Mac lander owns the complete publication scan"
+  },
+  "ci": {
+    "conclusion": null,
+    "event": "workflow_dispatch",
+    "head_sha": "0809694061df40ee04685fed143c6dd3564a6d81",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42183233313",
+    "id": 42183233313,
+    "name": "Verify",
+    "status": "in_progress",
+    "observedAt": "2026-11-06T07:58:13.354805+00:00"
+  },
+  "at": "2026-11-06T07:51:52.217677+00:00",
+  "remoteProductRef": {
+    "ref": "refs/heads/cloud/sx-lodge-c-f54",
+    "head": "0809694061df40ee04685fed143c6dd3564a6d81",
+    "verifiedAt": "2026-11-06T07:53:46.870421+00:00"
+  }
+}

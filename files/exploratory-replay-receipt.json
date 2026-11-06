@@ -1,0 +1,1974 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f54",
+  "clause": "BASE-AGENT-012",
+  "acceptance": 2,
+  "head": "6dde78ef4ffe52cfc66fb5c9751b1f6b7bf873b3",
+  "startedAt": "2026-11-06T07:43:21.777Z",
+  "sourceDigests": {
+    "src/lodge/agent-door/tools.ts": "ee3dcf0128925ad2bae44c4a41eaec0986d23d3736d864d07c64cdd0586e73c6",
+    "src/modules/agent-door/pipeline.ts": "c1a1072f3f1fec84f33c365719c61fa4cdfdba384155385f6ad300da964e8eed",
+    "src/modules/agent-door/execution.ts": "472e879863060e8d832bd926955f7b5d068c3b723f96fecd723d48e5d4a9d2d2",
+    "src/modules/agent-door/conformance/protocol.mjs": "a29c9bba2ec7d35cb46cc146ab3ea8997076a2ce0a290b4e93080b86d367bc37",
+    "tests/harness.mjs": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
+    "tests/initialize-agent.mjs": "8a8b79c94adb1024c4e838259cac1802ea955fbb7c8612b070dceef59367f065",
+    "tests/agent-phase-fixtures.mjs": "3000e4c0d5af78cc3f0b749370f5f93c321281e22f1b4bc5745c01480477f63e",
+    "src/ui/proposals.tsx": "d800cf11a2999450311121955b133c5f2a832a731d694856481d6bf3b7f188f5",
+    "src/ui/debriefs.tsx": "819e778fc76835fc8722fa9f0fda9105ba4f2f4717d933de74484f2ed7e6b080",
+    "dist/server/index.js": "bd679fe41b2ebdbc9656aebac2c8ce983f94f279e54892618ccf3dc8b8e6e897"
+  },
+  "cases": [
+    {
+      "phase": "autonomous",
+      "tool": "lodge.proposals.prepare",
+      "mode": "truncate",
+      "status": "pass",
+      "failure": {
+        "name": "TypeError",
+        "message": "terminated",
+        "cause": "UND_ERR_RES_CONTENT_LENGTH_MISMATCH"
+      },
+      "request": {
+        "originalId": 2,
+        "retryId": 3,
+        "arguments": {
+          "workflow": "prepare-vacancy",
+          "summary": "Synthetic lodge 54 autonomous recovery draft",
+          "intake": "Prepare a synthetic estimator vacancy.",
+          "approver": "[synthetic-address]",
+          "idempotency_key": "d6b6016b-60d7-4ddb-8d3d-be54d93af6c8",
+          "changes": [
+            {
+              "op": "vacancy",
+              "input": {
+                "title": "Synthetic lodge 54 autonomous",
+                "location": "Brooklyn, NY",
+                "headcount": 1,
+                "manager": "[synthetic-address]",
+                "description": "Prepare estimates from drawings."
+              }
+            }
+          ]
+        },
+        "admission": {
+          "iss": "https://synthetic-lodge-54.invalid",
+          "aud": "http://127.0.0.1:38833/mcp",
+          "sub": "e388a354-5a26-466b-bf9c-eccad84dc7ae",
+          "email": "[synthetic-address]",
+          "act": {
+            "sub": "1141eb5b-1bae-495b-9a9a-33ea381a398a",
+            "name": "Agent door conformance",
+            "specialist": "Recruiting coordinator"
+          },
+          "client_id": "rer-agent-conformance",
+          "scope": "lodge:read lodge:prepare events:read",
+          "business": "synthetic-lodge-54",
+          "consent": "e88670d1-3dfb-4f8d-a277-cfd43a369b72"
+        }
+      },
+      "transport": {
+        "mode": "truncate",
+        "requestId": 2,
+        "arguments": {
+          "workflow": "prepare-vacancy",
+          "summary": "Synthetic lodge 54 autonomous recovery draft",
+          "intake": "Prepare a synthetic estimator vacancy.",
+          "approver": "[synthetic-address]",
+          "idempotency_key": "d6b6016b-60d7-4ddb-8d3d-be54d93af6c8",
+          "changes": [
+            {
+              "op": "vacancy",
+              "input": {
+                "title": "Synthetic lodge 54 autonomous",
+                "location": "Brooklyn, NY",
+                "headcount": 1,
+                "manager": "[synthetic-address]",
+                "description": "Prepare estimates from drawings."
+              }
+            }
+          ]
+        },
+        "status": 200,
+        "contentType": "application/json",
+        "upstreamBytes": 1916,
+        "upstreamSha256": "439e8739035c7b7ecd3e1355ea3f765e8bed16047b22233250b90f77b562afd1",
+        "upstreamBody": {
+          "jsonrpc": "2.0",
+          "id": 2,
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 autonomous recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:24.557Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"c135c25a-6cdc-49dc-9844-49d5ae5bc378\"}"
+              }
+            ],
+            "structuredContent": {
+              "workflow": "prepare-vacancy",
+              "summary": "Synthetic lodge 54 autonomous recovery draft",
+              "rationale": "",
+              "intake": "Prepare a synthetic estimator vacancy.",
+              "sources": [],
+              "changes": [
+                {
+                  "op": "vacancy",
+                  "input": {
+                    "title": "Synthetic lodge 54 autonomous",
+                    "location": "Brooklyn, NY",
+                    "headcount": 1,
+                    "manager": "[synthetic-address]",
+                    "description": "Prepare estimates from drawings."
+                  }
+                }
+              ],
+              "citations": [],
+              "approver": "[synthetic-address]",
+              "proposedBy": "[synthetic-address]",
+              "proposedFor": "[synthetic-address]",
+              "proposedByAgent": true,
+              "proposedAt": "2026-11-06T07:43:24.557Z",
+              "status": "proposed",
+              "model": null,
+              "missing": [
+                "compensation range",
+                "a job-related rubric",
+                "an interview plan"
+              ],
+              "id": "c135c25a-6cdc-49dc-9844-49d5ae5bc378"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "d4deea79-ec3e-4ca8-bdbf-a9d32ea6a2e7",
+                "disposition": "autonomous",
+                "revision": 1,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "all",
+                    "do": "autonomous",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "durableOutcome": {
+          "outcome": "done",
+          "decision": {
+            "id": "d4deea79-ec3e-4ca8-bdbf-a9d32ea6a2e7",
+            "disposition": "autonomous",
+            "revision": 1,
+            "classes": [
+              {
+                "class": "standard",
+                "rule": "all",
+                "do": "autonomous",
+                "facts": {
+                  "measure": 1
+                }
+              }
+            ]
+          },
+          "result": {
+            "workflow": "prepare-vacancy",
+            "summary": "Synthetic lodge 54 autonomous recovery draft",
+            "rationale": "",
+            "intake": "Prepare a synthetic estimator vacancy.",
+            "sources": [],
+            "changes": [
+              {
+                "op": "vacancy",
+                "input": {
+                  "title": "Synthetic lodge 54 autonomous",
+                  "location": "Brooklyn, NY",
+                  "headcount": 1,
+                  "manager": "[synthetic-address]",
+                  "description": "Prepare estimates from drawings."
+                }
+              }
+            ],
+            "citations": [],
+            "approver": "[synthetic-address]",
+            "proposedBy": "[synthetic-address]",
+            "proposedFor": "[synthetic-address]",
+            "proposedByAgent": true,
+            "proposedAt": "2026-11-06T07:43:24.557Z",
+            "status": "proposed",
+            "model": null,
+            "missing": [
+              "compensation range",
+              "a job-related rubric",
+              "an interview plan"
+            ],
+            "id": "c135c25a-6cdc-49dc-9844-49d5ae5bc378"
+          },
+          "untrusted": true
+        },
+        "upstreamCompleteAt": "2026-11-06T07:43:24.586Z",
+        "downstreamBytes": 958,
+        "cutoffAt": "2026-11-06T07:43:24.586Z"
+      },
+      "restartStartedAt": "2026-11-06T07:43:24.629Z",
+      "restartFinishedAt": "2026-11-06T07:43:25.286Z",
+      "retryResponse": {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "resultType": "complete",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 autonomous recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:24.557Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"c135c25a-6cdc-49dc-9844-49d5ae5bc378\"}"
+            }
+          ],
+          "structuredContent": {
+            "workflow": "prepare-vacancy",
+            "summary": "Synthetic lodge 54 autonomous recovery draft",
+            "rationale": "",
+            "intake": "Prepare a synthetic estimator vacancy.",
+            "sources": [],
+            "changes": [
+              {
+                "op": "vacancy",
+                "input": {
+                  "title": "Synthetic lodge 54 autonomous",
+                  "location": "Brooklyn, NY",
+                  "headcount": 1,
+                  "manager": "[synthetic-address]",
+                  "description": "Prepare estimates from drawings."
+                }
+              }
+            ],
+            "citations": [],
+            "approver": "[synthetic-address]",
+            "proposedBy": "[synthetic-address]",
+            "proposedFor": "[synthetic-address]",
+            "proposedByAgent": true,
+            "proposedAt": "2026-11-06T07:43:24.557Z",
+            "status": "proposed",
+            "model": null,
+            "missing": [
+              "compensation range",
+              "a job-related rubric",
+              "an interview plan"
+            ],
+            "id": "c135c25a-6cdc-49dc-9844-49d5ae5bc378"
+          },
+          "isError": false,
+          "_meta": {
+            "com.runeditrun/decision": {
+              "id": "908e84ad-ca77-4b20-9403-cb7015a3cd62",
+              "disposition": "autonomous",
+              "revision": 1,
+              "classes": [
+                {
+                  "class": "standard",
+                  "rule": "all",
+                  "do": "autonomous",
+                  "facts": {
+                    "measure": 1
+                  }
+                }
+              ]
+            },
+            "com.runeditrun/untrusted": true
+          }
+        }
+      },
+      "originalDecisionId": "d4deea79-ec3e-4ca8-bdbf-a9d32ea6a2e7",
+      "retryDecisionId": "908e84ad-ca77-4b20-9403-cb7015a3cd62",
+      "native": {
+        "draftId": "c135c25a-6cdc-49dc-9844-49d5ae5bc378",
+        "countBefore": 0,
+        "countAfterLoss": 1,
+        "countAfterRetry": 1,
+        "draft": {
+          "workflow": "prepare-vacancy",
+          "summary": "Synthetic lodge 54 autonomous recovery draft",
+          "rationale": "",
+          "intake": "Prepare a synthetic estimator vacancy.",
+          "sources": [],
+          "changes": [
+            {
+              "op": "vacancy",
+              "input": {
+                "title": "Synthetic lodge 54 autonomous",
+                "location": "Brooklyn, NY",
+                "headcount": 1,
+                "manager": "[synthetic-address]",
+                "description": "Prepare estimates from drawings."
+              }
+            }
+          ],
+          "citations": [],
+          "approver": "[synthetic-address]",
+          "proposedBy": "[synthetic-address]",
+          "proposedFor": "[synthetic-address]",
+          "proposedByAgent": true,
+          "proposedAt": "2026-11-06T07:43:24.557Z",
+          "status": "proposed",
+          "model": null,
+          "missing": [
+            "compensation range",
+            "a job-related rubric",
+            "an interview plan"
+          ],
+          "id": "c135c25a-6cdc-49dc-9844-49d5ae5bc378"
+        },
+        "recordSnapshotSha256": "5359578ffa27920f38cf57dda2ce0c3216747bca048978cf1d4057b3bae1f52a",
+        "records": [
+          {
+            "kind": "application",
+            "id": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+            "revision": "e98e0c6f-2dfe-4e70-afcd-481a7689a88f",
+            "value": "{\"candidate\":\"bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"stage\":\"74ccd77d\",\"status\":\"active\",\"source\":\"Synthetic referral\",\"rubricVersion\":1,\"reviewers\":[],\"feedbackReleased\":true,\"submittedAt\":\"2026-11-06T07:43:24.378Z\",\"credit\":{\"kind\":\"recruiter\",\"who\":\"[synthetic-address]\",\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.377Z\",\"automatic\":true},\"customValues\":{},\"id\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"feedbackReleasedAt\":\"2026-11-06T07:43:24.394Z\",\"feedbackReleasedBy\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "approval",
+            "id": "0a836193-d464-4c15-b5b4-991720bb361e",
+            "revision": "a216a542-a689-455b-90aa-f6bd278145b8",
+            "value": "{\"subjectKind\":\"vacancy\",\"subjectId\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"version\":\"735fa9f4ea2706ce555d6a0b0ac8518cec621d289009f776a076b87e129a9fd8\",\"terms\":{\"title\":\"Estimator fb4181cb\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"stages\":[{\"id\":\"74ccd77d\",\"name\":\"Applied\"},{\"id\":\"26447991\",\"name\":\"Screen\"},{\"id\":\"6a47c953\",\"name\":\"Interview\"},{\"id\":\"c51a9b89\",\"name\":\"Decision\"}],\"rubric\":{\"version\":1,\"criteria\":[{\"id\":\"d492aba0\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}]},\"plan\":[{\"id\":\"e2c30e6e\",\"name\":\"Bid review\",\"stage\":\"6a47c953\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}]},\"requestedBy\":\"[synthetic-address]\",\"approver\":\"[synthetic-address]\",\"sequence\":1,\"status\":\"approved\",\"requestedAt\":\"2026-11-06T07:43:24.311Z\",\"id\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"reason\":\"Synthetic budget approved by the owner\",\"decidedBy\":\"[synthetic-address]\",\"decidedAt\":\"2026-11-06T07:43:24.347Z\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "000102f6-0de1-44a9-86b0-4ed5780db0a3",
+            "revision": "66a1c5a1-ea1a-4726-8b96-54d8d5bb9502",
+            "value": "{\"at\":\"2026-11-06T07:43:24.293Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"interview-plan\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"id\":\"000102f6-0de1-44a9-86b0-4ed5780db0a3\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "11331db9-4041-4408-88d0-9c56be10d3c1",
+            "revision": "55faf7c3-7e17-4110-b42f-1fd71414b95b",
+            "value": "{\"at\":\"2026-11-06T07:43:24.311Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-requested\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"approval\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"approver\":\"[synthetic-address]\",\"id\":\"11331db9-4041-4408-88d0-9c56be10d3c1\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "25f668d5-b79a-4814-b3f5-990c768ab632",
+            "revision": "f8777df0-37dc-4c9c-8031-0f3c0f3a74eb",
+            "value": "{\"at\":\"2026-11-06T07:43:24.394Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"feedback-released\",\"record\":\"application:57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"waiting\":[],\"reason\":\"No interviews yet; explicitly record the evidence gap\",\"id\":\"25f668d5-b79a-4814-b3f5-990c768ab632\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "40916091-d351-44a4-ab7e-84d0677ff10c",
+            "revision": "683ae795-8d3c-4357-934f-93423ddd10aa",
+            "value": "{\"at\":\"2026-11-06T07:43:24.209Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"member-added\",\"record\":\"member:[synthetic-address]\",\"roles\":[],\"active\":true,\"agent\":true,\"actsFor\":\"[synthetic-address]\",\"seePrivate\":false,\"id\":\"40916091-d351-44a4-ab7e-84d0677ff10c\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "7358a83f-a235-42a6-bb9d-8312c7189575",
+            "revision": "40ab9aff-7488-4264-a449-91e4a637f83f",
+            "value": "{\"at\":\"2026-11-06T07:43:24.347Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-approved\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"approval\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"reason\":\"Synthetic budget approved by the owner\",\"id\":\"7358a83f-a235-42a6-bb9d-8312c7189575\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "85423a25-5355-498e-90fc-d2b10596b85a",
+            "revision": "2610dc14-c0b1-4c8c-89c2-ec9badd7f1c0",
+            "value": "{\"at\":\"2026-11-06T07:43:24.377Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"candidate-added\",\"record\":\"candidate:bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\",\"source\":\"Synthetic referral\",\"id\":\"85423a25-5355-498e-90fc-d2b10596b85a\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "9071d8fc-920b-4084-b393-4d3479fcf4ec",
+            "revision": "d7f3e91c-7c54-4759-9ba7-d66de091cb8a",
+            "value": "{\"at\":\"2026-11-06T07:43:24.270Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"rubric-version\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"version\":1,\"id\":\"9071d8fc-920b-4084-b393-4d3479fcf4ec\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "bd15fe2f-d4fb-4e07-8f77-08d63039701d",
+            "revision": "ad1f27cc-73d8-47b5-94cb-08fd6fe5de15",
+            "value": "{\"at\":\"2026-11-06T07:43:24.249Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-created\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"id\":\"bd15fe2f-d4fb-4e07-8f77-08d63039701d\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d27894f6-f8dd-493c-a241-50da2b304712",
+            "revision": "657ea7e0-dd4f-4664-b9cf-dcc8826a4249",
+            "value": "{\"at\":\"2026-11-06T07:43:24.558Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"proposal-created\",\"record\":\"proposal:c135c25a-6cdc-49dc-9844-49d5ae5bc378\",\"workflow\":\"prepare-vacancy\",\"approver\":\"[synthetic-address]\",\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"d27894f6-f8dd-493c-a241-50da2b304712\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d8d27e5d-a5da-49db-9462-7d66c5ca5861",
+            "revision": "6c7c0673-dc76-4df2-8302-6be8d308f0bf",
+            "value": "{\"at\":\"2026-11-06T07:43:24.362Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-published\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"slug\":\"estimator-fb4181cb-7aaef8\",\"id\":\"d8d27e5d-a5da-49db-9462-7d66c5ca5861\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "f002b863-739d-4500-813e-093e5b8b98dd",
+            "revision": "f9d0d8ed-8c15-42c7-9272-e5e4330ee3f0",
+            "value": "{\"at\":\"2026-11-06T07:43:24.088Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"business-created\",\"record\":\"business:main\",\"id\":\"f002b863-739d-4500-813e-093e5b8b98dd\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "f2d4715f-32c5-42f7-965e-f3d23e5af4bb",
+            "revision": "655b92bd-52f9-41ce-8544-c70a7f3e500d",
+            "value": "{\"at\":\"2026-11-06T07:43:24.348Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"openings-opened\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"openings\":[\"LDG-F0AC0A-01\"],\"id\":\"f2d4715f-32c5-42f7-965e-f3d23e5af4bb\"}"
+          },
+          {
+            "kind": "business",
+            "id": "main",
+            "revision": "841efd2e-dfa4-40d8-bc07-7a9e15e09224",
+            "value": "{\"name\":\"Example Builders\",\"accommodationContact\":\"[synthetic-address]\",\"retentionDays\":365,\"jurisdiction\":\"United States (New York office); legal review pending\",\"timeZone\":\"America/New_York\",\"scorecardDueHours\":24,\"notices\":[{\"version\":1,\"text\":\"We use your application only to assess you for this role and keep it for one year.\",\"at\":\"2026-11-06T07:43:24.085Z\"}],\"id\":\"main\"}"
+          },
+          {
+            "kind": "candidate",
+            "id": "bfb4a6fc-aa8c-4546-bdff-6714d869b0b6",
+            "revision": "2e265d15-f272-4639-abc5-a2d6996a2bbc",
+            "value": "{\"name\":\"Riley Park\",\"email\":\"[synthetic-address]\",\"phone\":\"\",\"location\":\"\",\"headline\":\"\",\"skills\":\"\",\"source\":\"Synthetic referral\",\"consent\":{\"basis\":\"referral\",\"talentPool\":false,\"recordedBy\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.377Z\",\"note\":\"\"},\"retainUntil\":\"2027-11-06\",\"createdAt\":\"2026-11-06T07:43:24.377Z\",\"id\":\"bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\"}"
+          },
+          {
+            "kind": "member",
+            "id": "[synthetic-address]",
+            "revision": "a00290fe-8ffa-46d5-8dfe-fa158da07fa0",
+            "value": "{\"email\":\"[synthetic-address]\",\"name\":\"Recruiting coordinator\",\"roles\":[],\"active\":true,\"owner\":false,\"agent\":true,\"actsFor\":\"[synthetic-address]\",\"seePrivate\":false,\"reportsTo\":null,\"id\":\"[synthetic-address]\",\"businessAgentId\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsorNativeId\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\"}"
+          },
+          {
+            "kind": "member",
+            "id": "[synthetic-address]",
+            "revision": "200a2829-366e-4ac3-be17-0088fd7d7d95",
+            "value": "{\"email\":\"[synthetic-address]\",\"name\":\"Olive Owner\",\"roles\":[\"admin\",\"manager\",\"interviewer\",\"approver\",\"compliance\",\"employee\"],\"active\":true,\"owner\":true,\"id\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "proposal",
+            "id": "c135c25a-6cdc-49dc-9844-49d5ae5bc378",
+            "revision": "081edc1c-850f-4961-880c-2ef1a52b2631",
+            "value": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 autonomous recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:24.557Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"c135c25a-6cdc-49dc-9844-49d5ae5bc378\"}"
+          },
+          {
+            "kind": "stage-event",
+            "id": "1b0e5f60-c5b7-42d6-865a-60d23596eeed",
+            "revision": "703d97bd-78d2-4aef-9dd3-ed32b9dac2b2",
+            "value": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"from\":null,\"to\":\"74ccd77d\",\"reason\":\"Application received (Synthetic referral)\",\"actor\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.378Z\",\"id\":\"1b0e5f60-c5b7-42d6-865a-60d23596eeed\"}"
+          },
+          {
+            "kind": "vacancy",
+            "id": "f0ac0a85-040b-42e5-917f-a3f331bd63bf",
+            "revision": "262f5a27-b9d8-4d9a-8dd5-9d23543afca2",
+            "value": "{\"title\":\"Estimator fb4181cb\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"status\":\"open\",\"stages\":[{\"id\":\"74ccd77d\",\"name\":\"Applied\"},{\"id\":\"26447991\",\"name\":\"Screen\"},{\"id\":\"6a47c953\",\"name\":\"Interview\"},{\"id\":\"c51a9b89\",\"name\":\"Decision\"}],\"rubrics\":[{\"version\":1,\"criteria\":[{\"id\":\"d492aba0\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}],\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.270Z\"}],\"plan\":[{\"id\":\"e2c30e6e\",\"name\":\"Bid review\",\"stage\":\"6a47c953\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}],\"createdBy\":\"[synthetic-address]\",\"createdAt\":\"2026-11-06T07:43:24.249Z\",\"hires\":0,\"id\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"openings\":[{\"id\":\"88c45768\",\"code\":\"LDG-F0AC0A-01\",\"targetStart\":null,\"status\":\"open\",\"openedAt\":\"2026-11-06T07:43:24.348Z\"}],\"slug\":\"estimator-fb4181cb-7aaef8\",\"publishedAt\":\"2026-11-06T07:43:24.362Z\",\"noticeVersion\":1}"
+          }
+        ],
+        "valuesAndRevisionsUnchanged": true
+      },
+      "review": null,
+      "policyUnchanged": true,
+      "admissionUnchanged": true
+    },
+    {
+      "phase": "autonomous",
+      "tool": "lodge.debriefs.prepare",
+      "mode": "terminate",
+      "status": "pass",
+      "failure": {
+        "name": "TypeError",
+        "message": "terminated",
+        "cause": "UND_ERR_RES_CONTENT_LENGTH_MISMATCH"
+      },
+      "request": {
+        "originalId": 5,
+        "retryId": 6,
+        "arguments": {
+          "application": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+          "statements": [
+            {
+              "kind": "gap",
+              "criterion": "d492aba0",
+              "text": "Takeoffs has not been assessed."
+            }
+          ],
+          "expected_revision": "e98e0c6f-2dfe-4e70-afcd-481a7689a88f",
+          "idempotency_key": "73934378-c130-49e0-b488-b6155125fedb"
+        },
+        "admission": {
+          "iss": "https://synthetic-lodge-54.invalid",
+          "aud": "http://127.0.0.1:38833/mcp",
+          "sub": "e388a354-5a26-466b-bf9c-eccad84dc7ae",
+          "email": "[synthetic-address]",
+          "act": {
+            "sub": "1141eb5b-1bae-495b-9a9a-33ea381a398a",
+            "name": "Agent door conformance",
+            "specialist": "Recruiting coordinator"
+          },
+          "client_id": "rer-agent-conformance",
+          "scope": "lodge:read lodge:prepare events:read",
+          "business": "synthetic-lodge-54",
+          "consent": "e88670d1-3dfb-4f8d-a277-cfd43a369b72"
+        }
+      },
+      "transport": {
+        "mode": "terminate",
+        "requestId": 5,
+        "arguments": {
+          "application": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+          "statements": [
+            {
+              "kind": "gap",
+              "criterion": "d492aba0",
+              "text": "Takeoffs has not been assessed."
+            }
+          ],
+          "expected_revision": "e98e0c6f-2dfe-4e70-afcd-481a7689a88f",
+          "idempotency_key": "73934378-c130-49e0-b488-b6155125fedb"
+        },
+        "status": 200,
+        "contentType": "application/json",
+        "upstreamBytes": 1530,
+        "upstreamSha256": "105a8d81da40b2694a05dad4c222617949b26dc8a96bb76c5b42e7786a0f5752",
+        "upstreamBody": {
+          "jsonrpc": "2.0",
+          "id": 5,
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"d492aba0\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"d492aba0\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"[synthetic-address]\",\"preparedFor\":\"[synthetic-address]\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T07:43:25.536Z\",\"id\":\"09d4664b-b737-4e41-9a5b-c270ffd62c4c\"}"
+              }
+            ],
+            "structuredContent": {
+              "application": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+              "vacancy": "f0ac0a85-040b-42e5-917f-a3f331bd63bf",
+              "statements": [
+                {
+                  "kind": "gap",
+                  "criterion": "d492aba0",
+                  "text": "Takeoffs has not been assessed.",
+                  "citations": []
+                }
+              ],
+              "criteria": [
+                {
+                  "criterion": "d492aba0",
+                  "name": "Takeoffs",
+                  "ratings": [],
+                  "agreement": "unassessed"
+                }
+              ],
+              "status": "draft",
+              "model": null,
+              "preparedBy": "[synthetic-address]",
+              "preparedFor": "[synthetic-address]",
+              "preparedByAgent": true,
+              "preparedAt": "2026-11-06T07:43:25.536Z",
+              "id": "09d4664b-b737-4e41-9a5b-c270ffd62c4c"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "073be320-f622-4f49-a2c2-9809f749a248",
+                "disposition": "autonomous",
+                "revision": 1,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "all",
+                    "do": "autonomous",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "durableOutcome": {
+          "outcome": "done",
+          "decision": {
+            "id": "073be320-f622-4f49-a2c2-9809f749a248",
+            "disposition": "autonomous",
+            "revision": 1,
+            "classes": [
+              {
+                "class": "standard",
+                "rule": "all",
+                "do": "autonomous",
+                "facts": {
+                  "measure": 1
+                }
+              }
+            ]
+          },
+          "result": {
+            "application": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+            "vacancy": "f0ac0a85-040b-42e5-917f-a3f331bd63bf",
+            "statements": [
+              {
+                "kind": "gap",
+                "criterion": "d492aba0",
+                "text": "Takeoffs has not been assessed.",
+                "citations": []
+              }
+            ],
+            "criteria": [
+              {
+                "criterion": "d492aba0",
+                "name": "Takeoffs",
+                "ratings": [],
+                "agreement": "unassessed"
+              }
+            ],
+            "status": "draft",
+            "model": null,
+            "preparedBy": "[synthetic-address]",
+            "preparedFor": "[synthetic-address]",
+            "preparedByAgent": true,
+            "preparedAt": "2026-11-06T07:43:25.536Z",
+            "id": "09d4664b-b737-4e41-9a5b-c270ffd62c4c"
+          },
+          "untrusted": true
+        },
+        "upstreamCompleteAt": "2026-11-06T07:43:25.552Z",
+        "downstreamBytes": 765,
+        "cutoffAt": "2026-11-06T07:43:25.552Z"
+      },
+      "restartStartedAt": "2026-11-06T07:43:25.617Z",
+      "restartFinishedAt": "2026-11-06T07:43:26.453Z",
+      "retryResponse": {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "result": {
+          "resultType": "complete",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"d492aba0\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"d492aba0\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"[synthetic-address]\",\"preparedFor\":\"[synthetic-address]\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T07:43:25.536Z\",\"id\":\"09d4664b-b737-4e41-9a5b-c270ffd62c4c\"}"
+            }
+          ],
+          "structuredContent": {
+            "application": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+            "vacancy": "f0ac0a85-040b-42e5-917f-a3f331bd63bf",
+            "statements": [
+              {
+                "kind": "gap",
+                "criterion": "d492aba0",
+                "text": "Takeoffs has not been assessed.",
+                "citations": []
+              }
+            ],
+            "criteria": [
+              {
+                "criterion": "d492aba0",
+                "name": "Takeoffs",
+                "ratings": [],
+                "agreement": "unassessed"
+              }
+            ],
+            "status": "draft",
+            "model": null,
+            "preparedBy": "[synthetic-address]",
+            "preparedFor": "[synthetic-address]",
+            "preparedByAgent": true,
+            "preparedAt": "2026-11-06T07:43:25.536Z",
+            "id": "09d4664b-b737-4e41-9a5b-c270ffd62c4c"
+          },
+          "isError": false,
+          "_meta": {
+            "com.runeditrun/decision": {
+              "id": "891edb95-3f55-41b6-8055-21e91548de6b",
+              "disposition": "autonomous",
+              "revision": 1,
+              "classes": [
+                {
+                  "class": "standard",
+                  "rule": "all",
+                  "do": "autonomous",
+                  "facts": {
+                    "measure": 1
+                  }
+                }
+              ]
+            },
+            "com.runeditrun/untrusted": true
+          }
+        }
+      },
+      "originalDecisionId": "073be320-f622-4f49-a2c2-9809f749a248",
+      "retryDecisionId": "891edb95-3f55-41b6-8055-21e91548de6b",
+      "native": {
+        "draftId": "09d4664b-b737-4e41-9a5b-c270ffd62c4c",
+        "countBefore": 0,
+        "countAfterLoss": 1,
+        "countAfterRetry": 1,
+        "draft": {
+          "application": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+          "vacancy": "f0ac0a85-040b-42e5-917f-a3f331bd63bf",
+          "statements": [
+            {
+              "kind": "gap",
+              "criterion": "d492aba0",
+              "text": "Takeoffs has not been assessed.",
+              "citations": []
+            }
+          ],
+          "criteria": [
+            {
+              "criterion": "d492aba0",
+              "name": "Takeoffs",
+              "ratings": [],
+              "agreement": "unassessed"
+            }
+          ],
+          "status": "draft",
+          "model": null,
+          "preparedBy": "[synthetic-address]",
+          "preparedFor": "[synthetic-address]",
+          "preparedByAgent": true,
+          "preparedAt": "2026-11-06T07:43:25.536Z",
+          "id": "09d4664b-b737-4e41-9a5b-c270ffd62c4c",
+          "stale": false
+        },
+        "recordSnapshotSha256": "e86f65f7fe3f991ac16fce3301ebf8f4af45e0cf4ddd1835b01ec0f0d8e40100",
+        "records": [
+          {
+            "kind": "application",
+            "id": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+            "revision": "e98e0c6f-2dfe-4e70-afcd-481a7689a88f",
+            "value": "{\"candidate\":\"bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"stage\":\"74ccd77d\",\"status\":\"active\",\"source\":\"Synthetic referral\",\"rubricVersion\":1,\"reviewers\":[],\"feedbackReleased\":true,\"submittedAt\":\"2026-11-06T07:43:24.378Z\",\"credit\":{\"kind\":\"recruiter\",\"who\":\"[synthetic-address]\",\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.377Z\",\"automatic\":true},\"customValues\":{},\"id\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"feedbackReleasedAt\":\"2026-11-06T07:43:24.394Z\",\"feedbackReleasedBy\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "approval",
+            "id": "0a836193-d464-4c15-b5b4-991720bb361e",
+            "revision": "a216a542-a689-455b-90aa-f6bd278145b8",
+            "value": "{\"subjectKind\":\"vacancy\",\"subjectId\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"version\":\"735fa9f4ea2706ce555d6a0b0ac8518cec621d289009f776a076b87e129a9fd8\",\"terms\":{\"title\":\"Estimator fb4181cb\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"stages\":[{\"id\":\"74ccd77d\",\"name\":\"Applied\"},{\"id\":\"26447991\",\"name\":\"Screen\"},{\"id\":\"6a47c953\",\"name\":\"Interview\"},{\"id\":\"c51a9b89\",\"name\":\"Decision\"}],\"rubric\":{\"version\":1,\"criteria\":[{\"id\":\"d492aba0\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}]},\"plan\":[{\"id\":\"e2c30e6e\",\"name\":\"Bid review\",\"stage\":\"6a47c953\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}]},\"requestedBy\":\"[synthetic-address]\",\"approver\":\"[synthetic-address]\",\"sequence\":1,\"status\":\"approved\",\"requestedAt\":\"2026-11-06T07:43:24.311Z\",\"id\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"reason\":\"Synthetic budget approved by the owner\",\"decidedBy\":\"[synthetic-address]\",\"decidedAt\":\"2026-11-06T07:43:24.347Z\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "000102f6-0de1-44a9-86b0-4ed5780db0a3",
+            "revision": "66a1c5a1-ea1a-4726-8b96-54d8d5bb9502",
+            "value": "{\"at\":\"2026-11-06T07:43:24.293Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"interview-plan\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"id\":\"000102f6-0de1-44a9-86b0-4ed5780db0a3\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "11331db9-4041-4408-88d0-9c56be10d3c1",
+            "revision": "55faf7c3-7e17-4110-b42f-1fd71414b95b",
+            "value": "{\"at\":\"2026-11-06T07:43:24.311Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-requested\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"approval\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"approver\":\"[synthetic-address]\",\"id\":\"11331db9-4041-4408-88d0-9c56be10d3c1\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "1c2b024f-f96b-4185-a121-10b2fabb6f06",
+            "revision": "d5c62490-e762-4c66-b7af-4ad81b998bde",
+            "value": "{\"at\":\"2026-11-06T07:43:25.536Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"debrief-prepared\",\"record\":\"application:57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"debrief\":\"09d4664b-b737-4e41-9a5b-c270ffd62c4c\",\"statements\":1,\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"1c2b024f-f96b-4185-a121-10b2fabb6f06\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "25f668d5-b79a-4814-b3f5-990c768ab632",
+            "revision": "f8777df0-37dc-4c9c-8031-0f3c0f3a74eb",
+            "value": "{\"at\":\"2026-11-06T07:43:24.394Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"feedback-released\",\"record\":\"application:57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"waiting\":[],\"reason\":\"No interviews yet; explicitly record the evidence gap\",\"id\":\"25f668d5-b79a-4814-b3f5-990c768ab632\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "40916091-d351-44a4-ab7e-84d0677ff10c",
+            "revision": "683ae795-8d3c-4357-934f-93423ddd10aa",
+            "value": "{\"at\":\"2026-11-06T07:43:24.209Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"member-added\",\"record\":\"member:[synthetic-address]\",\"roles\":[],\"active\":true,\"agent\":true,\"actsFor\":\"[synthetic-address]\",\"seePrivate\":false,\"id\":\"40916091-d351-44a4-ab7e-84d0677ff10c\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "7358a83f-a235-42a6-bb9d-8312c7189575",
+            "revision": "40ab9aff-7488-4264-a449-91e4a637f83f",
+            "value": "{\"at\":\"2026-11-06T07:43:24.347Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-approved\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"approval\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"reason\":\"Synthetic budget approved by the owner\",\"id\":\"7358a83f-a235-42a6-bb9d-8312c7189575\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "85423a25-5355-498e-90fc-d2b10596b85a",
+            "revision": "2610dc14-c0b1-4c8c-89c2-ec9badd7f1c0",
+            "value": "{\"at\":\"2026-11-06T07:43:24.377Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"candidate-added\",\"record\":\"candidate:bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\",\"source\":\"Synthetic referral\",\"id\":\"85423a25-5355-498e-90fc-d2b10596b85a\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "9071d8fc-920b-4084-b393-4d3479fcf4ec",
+            "revision": "d7f3e91c-7c54-4759-9ba7-d66de091cb8a",
+            "value": "{\"at\":\"2026-11-06T07:43:24.270Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"rubric-version\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"version\":1,\"id\":\"9071d8fc-920b-4084-b393-4d3479fcf4ec\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "bd15fe2f-d4fb-4e07-8f77-08d63039701d",
+            "revision": "ad1f27cc-73d8-47b5-94cb-08fd6fe5de15",
+            "value": "{\"at\":\"2026-11-06T07:43:24.249Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-created\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"id\":\"bd15fe2f-d4fb-4e07-8f77-08d63039701d\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d27894f6-f8dd-493c-a241-50da2b304712",
+            "revision": "657ea7e0-dd4f-4664-b9cf-dcc8826a4249",
+            "value": "{\"at\":\"2026-11-06T07:43:24.558Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"proposal-created\",\"record\":\"proposal:c135c25a-6cdc-49dc-9844-49d5ae5bc378\",\"workflow\":\"prepare-vacancy\",\"approver\":\"[synthetic-address]\",\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"d27894f6-f8dd-493c-a241-50da2b304712\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d8d27e5d-a5da-49db-9462-7d66c5ca5861",
+            "revision": "6c7c0673-dc76-4df2-8302-6be8d308f0bf",
+            "value": "{\"at\":\"2026-11-06T07:43:24.362Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-published\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"slug\":\"estimator-fb4181cb-7aaef8\",\"id\":\"d8d27e5d-a5da-49db-9462-7d66c5ca5861\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "f002b863-739d-4500-813e-093e5b8b98dd",
+            "revision": "f9d0d8ed-8c15-42c7-9272-e5e4330ee3f0",
+            "value": "{\"at\":\"2026-11-06T07:43:24.088Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"business-created\",\"record\":\"business:main\",\"id\":\"f002b863-739d-4500-813e-093e5b8b98dd\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "f2d4715f-32c5-42f7-965e-f3d23e5af4bb",
+            "revision": "655b92bd-52f9-41ce-8544-c70a7f3e500d",
+            "value": "{\"at\":\"2026-11-06T07:43:24.348Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"openings-opened\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"openings\":[\"LDG-F0AC0A-01\"],\"id\":\"f2d4715f-32c5-42f7-965e-f3d23e5af4bb\"}"
+          },
+          {
+            "kind": "business",
+            "id": "main",
+            "revision": "841efd2e-dfa4-40d8-bc07-7a9e15e09224",
+            "value": "{\"name\":\"Example Builders\",\"accommodationContact\":\"[synthetic-address]\",\"retentionDays\":365,\"jurisdiction\":\"United States (New York office); legal review pending\",\"timeZone\":\"America/New_York\",\"scorecardDueHours\":24,\"notices\":[{\"version\":1,\"text\":\"We use your application only to assess you for this role and keep it for one year.\",\"at\":\"2026-11-06T07:43:24.085Z\"}],\"id\":\"main\"}"
+          },
+          {
+            "kind": "candidate",
+            "id": "bfb4a6fc-aa8c-4546-bdff-6714d869b0b6",
+            "revision": "2e265d15-f272-4639-abc5-a2d6996a2bbc",
+            "value": "{\"name\":\"Riley Park\",\"email\":\"[synthetic-address]\",\"phone\":\"\",\"location\":\"\",\"headline\":\"\",\"skills\":\"\",\"source\":\"Synthetic referral\",\"consent\":{\"basis\":\"referral\",\"talentPool\":false,\"recordedBy\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.377Z\",\"note\":\"\"},\"retainUntil\":\"2027-11-06\",\"createdAt\":\"2026-11-06T07:43:24.377Z\",\"id\":\"bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\"}"
+          },
+          {
+            "kind": "debrief",
+            "id": "09d4664b-b737-4e41-9a5b-c270ffd62c4c",
+            "revision": "35eb1766-523b-425a-8c82-9f59f9cf016a",
+            "value": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"d492aba0\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"d492aba0\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"[synthetic-address]\",\"preparedFor\":\"[synthetic-address]\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T07:43:25.536Z\",\"id\":\"09d4664b-b737-4e41-9a5b-c270ffd62c4c\"}"
+          },
+          {
+            "kind": "member",
+            "id": "[synthetic-address]",
+            "revision": "a00290fe-8ffa-46d5-8dfe-fa158da07fa0",
+            "value": "{\"email\":\"[synthetic-address]\",\"name\":\"Recruiting coordinator\",\"roles\":[],\"active\":true,\"owner\":false,\"agent\":true,\"actsFor\":\"[synthetic-address]\",\"seePrivate\":false,\"reportsTo\":null,\"id\":\"[synthetic-address]\",\"businessAgentId\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsorNativeId\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\"}"
+          },
+          {
+            "kind": "member",
+            "id": "[synthetic-address]",
+            "revision": "200a2829-366e-4ac3-be17-0088fd7d7d95",
+            "value": "{\"email\":\"[synthetic-address]\",\"name\":\"Olive Owner\",\"roles\":[\"admin\",\"manager\",\"interviewer\",\"approver\",\"compliance\",\"employee\"],\"active\":true,\"owner\":true,\"id\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "proposal",
+            "id": "c135c25a-6cdc-49dc-9844-49d5ae5bc378",
+            "revision": "081edc1c-850f-4961-880c-2ef1a52b2631",
+            "value": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 autonomous recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:24.557Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"c135c25a-6cdc-49dc-9844-49d5ae5bc378\"}"
+          },
+          {
+            "kind": "stage-event",
+            "id": "1b0e5f60-c5b7-42d6-865a-60d23596eeed",
+            "revision": "703d97bd-78d2-4aef-9dd3-ed32b9dac2b2",
+            "value": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"from\":null,\"to\":\"74ccd77d\",\"reason\":\"Application received (Synthetic referral)\",\"actor\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.378Z\",\"id\":\"1b0e5f60-c5b7-42d6-865a-60d23596eeed\"}"
+          },
+          {
+            "kind": "vacancy",
+            "id": "f0ac0a85-040b-42e5-917f-a3f331bd63bf",
+            "revision": "262f5a27-b9d8-4d9a-8dd5-9d23543afca2",
+            "value": "{\"title\":\"Estimator fb4181cb\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"status\":\"open\",\"stages\":[{\"id\":\"74ccd77d\",\"name\":\"Applied\"},{\"id\":\"26447991\",\"name\":\"Screen\"},{\"id\":\"6a47c953\",\"name\":\"Interview\"},{\"id\":\"c51a9b89\",\"name\":\"Decision\"}],\"rubrics\":[{\"version\":1,\"criteria\":[{\"id\":\"d492aba0\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}],\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.270Z\"}],\"plan\":[{\"id\":\"e2c30e6e\",\"name\":\"Bid review\",\"stage\":\"6a47c953\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}],\"createdBy\":\"[synthetic-address]\",\"createdAt\":\"2026-11-06T07:43:24.249Z\",\"hires\":0,\"id\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"openings\":[{\"id\":\"88c45768\",\"code\":\"LDG-F0AC0A-01\",\"targetStart\":null,\"status\":\"open\",\"openedAt\":\"2026-11-06T07:43:24.348Z\"}],\"slug\":\"estimator-fb4181cb-7aaef8\",\"publishedAt\":\"2026-11-06T07:43:24.362Z\",\"noticeVersion\":1}"
+          }
+        ],
+        "valuesAndRevisionsUnchanged": true
+      },
+      "review": null,
+      "policyUnchanged": true,
+      "admissionUnchanged": true
+    },
+    {
+      "phase": "held",
+      "tool": "lodge.proposals.prepare",
+      "mode": "truncate",
+      "status": "pass",
+      "failure": {
+        "name": "TypeError",
+        "message": "terminated",
+        "cause": "UND_ERR_RES_CONTENT_LENGTH_MISMATCH"
+      },
+      "request": {
+        "originalId": 8,
+        "retryId": 9,
+        "arguments": {
+          "workflow": "prepare-vacancy",
+          "summary": "Synthetic lodge 54 held recovery draft",
+          "intake": "Prepare a synthetic estimator vacancy.",
+          "approver": "[synthetic-address]",
+          "idempotency_key": "34022ede-51f3-4e55-950d-cdd6edb89784",
+          "changes": [
+            {
+              "op": "vacancy",
+              "input": {
+                "title": "Synthetic lodge 54 held",
+                "location": "Brooklyn, NY",
+                "headcount": 1,
+                "manager": "[synthetic-address]",
+                "description": "Prepare estimates from drawings."
+              }
+            }
+          ]
+        },
+        "admission": {
+          "iss": "https://synthetic-lodge-54.invalid",
+          "aud": "http://127.0.0.1:38833/mcp",
+          "sub": "e388a354-5a26-466b-bf9c-eccad84dc7ae",
+          "email": "[synthetic-address]",
+          "act": {
+            "sub": "1141eb5b-1bae-495b-9a9a-33ea381a398a",
+            "name": "Agent door conformance",
+            "specialist": "Recruiting coordinator"
+          },
+          "client_id": "rer-agent-conformance",
+          "scope": "lodge:read lodge:prepare events:read",
+          "business": "synthetic-lodge-54",
+          "consent": "e88670d1-3dfb-4f8d-a277-cfd43a369b72"
+        }
+      },
+      "transport": {
+        "mode": "truncate",
+        "requestId": 8,
+        "arguments": {
+          "workflow": "prepare-vacancy",
+          "summary": "Synthetic lodge 54 held recovery draft",
+          "intake": "Prepare a synthetic estimator vacancy.",
+          "approver": "[synthetic-address]",
+          "idempotency_key": "34022ede-51f3-4e55-950d-cdd6edb89784",
+          "changes": [
+            {
+              "op": "vacancy",
+              "input": {
+                "title": "Synthetic lodge 54 held",
+                "location": "Brooklyn, NY",
+                "headcount": 1,
+                "manager": "[synthetic-address]",
+                "description": "Prepare estimates from drawings."
+              }
+            }
+          ]
+        },
+        "status": 200,
+        "contentType": "application/json",
+        "upstreamBytes": 1959,
+        "upstreamSha256": "2744c50f1a80db0f62b065c6117472d3b9384d642949a064676462677e3efc43",
+        "upstreamBody": {
+          "jsonrpc": "2.0",
+          "id": 8,
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 held recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 held\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:26.935Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"5d771c5d-979d-4ed8-b773-87344a54c1c8\"}"
+              }
+            ],
+            "structuredContent": {
+              "workflow": "prepare-vacancy",
+              "summary": "Synthetic lodge 54 held recovery draft",
+              "rationale": "",
+              "intake": "Prepare a synthetic estimator vacancy.",
+              "sources": [],
+              "changes": [
+                {
+                  "op": "vacancy",
+                  "input": {
+                    "title": "Synthetic lodge 54 held",
+                    "location": "Brooklyn, NY",
+                    "headcount": 1,
+                    "manager": "[synthetic-address]",
+                    "description": "Prepare estimates from drawings."
+                  }
+                }
+              ],
+              "citations": [],
+              "approver": "[synthetic-address]",
+              "proposedBy": "[synthetic-address]",
+              "proposedFor": "[synthetic-address]",
+              "proposedByAgent": true,
+              "proposedAt": "2026-11-06T07:43:26.935Z",
+              "status": "proposed",
+              "model": null,
+              "missing": [
+                "compensation range",
+                "a job-related rubric",
+                "an interview plan"
+              ],
+              "id": "5d771c5d-979d-4ed8-b773-87344a54c1c8"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "734cc8b8-85a9-41bd-bb0d-82427165be1c",
+                "disposition": "review",
+                "revision": 2,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "standard",
+                    "do": "review",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/review": {
+                "id": "dd58bc34-3e0e-4d97-b02e-887c82eb9ee9"
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "durableOutcome": {
+          "outcome": "done",
+          "decision": {
+            "id": "734cc8b8-85a9-41bd-bb0d-82427165be1c",
+            "disposition": "review",
+            "revision": 2,
+            "classes": [
+              {
+                "class": "standard",
+                "rule": "standard",
+                "do": "review",
+                "facts": {
+                  "measure": 1
+                }
+              }
+            ]
+          },
+          "result": {
+            "workflow": "prepare-vacancy",
+            "summary": "Synthetic lodge 54 held recovery draft",
+            "rationale": "",
+            "intake": "Prepare a synthetic estimator vacancy.",
+            "sources": [],
+            "changes": [
+              {
+                "op": "vacancy",
+                "input": {
+                  "title": "Synthetic lodge 54 held",
+                  "location": "Brooklyn, NY",
+                  "headcount": 1,
+                  "manager": "[synthetic-address]",
+                  "description": "Prepare estimates from drawings."
+                }
+              }
+            ],
+            "citations": [],
+            "approver": "[synthetic-address]",
+            "proposedBy": "[synthetic-address]",
+            "proposedFor": "[synthetic-address]",
+            "proposedByAgent": true,
+            "proposedAt": "2026-11-06T07:43:26.935Z",
+            "status": "proposed",
+            "model": null,
+            "missing": [
+              "compensation range",
+              "a job-related rubric",
+              "an interview plan"
+            ],
+            "id": "5d771c5d-979d-4ed8-b773-87344a54c1c8"
+          },
+          "untrusted": true,
+          "review": {
+            "id": "dd58bc34-3e0e-4d97-b02e-887c82eb9ee9"
+          }
+        },
+        "upstreamCompleteAt": "2026-11-06T07:43:26.958Z",
+        "downstreamBytes": 979,
+        "cutoffAt": "2026-11-06T07:43:26.958Z"
+      },
+      "restartStartedAt": "2026-11-06T07:43:27.011Z",
+      "restartFinishedAt": "2026-11-06T07:43:27.795Z",
+      "retryResponse": {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "result": {
+          "resultType": "complete",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 held recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 held\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:26.935Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"5d771c5d-979d-4ed8-b773-87344a54c1c8\"}"
+            }
+          ],
+          "structuredContent": {
+            "workflow": "prepare-vacancy",
+            "summary": "Synthetic lodge 54 held recovery draft",
+            "rationale": "",
+            "intake": "Prepare a synthetic estimator vacancy.",
+            "sources": [],
+            "changes": [
+              {
+                "op": "vacancy",
+                "input": {
+                  "title": "Synthetic lodge 54 held",
+                  "location": "Brooklyn, NY",
+                  "headcount": 1,
+                  "manager": "[synthetic-address]",
+                  "description": "Prepare estimates from drawings."
+                }
+              }
+            ],
+            "citations": [],
+            "approver": "[synthetic-address]",
+            "proposedBy": "[synthetic-address]",
+            "proposedFor": "[synthetic-address]",
+            "proposedByAgent": true,
+            "proposedAt": "2026-11-06T07:43:26.935Z",
+            "status": "proposed",
+            "model": null,
+            "missing": [
+              "compensation range",
+              "a job-related rubric",
+              "an interview plan"
+            ],
+            "id": "5d771c5d-979d-4ed8-b773-87344a54c1c8"
+          },
+          "isError": false,
+          "_meta": {
+            "com.runeditrun/decision": {
+              "id": "c3d5b871-1b4c-4387-ab33-08b58736ed25",
+              "disposition": "review",
+              "revision": 2,
+              "classes": [
+                {
+                  "class": "standard",
+                  "rule": "standard",
+                  "do": "review",
+                  "facts": {
+                    "measure": 1
+                  }
+                }
+              ]
+            },
+            "com.runeditrun/review": {
+              "id": "dd58bc34-3e0e-4d97-b02e-887c82eb9ee9"
+            },
+            "com.runeditrun/untrusted": true
+          }
+        }
+      },
+      "originalDecisionId": "734cc8b8-85a9-41bd-bb0d-82427165be1c",
+      "retryDecisionId": "c3d5b871-1b4c-4387-ab33-08b58736ed25",
+      "native": {
+        "draftId": "5d771c5d-979d-4ed8-b773-87344a54c1c8",
+        "countBefore": 1,
+        "countAfterLoss": 2,
+        "countAfterRetry": 2,
+        "draft": {
+          "workflow": "prepare-vacancy",
+          "summary": "Synthetic lodge 54 held recovery draft",
+          "rationale": "",
+          "intake": "Prepare a synthetic estimator vacancy.",
+          "sources": [],
+          "changes": [
+            {
+              "op": "vacancy",
+              "input": {
+                "title": "Synthetic lodge 54 held",
+                "location": "Brooklyn, NY",
+                "headcount": 1,
+                "manager": "[synthetic-address]",
+                "description": "Prepare estimates from drawings."
+              }
+            }
+          ],
+          "citations": [],
+          "approver": "[synthetic-address]",
+          "proposedBy": "[synthetic-address]",
+          "proposedFor": "[synthetic-address]",
+          "proposedByAgent": true,
+          "proposedAt": "2026-11-06T07:43:26.935Z",
+          "status": "proposed",
+          "model": null,
+          "missing": [
+            "compensation range",
+            "a job-related rubric",
+            "an interview plan"
+          ],
+          "id": "5d771c5d-979d-4ed8-b773-87344a54c1c8"
+        },
+        "recordSnapshotSha256": "1f7907a89ce6359209e51cb42a8c00b99ca559749fbffca608f5e6130cf720ee",
+        "records": [
+          {
+            "kind": "application",
+            "id": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+            "revision": "e98e0c6f-2dfe-4e70-afcd-481a7689a88f",
+            "value": "{\"candidate\":\"bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"stage\":\"74ccd77d\",\"status\":\"active\",\"source\":\"Synthetic referral\",\"rubricVersion\":1,\"reviewers\":[],\"feedbackReleased\":true,\"submittedAt\":\"2026-11-06T07:43:24.378Z\",\"credit\":{\"kind\":\"recruiter\",\"who\":\"[synthetic-address]\",\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.377Z\",\"automatic\":true},\"customValues\":{},\"id\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"feedbackReleasedAt\":\"2026-11-06T07:43:24.394Z\",\"feedbackReleasedBy\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "application",
+            "id": "93f3c8d0-14a3-4206-8a57-c4ef5a32e055",
+            "revision": "e1871937-9a64-462c-894e-0f41ba015756",
+            "value": "{\"candidate\":\"6573b210-b4a3-461a-bab3-40f7a6057dd6\",\"vacancy\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"stage\":\"223a26fa\",\"status\":\"active\",\"source\":\"Synthetic referral\",\"rubricVersion\":1,\"reviewers\":[],\"feedbackReleased\":true,\"submittedAt\":\"2026-11-06T07:43:26.794Z\",\"credit\":{\"kind\":\"recruiter\",\"who\":\"[synthetic-address]\",\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:26.794Z\",\"automatic\":true},\"customValues\":{},\"id\":\"93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"feedbackReleasedAt\":\"2026-11-06T07:43:26.805Z\",\"feedbackReleasedBy\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "approval",
+            "id": "0a836193-d464-4c15-b5b4-991720bb361e",
+            "revision": "a216a542-a689-455b-90aa-f6bd278145b8",
+            "value": "{\"subjectKind\":\"vacancy\",\"subjectId\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"version\":\"735fa9f4ea2706ce555d6a0b0ac8518cec621d289009f776a076b87e129a9fd8\",\"terms\":{\"title\":\"Estimator fb4181cb\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"stages\":[{\"id\":\"74ccd77d\",\"name\":\"Applied\"},{\"id\":\"26447991\",\"name\":\"Screen\"},{\"id\":\"6a47c953\",\"name\":\"Interview\"},{\"id\":\"c51a9b89\",\"name\":\"Decision\"}],\"rubric\":{\"version\":1,\"criteria\":[{\"id\":\"d492aba0\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}]},\"plan\":[{\"id\":\"e2c30e6e\",\"name\":\"Bid review\",\"stage\":\"6a47c953\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}]},\"requestedBy\":\"[synthetic-address]\",\"approver\":\"[synthetic-address]\",\"sequence\":1,\"status\":\"approved\",\"requestedAt\":\"2026-11-06T07:43:24.311Z\",\"id\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"reason\":\"Synthetic budget approved by the owner\",\"decidedBy\":\"[synthetic-address]\",\"decidedAt\":\"2026-11-06T07:43:24.347Z\"}"
+          },
+          {
+            "kind": "approval",
+            "id": "95c542e2-abf8-4585-adec-620811d227de",
+            "revision": "d2b466d2-419f-41a5-a19d-235f2bd14161",
+            "value": "{\"subjectKind\":\"vacancy\",\"subjectId\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"version\":\"ba4a0dfc03fa8b0f70d1e7ba7928f4b95b2315ac647faebaa87d5a58a62caac8\",\"terms\":{\"title\":\"Estimator c7ecb304\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"stages\":[{\"id\":\"223a26fa\",\"name\":\"Applied\"},{\"id\":\"1c9fedda\",\"name\":\"Screen\"},{\"id\":\"304ca167\",\"name\":\"Interview\"},{\"id\":\"8cf73a3b\",\"name\":\"Decision\"}],\"rubric\":{\"version\":1,\"criteria\":[{\"id\":\"16c3e368\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}]},\"plan\":[{\"id\":\"4e47ff4f\",\"name\":\"Bid review\",\"stage\":\"304ca167\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}]},\"requestedBy\":\"[synthetic-address]\",\"approver\":\"[synthetic-address]\",\"sequence\":1,\"status\":\"approved\",\"requestedAt\":\"2026-11-06T07:43:26.738Z\",\"id\":\"95c542e2-abf8-4585-adec-620811d227de\",\"reason\":\"Synthetic budget approved by the owner\",\"decidedBy\":\"[synthetic-address]\",\"decidedAt\":\"2026-11-06T07:43:26.766Z\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "000102f6-0de1-44a9-86b0-4ed5780db0a3",
+            "revision": "66a1c5a1-ea1a-4726-8b96-54d8d5bb9502",
+            "value": "{\"at\":\"2026-11-06T07:43:24.293Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"interview-plan\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"id\":\"000102f6-0de1-44a9-86b0-4ed5780db0a3\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "11331db9-4041-4408-88d0-9c56be10d3c1",
+            "revision": "55faf7c3-7e17-4110-b42f-1fd71414b95b",
+            "value": "{\"at\":\"2026-11-06T07:43:24.311Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-requested\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"approval\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"approver\":\"[synthetic-address]\",\"id\":\"11331db9-4041-4408-88d0-9c56be10d3c1\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "15baa95e-65c2-46fc-9d3b-c5ed592b2ac3",
+            "revision": "40712a48-8f3e-43f3-8c53-0a6f9838d736",
+            "value": "{\"at\":\"2026-11-06T07:43:26.805Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"feedback-released\",\"record\":\"application:93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"waiting\":[],\"reason\":\"No interviews yet; explicitly record the evidence gap\",\"id\":\"15baa95e-65c2-46fc-9d3b-c5ed592b2ac3\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "1c2b024f-f96b-4185-a121-10b2fabb6f06",
+            "revision": "d5c62490-e762-4c66-b7af-4ad81b998bde",
+            "value": "{\"at\":\"2026-11-06T07:43:25.536Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"debrief-prepared\",\"record\":\"application:57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"debrief\":\"09d4664b-b737-4e41-9a5b-c270ffd62c4c\",\"statements\":1,\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"1c2b024f-f96b-4185-a121-10b2fabb6f06\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "1f4f55cb-9df1-427f-be4b-c39730daf5dc",
+            "revision": "2b2e1ffe-069d-4e6f-b64a-f2ecd1df7b3f",
+            "value": "{\"at\":\"2026-11-06T07:43:26.683Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-created\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"id\":\"1f4f55cb-9df1-427f-be4b-c39730daf5dc\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "25f668d5-b79a-4814-b3f5-990c768ab632",
+            "revision": "f8777df0-37dc-4c9c-8031-0f3c0f3a74eb",
+            "value": "{\"at\":\"2026-11-06T07:43:24.394Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"feedback-released\",\"record\":\"application:57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"waiting\":[],\"reason\":\"No interviews yet; explicitly record the evidence gap\",\"id\":\"25f668d5-b79a-4814-b3f5-990c768ab632\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "40916091-d351-44a4-ab7e-84d0677ff10c",
+            "revision": "683ae795-8d3c-4357-934f-93423ddd10aa",
+            "value": "{\"at\":\"2026-11-06T07:43:24.209Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"member-added\",\"record\":\"member:[synthetic-address]\",\"roles\":[],\"active\":true,\"agent\":true,\"actsFor\":\"[synthetic-address]\",\"seePrivate\":false,\"id\":\"40916091-d351-44a4-ab7e-84d0677ff10c\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "46afde0e-2372-4098-921b-d4aef2e77b7c",
+            "revision": "d6982df8-de7b-4768-b836-b63c51934df1",
+            "value": "{\"at\":\"2026-11-06T07:43:26.721Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"interview-plan\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"id\":\"46afde0e-2372-4098-921b-d4aef2e77b7c\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "59d375fc-db66-4b45-b8e1-33bdb1550c75",
+            "revision": "aa1b7e68-d6c8-4d85-b8d2-d351ac7b91b1",
+            "value": "{\"at\":\"2026-11-06T07:43:26.738Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-requested\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"approval\":\"95c542e2-abf8-4585-adec-620811d227de\",\"approver\":\"[synthetic-address]\",\"id\":\"59d375fc-db66-4b45-b8e1-33bdb1550c75\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "71564be7-1286-48f0-9928-882aded9ab7d",
+            "revision": "912b530a-248d-4918-a113-bbc6149a4f8e",
+            "value": "{\"at\":\"2026-11-06T07:43:26.767Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"openings-opened\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"openings\":[\"LDG-2DB8E3-01\"],\"id\":\"71564be7-1286-48f0-9928-882aded9ab7d\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "7358a83f-a235-42a6-bb9d-8312c7189575",
+            "revision": "40ab9aff-7488-4264-a449-91e4a637f83f",
+            "value": "{\"at\":\"2026-11-06T07:43:24.347Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-approved\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"approval\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"reason\":\"Synthetic budget approved by the owner\",\"id\":\"7358a83f-a235-42a6-bb9d-8312c7189575\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "79da976c-b80f-488f-9235-dd27026bdf74",
+            "revision": "afcbd319-2112-4710-a862-91fad948be32",
+            "value": "{\"at\":\"2026-11-06T07:43:26.935Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"proposal-created\",\"record\":\"proposal:5d771c5d-979d-4ed8-b773-87344a54c1c8\",\"workflow\":\"prepare-vacancy\",\"approver\":\"[synthetic-address]\",\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"79da976c-b80f-488f-9235-dd27026bdf74\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "85423a25-5355-498e-90fc-d2b10596b85a",
+            "revision": "2610dc14-c0b1-4c8c-89c2-ec9badd7f1c0",
+            "value": "{\"at\":\"2026-11-06T07:43:24.377Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"candidate-added\",\"record\":\"candidate:bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\",\"source\":\"Synthetic referral\",\"id\":\"85423a25-5355-498e-90fc-d2b10596b85a\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "9071d8fc-920b-4084-b393-4d3479fcf4ec",
+            "revision": "d7f3e91c-7c54-4759-9ba7-d66de091cb8a",
+            "value": "{\"at\":\"2026-11-06T07:43:24.270Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"rubric-version\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"version\":1,\"id\":\"9071d8fc-920b-4084-b393-4d3479fcf4ec\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "ba8046d8-99cb-47df-962c-72f0ff76a700",
+            "revision": "30dc4f72-ff81-4b1f-a37d-431434ac0982",
+            "value": "{\"at\":\"2026-11-06T07:43:26.704Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"rubric-version\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"version\":1,\"id\":\"ba8046d8-99cb-47df-962c-72f0ff76a700\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "bd15fe2f-d4fb-4e07-8f77-08d63039701d",
+            "revision": "ad1f27cc-73d8-47b5-94cb-08fd6fe5de15",
+            "value": "{\"at\":\"2026-11-06T07:43:24.249Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-created\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"id\":\"bd15fe2f-d4fb-4e07-8f77-08d63039701d\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "bf42f8bb-7545-4f08-b16b-2e49e4c72f71",
+            "revision": "e6f0f507-7fee-49be-8587-a6794d44af8e",
+            "value": "{\"at\":\"2026-11-06T07:43:26.780Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-published\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"slug\":\"estimator-c7ecb304-0229d1\",\"id\":\"bf42f8bb-7545-4f08-b16b-2e49e4c72f71\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d1e5ef33-c519-4219-a9e0-8a8edc308d6d",
+            "revision": "2db0515f-c8b8-4c09-9d4b-d117e76ec09e",
+            "value": "{\"at\":\"2026-11-06T07:43:26.794Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"candidate-added\",\"record\":\"candidate:6573b210-b4a3-461a-bab3-40f7a6057dd6\",\"source\":\"Synthetic referral\",\"id\":\"d1e5ef33-c519-4219-a9e0-8a8edc308d6d\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d27894f6-f8dd-493c-a241-50da2b304712",
+            "revision": "657ea7e0-dd4f-4664-b9cf-dcc8826a4249",
+            "value": "{\"at\":\"2026-11-06T07:43:24.558Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"proposal-created\",\"record\":\"proposal:c135c25a-6cdc-49dc-9844-49d5ae5bc378\",\"workflow\":\"prepare-vacancy\",\"approver\":\"[synthetic-address]\",\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"d27894f6-f8dd-493c-a241-50da2b304712\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d8d27e5d-a5da-49db-9462-7d66c5ca5861",
+            "revision": "6c7c0673-dc76-4df2-8302-6be8d308f0bf",
+            "value": "{\"at\":\"2026-11-06T07:43:24.362Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-published\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"slug\":\"estimator-fb4181cb-7aaef8\",\"id\":\"d8d27e5d-a5da-49db-9462-7d66c5ca5861\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "ea57f850-94dd-4358-8f83-91547529a649",
+            "revision": "78d4c03e-8c4f-43c0-a9e0-878b37d64bc0",
+            "value": "{\"at\":\"2026-11-06T07:43:26.766Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-approved\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"approval\":\"95c542e2-abf8-4585-adec-620811d227de\",\"reason\":\"Synthetic budget approved by the owner\",\"id\":\"ea57f850-94dd-4358-8f83-91547529a649\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "f002b863-739d-4500-813e-093e5b8b98dd",
+            "revision": "f9d0d8ed-8c15-42c7-9272-e5e4330ee3f0",
+            "value": "{\"at\":\"2026-11-06T07:43:24.088Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"business-created\",\"record\":\"business:main\",\"id\":\"f002b863-739d-4500-813e-093e5b8b98dd\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "f2d4715f-32c5-42f7-965e-f3d23e5af4bb",
+            "revision": "655b92bd-52f9-41ce-8544-c70a7f3e500d",
+            "value": "{\"at\":\"2026-11-06T07:43:24.348Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"openings-opened\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"openings\":[\"LDG-F0AC0A-01\"],\"id\":\"f2d4715f-32c5-42f7-965e-f3d23e5af4bb\"}"
+          },
+          {
+            "kind": "business",
+            "id": "main",
+            "revision": "841efd2e-dfa4-40d8-bc07-7a9e15e09224",
+            "value": "{\"name\":\"Example Builders\",\"accommodationContact\":\"[synthetic-address]\",\"retentionDays\":365,\"jurisdiction\":\"United States (New York office); legal review pending\",\"timeZone\":\"America/New_York\",\"scorecardDueHours\":24,\"notices\":[{\"version\":1,\"text\":\"We use your application only to assess you for this role and keep it for one year.\",\"at\":\"2026-11-06T07:43:24.085Z\"}],\"id\":\"main\"}"
+          },
+          {
+            "kind": "candidate",
+            "id": "6573b210-b4a3-461a-bab3-40f7a6057dd6",
+            "revision": "9160c72a-8ac2-4bd3-a484-12ff46908231",
+            "value": "{\"name\":\"Riley Park\",\"email\":\"[synthetic-address]\",\"phone\":\"\",\"location\":\"\",\"headline\":\"\",\"skills\":\"\",\"source\":\"Synthetic referral\",\"consent\":{\"basis\":\"referral\",\"talentPool\":false,\"recordedBy\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:26.794Z\",\"note\":\"\"},\"retainUntil\":\"2027-11-06\",\"createdAt\":\"2026-11-06T07:43:26.794Z\",\"id\":\"6573b210-b4a3-461a-bab3-40f7a6057dd6\"}"
+          },
+          {
+            "kind": "candidate",
+            "id": "bfb4a6fc-aa8c-4546-bdff-6714d869b0b6",
+            "revision": "2e265d15-f272-4639-abc5-a2d6996a2bbc",
+            "value": "{\"name\":\"Riley Park\",\"email\":\"[synthetic-address]\",\"phone\":\"\",\"location\":\"\",\"headline\":\"\",\"skills\":\"\",\"source\":\"Synthetic referral\",\"consent\":{\"basis\":\"referral\",\"talentPool\":false,\"recordedBy\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.377Z\",\"note\":\"\"},\"retainUntil\":\"2027-11-06\",\"createdAt\":\"2026-11-06T07:43:24.377Z\",\"id\":\"bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\"}"
+          },
+          {
+            "kind": "debrief",
+            "id": "09d4664b-b737-4e41-9a5b-c270ffd62c4c",
+            "revision": "35eb1766-523b-425a-8c82-9f59f9cf016a",
+            "value": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"d492aba0\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"d492aba0\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"[synthetic-address]\",\"preparedFor\":\"[synthetic-address]\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T07:43:25.536Z\",\"id\":\"09d4664b-b737-4e41-9a5b-c270ffd62c4c\"}"
+          },
+          {
+            "kind": "member",
+            "id": "[synthetic-address]",
+            "revision": "a00290fe-8ffa-46d5-8dfe-fa158da07fa0",
+            "value": "{\"email\":\"[synthetic-address]\",\"name\":\"Recruiting coordinator\",\"roles\":[],\"active\":true,\"owner\":false,\"agent\":true,\"actsFor\":\"[synthetic-address]\",\"seePrivate\":false,\"reportsTo\":null,\"id\":\"[synthetic-address]\",\"businessAgentId\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsorNativeId\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\"}"
+          },
+          {
+            "kind": "member",
+            "id": "[synthetic-address]",
+            "revision": "200a2829-366e-4ac3-be17-0088fd7d7d95",
+            "value": "{\"email\":\"[synthetic-address]\",\"name\":\"Olive Owner\",\"roles\":[\"admin\",\"manager\",\"interviewer\",\"approver\",\"compliance\",\"employee\"],\"active\":true,\"owner\":true,\"id\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "proposal",
+            "id": "5d771c5d-979d-4ed8-b773-87344a54c1c8",
+            "revision": "6b1c6abd-c72e-4d9c-a8fe-b3d60433330a",
+            "value": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 held recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 held\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:26.935Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"5d771c5d-979d-4ed8-b773-87344a54c1c8\"}"
+          },
+          {
+            "kind": "proposal",
+            "id": "c135c25a-6cdc-49dc-9844-49d5ae5bc378",
+            "revision": "081edc1c-850f-4961-880c-2ef1a52b2631",
+            "value": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 autonomous recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:24.557Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"c135c25a-6cdc-49dc-9844-49d5ae5bc378\"}"
+          },
+          {
+            "kind": "stage-event",
+            "id": "1b0e5f60-c5b7-42d6-865a-60d23596eeed",
+            "revision": "703d97bd-78d2-4aef-9dd3-ed32b9dac2b2",
+            "value": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"from\":null,\"to\":\"74ccd77d\",\"reason\":\"Application received (Synthetic referral)\",\"actor\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.378Z\",\"id\":\"1b0e5f60-c5b7-42d6-865a-60d23596eeed\"}"
+          },
+          {
+            "kind": "stage-event",
+            "id": "98f0f79c-a870-478f-b0fb-dd8de881f9bd",
+            "revision": "79b700c3-d606-4748-9059-7db8395fefef",
+            "value": "{\"application\":\"93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"from\":null,\"to\":\"223a26fa\",\"reason\":\"Application received (Synthetic referral)\",\"actor\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:26.794Z\",\"id\":\"98f0f79c-a870-478f-b0fb-dd8de881f9bd\"}"
+          },
+          {
+            "kind": "vacancy",
+            "id": "2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae",
+            "revision": "a6093ca3-6edb-40ed-89a7-8aab8cb11f25",
+            "value": "{\"title\":\"Estimator c7ecb304\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"status\":\"open\",\"stages\":[{\"id\":\"223a26fa\",\"name\":\"Applied\"},{\"id\":\"1c9fedda\",\"name\":\"Screen\"},{\"id\":\"304ca167\",\"name\":\"Interview\"},{\"id\":\"8cf73a3b\",\"name\":\"Decision\"}],\"rubrics\":[{\"version\":1,\"criteria\":[{\"id\":\"16c3e368\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}],\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:26.704Z\"}],\"plan\":[{\"id\":\"4e47ff4f\",\"name\":\"Bid review\",\"stage\":\"304ca167\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}],\"createdBy\":\"[synthetic-address]\",\"createdAt\":\"2026-11-06T07:43:26.683Z\",\"hires\":0,\"id\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"openings\":[{\"id\":\"0d32ba4a\",\"code\":\"LDG-2DB8E3-01\",\"targetStart\":null,\"status\":\"open\",\"openedAt\":\"2026-11-06T07:43:26.767Z\"}],\"slug\":\"estimator-c7ecb304-0229d1\",\"publishedAt\":\"2026-11-06T07:43:26.780Z\",\"noticeVersion\":1}"
+          },
+          {
+            "kind": "vacancy",
+            "id": "f0ac0a85-040b-42e5-917f-a3f331bd63bf",
+            "revision": "262f5a27-b9d8-4d9a-8dd5-9d23543afca2",
+            "value": "{\"title\":\"Estimator fb4181cb\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"status\":\"open\",\"stages\":[{\"id\":\"74ccd77d\",\"name\":\"Applied\"},{\"id\":\"26447991\",\"name\":\"Screen\"},{\"id\":\"6a47c953\",\"name\":\"Interview\"},{\"id\":\"c51a9b89\",\"name\":\"Decision\"}],\"rubrics\":[{\"version\":1,\"criteria\":[{\"id\":\"d492aba0\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}],\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.270Z\"}],\"plan\":[{\"id\":\"e2c30e6e\",\"name\":\"Bid review\",\"stage\":\"6a47c953\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}],\"createdBy\":\"[synthetic-address]\",\"createdAt\":\"2026-11-06T07:43:24.249Z\",\"hires\":0,\"id\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"openings\":[{\"id\":\"88c45768\",\"code\":\"LDG-F0AC0A-01\",\"targetStart\":null,\"status\":\"open\",\"openedAt\":\"2026-11-06T07:43:24.348Z\"}],\"slug\":\"estimator-fb4181cb-7aaef8\",\"publishedAt\":\"2026-11-06T07:43:24.362Z\",\"noticeVersion\":1}"
+          }
+        ],
+        "valuesAndRevisionsUnchanged": true
+      },
+      "review": {
+        "id": "dd58bc34-3e0e-4d97-b02e-887c82eb9ee9"
+      },
+      "policyUnchanged": true,
+      "admissionUnchanged": true
+    },
+    {
+      "phase": "held",
+      "tool": "lodge.debriefs.prepare",
+      "mode": "terminate",
+      "status": "pass",
+      "failure": {
+        "name": "TypeError",
+        "message": "terminated",
+        "cause": "UND_ERR_RES_CONTENT_LENGTH_MISMATCH"
+      },
+      "request": {
+        "originalId": 11,
+        "retryId": 12,
+        "arguments": {
+          "application": "93f3c8d0-14a3-4206-8a57-c4ef5a32e055",
+          "statements": [
+            {
+              "kind": "gap",
+              "criterion": "16c3e368",
+              "text": "Takeoffs has not been assessed."
+            }
+          ],
+          "expected_revision": "e1871937-9a64-462c-894e-0f41ba015756",
+          "idempotency_key": "0b2312db-8ca8-4dd3-a24c-87364e4d5470"
+        },
+        "admission": {
+          "iss": "https://synthetic-lodge-54.invalid",
+          "aud": "http://127.0.0.1:38833/mcp",
+          "sub": "e388a354-5a26-466b-bf9c-eccad84dc7ae",
+          "email": "[synthetic-address]",
+          "act": {
+            "sub": "1141eb5b-1bae-495b-9a9a-33ea381a398a",
+            "name": "Agent door conformance",
+            "specialist": "Recruiting coordinator"
+          },
+          "client_id": "rer-agent-conformance",
+          "scope": "lodge:read lodge:prepare events:read",
+          "business": "synthetic-lodge-54",
+          "consent": "e88670d1-3dfb-4f8d-a277-cfd43a369b72"
+        }
+      },
+      "transport": {
+        "mode": "terminate",
+        "requestId": 11,
+        "arguments": {
+          "application": "93f3c8d0-14a3-4206-8a57-c4ef5a32e055",
+          "statements": [
+            {
+              "kind": "gap",
+              "criterion": "16c3e368",
+              "text": "Takeoffs has not been assessed."
+            }
+          ],
+          "expected_revision": "e1871937-9a64-462c-894e-0f41ba015756",
+          "idempotency_key": "0b2312db-8ca8-4dd3-a24c-87364e4d5470"
+        },
+        "status": 200,
+        "contentType": "application/json",
+        "upstreamBytes": 1598,
+        "upstreamSha256": "64feff24488bbb74ec4d2f82b001dde2782a45e3219dd80e99e11ac900d3cbd6",
+        "upstreamBody": {
+          "jsonrpc": "2.0",
+          "id": 11,
+          "result": {
+            "resultType": "complete",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"application\":\"93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"vacancy\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"16c3e368\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"16c3e368\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"[synthetic-address]\",\"preparedFor\":\"[synthetic-address]\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T07:43:28.155Z\",\"id\":\"e37d3b33-34e0-410c-bb3e-daae1001325a\"}"
+              }
+            ],
+            "structuredContent": {
+              "application": "93f3c8d0-14a3-4206-8a57-c4ef5a32e055",
+              "vacancy": "2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae",
+              "statements": [
+                {
+                  "kind": "gap",
+                  "criterion": "16c3e368",
+                  "text": "Takeoffs has not been assessed.",
+                  "citations": []
+                }
+              ],
+              "criteria": [
+                {
+                  "criterion": "16c3e368",
+                  "name": "Takeoffs",
+                  "ratings": [],
+                  "agreement": "unassessed"
+                }
+              ],
+              "status": "draft",
+              "model": null,
+              "preparedBy": "[synthetic-address]",
+              "preparedFor": "[synthetic-address]",
+              "preparedByAgent": true,
+              "preparedAt": "2026-11-06T07:43:28.155Z",
+              "id": "e37d3b33-34e0-410c-bb3e-daae1001325a"
+            },
+            "isError": false,
+            "_meta": {
+              "com.runeditrun/decision": {
+                "id": "35e9e9dd-3a48-47ed-b93f-83e2c8126c1c",
+                "disposition": "review",
+                "revision": 2,
+                "classes": [
+                  {
+                    "class": "standard",
+                    "rule": "standard",
+                    "do": "review",
+                    "facts": {
+                      "measure": 1
+                    }
+                  }
+                ]
+              },
+              "com.runeditrun/review": {
+                "id": "d8673f17-934d-48ff-92d2-c8d36217e3c5"
+              },
+              "com.runeditrun/untrusted": true
+            }
+          }
+        },
+        "durableOutcome": {
+          "outcome": "done",
+          "decision": {
+            "id": "35e9e9dd-3a48-47ed-b93f-83e2c8126c1c",
+            "disposition": "review",
+            "revision": 2,
+            "classes": [
+              {
+                "class": "standard",
+                "rule": "standard",
+                "do": "review",
+                "facts": {
+                  "measure": 1
+                }
+              }
+            ]
+          },
+          "result": {
+            "application": "93f3c8d0-14a3-4206-8a57-c4ef5a32e055",
+            "vacancy": "2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae",
+            "statements": [
+              {
+                "kind": "gap",
+                "criterion": "16c3e368",
+                "text": "Takeoffs has not been assessed.",
+                "citations": []
+              }
+            ],
+            "criteria": [
+              {
+                "criterion": "16c3e368",
+                "name": "Takeoffs",
+                "ratings": [],
+                "agreement": "unassessed"
+              }
+            ],
+            "status": "draft",
+            "model": null,
+            "preparedBy": "[synthetic-address]",
+            "preparedFor": "[synthetic-address]",
+            "preparedByAgent": true,
+            "preparedAt": "2026-11-06T07:43:28.155Z",
+            "id": "e37d3b33-34e0-410c-bb3e-daae1001325a"
+          },
+          "untrusted": true,
+          "review": {
+            "id": "d8673f17-934d-48ff-92d2-c8d36217e3c5"
+          }
+        },
+        "upstreamCompleteAt": "2026-11-06T07:43:28.194Z",
+        "downstreamBytes": 799,
+        "cutoffAt": "2026-11-06T07:43:28.194Z"
+      },
+      "restartStartedAt": "2026-11-06T07:43:28.267Z",
+      "restartFinishedAt": "2026-11-06T07:43:29.026Z",
+      "retryResponse": {
+        "jsonrpc": "2.0",
+        "id": 12,
+        "result": {
+          "resultType": "complete",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"application\":\"93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"vacancy\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"16c3e368\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"16c3e368\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"[synthetic-address]\",\"preparedFor\":\"[synthetic-address]\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T07:43:28.155Z\",\"id\":\"e37d3b33-34e0-410c-bb3e-daae1001325a\"}"
+            }
+          ],
+          "structuredContent": {
+            "application": "93f3c8d0-14a3-4206-8a57-c4ef5a32e055",
+            "vacancy": "2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae",
+            "statements": [
+              {
+                "kind": "gap",
+                "criterion": "16c3e368",
+                "text": "Takeoffs has not been assessed.",
+                "citations": []
+              }
+            ],
+            "criteria": [
+              {
+                "criterion": "16c3e368",
+                "name": "Takeoffs",
+                "ratings": [],
+                "agreement": "unassessed"
+              }
+            ],
+            "status": "draft",
+            "model": null,
+            "preparedBy": "[synthetic-address]",
+            "preparedFor": "[synthetic-address]",
+            "preparedByAgent": true,
+            "preparedAt": "2026-11-06T07:43:28.155Z",
+            "id": "e37d3b33-34e0-410c-bb3e-daae1001325a"
+          },
+          "isError": false,
+          "_meta": {
+            "com.runeditrun/decision": {
+              "id": "d83829f5-206d-4bb7-a118-5256b86904db",
+              "disposition": "review",
+              "revision": 2,
+              "classes": [
+                {
+                  "class": "standard",
+                  "rule": "standard",
+                  "do": "review",
+                  "facts": {
+                    "measure": 1
+                  }
+                }
+              ]
+            },
+            "com.runeditrun/review": {
+              "id": "d8673f17-934d-48ff-92d2-c8d36217e3c5"
+            },
+            "com.runeditrun/untrusted": true
+          }
+        }
+      },
+      "originalDecisionId": "35e9e9dd-3a48-47ed-b93f-83e2c8126c1c",
+      "retryDecisionId": "d83829f5-206d-4bb7-a118-5256b86904db",
+      "native": {
+        "draftId": "e37d3b33-34e0-410c-bb3e-daae1001325a",
+        "countBefore": 1,
+        "countAfterLoss": 2,
+        "countAfterRetry": 2,
+        "draft": {
+          "application": "93f3c8d0-14a3-4206-8a57-c4ef5a32e055",
+          "vacancy": "2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae",
+          "statements": [
+            {
+              "kind": "gap",
+              "criterion": "16c3e368",
+              "text": "Takeoffs has not been assessed.",
+              "citations": []
+            }
+          ],
+          "criteria": [
+            {
+              "criterion": "16c3e368",
+              "name": "Takeoffs",
+              "ratings": [],
+              "agreement": "unassessed"
+            }
+          ],
+          "status": "draft",
+          "model": null,
+          "preparedBy": "[synthetic-address]",
+          "preparedFor": "[synthetic-address]",
+          "preparedByAgent": true,
+          "preparedAt": "2026-11-06T07:43:28.155Z",
+          "id": "e37d3b33-34e0-410c-bb3e-daae1001325a",
+          "stale": false
+        },
+        "recordSnapshotSha256": "ebab518a1162ce0d06abbd7cbf3e1be692349dcbc3a1dac401b288450e3435b6",
+        "records": [
+          {
+            "kind": "application",
+            "id": "57a2157e-2b2b-4ecb-90cf-b9f1a1115b21",
+            "revision": "e98e0c6f-2dfe-4e70-afcd-481a7689a88f",
+            "value": "{\"candidate\":\"bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"stage\":\"74ccd77d\",\"status\":\"active\",\"source\":\"Synthetic referral\",\"rubricVersion\":1,\"reviewers\":[],\"feedbackReleased\":true,\"submittedAt\":\"2026-11-06T07:43:24.378Z\",\"credit\":{\"kind\":\"recruiter\",\"who\":\"[synthetic-address]\",\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.377Z\",\"automatic\":true},\"customValues\":{},\"id\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"feedbackReleasedAt\":\"2026-11-06T07:43:24.394Z\",\"feedbackReleasedBy\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "application",
+            "id": "93f3c8d0-14a3-4206-8a57-c4ef5a32e055",
+            "revision": "e1871937-9a64-462c-894e-0f41ba015756",
+            "value": "{\"candidate\":\"6573b210-b4a3-461a-bab3-40f7a6057dd6\",\"vacancy\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"stage\":\"223a26fa\",\"status\":\"active\",\"source\":\"Synthetic referral\",\"rubricVersion\":1,\"reviewers\":[],\"feedbackReleased\":true,\"submittedAt\":\"2026-11-06T07:43:26.794Z\",\"credit\":{\"kind\":\"recruiter\",\"who\":\"[synthetic-address]\",\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:26.794Z\",\"automatic\":true},\"customValues\":{},\"id\":\"93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"feedbackReleasedAt\":\"2026-11-06T07:43:26.805Z\",\"feedbackReleasedBy\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "approval",
+            "id": "0a836193-d464-4c15-b5b4-991720bb361e",
+            "revision": "a216a542-a689-455b-90aa-f6bd278145b8",
+            "value": "{\"subjectKind\":\"vacancy\",\"subjectId\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"version\":\"735fa9f4ea2706ce555d6a0b0ac8518cec621d289009f776a076b87e129a9fd8\",\"terms\":{\"title\":\"Estimator fb4181cb\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"stages\":[{\"id\":\"74ccd77d\",\"name\":\"Applied\"},{\"id\":\"26447991\",\"name\":\"Screen\"},{\"id\":\"6a47c953\",\"name\":\"Interview\"},{\"id\":\"c51a9b89\",\"name\":\"Decision\"}],\"rubric\":{\"version\":1,\"criteria\":[{\"id\":\"d492aba0\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}]},\"plan\":[{\"id\":\"e2c30e6e\",\"name\":\"Bid review\",\"stage\":\"6a47c953\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}]},\"requestedBy\":\"[synthetic-address]\",\"approver\":\"[synthetic-address]\",\"sequence\":1,\"status\":\"approved\",\"requestedAt\":\"2026-11-06T07:43:24.311Z\",\"id\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"reason\":\"Synthetic budget approved by the owner\",\"decidedBy\":\"[synthetic-address]\",\"decidedAt\":\"2026-11-06T07:43:24.347Z\"}"
+          },
+          {
+            "kind": "approval",
+            "id": "95c542e2-abf8-4585-adec-620811d227de",
+            "revision": "d2b466d2-419f-41a5-a19d-235f2bd14161",
+            "value": "{\"subjectKind\":\"vacancy\",\"subjectId\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"version\":\"ba4a0dfc03fa8b0f70d1e7ba7928f4b95b2315ac647faebaa87d5a58a62caac8\",\"terms\":{\"title\":\"Estimator c7ecb304\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"stages\":[{\"id\":\"223a26fa\",\"name\":\"Applied\"},{\"id\":\"1c9fedda\",\"name\":\"Screen\"},{\"id\":\"304ca167\",\"name\":\"Interview\"},{\"id\":\"8cf73a3b\",\"name\":\"Decision\"}],\"rubric\":{\"version\":1,\"criteria\":[{\"id\":\"16c3e368\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}]},\"plan\":[{\"id\":\"4e47ff4f\",\"name\":\"Bid review\",\"stage\":\"304ca167\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}]},\"requestedBy\":\"[synthetic-address]\",\"approver\":\"[synthetic-address]\",\"sequence\":1,\"status\":\"approved\",\"requestedAt\":\"2026-11-06T07:43:26.738Z\",\"id\":\"95c542e2-abf8-4585-adec-620811d227de\",\"reason\":\"Synthetic budget approved by the owner\",\"decidedBy\":\"[synthetic-address]\",\"decidedAt\":\"2026-11-06T07:43:26.766Z\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "000102f6-0de1-44a9-86b0-4ed5780db0a3",
+            "revision": "66a1c5a1-ea1a-4726-8b96-54d8d5bb9502",
+            "value": "{\"at\":\"2026-11-06T07:43:24.293Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"interview-plan\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"id\":\"000102f6-0de1-44a9-86b0-4ed5780db0a3\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "11331db9-4041-4408-88d0-9c56be10d3c1",
+            "revision": "55faf7c3-7e17-4110-b42f-1fd71414b95b",
+            "value": "{\"at\":\"2026-11-06T07:43:24.311Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-requested\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"approval\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"approver\":\"[synthetic-address]\",\"id\":\"11331db9-4041-4408-88d0-9c56be10d3c1\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "15baa95e-65c2-46fc-9d3b-c5ed592b2ac3",
+            "revision": "40712a48-8f3e-43f3-8c53-0a6f9838d736",
+            "value": "{\"at\":\"2026-11-06T07:43:26.805Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"feedback-released\",\"record\":\"application:93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"waiting\":[],\"reason\":\"No interviews yet; explicitly record the evidence gap\",\"id\":\"15baa95e-65c2-46fc-9d3b-c5ed592b2ac3\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "1c2b024f-f96b-4185-a121-10b2fabb6f06",
+            "revision": "d5c62490-e762-4c66-b7af-4ad81b998bde",
+            "value": "{\"at\":\"2026-11-06T07:43:25.536Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"debrief-prepared\",\"record\":\"application:57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"debrief\":\"09d4664b-b737-4e41-9a5b-c270ffd62c4c\",\"statements\":1,\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"1c2b024f-f96b-4185-a121-10b2fabb6f06\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "1f4f55cb-9df1-427f-be4b-c39730daf5dc",
+            "revision": "2b2e1ffe-069d-4e6f-b64a-f2ecd1df7b3f",
+            "value": "{\"at\":\"2026-11-06T07:43:26.683Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-created\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"id\":\"1f4f55cb-9df1-427f-be4b-c39730daf5dc\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "25f668d5-b79a-4814-b3f5-990c768ab632",
+            "revision": "f8777df0-37dc-4c9c-8031-0f3c0f3a74eb",
+            "value": "{\"at\":\"2026-11-06T07:43:24.394Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"feedback-released\",\"record\":\"application:57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"waiting\":[],\"reason\":\"No interviews yet; explicitly record the evidence gap\",\"id\":\"25f668d5-b79a-4814-b3f5-990c768ab632\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "40916091-d351-44a4-ab7e-84d0677ff10c",
+            "revision": "683ae795-8d3c-4357-934f-93423ddd10aa",
+            "value": "{\"at\":\"2026-11-06T07:43:24.209Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"member-added\",\"record\":\"member:[synthetic-address]\",\"roles\":[],\"active\":true,\"agent\":true,\"actsFor\":\"[synthetic-address]\",\"seePrivate\":false,\"id\":\"40916091-d351-44a4-ab7e-84d0677ff10c\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "4101bd6b-9947-4038-a543-f8665bc78874",
+            "revision": "0aa76fe0-a5ed-400b-be10-73b93b9515b6",
+            "value": "{\"at\":\"2026-11-06T07:43:28.155Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"debrief-prepared\",\"record\":\"application:93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"debrief\":\"e37d3b33-34e0-410c-bb3e-daae1001325a\",\"statements\":1,\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"4101bd6b-9947-4038-a543-f8665bc78874\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "46afde0e-2372-4098-921b-d4aef2e77b7c",
+            "revision": "d6982df8-de7b-4768-b836-b63c51934df1",
+            "value": "{\"at\":\"2026-11-06T07:43:26.721Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"interview-plan\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"id\":\"46afde0e-2372-4098-921b-d4aef2e77b7c\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "59d375fc-db66-4b45-b8e1-33bdb1550c75",
+            "revision": "aa1b7e68-d6c8-4d85-b8d2-d351ac7b91b1",
+            "value": "{\"at\":\"2026-11-06T07:43:26.738Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-requested\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"approval\":\"95c542e2-abf8-4585-adec-620811d227de\",\"approver\":\"[synthetic-address]\",\"id\":\"59d375fc-db66-4b45-b8e1-33bdb1550c75\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "71564be7-1286-48f0-9928-882aded9ab7d",
+            "revision": "912b530a-248d-4918-a113-bbc6149a4f8e",
+            "value": "{\"at\":\"2026-11-06T07:43:26.767Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"openings-opened\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"openings\":[\"LDG-2DB8E3-01\"],\"id\":\"71564be7-1286-48f0-9928-882aded9ab7d\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "7358a83f-a235-42a6-bb9d-8312c7189575",
+            "revision": "40ab9aff-7488-4264-a449-91e4a637f83f",
+            "value": "{\"at\":\"2026-11-06T07:43:24.347Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-approved\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"approval\":\"0a836193-d464-4c15-b5b4-991720bb361e\",\"reason\":\"Synthetic budget approved by the owner\",\"id\":\"7358a83f-a235-42a6-bb9d-8312c7189575\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "79da976c-b80f-488f-9235-dd27026bdf74",
+            "revision": "afcbd319-2112-4710-a862-91fad948be32",
+            "value": "{\"at\":\"2026-11-06T07:43:26.935Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"proposal-created\",\"record\":\"proposal:5d771c5d-979d-4ed8-b773-87344a54c1c8\",\"workflow\":\"prepare-vacancy\",\"approver\":\"[synthetic-address]\",\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"79da976c-b80f-488f-9235-dd27026bdf74\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "85423a25-5355-498e-90fc-d2b10596b85a",
+            "revision": "2610dc14-c0b1-4c8c-89c2-ec9badd7f1c0",
+            "value": "{\"at\":\"2026-11-06T07:43:24.377Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"candidate-added\",\"record\":\"candidate:bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\",\"source\":\"Synthetic referral\",\"id\":\"85423a25-5355-498e-90fc-d2b10596b85a\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "9071d8fc-920b-4084-b393-4d3479fcf4ec",
+            "revision": "d7f3e91c-7c54-4759-9ba7-d66de091cb8a",
+            "value": "{\"at\":\"2026-11-06T07:43:24.270Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"rubric-version\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"version\":1,\"id\":\"9071d8fc-920b-4084-b393-4d3479fcf4ec\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "ba8046d8-99cb-47df-962c-72f0ff76a700",
+            "revision": "30dc4f72-ff81-4b1f-a37d-431434ac0982",
+            "value": "{\"at\":\"2026-11-06T07:43:26.704Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"rubric-version\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"version\":1,\"id\":\"ba8046d8-99cb-47df-962c-72f0ff76a700\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "bd15fe2f-d4fb-4e07-8f77-08d63039701d",
+            "revision": "ad1f27cc-73d8-47b5-94cb-08fd6fe5de15",
+            "value": "{\"at\":\"2026-11-06T07:43:24.249Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-created\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"id\":\"bd15fe2f-d4fb-4e07-8f77-08d63039701d\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "bf42f8bb-7545-4f08-b16b-2e49e4c72f71",
+            "revision": "e6f0f507-7fee-49be-8587-a6794d44af8e",
+            "value": "{\"at\":\"2026-11-06T07:43:26.780Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-published\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"slug\":\"estimator-c7ecb304-0229d1\",\"id\":\"bf42f8bb-7545-4f08-b16b-2e49e4c72f71\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d1e5ef33-c519-4219-a9e0-8a8edc308d6d",
+            "revision": "2db0515f-c8b8-4c09-9d4b-d117e76ec09e",
+            "value": "{\"at\":\"2026-11-06T07:43:26.794Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"candidate-added\",\"record\":\"candidate:6573b210-b4a3-461a-bab3-40f7a6057dd6\",\"source\":\"Synthetic referral\",\"id\":\"d1e5ef33-c519-4219-a9e0-8a8edc308d6d\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d27894f6-f8dd-493c-a241-50da2b304712",
+            "revision": "657ea7e0-dd4f-4664-b9cf-dcc8826a4249",
+            "value": "{\"at\":\"2026-11-06T07:43:24.558Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"proposal-created\",\"record\":\"proposal:c135c25a-6cdc-49dc-9844-49d5ae5bc378\",\"workflow\":\"prepare-vacancy\",\"approver\":\"[synthetic-address]\",\"agent\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"preparedBy\":\"Agent door conformance for Olive Owner\",\"id\":\"d27894f6-f8dd-493c-a241-50da2b304712\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "d8d27e5d-a5da-49db-9462-7d66c5ca5861",
+            "revision": "6c7c0673-dc76-4df2-8302-6be8d308f0bf",
+            "value": "{\"at\":\"2026-11-06T07:43:24.362Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"vacancy-published\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"slug\":\"estimator-fb4181cb-7aaef8\",\"id\":\"d8d27e5d-a5da-49db-9462-7d66c5ca5861\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "ea57f850-94dd-4358-8f83-91547529a649",
+            "revision": "78d4c03e-8c4f-43c0-a9e0-878b37d64bc0",
+            "value": "{\"at\":\"2026-11-06T07:43:26.766Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"approval-approved\",\"record\":\"vacancy:2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"approval\":\"95c542e2-abf8-4585-adec-620811d227de\",\"reason\":\"Synthetic budget approved by the owner\",\"id\":\"ea57f850-94dd-4358-8f83-91547529a649\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "f002b863-739d-4500-813e-093e5b8b98dd",
+            "revision": "f9d0d8ed-8c15-42c7-9272-e5e4330ee3f0",
+            "value": "{\"at\":\"2026-11-06T07:43:24.088Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"business-created\",\"record\":\"business:main\",\"id\":\"f002b863-739d-4500-813e-093e5b8b98dd\"}"
+          },
+          {
+            "kind": "audit",
+            "id": "f2d4715f-32c5-42f7-965e-f3d23e5af4bb",
+            "revision": "655b92bd-52f9-41ce-8544-c70a7f3e500d",
+            "value": "{\"at\":\"2026-11-06T07:43:24.348Z\",\"actor\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\",\"email\":\"[synthetic-address]\",\"action\":\"openings-opened\",\"record\":\"vacancy:f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"openings\":[\"LDG-F0AC0A-01\"],\"id\":\"f2d4715f-32c5-42f7-965e-f3d23e5af4bb\"}"
+          },
+          {
+            "kind": "business",
+            "id": "main",
+            "revision": "841efd2e-dfa4-40d8-bc07-7a9e15e09224",
+            "value": "{\"name\":\"Example Builders\",\"accommodationContact\":\"[synthetic-address]\",\"retentionDays\":365,\"jurisdiction\":\"United States (New York office); legal review pending\",\"timeZone\":\"America/New_York\",\"scorecardDueHours\":24,\"notices\":[{\"version\":1,\"text\":\"We use your application only to assess you for this role and keep it for one year.\",\"at\":\"2026-11-06T07:43:24.085Z\"}],\"id\":\"main\"}"
+          },
+          {
+            "kind": "candidate",
+            "id": "6573b210-b4a3-461a-bab3-40f7a6057dd6",
+            "revision": "9160c72a-8ac2-4bd3-a484-12ff46908231",
+            "value": "{\"name\":\"Riley Park\",\"email\":\"[synthetic-address]\",\"phone\":\"\",\"location\":\"\",\"headline\":\"\",\"skills\":\"\",\"source\":\"Synthetic referral\",\"consent\":{\"basis\":\"referral\",\"talentPool\":false,\"recordedBy\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:26.794Z\",\"note\":\"\"},\"retainUntil\":\"2027-11-06\",\"createdAt\":\"2026-11-06T07:43:26.794Z\",\"id\":\"6573b210-b4a3-461a-bab3-40f7a6057dd6\"}"
+          },
+          {
+            "kind": "candidate",
+            "id": "bfb4a6fc-aa8c-4546-bdff-6714d869b0b6",
+            "revision": "2e265d15-f272-4639-abc5-a2d6996a2bbc",
+            "value": "{\"name\":\"Riley Park\",\"email\":\"[synthetic-address]\",\"phone\":\"\",\"location\":\"\",\"headline\":\"\",\"skills\":\"\",\"source\":\"Synthetic referral\",\"consent\":{\"basis\":\"referral\",\"talentPool\":false,\"recordedBy\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.377Z\",\"note\":\"\"},\"retainUntil\":\"2027-11-06\",\"createdAt\":\"2026-11-06T07:43:24.377Z\",\"id\":\"bfb4a6fc-aa8c-4546-bdff-6714d869b0b6\"}"
+          },
+          {
+            "kind": "debrief",
+            "id": "09d4664b-b737-4e41-9a5b-c270ffd62c4c",
+            "revision": "35eb1766-523b-425a-8c82-9f59f9cf016a",
+            "value": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"vacancy\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"d492aba0\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"d492aba0\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"[synthetic-address]\",\"preparedFor\":\"[synthetic-address]\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T07:43:25.536Z\",\"id\":\"09d4664b-b737-4e41-9a5b-c270ffd62c4c\"}"
+          },
+          {
+            "kind": "debrief",
+            "id": "e37d3b33-34e0-410c-bb3e-daae1001325a",
+            "revision": "2b6df01b-3aaf-402a-8a11-ea6cbe3a5cb4",
+            "value": "{\"application\":\"93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"vacancy\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"statements\":[{\"kind\":\"gap\",\"criterion\":\"16c3e368\",\"text\":\"Takeoffs has not been assessed.\",\"citations\":[]}],\"criteria\":[{\"criterion\":\"16c3e368\",\"name\":\"Takeoffs\",\"ratings\":[],\"agreement\":\"unassessed\"}],\"status\":\"draft\",\"model\":null,\"preparedBy\":\"[synthetic-address]\",\"preparedFor\":\"[synthetic-address]\",\"preparedByAgent\":true,\"preparedAt\":\"2026-11-06T07:43:28.155Z\",\"id\":\"e37d3b33-34e0-410c-bb3e-daae1001325a\"}"
+          },
+          {
+            "kind": "member",
+            "id": "[synthetic-address]",
+            "revision": "a00290fe-8ffa-46d5-8dfe-fa158da07fa0",
+            "value": "{\"email\":\"[synthetic-address]\",\"name\":\"Recruiting coordinator\",\"roles\":[],\"active\":true,\"owner\":false,\"agent\":true,\"actsFor\":\"[synthetic-address]\",\"seePrivate\":false,\"reportsTo\":null,\"id\":\"[synthetic-address]\",\"businessAgentId\":\"1141eb5b-1bae-495b-9a9a-33ea381a398a\",\"sponsorNativeId\":\"89d53d12-4ead-4fbe-b620-e60c2815167d\"}"
+          },
+          {
+            "kind": "member",
+            "id": "[synthetic-address]",
+            "revision": "200a2829-366e-4ac3-be17-0088fd7d7d95",
+            "value": "{\"email\":\"[synthetic-address]\",\"name\":\"Olive Owner\",\"roles\":[\"admin\",\"manager\",\"interviewer\",\"approver\",\"compliance\",\"employee\"],\"active\":true,\"owner\":true,\"id\":\"[synthetic-address]\"}"
+          },
+          {
+            "kind": "proposal",
+            "id": "5d771c5d-979d-4ed8-b773-87344a54c1c8",
+            "revision": "6b1c6abd-c72e-4d9c-a8fe-b3d60433330a",
+            "value": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 held recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 held\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:26.935Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"5d771c5d-979d-4ed8-b773-87344a54c1c8\"}"
+          },
+          {
+            "kind": "proposal",
+            "id": "c135c25a-6cdc-49dc-9844-49d5ae5bc378",
+            "revision": "081edc1c-850f-4961-880c-2ef1a52b2631",
+            "value": "{\"workflow\":\"prepare-vacancy\",\"summary\":\"Synthetic lodge 54 autonomous recovery draft\",\"rationale\":\"\",\"intake\":\"Prepare a synthetic estimator vacancy.\",\"sources\":[],\"changes\":[{\"op\":\"vacancy\",\"input\":{\"title\":\"Synthetic lodge 54 autonomous\",\"location\":\"Brooklyn, NY\",\"headcount\":1,\"manager\":\"[synthetic-address]\",\"description\":\"Prepare estimates from drawings.\"}}],\"citations\":[],\"approver\":\"[synthetic-address]\",\"proposedBy\":\"[synthetic-address]\",\"proposedFor\":\"[synthetic-address]\",\"proposedByAgent\":true,\"proposedAt\":\"2026-11-06T07:43:24.557Z\",\"status\":\"proposed\",\"model\":null,\"missing\":[\"compensation range\",\"a job-related rubric\",\"an interview plan\"],\"id\":\"c135c25a-6cdc-49dc-9844-49d5ae5bc378\"}"
+          },
+          {
+            "kind": "stage-event",
+            "id": "1b0e5f60-c5b7-42d6-865a-60d23596eeed",
+            "revision": "703d97bd-78d2-4aef-9dd3-ed32b9dac2b2",
+            "value": "{\"application\":\"57a2157e-2b2b-4ecb-90cf-b9f1a1115b21\",\"from\":null,\"to\":\"74ccd77d\",\"reason\":\"Application received (Synthetic referral)\",\"actor\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.378Z\",\"id\":\"1b0e5f60-c5b7-42d6-865a-60d23596eeed\"}"
+          },
+          {
+            "kind": "stage-event",
+            "id": "98f0f79c-a870-478f-b0fb-dd8de881f9bd",
+            "revision": "79b700c3-d606-4748-9059-7db8395fefef",
+            "value": "{\"application\":\"93f3c8d0-14a3-4206-8a57-c4ef5a32e055\",\"from\":null,\"to\":\"223a26fa\",\"reason\":\"Application received (Synthetic referral)\",\"actor\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:26.794Z\",\"id\":\"98f0f79c-a870-478f-b0fb-dd8de881f9bd\"}"
+          },
+          {
+            "kind": "vacancy",
+            "id": "2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae",
+            "revision": "a6093ca3-6edb-40ed-89a7-8aab8cb11f25",
+            "value": "{\"title\":\"Estimator c7ecb304\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"status\":\"open\",\"stages\":[{\"id\":\"223a26fa\",\"name\":\"Applied\"},{\"id\":\"1c9fedda\",\"name\":\"Screen\"},{\"id\":\"304ca167\",\"name\":\"Interview\"},{\"id\":\"8cf73a3b\",\"name\":\"Decision\"}],\"rubrics\":[{\"version\":1,\"criteria\":[{\"id\":\"16c3e368\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}],\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:26.704Z\"}],\"plan\":[{\"id\":\"4e47ff4f\",\"name\":\"Bid review\",\"stage\":\"304ca167\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}],\"createdBy\":\"[synthetic-address]\",\"createdAt\":\"2026-11-06T07:43:26.683Z\",\"hires\":0,\"id\":\"2db8e3bf-1e65-458f-b9a0-9c2fc3bf5fae\",\"openings\":[{\"id\":\"0d32ba4a\",\"code\":\"LDG-2DB8E3-01\",\"targetStart\":null,\"status\":\"open\",\"openedAt\":\"2026-11-06T07:43:26.767Z\"}],\"slug\":\"estimator-c7ecb304-0229d1\",\"publishedAt\":\"2026-11-06T07:43:26.780Z\",\"noticeVersion\":1}"
+          },
+          {
+            "kind": "vacancy",
+            "id": "f0ac0a85-040b-42e5-917f-a3f331bd63bf",
+            "revision": "262f5a27-b9d8-4d9a-8dd5-9d23543afca2",
+            "value": "{\"title\":\"Estimator fb4181cb\",\"department\":\"\",\"location\":\"Brooklyn, NY\",\"workMode\":\"onsite\",\"employmentType\":\"full-time\",\"description\":\"Prepare estimates from drawings.\",\"compensation\":{\"currency\":\"USD\",\"min\":7000000,\"max\":8500000,\"period\":\"year\"},\"headcount\":1,\"manager\":\"[synthetic-address]\",\"status\":\"open\",\"stages\":[{\"id\":\"74ccd77d\",\"name\":\"Applied\"},{\"id\":\"26447991\",\"name\":\"Screen\"},{\"id\":\"6a47c953\",\"name\":\"Interview\"},{\"id\":\"c51a9b89\",\"name\":\"Decision\"}],\"rubrics\":[{\"version\":1,\"criteria\":[{\"id\":\"d492aba0\",\"name\":\"Takeoffs\",\"description\":\"Explains a takeoff they prepared\"}],\"by\":\"[synthetic-address]\",\"at\":\"2026-11-06T07:43:24.270Z\"}],\"plan\":[{\"id\":\"e2c30e6e\",\"name\":\"Bid review\",\"stage\":\"6a47c953\",\"durationMinutes\":60,\"criteria\":[],\"purpose\":\"\",\"questions\":[]}],\"createdBy\":\"[synthetic-address]\",\"createdAt\":\"2026-11-06T07:43:24.249Z\",\"hires\":0,\"id\":\"f0ac0a85-040b-42e5-917f-a3f331bd63bf\",\"openings\":[{\"id\":\"88c45768\",\"code\":\"LDG-F0AC0A-01\",\"targetStart\":null,\"status\":\"open\",\"openedAt\":\"2026-11-06T07:43:24.348Z\"}],\"slug\":\"estimator-fb4181cb-7aaef8\",\"publishedAt\":\"2026-11-06T07:43:24.362Z\",\"noticeVersion\":1}"
+          }
+        ],
+        "valuesAndRevisionsUnchanged": true
+      },
+      "review": {
+        "id": "d8673f17-934d-48ff-92d2-c8d36217e3c5"
+      },
+      "policyUnchanged": true,
+      "admissionUnchanged": true
+    }
+  ],
+  "browser": [
+    {
+      "width": 1440,
+      "screen": "native unsent proposals",
+      "file": "proposals-1440.png",
+      "status": "pass"
+    }
+  ],
+  "scope": "Completed native draft outcomes only; no crash between mutation and durable outcome; no provider, retention-duration or long-job qualification",
+  "privacy": "Only disposable fixture results and native records are recorded. Synthetic addresses are masked; no credentials, cookies, signed policy or authorization headers are retained.",
+  "status": "fail",
+  "failure": {
+    "name": "Error",
+    "message": "locator.waitFor: Error: strict mode violation: getByRole('region', { name: 'Debrief brief', exact: true }).getByText('Takeoffs has not been assessed.') resolved to 2 elements:\n    1) <p>…</p> aka getByText('Nobody assessed · Takeoffs:')\n    2) <textarea name=\"statement-0\">Takeoffs has not been assessed.</textarea> aka getByLabel('Brief statement 1: Nobody')\n\nCall log:\n\u001b[2m  - waiting for getByRole('region', { name: 'Debrief brief', exact: true }).getByText('Takeoffs has not been assessed.') to be visible\u001b[22m\n"
+  },
+  "completedAt": "2026-11-06T07:43:31.793Z"
+}

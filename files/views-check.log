@@ -1,0 +1,1 @@
+contract-docs check: BASE-AGENT-012; counts {"done":70,"partial":44,"missing":31,"total":145}
