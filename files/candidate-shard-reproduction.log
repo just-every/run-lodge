@@ -1,0 +1,421 @@
+
+> @hiring/lodge@0.1.1 test:lodge /home/agent/rer-consolidation/work/sx-lodge-c-f49/run-lodge
+> node tests/run-lodge.mjs
+
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: Local accepted-offer handoff exceptions preserve exact artifacts, human ownership and incomplete destination status
+ok 1 - Local accepted-offer handoff exceptions preserve exact artifacts, human ownership and incomplete destination status
+  ---
+  duration_ms: 4639.091488
+  type: 'test'
+  ...
+# Subtest: LDG-013 agents propose typed changes from versioned sources; a person approves; stale or unsupported proposals fail
+ok 2 - LDG-013 agents propose typed changes from versioned sources; a person approves; stale or unsupported proposals fail
+  ---
+  duration_ms: 1767.273391
+  type: 'test'
+  ...
+# Subtest: COORD-006 a debrief brief quotes released scorecards only, names disagreements and gaps, and never scores or moves the candidate
+ok 3 - COORD-006 a debrief brief quotes released scorecards only, names disagreements and gaps, and never scores or moves the candidate
+  ---
+  duration_ms: 1806.1366
+  type: 'test'
+  ...
+# Subtest: Persistent reminders deliver on cadence, escalate once and survive restart without stale contact
+ok 4 - Persistent reminders deliver on cadence, escalate once and survive restart without stale contact
+  ---
+  duration_ms: 3587.219309
+  type: 'test'
+  ...
+# Subtest: Reminder stops honor live work and contact, preserve honest failures, and erase personal schedules
+ok 5 - Reminder stops honor live work and contact, preserve honest failures, and erase personal schedules
+  ---
+  duration_ms: 3490.523475
+  type: 'test'
+  ...
+# Subtest: Nurture pools preserve consent, exact review, replies, opt-out, owned tasks and human application selection
+ok 6 - Nurture pools preserve consent, exact review, replies, opt-out, owned tasks and human application selection
+  ---
+  duration_ms: 4008.161855
+  type: 'test'
+  ...
+# Subtest: Nurture stops on expired consent, withdrawal, hire, revoked authority and uncertain delivery; imported pools never grant consent
+ok 7 - Nurture stops on expired consent, withdrawal, hire, revoked authority and uncertain delivery; imported pools never grant consent
+  ---
+  duration_ms: 2774.866595
+  type: 'test'
+  ...
+# Subtest: Restored nurture archives keep sending, native reply activation and queued steps inert
+ok 8 - Restored nurture archives keep sending, native reply activation and queued steps inert
+  ---
+  duration_ms: 13273.300374
+  type: 'test'
+  ...
+# Subtest: Native delay evidence and agent diagnosis preserve exact citations, uncertainty, live authority and inert review
+ok 9 - Native delay evidence and agent diagnosis preserve exact citations, uncertainty, live authority and inert review
+  ---
+  duration_ms: 18921.082996
+  type: 'test'
+  ...
+# Subtest: COORD-005 native response windows and human-reviewed unsent updates preserve authority and lifecycle
+ok 10 - COORD-005 native response windows and human-reviewed unsent updates preserve authority and lifecycle
+  ---
+  duration_ms: 2639.209681
+  type: 'test'
+  ...
+# Subtest: Native sourcing research keeps exact consented facts and reviewed outreach inert through stale sources, revocation and erasure
+ok 11 - Native sourcing research keeps exact consented facts and reviewed outreach inert through stale sources, revocation and erasure
+  ---
+  duration_ms: 2453.574703
+  type: 'test'
+  ...
+# Subtest: Native feedback cases preserve human ownership, truthful submission readback, revocation and erasure
+ok 12 - Native feedback cases preserve human ownership, truthful submission readback, revocation and erasure
+  ---
+  duration_ms: 15312.148105
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: Lodge hiring flows through native sessions and real D1
+    # Subtest: LDG-001 vacancy terms need a headcount approval that matches them exactly
+    ok 1 - LDG-001 vacancy terms need a headcount approval that matches them exactly
+      ---
+      duration_ms: 198.862472
+      type: 'test'
+      ...
+    # Subtest: LDG-002 stages, rubric and plan are agreed before evaluation and stay fixed while published
+    ok 2 - LDG-002 stages, rubric and plan are agreed before evaluation and stay fixed while published
+      ---
+      duration_ms: 42.791282
+      type: 'test'
+      ...
+    # Subtest: LDG-003 the accessible application page records the notice version and returns a receipt
+    ok 3 - LDG-003 the accessible application page records the notice version and returns a receipt
+      ---
+      duration_ms: 110.652019
+      type: 'test'
+      ...
+    # Subtest: LDG-004 staff add candidates with source, consent basis, retention and original file bytes
+    ok 4 - LDG-004 staff add candidates with source, consent basis, retention and original file bytes
+      ---
+      duration_ms: 72.675808
+      type: 'test'
+      ...
+    # Subtest: LDG-005 one person, several applications; duplicates are reviewed, never merged automatically
+    ok 5 - LDG-005 one person, several applications; duplicates are reviewed, never merged automatically
+      ---
+      duration_ms: 1056.825824
+      type: 'test'
+      ...
+    # Subtest: LDG-006 an interviewer reaches only assigned applications, through every door
+    ok 6 - LDG-006 an interviewer reaches only assigned applications, through every door
+      ---
+      duration_ms: 113.420055
+      type: 'test'
+      ...
+    # Subtest: LDG-007 stage moves keep reason, actor and time; concurrent moves cannot both win
+    ok 7 - LDG-007 stage moves keep reason, actor and time; concurrent moves cannot both win
+      ---
+      duration_ms: 60.805779
+      type: 'test'
+      ...
+    # Subtest: LDG-008 interviews collect panel and candidate availability and download as calendar files
+    ok 8 - LDG-008 interviews collect panel and candidate availability and download as calendar files
+      ---
+      duration_ms: 232.162908
+      type: 'test'
+      ...
+    # Subtest: LDG-009 scorecards are independent until the manager releases feedback
+    ok 9 - LDG-009 scorecards are independent until the manager releases feedback
+      ---
+      duration_ms: 99.944943
+      type: 'test'
+      ...
+    # Subtest: SCORE-001 recommendations and take-aways stay blind until release, then summarize by interview
+    ok 10 - SCORE-001 recommendations and take-aways stay blind until release, then summarize by interview
+      ---
+      duration_ms: 340.804702
+      type: 'test'
+      ...
+    # Subtest: LDG-010 messages are approved as exact text and downloaded, never sent
+    ok 11 - LDG-010 messages are approved as exact text and downloaded, never sent
+      ---
+      duration_ms: 151.48046
+      type: 'test'
+      ...
+    # Subtest: LDG-011 an offer is approved on exact terms, its outcome recorded and handed to HR
+    ok 12 - LDG-011 an offer is approved on exact terms, its outcome recorded and handed to HR
+      ---
+      duration_ms: 278.83849
+      type: 'test'
+      ...
+    # Subtest: LDG-012 holds block deletion; deletion leaves a receipt; access requests export everything
+    ok 13 - LDG-012 holds block deletion; deletion leaves a receipt; access requests export everything
+      ---
+      duration_ms: 56034.958418
+      type: 'test'
+      ...
+    1..13
+ok 13 - Lodge hiring flows through native sessions and real D1
+  ---
+  duration_ms: 60634.562265
+  type: 'test'
+  ...
+# Subtest: Candidate intake, job setup and reviewed bulk flows through real HTTP and D1
+    # Subtest: REQ-001 one opening per approved headcount, filled by a named accepted offer, closed with a reason, added only with approval
+    ok 1 - REQ-001 one opening per approved headcount, filled by a named accepted offer, closed with a reason, added only with approval
+      ---
+      duration_ms: 354.560484
+      type: 'test'
+      ...
+    # Subtest: SCREEN-001 a versioned question library: typed answers on the job, kept on the version answered; protected traits refused
+    ok 2 - SCREEN-001 a versioned question library: typed answers on the job, kept on the version answered; protected traits refused
+      ---
+      duration_ms: 224.833708
+      type: 'test'
+      ...
+    # Subtest: REQ-004 departments and offices: jobs, openings and members attach; the careers page filters; a manager granted Operations runs only Operations
+    ok 3 - REQ-004 departments and offices: jobs, openings and members attach; the careers page filters; a manager granted Operations runs only Operations
+      ---
+      duration_ms: 431.363911
+      type: 'test'
+      ...
+    # Subtest: ATTR-009 the public job board: published jobs as JSON for the employer’s own careers page; applications with a board key or from an allowed site
+    ok 4 - ATTR-009 the public job board: published jobs as JSON for the employer’s own careers page; applications with a board key or from an allowed site
+      ---
+      duration_ms: 745.524579
+      type: 'test'
+      ...
+    # Subtest: a receipt for a repeat job-board submission verifies no privacy request about the earlier application
+    ok 5 - a receipt for a repeat job-board submission verifies no privacy request about the earlier application
+      ---
+      duration_ms: 90.512281
+      type: 'test'
+      ...
+    # Subtest: ATTR-008 the embedded job board and form: framed only by listed sites, filtered, applied to inside the frame with the host page’s campaign
+    ok 6 - ATTR-008 the embedded job board and form: framed only by listed sites, filtered, applied to inside the frame with the host page’s campaign
+      ---
+      duration_ms: 283.445719
+      type: 'test'
+      ...
+    # Subtest: ATTR-005 the internal job board: employees see public and internal-only jobs and apply as members; internal applications stay with the hiring team and count as internal moves
+    ok 7 - ATTR-005 the internal job board: employees see public and internal-only jobs and apply as members; internal applications stay with the hiring team and count as internal moves
+      ---
+      duration_ms: 504.752973
+      type: 'test'
+      ...
+    # Subtest: ATTR-012 several posts per job: each post lists with its own title and approved locations on its destinations; applications land on the one job with the post; pausing, an unapproved location and closing the job
+    ok 8 - ATTR-012 several posts per job: each post lists with its own title and approved locations on its destinations; applications land on the one job with the post; pausing, an unapproved location and closing the job
+      ---
+      duration_ms: 693.94678
+      type: 'test'
+      ...
+    # Subtest: CRM-009 a campus career fair: staff and QR captures join the event pool with source, notice and consent; a repeated sync adds nobody; duplicates go to review; nobody applies until a recruiter adds them; the report counts attendees and the hire with cost per hire
+    ok 9 - CRM-009 a campus career fair: staff and QR captures join the event pool with source, notice and consent; a repeated sync adds nobody; duplicates go to review; nobody applies until a recruiter adds them; the report counts attendees and the hire with cost per hire
+      ---
+      duration_ms: 650.83005
+      type: 'test'
+      ...
+    # Subtest: DATA-003 reviewed bulk actions across two jobs: preview per item, apply only unchanged and still-authorized items with each outcome shown and audited, a resubmitted batch changes nothing; bulk rejection, archive, export and personalized message drafts
+    ok 10 - DATA-003 reviewed bulk actions across two jobs: preview per item, apply only unchanged and still-authorized items with each outcome shown and audited, a resubmitted batch changes nothing; bulk rejection, archive, export and personalized message drafts
+      ---
+      duration_ms: 3147.794229
+      type: 'test'
+      ...
+    # Subtest: SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply
+    ok 11 - SCREEN-002 rules on objective answers route, tag and queue rejections; edits never re-run past applications except by preview and apply
+      ---
+      duration_ms: 658.120106
+      type: 'test'
+      ...
+    # Subtest: rule previews and the rule-match queue leave out applications the reader cannot see
+    ok 12 - rule previews and the rule-match queue leave out applications the reader cannot see
+      ---
+      duration_ms: 320.809193
+      type: 'test'
+      ...
+    # Subtest: REQ-003 a job names its hiring team; each sees and hears only that job, and a swap moves reminders and access at once
+    ok 13 - REQ-003 a job names its hiring team; each sees and hears only that job, and a swap moves reminders and access at once
+      ---
+      duration_ms: 1249.765732
+      type: 'test'
+      ...
+    # Subtest: REQ-002 job templates and clones: jobs keep what they copied; a clone carries no candidates, approvals or openings and needs its own approval
+    ok 14 - REQ-002 job templates and clones: jobs keep what they copied; a clone carries no candidates, approvals or openings and needs its own approval
+      ---
+      duration_ms: 553.367505
+      type: 'test'
+      ...
+    # Subtest: DATA-002 original resumes, grounded extraction, corrections and confirmed duplicates before individual or bulk commit
+    ok 15 - DATA-002 original resumes, grounded extraction, corrections and confirmed duplicates before individual or bulk commit
+      ---
+      duration_ms: 2594.786959
+      type: 'test'
+      ...
+    # Subtest: an event shows each reader only the linked jobs and applications they may see
+    ok 16 - an event shows each reader only the linked jobs and applications they may see
+      ---
+      duration_ms: 521.069481
+      type: 'test'
+      ...
+    # Subtest: the hosted and embedded application forms take at most sixty attempts an hour from one connection
+    ok 17 - the hosted and embedded application forms take at most sixty attempts an hour from one connection
+      ---
+      duration_ms: 1569.016733
+      type: 'test'
+      ...
+    1..17
+ok 14 - Candidate intake, job setup and reviewed bulk flows through real HTTP and D1
+  ---
+  duration_ms: 15933.331694
+  type: 'test'
+  ...
+# Subtest: DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration
+ok 15 - DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration
+  ---
+  duration_ms: 1985.009959
+  type: 'test'
+  ...
+# Subtest: CRM-005 invited agencies own frozen submissions, reviewed credit and coarse progress through live scoped doors
+ok 16 - CRM-005 invited agencies own frozen submissions, reviewed credit and coarse progress through live scoped doors
+  ---
+  duration_ms: 1912.148362
+  type: 'test'
+  ...
+# Subtest: ATTR-007 Spanish posts and applications preserve reviewed source versions
+ok 17 - ATTR-007 Spanish posts and applications preserve reviewed source versions
+  ---
+  duration_ms: 2285.140371
+  type: 'test'
+  ...
+# Subtest: CRM-003 consented employee referrals reconcile identities and expose only shared progress
+ok 18 - CRM-003 consented employee referrals reconcile identities and expose only shared progress
+  ---
+  duration_ms: 1987.486176
+  type: 'test'
+  ...
+# Subtest: CRM-010 referral alerts and shared progress by installation email, claimed once and checked live
+ok 19 - CRM-010 referral alerts and shared progress by installation email, claimed once and checked live
+  ---
+  duration_ms: 2614.425379
+  type: 'test'
+  ...
+# Subtest: ATTR-001 employer careers branding, private receipt recovery and verified custom domains
+ok 20 - ATTR-001 employer careers branding, private receipt recovery and verified custom domains
+  ---
+  duration_ms: 3114.781193
+  type: 'test'
+  ...
+# Subtest: CAND-001 native candidate sessions recover only their receipts and submit scoped PRIV-001 requests
+ok 21 - CAND-001 native candidate sessions recover only their receipts and submit scoped PRIV-001 requests
+  ---
+  duration_ms: 1498.875325
+  type: 'test'
+  ...
+# Subtest: CAND-002 candidate account publishes only explicit updates, verifies email and stops contact on withdrawal
+ok 22 - CAND-002 candidate account publishes only explicit updates, verifies email and stops contact on withdrawal
+  ---
+  duration_ms: 2136.069251
+  type: 'test'
+  ...
+# Subtest: CAND-003 native candidates book and reschedule only their own panel-approved interview without conflicts
+ok 23 - CAND-003 native candidates book and reschedule only their own panel-approved interview without conflicts
+  ---
+  duration_ms: 1317.934832
+  type: 'test'
+  ...
+# Subtest: COM-004 private inbound capture preserves bytes and rechecks contact custody
+ok 24 - COM-004 private inbound capture preserves bytes and rechecks contact custody
+  ---
+  duration_ms: 1739.82869
+  type: 'test'
+  ...
+# Subtest: Application acknowledgments keep receipts and suppress submission replay
+ok 25 - Application acknowledgments keep receipts and suppress submission replay
+  ---
+  duration_ms: 1751.336675
+  type: 'test'
+  ...
+# Subtest: Application mail requires human review in the recorded language
+ok 26 - Application mail requires human review in the recorded language
+  ---
+  duration_ms: 1511.509085
+  type: 'test'
+  ...
+# application email dispatch failed Error
+# application email dispatch failed Error
+# application email dispatch failed Error
+# application email dispatch failed Error
+# Subtest: Approved chosen-stage emails record outcomes without resending failures
+ok 27 - Approved chosen-stage emails record outcomes without resending failures
+  ---
+  duration_ms: 10272.252545
+  type: 'test'
+  ...
+# application email dispatch failed Error
+# Subtest: Application sender authentication and current approval fence automatic mail
+ok 28 - Application sender authentication and current approval fence automatic mail
+  ---
+  duration_ms: 1514.718312
+  type: 'test'
+  ...
+# Subtest: Restored application mail remains inert with receipts and duplicate protection retained
+ok 29 - Restored application mail remains inert with receipts and duplicate protection retained
+  ---
+  duration_ms: 13063.312951
+  type: 'test'
+  ...
+# Subtest: Per-job application email reviews remain isolated when another job changes
+ok 30 - Per-job application email reviews remain isolated when another job changes
+  ---
+  duration_ms: 1492.48436
+  type: 'test'
+  ...
+# PROBE ATTR-015 1: native owner and office-only manager review -> one accurate safely serialized JobPosting; exact content and cents agree
+# PROBE ATTR-015 2: revoke office grant, deactivate reviewer and remove settings -> markup absent, public page readable without authority disclosures
+# PROBE ATTR-015 3: unrelated office and ineffective member, team and place authority -> refused with identical saved state and markup
+# Subtest: ATTR-015 current office authority controls reviewed native structured publication
+ok 31 - ATTR-015 current office authority controls reviewed native structured publication
+  ---
+  duration_ms: 2942.169949
+  type: 'test'
+  ...
+# Subtest: ATTR-004 approved location pay, reviewed rules and salary-history refusals reach public doors
+ok 32 - ATTR-004 approved location pay, reviewed rules and salary-history refusals reach public doors
+  ---
+  duration_ms: 1578.615587
+  type: 'test'
+  ...
+# Subtest: CAL-002 native interview-day drafts explain constraints and fence human substitute review
+ok 33 - CAL-002 native interview-day drafts explain constraints and fence human substitute review
+  ---
+  duration_ms: 13955.617737
+  type: 'test'
+  ...
+# Subtest: Native take-home custody, candidate identity, deadlines and independent grading survive replay and erasure
+ok 34 - Native take-home custody, candidate identity, deadlines and independent grading survive replay and erasure
+  ---
+  duration_ms: 2922.397922
+  type: 'test'
+  ...
+# PROBE CAL-004 review: native HTTP sessions and independent sharing -> three reviewed sessions only; self-scheduling alone refused
+# PROBE CAL-004 projection: candidate HTTP page and parsed ICS -> DST times, durations, approved names, no panel addresses or internal fields
+# PROBE CAL-004 language: Spanish public intake and exact human review -> Spanish page and parsed calendar; wrong-language review refused
+# PROBE CAL-004 changes: native reschedule and cancellation -> stale review refused; current reviewed calendar state and stable identities
+# PROBE CAL-004 lifecycle: wrong identity, signout, disable, withdrawal, erasure and restart -> access refused; zero outbound requests
+# Subtest: CAL-004 reviewed native candidate itineraries preserve scope, current times and private calendar bytes
+ok 35 - CAL-004 reviewed native candidate itineraries preserve scope, current times and private calendar bytes
+  ---
+  duration_ms: 3826.056922
+  type: 'test'
+  ...
+1..35
+# tests 65
+# suites 0
+# pass 65
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 229448.955984

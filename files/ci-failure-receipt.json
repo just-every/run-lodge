@@ -1,0 +1,19 @@
+{
+  "head": "6286c622743c86ec76a94f790dc6eed3dfc5f132",
+  "run": 42165835994,
+  "event": "workflow_dispatch",
+  "conclusion": "failure",
+  "job": 127722059524,
+  "jobName": "lodge (candidates)",
+  "command": "LODGE_TEST_AREA=candidates pnpm run test:lodge",
+  "test": "DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration",
+  "location": "tests/fields-driver.mjs:102",
+  "failure": "typed identity and restricted fields stay out of blind reads",
+  "expected": true,
+  "actual": false,
+  "failedLogRead": "gh run view 42165835994 --repo just-every/run-lodge --job 127722059524 --log-failed",
+  "failedLogReadExit": 0,
+  "aggregateJob": 127725591210,
+  "aggregateFailure": "RESULTS included the failed candidates shard; required every shard success",
+  "githubCallsUsed": 9
+}

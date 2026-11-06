@@ -24,5 +24,19 @@
   "runtimeFilesChanged": 0,
   "identityAndTrailers": "all candidate authors and committers are fleet; no trailers",
   "sourceAndTestBytesUnchanged": true,
-  "oneOffDriverSha256": "4f9a34e543e80ac710344097790df81f9c066e3b9dfe3838e40f1d3a9e6f3fb2"
+  "oneOffDriverSha256": "4f9a34e543e80ac710344097790df81f9c066e3b9dfe3838e40f1d3a9e6f3fb2",
+  "ciRun": 42165835994,
+  "ciConclusion": "failure",
+  "failedJob": 127722059524,
+  "candidateShardReproductionExit": 0,
+  "repairsAttempted": 0,
+  "terminalStatus": "BLOCKED",
+  "blocker": "Exact-head Verify is red; required failed-shard reproduction passed, so the brief forbids a speculative repair.",
+  "mainComparison": {
+    "head": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+    "command": "LODGE_TEST_AREA=candidates node --test --test-name-pattern '^DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration$' tests/hiring-candidates.test.mjs",
+    "node": "22.20.0",
+    "exit": 0,
+    "runner": "same dedicated Linux cloud VM as candidate shard reproduction; not the GitHub hosted runner"
+  }
 }

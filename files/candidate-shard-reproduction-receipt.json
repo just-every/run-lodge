@@ -1,0 +1,8 @@
+{
+  "head": "6286c622743c86ec76a94f790dc6eed3dfc5f132",
+  "job": 127722059524,
+  "command": "LODGE_TEST_AREA=candidates pnpm run test:lodge",
+  "node": "22.20.0",
+  "exit": 0,
+  "runner": "dedicated Linux cloud VM; GitHub hosted runner unavailable from this task"
+}

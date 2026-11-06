@@ -1,0 +1,7 @@
+{
+  "head": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+  "command": "LODGE_TEST_AREA=candidates node --test --test-name-pattern '^DATA-001 typed hiring fields, scoped discovery, imports and reviewed configuration$' tests/hiring-candidates.test.mjs",
+  "node": "22.20.0",
+  "exit": 0,
+  "runner": "same dedicated Linux cloud VM as candidate shard reproduction; not the GitHub hosted runner"
+}
