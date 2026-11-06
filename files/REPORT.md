@@ -39,7 +39,7 @@ PROBE BASE-AGENT-002 4: real native propose and debrief commands and signed MCP 
 | --- | --- | --- |
 | 1 | FAIL for whole clause; PASS bounded POINT | Acceptance map above retains all six obligations; public-door refusal proof at tests/agent-refusal-flow.mjs:77 and recovery at :148. Whole-Core, schema, annotation, success and embedded-agent outcomes remain open. |
 | 2 | PASS bounded POINT | Nonempty drafts are seeded at :74; every value and revision is compared at :95 and :104; successful recovery is required at :148–177; no outcome is inferred from an empty list. |
-| 3 | PENDING exact-SHA Verify | tests/security.test.mjs invokes the journey in the existing security matrix. tests/browser.mjs invokes agentRefusalPage. Push run 42255012789 targets the full candidate SHA; its latest observed result is recorded separately. |
+| 3 | PASS bounded POINT, exact-SHA push Verify success | tests/security.test.mjs invokes the journey in the existing security matrix. tests/browser.mjs invokes agentRefusalPage. Push Verify 42255012789 completed successfully on b45f241b927cdb5a4199a492ab6da38c9ada0c89. Whole-clause omitted outcomes remain open under rider 1. |
 | 4 | PASS local exact candidate | refusal-receipt.json names the full committed head. Build and browser proof run after that commit. Typecheck and targeted registration ran with byte-identical relevant source and tests immediately before commit; only source-lock generation followed. |
 | 5 | INSPECTED, no new inherited duty | No receiving-clause rewrite or new duty; all original requirements remain intact. |
 | 6 | PASS generator; views intentionally restored | node scripts/contract-docs.mjs write BASE-AGENT-002 then check exit 0, count 70,44,31,145. Both generated files restored whole from origin/main. Status text and provenance belong to the lander. |
@@ -77,3 +77,13 @@ Publication scan receipt: commit=b45f241b927cdb5a4199a492ab6da38c9ada0c89 comple
 Fetched main health: 4bbb699fb7af7682a09dba57f911bd23299b0418 has successful push Verify runs 42224894488, 42217450352 and 42213721430; Run site 42217449649 succeeded. These establish baseline health only and are not substituted for candidate proof. No failed-main repair is needed. Two GitHub REST calls have been used so far: exact candidate discovery and exact fetched-main discovery. No workflow was dispatched or rerun.
 
 Candidate REST observation after the 300-second interval: Verify 42255012789 remains in progress on b45f241b927cdb5a4199a492ab6da38c9ada0c89. No failed result, dispatch or rerun has occurred. Browser and local runtime commands have finished. CI receipt will be updated if the watcher observes completion before this task ends.
+
+## Final CI and custody
+
+Exact-SHA push Verify 42255012789 completed SUCCESS on b45f241b927cdb5a4199a492ab6da38c9ada0c89: https://github.com/just-every/run-lodge/actions/runs/42255012789. Four total GitHub REST calls were used. The one watcher honored intervals exceeding 300 seconds for that run, including discovery. No workflow was dispatched, rerun or repaired; no assertion failed and no VERIFY_REPRODUCED claim applies.
+
+The final candidate is safe to hand off as READY for independent gated landing. This is not a whole-clause DONE claim, a publication scan receipt, main equality or a Run site result for the candidate. No real product blocker remains for this bounded point. All broader held obligations remain exactly as disclosed above.
+
+Plan-row return: BASE-AGENT-002 PARTIAL to PARTIAL. Record acceptance-4 refusal-code qualification for the two adopted preparation commands, including native trial-validation refusal and native as well as MCP safe recovery after refusal, replay and restart. Counts remain 70 DONE, 44 PARTIAL and 31 MISSING. Do not retarget held clauses, widen the surface, or remove any original obligation.
+
+Terminal product provenance: repository just-every/run-lodge; branch cloud/sx-lodge-c-f66; full head b45f241b927cdb5a4199a492ab6da38c9ada0c89; exact-SHA Verify run 42255012789 success; no PR. Evidence is published only on evidence/sx-lodge-c-f66. The working clone is removed after successful final evidence publication, while this complete packet remains outside the clone.

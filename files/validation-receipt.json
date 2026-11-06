@@ -242,11 +242,12 @@
       "status": "completed"
     }
   ],
-  "githubCallsUsed": 3,
+  "githubCallsUsed": 4,
   "candidateCiLatest": {
-    "conclusion": null,
+    "conclusion": "success",
     "head_sha": "b45f241b927cdb5a4199a492ab6da38c9ada0c89",
     "html_url": "https://github.com/just-every/run-lodge/actions/runs/42255012789",
-    "status": "in_progress"
-  }
+    "status": "completed"
+  },
+  "handoff": "READY: exact candidate push Verify succeeded; guarded landing and publication scan remain fleet duties"
 }
