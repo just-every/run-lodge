@@ -1,0 +1,23 @@
+[
+  "REPORT.md",
+  "qualify-request-capacity.mjs",
+  "request-capacity.json",
+  "request-capacity.log",
+  "request-capacity-initial.json",
+  "request-capacity-initial.log",
+  "checks.json",
+  "typecheck.log",
+  "first-party.log",
+  "views-write.log",
+  "views-check.log",
+  "restored-views-check.log",
+  "status-rows.json",
+  "main-ci.json",
+  "candidate-ci-discovery.json",
+  "candidate-ci.json",
+  "candidate-ci-status.json",
+  "ci-polls.jsonl",
+  "github-calls.jsonl",
+  "product-remote.txt",
+  "packet-files.json"
+]

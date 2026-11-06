@@ -1,0 +1,15 @@
+{
+  "parentRows": 145,
+  "candidateRows": 145,
+  "before": {
+    "done": 70,
+    "missing": 31,
+    "partial": 44
+  },
+  "after": {
+    "done": 70,
+    "missing": 31,
+    "partial": 44
+  },
+  "removedRows": []
+}
