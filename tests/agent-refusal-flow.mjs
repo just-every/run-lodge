@@ -92,7 +92,8 @@ export async function checkAgentRefusals({ observe } = {}) {
         assert.equal(native.status, item.status, item.label)
         assert.deepEqual(native.value, { error: item.message, code: item.code }, item.label)
         assert.deepEqual(await snapshot(), before, item.label + ': native refusal preserves every value, revision and native audit')
-        const answer = await c.tool(tool, { ...item.args, idempotency_key: randomUUID() })
+        const key = randomUUID()
+        const answer = await c.tool(tool, { ...item.args, idempotency_key: key })
         assert.equal(answer.status, 200, item.label)
         assert.equal(answer.body.error, undefined, 'schema-valid native failures are tool results')
         assert.equal(answer.result?.isError, true, item.label)
@@ -113,6 +114,12 @@ export async function checkAgentRefusals({ observe } = {}) {
         assert.equal(row.review, null)
         assert.equal(afterAudit.differs_from_policy, 0)
         assert.deepEqual(await inventory(), drafts, item.label + ': nonempty draft inventory is unchanged')
+        const replay = await c.tool(tool, { ...item.args, idempotency_key: key })
+        assert.equal(replay.result?.isError, true, item.label + ': repeated refusal stays an error')
+        assert.equal(errorCode(replay), item.code, item.label + ': repeated refusal keeps its native code')
+        assert.deepEqual(replay.result._meta['com.runeditrun/error'], answer.result._meta['com.runeditrun/error'])
+        assert.deepEqual(await snapshot(), before, item.label + ': repeated refusal cannot create or alter native records')
+        assert.deepEqual(await inventory(), drafts, item.label + ': repeated refusal leaves existing drafts intact')
         if (item.label.endsWith('source')) hidden.push({ native: native.value, error: answer.result._meta['com.runeditrun/error'], content: answer.result.content })
         receipts.push({ phase, case: item.label, status: native.status, code: native.value.code, audit: row.outcome })
       }
@@ -134,7 +141,11 @@ export async function checkAgentRefusals({ observe } = {}) {
     }
     // Admission, malformed transport and other commands retain their old errors.
     const before = await snapshot()
-    assert.deepEqual((await h.send('/api/lodge/command/propose', proposal)).value, { error: 'Sign in required' })
+    for (const [op, args] of [['propose', proposal], ['debrief', fixtures.values.debrief]]) {
+      const signedOut = await h.send('/api/lodge/command/' + op, args)
+      assert.equal(signedOut.status, 401)
+      assert.deepEqual(signedOut.value, { error: 'Sign in required' })
+    }
     const malformed = await request(h.origin + '/api/lodge/command/propose', { method: 'POST', headers: { Origin: h.origin, Cookie: cookie, 'Content-Type': 'application/json' }, body: '{' })
     assert.equal(malformed.status, 400)
     assert.deepEqual(await malformed.json(), { error: 'Send a JSON object' })

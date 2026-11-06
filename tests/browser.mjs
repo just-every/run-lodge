@@ -1,3 +1,4 @@
+import { agentRefusalPage } from './agent-refusal-browser.mjs'
 import { officeJobPostingPage } from './office-job-posting-browser.mjs'
 import { candidateItineraryPage } from './candidate-itinerary-browser.mjs'
 import { backgroundAuthorizationPage } from './background-authorization-browser.mjs'
@@ -103,6 +104,7 @@ try {
 
   await applicationEmailWorkspace(browser, root, server.origin, resolve(evidence, 'application-emails'))
   await officeJobPostingPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'office-job-posting') })
+  await agentRefusalPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'agent-refusal'), ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await candidateItineraryPage(browser, { root, origin: server.origin, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await takeHomePage(browser, { root, origin: server.origin, evidence, ownerEmail: (await current(owner.context, server.origin)).actor.email })
   await backgroundAuthorizationPage(browser, { root, origin: server.origin, evidence: resolve(evidence, 'background-authorization'), ownerEmail: (await current(owner.context, server.origin)).actor.email })

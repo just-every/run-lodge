@@ -4722,8 +4722,12 @@
       "sha256": "525e4aaa043992f4030d0b20a0fd5e534454c00262e6f43df403ef2c425739e5",
       "executable": false
     },
+    "tests/agent-refusal-browser.mjs": {
+      "sha256": "0e8bc582596f8f929d9cf9874fb9e439b586379f09078ec0f7197931b6304c34",
+      "executable": false
+    },
     "tests/agent-refusal-flow.mjs": {
-      "sha256": "31b7a44720e7940706ee18f4093fcb206cd41324fd6bb91d11af21e61b3e37dd",
+      "sha256": "7aea0c4024b0b0ab0e9556a8348c8ea4db3660a1cd5a7f144eeb93d03140947f",
       "executable": false
     },
     "tests/agents.test.mjs": {
@@ -4819,7 +4823,7 @@
       "executable": false
     },
     "tests/browser.mjs": {
-      "sha256": "7e5074264b3e409643ed6540d9868f49da09b7cceaa669f18bf6142b844e3a0e",
+      "sha256": "a7de67d7b897b58b5f28fcaa1428f5492b1f90d71edb3a569b5820547164dbb5",
       "executable": false
     },
     "tests/bulk-invitations-browser.mjs": {
