@@ -1,0 +1,60 @@
+# sx-lodge-c-f49 — native weekly audit and human review qualification
+
+Repository: just-every/run-lodge. Product branch: cloud/sx-lodge-c-f49.
+Product head: 6286c622743c86ec76a94f790dc6eed3dfc5f132.
+Starting main: a2078a31d9525a6f3381756eb1278cd13e65be85.
+BASE-AGENT-009 remains PARTIAL → PARTIAL. Counts remain 70 DONE, 44 PARTIAL and 31 MISSING, total 145. All parent Status rows remain present; both versions contain 169 Markdown table lines.
+
+## Plan and scope
+
+1. Read the full clause and its seven acceptance points, current Status gap, native browser journey, shared audit conformance, page implementation and review implementation. Read the supplied plan extract, ruling index, Lodge rulings and DONE-RIDERS. Existing conformance checks native audit linkage and zero policy divergence; the existing browser journey only opens Agents. Acceptance 3 and the Mark reviewed portion of acceptance 4 needed explicit native qualification.
+2. Reuse the Business-binding setup pattern from `tests/agent-prompts-flow.mjs`, `tests/harness.mjs`, `tests/initialize-agent.mjs`, `tests/agent-phase-fixtures.mjs` and the existing shared protocol. Run the real Worker and persistent local D1 with the existing test-only clock. Use the current owner sponsor and the five adopted tools. Generate genuine reads and unsent preparation drafts under autonomous and held policy. Generate time controls through the same tool doors.
+3. Read every audit page without an agent or class filter. Aggregate period totals independently from the page implementation. Compare the complete displayed total set and exact eligible open and flagged review handles on `/agents` at 1440 and 390. Exercise human Mark reviewed and refused nonhuman and signed-out attempts. Compare native records, exact draft contents and original raw audit rows before and after.
+4. Retain PARTIAL and all held obligations. Update only the target Status row's evidence and gap; regenerate selected contract views, check them, restore them from main, regenerate the source lock last and check it. Commit and push only the named product branch. Preserve the one-off driver, reports, receipts and screenshots solely on the evidence ref. No permanent test, capability, runtime, copied Base file, workflow or approved screen changes were made.
+
+## Runtime results and frozen qualification rubric
+
+Command from the checkout root: `cloud_run timeout 1200 node ../packet/audit-review-driver.mjs`. The driver is a report artifact, not a permanent seed test. `audit-review-receipt.json` records PASS at the full product head above.
+
+- R1, genuine adopted-tool actions: MET. Driver lines 64–81 invoke `lodge.jobs.list`, `lodge.records.read`, `lodge.proposals.list`, `lodge.proposals.prepare` and `lodge.debriefs.prepare` under both policies at four clock positions. Successful reads return real seeded records. Preparation creates vacancy proposals and draft debriefs without applying them. Hiring records remain identical to the baseline (line 82); lines 83–86 additionally require all eight vacancy preparation proposals to remain proposed and all eight debriefs to remain draft.
+- R2, acceptance 3: MET for the declared native tools. Driver lines 88–112 read all 210 audit rows, including the 200-row first page, 10-row second page and empty terminal page. Every generated call has its returned decision id, tool, disposition, timestamp and agent in audit readback; policy divergence is zero. Lines 126–135 independently aggregate the UTC fixture week starting 2026-11-02 at midnight through 2026-11-05 at noon. Both pages show standard autonomous 180 and standard review 10. Ten calls before the week and ten calls one millisecond after the observation time are excluded. The Monday boundary and current-time calls are included. Lines 153–154 compare the complete displayed total set at both widths, so missing, extra and wrong totals fail.
+- R3, existing review feed portion of acceptance 4: MET. Lines 118–120 first join the complete native review set to every successful review decision in the audit. A signed-in human flags one review and marks another as a closed control using the existing person doors. Lines 155–157 compare every open and flagged handle and state with the rendered feed; already-reviewed and autonomous calls are excluded. The fixture produces 20 review decisions, with 19 eligible before the first browser mark, then 18, then 17.
+- R4, existing Mark reviewed portion of acceptance 4: MET. At 1440 a human marks the flagged debrief review; at 390 a human marks another open review. Lines 179–186 require the browser POST to succeed, its exact handle to disappear, the saved state to be reviewed, `marked_by` to equal the native sponsor and `marked_at` to equal the pinned time. Lines 191–194 require the original audit id and review id to remain and `review.by` to name that same sponsor. The review timestamp is read from review state; the existing audit projection exposes the person's review attribution rather than a separate mark timestamp.
+- R5, authority and custody: MET for this qualified slice. Lines 168–175 exercise an agent credential (403) and signed-out request (401), requiring unchanged review and native records. Lines 187–194 compare every native record including exact draft contents, retain all audit ids and prove the original raw audit rows and evidence are byte-equivalent after human review. Only the derived human attribution in audit readback changes. Both receipt entries contain identical before and after native-record hashes.
+
+No shared defect was found in the two selected points. No audit or review rows were inserted or rewritten by fixture SQL. SQL is used only for native-state and raw-audit readback; genuine tool calls and signed-in person doors create and transition records. All signing material and sessions are disposable harness state and are absent from the packet. Browser contexts and Worker processes were closed.
+
+## Verification and mechanical results
+
+- Setup completed through the fleet toolchain. Build: `npx -y @runeditrun/rer build`, exit 0. Typecheck: `pnpm typecheck`, exit 0. First-party check: `pnpm exec rer check --profile first-party`, exit 0. Each has an actual receipt in this packet.
+- Existing journey: `node --test --test-name-pattern 'Recruiting coordinator prompt' tests/security.test.mjs`, exit 0, one test passed. It exercises static prompt behavior plus native human review, policy, Pause and consent authority. All seed source and permanent-test bytes are unchanged between the starting main and candidate, so these results apply to unchanged implementation bytes.
+- Exact-candidate one-off qualification: PASS, including the final stronger refusal-state and raw-audit preservation assertions. Four actual screenshots show before and after at 1440 and 390. The native page was visually inspected at both widths; no horizontal overflow occurred. Every visible button is text-labelled, so this round adds no icon-only control. This is not an axe qualification of the full acceptance 7.
+- MECHANICAL lock=`node scripts/edition-authoring/cli.mjs lock` then `node scripts/edition-authoring/cli.mjs check` exit=0; views=`node scripts/contract-docs.mjs write BASE-AGENT-009` then `node scripts/contract-docs.mjs check BASE-AGENT-009` exit=0; ledger=none exit=0. Both generated view files were restored whole from origin/main before committing; they are intentionally not committed. The lock check passed again after the final fetch and no-op rebase.
+- Before committing, the staged contract diff and table counts were inspected and parsed: no parent Status id was dropped. Every candidate author and committer is the fleet identity and there are no trailers. The product diff contains only CONTRACT.md and sources.lock.json. Existing assertions were neither removed nor narrowed. No new fixture contains an email literal or provider-shaped credential; screenshots contain only the existing harness's synthetic owner address.
+- Git fetch and rebase found main unchanged before the first push. The cloud push guard published the first real commit successfully on attempt 1. `product-receipt.json` retains the full provenance and driver hash. Product history was not rewritten.
+
+## DONE-RIDERS disposition and remaining work
+
+No DONE claim or ct judge request is made. The local qualification closes the two planner-selected proof gaps, while the full clause remains partial.
+
+1. Partial: the selected counts and human-mark outcomes pass R2–R4; the complete acceptance still has omitted outcomes.
+2. Pass for the qualified slice: nonempty native data, independent aggregation, real positive human action and refused agent and signed-out actions with unchanged records, R1–R5.
+3. Unestablished for the one-off qualification as a permanent Verify journey. The brief expressly forbids adding a permanent test. Its exact-candidate receipt is evidence of this bounded qualification and supplies no whole-clause DONE claim.
+4. Pass for the qualified slice: rerun on the exact candidate. Existing build, typecheck and test sources have no changed bytes.
+5. Unchanged: no inherited duty or acceptance text was edited; BASE-OPS-005 remains named in the requirement.
+6. Partial: concrete missing work remains in Gap; selected generated views pass before their mandated restoration. The legacy global Judged from line remains untouched; this report and receipt bind the new qualification to the full candidate.
+7. Pass: no acceptance point, clause id, ruling, coverage mapping or status count changed.
+8. Pass for human review: permitted signed-in mark succeeds and agent and anonymous attempts are refused without state change. Broader authority journeys remain held.
+9. Pass as an honest boundary: no live provider, Business admission, external identity, delivery, legal or lifecycle completion is claimed.
+10. Not invoked: no policy default, new authority or approval semantic was adopted.
+11. Pending guarded landing: the cloud neither scans for publication nor lands main. The Mac lander must perform the complete full-history publication scan, require zero findings and exact-SHA Verify, and confirm resulting Run site. No scan COMPLETE or landed-main claim is made here.
+
+Undeclared events and subscriptions, outside-provider and multi-sponsor audit journeys remain unproved. Native Undo, independently named approvers, broader filtering, complete export, agent removal and retained-data lifecycle beyond current proof remain required. Live Business admission, authorized COM-001 mailbox and sender grants, extra active-sponsor and allow-list-excluded fixtures, active cross-sponsor isolation, unpairing and local sign-in fallback, retained-client-data custody and erasure, queued continuation, the unmerged SURFACE specialist week, other optional families and stranger completion remain held or unproved. Standalone local token issuance is not adopted. All original acceptance, queue entries, prerequisites and ct, Base, account, device and lifecycle holds remain unchanged.
+
+Plan-row handoff: update only BASE-AGENT-009's plan note with qualification of acceptance 3 and the existing Mark reviewed portion of acceptance 4, retaining PARTIAL and the full remainder above. No cloud lane file was read or written. No other campaign target was retargeted.
+
+## CI and custody
+
+Starting main's exact SHA had successful Verify runs 42161005574 and 42157452030, and successful Run site 42161005701. The product commit is documentation-only and carries skip ci. Exact-head discovery found no workflow run; Verify was dispatched once for the named branch. The final CI observation and run ids are recorded below and in the CI receipt. Product custody and evidence publication are separate; the report-only ref is not a product landing signal.
+
+Exact-head Verify: run 42165835994, event workflow_dispatch, observed in_progress at the first permitted observation. No rerun was requested. Publication scan and resulting Run site are guarded-lander duties, not cloud claims.

@@ -1,0 +1,4 @@
+{
+  "command": "node --test --test-name-pattern 'Recruiting coordinator prompt' tests/security.test.mjs",
+  "exit": 0
+}

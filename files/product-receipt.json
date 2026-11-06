@@ -1,0 +1,28 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f49",
+  "head": "6286c622743c86ec76a94f790dc6eed3dfc5f132",
+  "push": "success",
+  "changedFiles": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ],
+  "parentStatusRowsRetained": 145,
+  "before": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "after": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "permanentTestsAdded": 0,
+  "runtimeFilesChanged": 0,
+  "identityAndTrailers": "all candidate authors and committers are fleet; no trailers",
+  "sourceAndTestBytesUnchanged": true,
+  "oneOffDriverSha256": "4f9a34e543e80ac710344097790df81f9c066e3b9dfe3838e40f1d3a9e6f3fb2"
+}

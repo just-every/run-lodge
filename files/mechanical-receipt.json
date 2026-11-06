@@ -1,0 +1,10 @@
+{
+  "viewsWrite": 0,
+  "viewsCheckBeforeRestore": 0,
+  "lockWrite": 0,
+  "lockCheck": 0,
+  "viewsRestoredFrom": "origin/main",
+  "ledger": "none; no migration changed",
+  "head": "6286c622743c86ec76a94f790dc6eed3dfc5f132",
+  "lockCheckAfterFinalRebase": 0
+}

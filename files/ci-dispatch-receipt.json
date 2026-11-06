@@ -1,0 +1,11 @@
+{
+  "repository": "just-every/run-lodge",
+  "head": "6286c622743c86ec76a94f790dc6eed3dfc5f132",
+  "branch": "cloud/sx-lodge-c-f49",
+  "workflow": "verify.yml",
+  "event": "workflow_dispatch",
+  "reason": "Docs-only product commit carries skip ci and exact-head discovery returned no workflow run",
+  "exit": 0,
+  "at": "2026-11-06T05:00:48.281418+00:00",
+  "githubCallsUsed": 3
+}

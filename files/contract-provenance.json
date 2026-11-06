@@ -1,0 +1,22 @@
+{
+  "head": "6286c622743c86ec76a94f790dc6eed3dfc5f132",
+  "before": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "after": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "acceptanceUnchanged": true,
+  "parentStatusIdsRetained": true,
+  "status": "partial",
+  "files": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ]
+}

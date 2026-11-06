@@ -1,0 +1,435 @@
+{
+  "schema": 1,
+  "head": "6286c622743c86ec76a94f790dc6eed3dfc5f132",
+  "clause": "BASE-AGENT-009",
+  "scope": "Acceptance 3 and existing Mark reviewed portion of acceptance 4",
+  "fixtureNow": "2026-11-05T12:00:00.000Z",
+  "weekStart": "2026-11-02T00:00:00.000Z",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "drafts",
+      "result": "pass",
+      "detail": "All five adopted tools completed under both policies at four clock positions; native preparation remained draft only, with unchanged hiring records."
+    },
+    {
+      "id": "pagination",
+      "result": "pass",
+      "detail": "All 210 audit rows were read across a full page, a second page and a terminal page; policy divergence was zero."
+    },
+    {
+      "id": "weekly-1440",
+      "result": "pass",
+      "detail": "All class and decision totals match at 1440; before-week and future rows excluded, exact open and flagged handles matched."
+    },
+    {
+      "id": "review-1440",
+      "result": "pass",
+      "detail": "Human Mark reviewed records sponsor and fixture time, removes its handle, retains audit identity and exact drafts; agent and anonymous attempts refused."
+    },
+    {
+      "id": "weekly-390",
+      "result": "pass",
+      "detail": "All class and decision totals match at 390; before-week and future rows excluded, exact open and flagged handles matched."
+    },
+    {
+      "id": "review-390",
+      "result": "pass",
+      "detail": "Human Mark reviewed records sponsor and fixture time, removes its handle, retains audit identity and exact drafts; agent and anonymous attempts refused."
+    }
+  ],
+  "widths": [
+    {
+      "width": 1440,
+      "counts": [
+        {
+          "key": "standard|autonomous",
+          "count": 180
+        },
+        {
+          "key": "standard|review",
+          "count": 10
+        }
+      ],
+      "eligibleBefore": [
+        {
+          "id": "fa00b590-b5ea-4ecc-a546-69ec7e994371",
+          "state": "flagged"
+        },
+        {
+          "id": "3e8de56a-6f0e-4acc-8e10-3ea647ff7009",
+          "state": "open"
+        },
+        {
+          "id": "94d08060-d51c-41fc-bc01-1ad7bc43bd32",
+          "state": "open"
+        },
+        {
+          "id": "07a0d6e9-e85f-4526-bdee-ac991aef4c71",
+          "state": "open"
+        },
+        {
+          "id": "b785e933-ddf3-4808-ac5f-907695f25d21",
+          "state": "open"
+        },
+        {
+          "id": "3e8b0984-e361-48ab-8c1c-3439e5c1ac35",
+          "state": "open"
+        },
+        {
+          "id": "28a6fc74-7651-4a6d-8787-5d8c206ff057",
+          "state": "open"
+        },
+        {
+          "id": "2fd8a62e-da92-42d6-85d0-c60f3d858538",
+          "state": "open"
+        },
+        {
+          "id": "f8717539-96fe-4689-ad4c-fac61e9c40d4",
+          "state": "open"
+        },
+        {
+          "id": "45726061-e507-4d1a-939b-532bd10c05b4",
+          "state": "open"
+        },
+        {
+          "id": "2693aeb1-5f52-4123-bed8-39a37664bd36",
+          "state": "open"
+        },
+        {
+          "id": "a53d6ac3-daef-42f8-abfb-73e52086a090",
+          "state": "open"
+        },
+        {
+          "id": "1916ba3e-77e8-4e03-9893-14ca406a1d95",
+          "state": "open"
+        },
+        {
+          "id": "ad6bf826-7b88-41d1-9b43-ce706d433076",
+          "state": "open"
+        },
+        {
+          "id": "57159a9c-1aa7-43dd-a917-deb503223389",
+          "state": "open"
+        },
+        {
+          "id": "ef6c5cdd-37ab-4b2a-9cb5-465bc2a204d1",
+          "state": "open"
+        },
+        {
+          "id": "f1276a53-1c79-4321-a047-d40a453929ce",
+          "state": "open"
+        },
+        {
+          "id": "75bf8d99-eba8-49f7-88d0-ba0a337959a4",
+          "state": "open"
+        },
+        {
+          "id": "e8653a45-7b6b-48e8-b31d-be8c6440329a",
+          "state": "open"
+        }
+      ],
+      "eligibleAfter": [
+        {
+          "id": "3e8de56a-6f0e-4acc-8e10-3ea647ff7009",
+          "state": "open"
+        },
+        {
+          "id": "94d08060-d51c-41fc-bc01-1ad7bc43bd32",
+          "state": "open"
+        },
+        {
+          "id": "07a0d6e9-e85f-4526-bdee-ac991aef4c71",
+          "state": "open"
+        },
+        {
+          "id": "b785e933-ddf3-4808-ac5f-907695f25d21",
+          "state": "open"
+        },
+        {
+          "id": "3e8b0984-e361-48ab-8c1c-3439e5c1ac35",
+          "state": "open"
+        },
+        {
+          "id": "28a6fc74-7651-4a6d-8787-5d8c206ff057",
+          "state": "open"
+        },
+        {
+          "id": "2fd8a62e-da92-42d6-85d0-c60f3d858538",
+          "state": "open"
+        },
+        {
+          "id": "f8717539-96fe-4689-ad4c-fac61e9c40d4",
+          "state": "open"
+        },
+        {
+          "id": "45726061-e507-4d1a-939b-532bd10c05b4",
+          "state": "open"
+        },
+        {
+          "id": "2693aeb1-5f52-4123-bed8-39a37664bd36",
+          "state": "open"
+        },
+        {
+          "id": "a53d6ac3-daef-42f8-abfb-73e52086a090",
+          "state": "open"
+        },
+        {
+          "id": "1916ba3e-77e8-4e03-9893-14ca406a1d95",
+          "state": "open"
+        },
+        {
+          "id": "ad6bf826-7b88-41d1-9b43-ce706d433076",
+          "state": "open"
+        },
+        {
+          "id": "57159a9c-1aa7-43dd-a917-deb503223389",
+          "state": "open"
+        },
+        {
+          "id": "ef6c5cdd-37ab-4b2a-9cb5-465bc2a204d1",
+          "state": "open"
+        },
+        {
+          "id": "f1276a53-1c79-4321-a047-d40a453929ce",
+          "state": "open"
+        },
+        {
+          "id": "75bf8d99-eba8-49f7-88d0-ba0a337959a4",
+          "state": "open"
+        },
+        {
+          "id": "e8653a45-7b6b-48e8-b31d-be8c6440329a",
+          "state": "open"
+        }
+      ],
+      "marked": {
+        "id": "fa00b590-b5ea-4ecc-a546-69ec7e994371",
+        "decisionId": "83cc7adb-69fd-409d-b2d7-70a7d545d6e7",
+        "person": "7019c875-db36-4f56-b067-06c3a97272ac",
+        "name": "Olive Owner",
+        "at": "2026-11-05T12:00:00.000Z"
+      },
+      "nativeBeforeSha256": "eeb3584272f09466d4e1dc503692d6d770e4c2cc4a3fe1b51cd08485868c1f40",
+      "nativeAfterSha256": "eeb3584272f09466d4e1dc503692d6d770e4c2cc4a3fe1b51cd08485868c1f40",
+      "auditCount": 210
+    },
+    {
+      "width": 390,
+      "counts": [
+        {
+          "key": "standard|autonomous",
+          "count": 180
+        },
+        {
+          "key": "standard|review",
+          "count": 10
+        }
+      ],
+      "eligibleBefore": [
+        {
+          "id": "3e8de56a-6f0e-4acc-8e10-3ea647ff7009",
+          "state": "open"
+        },
+        {
+          "id": "94d08060-d51c-41fc-bc01-1ad7bc43bd32",
+          "state": "open"
+        },
+        {
+          "id": "07a0d6e9-e85f-4526-bdee-ac991aef4c71",
+          "state": "open"
+        },
+        {
+          "id": "b785e933-ddf3-4808-ac5f-907695f25d21",
+          "state": "open"
+        },
+        {
+          "id": "3e8b0984-e361-48ab-8c1c-3439e5c1ac35",
+          "state": "open"
+        },
+        {
+          "id": "28a6fc74-7651-4a6d-8787-5d8c206ff057",
+          "state": "open"
+        },
+        {
+          "id": "2fd8a62e-da92-42d6-85d0-c60f3d858538",
+          "state": "open"
+        },
+        {
+          "id": "f8717539-96fe-4689-ad4c-fac61e9c40d4",
+          "state": "open"
+        },
+        {
+          "id": "45726061-e507-4d1a-939b-532bd10c05b4",
+          "state": "open"
+        },
+        {
+          "id": "2693aeb1-5f52-4123-bed8-39a37664bd36",
+          "state": "open"
+        },
+        {
+          "id": "a53d6ac3-daef-42f8-abfb-73e52086a090",
+          "state": "open"
+        },
+        {
+          "id": "1916ba3e-77e8-4e03-9893-14ca406a1d95",
+          "state": "open"
+        },
+        {
+          "id": "ad6bf826-7b88-41d1-9b43-ce706d433076",
+          "state": "open"
+        },
+        {
+          "id": "57159a9c-1aa7-43dd-a917-deb503223389",
+          "state": "open"
+        },
+        {
+          "id": "ef6c5cdd-37ab-4b2a-9cb5-465bc2a204d1",
+          "state": "open"
+        },
+        {
+          "id": "f1276a53-1c79-4321-a047-d40a453929ce",
+          "state": "open"
+        },
+        {
+          "id": "75bf8d99-eba8-49f7-88d0-ba0a337959a4",
+          "state": "open"
+        },
+        {
+          "id": "e8653a45-7b6b-48e8-b31d-be8c6440329a",
+          "state": "open"
+        }
+      ],
+      "eligibleAfter": [
+        {
+          "id": "94d08060-d51c-41fc-bc01-1ad7bc43bd32",
+          "state": "open"
+        },
+        {
+          "id": "07a0d6e9-e85f-4526-bdee-ac991aef4c71",
+          "state": "open"
+        },
+        {
+          "id": "b785e933-ddf3-4808-ac5f-907695f25d21",
+          "state": "open"
+        },
+        {
+          "id": "3e8b0984-e361-48ab-8c1c-3439e5c1ac35",
+          "state": "open"
+        },
+        {
+          "id": "28a6fc74-7651-4a6d-8787-5d8c206ff057",
+          "state": "open"
+        },
+        {
+          "id": "2fd8a62e-da92-42d6-85d0-c60f3d858538",
+          "state": "open"
+        },
+        {
+          "id": "f8717539-96fe-4689-ad4c-fac61e9c40d4",
+          "state": "open"
+        },
+        {
+          "id": "45726061-e507-4d1a-939b-532bd10c05b4",
+          "state": "open"
+        },
+        {
+          "id": "2693aeb1-5f52-4123-bed8-39a37664bd36",
+          "state": "open"
+        },
+        {
+          "id": "a53d6ac3-daef-42f8-abfb-73e52086a090",
+          "state": "open"
+        },
+        {
+          "id": "1916ba3e-77e8-4e03-9893-14ca406a1d95",
+          "state": "open"
+        },
+        {
+          "id": "ad6bf826-7b88-41d1-9b43-ce706d433076",
+          "state": "open"
+        },
+        {
+          "id": "57159a9c-1aa7-43dd-a917-deb503223389",
+          "state": "open"
+        },
+        {
+          "id": "ef6c5cdd-37ab-4b2a-9cb5-465bc2a204d1",
+          "state": "open"
+        },
+        {
+          "id": "f1276a53-1c79-4321-a047-d40a453929ce",
+          "state": "open"
+        },
+        {
+          "id": "75bf8d99-eba8-49f7-88d0-ba0a337959a4",
+          "state": "open"
+        },
+        {
+          "id": "e8653a45-7b6b-48e8-b31d-be8c6440329a",
+          "state": "open"
+        }
+      ],
+      "marked": {
+        "id": "3e8de56a-6f0e-4acc-8e10-3ea647ff7009",
+        "decisionId": "f7bb4a3f-616a-4cdc-a830-d5f1f800b1d3",
+        "person": "7019c875-db36-4f56-b067-06c3a97272ac",
+        "name": "Olive Owner",
+        "at": "2026-11-05T12:00:00.000Z"
+      },
+      "nativeBeforeSha256": "eeb3584272f09466d4e1dc503692d6d770e4c2cc4a3fe1b51cd08485868c1f40",
+      "nativeAfterSha256": "eeb3584272f09466d4e1dc503692d6d770e4c2cc4a3fe1b51cd08485868c1f40",
+      "auditCount": 210
+    }
+  ],
+  "drafts": {
+    "proposals": 8,
+    "proposalStatus": "proposed",
+    "debriefs": 8,
+    "debriefStatus": "draft"
+  },
+  "audit": {
+    "count": 210,
+    "pages": [
+      {
+        "after": "0",
+        "count": 200,
+        "cursor": "399"
+      },
+      {
+        "after": "399",
+        "count": 10,
+        "cursor": "419"
+      },
+      {
+        "after": "419",
+        "count": 0,
+        "cursor": "419"
+      }
+    ],
+    "policies": [
+      "autonomous",
+      "review"
+    ],
+    "tools": [
+      "lodge.jobs.list",
+      "lodge.records.read",
+      "lodge.proposals.list",
+      "lodge.proposals.prepare",
+      "lodge.debriefs.prepare"
+    ],
+    "outsideBefore": 10,
+    "outsideAfter": 10,
+    "expectedCounts": [
+      {
+        "key": "standard|autonomous",
+        "count": 180
+      },
+      {
+        "key": "standard|review",
+        "count": 10
+      }
+    ],
+    "allIdsSha256": "2fa5199a9d3f6d2edb7cacd76ac64371295c7f87de9fd6872d641006c6710285"
+  }
+}
