@@ -1,0 +1,18 @@
+{
+  "head": "e2021b327c1c84647c2fea0f1fc63b6e129f6223",
+  "rowsBefore": 145,
+  "rowsAfter": 145,
+  "tableLinesBefore": 169,
+  "tableLinesAfter": 169,
+  "removedRows": [],
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  }
+}

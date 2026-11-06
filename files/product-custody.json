@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f46",
+  "head": "e2021b327c1c84647c2fea0f1fc63b6e129f6223",
+  "tree": "6689baf881d31a00190ac8849f09ed342703ea4c",
+  "originMain": "1f6753cf184298ca75c7140130830d70635d3de3",
+  "parent": "1f6753cf184298ca75c7140130830d70635d3de3",
+  "predecessorReplayed": "1fa7063e0c37d7444555eb0298f3dc26891c00a0",
+  "changedFiles": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "workingTreeClean": true,
+  "authorAndCommitter": "Run Edit Run fleet",
+  "coAuthorTrailers": 0,
+  "generatedViewsEqualMain": true,
+  "statusChange": "partial -> partial",
+  "counts": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31
+  },
+  "productRemote": "e2021b327c1c84647c2fea0f1fc63b6e129f6223\trefs/heads/cloud/sx-lodge-c-f46",
+  "pr": null,
+  "scan": "delegated to Mac lander; no cloud COMPLETE claim",
+  "runSite": "lander gate after main landing"
+}

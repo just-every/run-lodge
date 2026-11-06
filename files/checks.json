@@ -1,0 +1,49 @@
+{
+  "head": "e2021b327c1c84647c2fea0f1fc63b6e129f6223",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write BASE-AGENT-011",
+      "exit": 0,
+      "log": "views-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-011",
+      "exit": 0,
+      "log": "views-check.log",
+      "condition": "after transient write, before restoring generated views"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock then check",
+      "exit": 0
+    },
+    {
+      "command": "node qualify-request-capacity.mjs <checkout> <receipt>",
+      "exit": 0,
+      "log": "request-capacity.log",
+      "receipt": "request-capacity.json"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check BASE-AGENT-011",
+      "exit": 1,
+      "log": "restored-views-check.log",
+      "condition": "expected after main generated views restored; lander regenerates"
+    }
+  ],
+  "migrationLedger": "not applicable; no migration changed",
+  "runtimeSourceChanged": false,
+  "permanentTestsAdded": 0,
+  "existingAssertionsRemovedOrNarrowed": 0,
+  "screensChanged": false,
+  "publicationScan": "Mac lander duty; not run in cloud",
+  "generatedViewsCommitted": false
+}
