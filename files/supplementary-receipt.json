@@ -1,0 +1,32 @@
+{
+  "head": "4baa533b80a4c9ff12ba1608e9b1a0060e9fe064",
+  "unchangedFromMain": true,
+  "scope": "Supplementary unchanged prompt journey, not the selected rate-capacity probe",
+  "attempts": [
+    {
+      "node": "24.19.0",
+      "boundSeconds": 180,
+      "exit": 137,
+      "result": "No failed assertion; stopped after timeout did not complete process cleanup"
+    },
+    {
+      "node": "22.20.0",
+      "boundSeconds": 120,
+      "exit": 247,
+      "result": "No failed assertion; hard timeout"
+    },
+    {
+      "node": "22.20.0",
+      "boundSeconds": 60,
+      "exit": 247,
+      "result": "No failed assertion; hard timeout"
+    }
+  ],
+  "diagnostic": {
+    "node": "22.20.0",
+    "boundSeconds": 30,
+    "exit": 0,
+    "change": "Only request-path and response-status logging; unchanged journey assertions"
+  },
+  "productChanges": null
+}

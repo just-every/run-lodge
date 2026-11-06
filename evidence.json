@@ -1,0 +1,100 @@
+{
+  "files": [
+    {
+      "blob": "2e8ef954efd92795568242a1521752dbeea10dff",
+      "bytes": 15193,
+      "path": "REPORT.md",
+      "sha256": "51d8d529749f3e58985b88f39863726e4ef89f4547f951e6cd449ba6b576a734"
+    },
+    {
+      "blob": "e0746d82caf17348cdc04c253bcde3312f0717a8",
+      "bytes": 136,
+      "path": "agent-regression-default.log",
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "blob": "bc8142de8f4eb32f9f70bb7e7cb058698b57350a",
+      "bytes": 6350,
+      "path": "agent-regression-diagnostic.log",
+      "sha256": "f01e9ba56e226cba981e01d825f0e2ff1ae499748a16572fac2eb504c57e963b"
+    },
+    {
+      "blob": "e0746d82caf17348cdc04c253bcde3312f0717a8",
+      "bytes": 136,
+      "path": "agent-regression-final.log",
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "blob": "e0746d82caf17348cdc04c253bcde3312f0717a8",
+      "bytes": 136,
+      "path": "agent-regression-node22.log",
+      "sha256": "6205e22497347c74bf6517d7c67792b17cc2051d7b12f33098353c4b1b9bed4a"
+    },
+    {
+      "blob": "71cbac1ff5ee47fec129d6874f79f753222a05d5",
+      "bytes": 256,
+      "path": "candidate-ci.json",
+      "sha256": "d395151a6f86831e75f65aa71ab80722854b64908e24f44bd8c5c59bcf1ced3c"
+    },
+    {
+      "blob": "4773fe1f8ecde26a1d82958ecd9042674d5cd72b",
+      "bytes": 2299,
+      "path": "capacity-initial.json",
+      "sha256": "ee526d2852c034bcdc7a8f3a822a4f7864adf8023b4858f6ee1df527c47cbd55"
+    },
+    {
+      "blob": "f9f5b14733492da64abf47a61c05f9a45cb0acbb",
+      "bytes": 524,
+      "path": "capacity-output.txt",
+      "sha256": "3b3f11ae59aa987bbf6287b17dff0b0cc6f0ea2539618015b96320965cf256a5"
+    },
+    {
+      "blob": "f398598ac6730993d4582e2e127970e8008070cb",
+      "bytes": 2299,
+      "path": "capacity-receipt.json",
+      "sha256": "6454635a883f6510953b388c815846c284b7c073d91bda8ee19611ae4e7864e1"
+    },
+    {
+      "blob": "8ff2758cddae23425057502425e0ab2a47e1bb83",
+      "bytes": 569,
+      "path": "ci-receipt.json",
+      "sha256": "b2467ea0422c4ca8b25ad9128ee394f38295fa75eceb6391c2a0fd2ee4d382b6"
+    },
+    {
+      "blob": "88ed2471fa2e6a40229a565549ea654ccb7483a8",
+      "bytes": 1163,
+      "path": "main-ci.json",
+      "sha256": "a564643cab30f280c59bc82223e781b725a5cbe2f9328988a46ef1bd0f18c041"
+    },
+    {
+      "blob": "581561ae0294c3fc604b433797135056eb123968",
+      "bytes": 815,
+      "path": "product-receipt.json",
+      "sha256": "66337845e526f2fe043de81ee5fa025e280930cd7f4175c28c9aba7d2a3049f2"
+    },
+    {
+      "blob": "2a10178e68c91ce2ee01b1e3e1e19fa1d92f8d89",
+      "bytes": 9927,
+      "path": "qualify-rate-capacity.mjs",
+      "sha256": "6462ae376b1f1b38e6e2bc1e74cb2d4cf70177b3b4d7d7dceac707d87f879a5c"
+    },
+    {
+      "blob": "5b212e3ff4a70f1c2fbee680b6dbbf091cd556fe",
+      "bytes": 849,
+      "path": "supplementary-receipt.json",
+      "sha256": "7623790e2c293b39e0ac9ba20923d4bc48725605438dfe31b1ebb8591578b9ff"
+    },
+    {
+      "blob": "f11fbc6871eeea2a764f8d159850012176f8a9b5",
+      "bytes": 2995,
+      "path": "validation-receipt.json",
+      "sha256": "dd696f1c2ba94e0d32042c9e58a19c2f3947514ee9e5cbe9102600ae09f48aa1"
+    }
+  ],
+  "product_branch": "cloud/sx-lodge-c-f44",
+  "product_head": "4baa533b80a4c9ff12ba1608e9b1a0060e9fe064",
+  "ref": "refs/heads/evidence/sx-lodge-c-f44",
+  "repository": "just-every/run-lodge",
+  "schema": 1,
+  "tag": "sx-lodge-c-f44"
+}

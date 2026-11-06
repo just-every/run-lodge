@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "clause": "BASE-AGENT-011",
+  "acceptance": 1,
+  "head": "4baa533b80a4c9ff12ba1608e9b1a0060e9fe064",
+  "started": "2026-11-05T23:58:41.195Z",
+  "driver": "one-off raw authenticated MCP qualification; no automatic retry",
+  "phases": [
+    {
+      "policy": "autonomous",
+      "supportedDisposition": "autonomous",
+      "advertisedLimits": {
+        "requestsPerMinute": 600,
+        "maxBodyBytes": 1048576
+      },
+      "admitted": 600,
+      "fillDurationMs": 4167,
+      "singleWindow": true,
+      "supportedProposal": {
+        "status": 200,
+        "draftCreated": true,
+        "nativeDecisionApplied": false
+      },
+      "overrun": {
+        "status": 429,
+        "code": "rate_limited",
+        "retryAfterSeconds": 14,
+        "toolResultPresent": false
+      },
+      "nativeRecords": {
+        "before": 21,
+        "after": 21,
+        "beforeSha256": "d055728f88d8f0f8e7d426097e4e08aa346ce592f9833bf42e1efaaf0cc3ea32",
+        "afterSha256": "d055728f88d8f0f8e7d426097e4e08aa346ce592f9833bf42e1efaaf0cc3ea32",
+        "unchanged": true
+      },
+      "humanState": {
+        "status": 200,
+        "unchanged": true,
+        "proposalsBefore": 1,
+        "proposalsAfter": 1
+      },
+      "pass": true
+    },
+    {
+      "policy": "held",
+      "supportedDisposition": "review",
+      "advertisedLimits": {
+        "requestsPerMinute": 600,
+        "maxBodyBytes": 1048576
+      },
+      "admitted": 600,
+      "fillDurationMs": 4207,
+      "singleWindow": true,
+      "supportedProposal": {
+        "status": 200,
+        "draftCreated": true,
+        "nativeDecisionApplied": false
+      },
+      "overrun": {
+        "status": 429,
+        "code": "rate_limited",
+        "retryAfterSeconds": 10,
+        "toolResultPresent": false
+      },
+      "nativeRecords": {
+        "before": 39,
+        "after": 39,
+        "beforeSha256": "69423ec05dfcd098b9f2a0a7e87f865ec0da94a7b1c8752999f8c52a2257f688",
+        "afterSha256": "69423ec05dfcd098b9f2a0a7e87f865ec0da94a7b1c8752999f8c52a2257f688",
+        "unchanged": true
+      },
+      "humanState": {
+        "status": 200,
+        "unchanged": true,
+        "proposalsBefore": 2,
+        "proposalsAfter": 2
+      },
+      "pass": true
+    }
+  ],
+  "pass": true,
+  "finished": "2026-11-05T23:58:50.815Z"
+}

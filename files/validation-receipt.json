@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "head": "4baa533b80a4c9ff12ba1608e9b1a0060e9fe064",
+  "started": "2026-11-06T00:00:37.737777+00:00",
+  "checks": [
+    {
+      "name": "views-write",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "BASE-AGENT-011"
+      ],
+      "exit": 0,
+      "outputSha256": "b3c8124fcde630ee3e449c264e9d4ad4c3f90a12331b88b8e2a684901535a06b",
+      "output": "contract-docs write: BASE-AGENT-011; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}\n"
+    },
+    {
+      "name": "views-check",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check",
+        "BASE-AGENT-011"
+      ],
+      "exit": 0,
+      "outputSha256": "8257ff2827d801831328fdd9f69c303e8e8d6ed0f7ca2ccb8c55868f456c0379",
+      "output": "contract-docs check: BASE-AGENT-011; counts {\"done\":70,\"partial\":44,\"missing\":31,\"total\":145}\n"
+    },
+    {
+      "name": "restore-views",
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lock",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0,
+      "outputSha256": "e9a6e5cb492db58046a561bc316cca9fecaecd7f736e5c49daf5ebb39fa42018"
+    },
+    {
+      "name": "lock-check",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "outputSha256": "8453381ea87141da6bfbd831d20c356a4463a877eefa9d4b9d71bb5d750e39c8"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "outputSha256": "0dcee9b742977ed15377ea619522c01e3dee4035cf3ee17a33a20a20b986c122"
+    },
+    {
+      "name": "first-party",
+      "command": [
+        "pnpm",
+        "exec",
+        "rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "worktree": "",
+  "allPassed": true,
+  "ledger": {
+    "command": null,
+    "reason": "No migration added or edited",
+    "exit": 0
+  },
+  "build": {
+    "command": "cloud_run npx -y @runeditrun/rer build",
+    "exit": 0,
+    "logSha256": "ac78beacb0c55085a35808c2769c89774c9b24aaac92287258def4a732bf3a6c"
+  },
+  "finished": "2026-11-06T00:00:38.714212+00:00",
+  "siteBuild": {
+    "command": "cloud_run pnpm exec rer build --site",
+    "exit": 0,
+    "logSha256": "d8091a23a5f14a3485b7e33392309f55e8b0d85204a7110d23691a053c083c17"
+  }
+}

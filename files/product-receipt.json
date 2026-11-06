@@ -1,0 +1,30 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f44",
+  "head": "4baa533b80a4c9ff12ba1608e9b1a0060e9fe064",
+  "remoteAdvertisement": "4baa533b80a4c9ff12ba1608e9b1a0060e9fe064\trefs/heads/cloud/sx-lodge-c-f44",
+  "pushGuardResult": "PUSH_OK branch=cloud/sx-lodge-c-f44",
+  "pushAttempts": 1,
+  "identityInspection": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\n",
+  "changedFiles": [
+    "CONTRACT.md",
+    "docs/agent-access.md",
+    "sources.lock.json"
+  ],
+  "generatedViewsCommitted": false,
+  "permanentTestsAdded": 0,
+  "statuses": {
+    "before": {
+      "done": 70,
+      "partial": 44,
+      "missing": 31,
+      "total": 145
+    },
+    "after": {
+      "done": 70,
+      "partial": 44,
+      "missing": 31,
+      "total": 145
+    }
+  }
+}

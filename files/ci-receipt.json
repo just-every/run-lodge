@@ -1,0 +1,17 @@
+{
+  "repository": "just-every/run-lodge",
+  "head": "4baa533b80a4c9ff12ba1608e9b1a0060e9fe064",
+  "callsUsed": 4,
+  "dispatchCount": 1,
+  "verify": {
+    "conclusion": null,
+    "event": "workflow_dispatch",
+    "head_sha": "4baa533b80a4c9ff12ba1608e9b1a0060e9fe064",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42133525814",
+    "id": 42133525814,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "greenClaimed": false,
+  "landingGates": "Maintained Mac lander owns exact-SHA completion, full-history publication scan and Run site"
+}
