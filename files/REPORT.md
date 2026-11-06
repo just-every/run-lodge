@@ -52,7 +52,7 @@ PROBE BASE-AGENT-002 browser: current native human workspace after refused then 
 | --- | --- | --- |
 | 1 | FAIL for whole clause | Original acceptance outcomes 1, 2, 3 and 6, plus broader 4 and 5, remain unproved. Only the planner's native preparation slice is claimed. |
 | 2 | PASS for slice | Real nonempty fixtures and both supported and refused public-door calls; native test lines 78–144. |
-| 3 | PENDING exact-candidate Verify | Native journey is registered in security.test and run by the security matrix. Browser journey is called by tests/browser.mjs. CI custody is recorded below. |
+| 3 | PASS for the named slice | Push Verify 42245103538 completed successfully on 9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a. Native journey is registered in security.test and run by the security matrix. Browser journey is called by tests/browser.mjs. |
 | 4 | PASS local exact candidate | Exact-candidate runtime receipt and browser receipt are in the packet. No product byte changed after those runs. |
 | 5 | INSPECTED, no inheritance changes | No clause or receiving duty changed; the existing LDG-013 boundary stays in the contract. |
 | 6 | PASS selected mechanical generation | Selected BASE-AGENT-002 write and check pass. Main's Status, Gap and Evidence cells and both generated views are preserved. |
@@ -95,3 +95,9 @@ CLAIM BASE-AGENT-002 PARTIAL points=none tests=tests/security.test.mjs#Native pr
 The claim lists no entire acceptance sentence as closed: the adopted two-tool refusal subset of point 4 is proven, while the brief expressly retains read-tool parity and wider obligations. Refusal-state and shared-audit checks strengthen part of point 5 without asserting its complete success parity.
 
 CI status check at 2026-11-06T15:44:50Z: exact-candidate Verify 42245103538 remains in progress with no conclusion. This is not a failure or a green receipt.
+
+Final CI receipt at 2026-11-06T15:49:51Z: Verify 42245103538, event=push, status=completed, conclusion=success, head=9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a. This recorded run invokes the native security journey and the focused browser journey through their existing Verify commands. The successful exact-SHA run applies to every named passing test row in the matrices above; it does not fill any unproved acceptance row.
+
+The first evidence publication was c952f6e1cc537fc553e557947bde0b065d9bf628. It was fetched back and all 16 selected file hashes and bytes verified against the local packet, with product HEAD and index unchanged. The final publication supersedes that snapshot only to include the completed CI result and this final report.
+
+READY branch=cloud/sx-lodge-c-f64 head=9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a

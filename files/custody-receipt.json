@@ -2,7 +2,7 @@
   "repository": "just-every/run-lodge",
   "branch": "cloud/sx-lodge-c-f64",
   "head": "9adfcaf0b397617842e6b3b50e4bc0c4fa2dcb7a",
-  "packetStatus": "complete local proof; CI and evidence transfer pending",
+  "packetStatus": "local proof complete; exact-SHA Verify green; complete packet selected for evidence publication",
   "beforeCounts": {
     "done": 70,
     "partial": 44,
@@ -17,5 +17,11 @@
   "acceptanceScope": "only refusal parity for adopted proposal and debrief preparation",
   "productPushed": true,
   "pr": null,
-  "verifyRun": 42245103538
+  "verifyRun": 42245103538,
+  "verifyEvent": "push",
+  "verifyStatus": "completed",
+  "verifyConclusion": "success",
+  "publicationScan": "pending fleet lander",
+  "runSite": "pending landing",
+  "mainEquality": false
 }
