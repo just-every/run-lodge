@@ -1,0 +1,17 @@
+[
+  {
+    "command": "pnpm typecheck",
+    "exit": 0,
+    "log": "typecheck.log"
+  },
+  {
+    "command": "node --test --test-name-pattern='Recruiting coordinator prompt stays static' tests/security.test.mjs",
+    "exit": 0,
+    "log": "existing-journey.log"
+  },
+  {
+    "command": "pnpm exec rer check --profile first-party",
+    "exit": 0,
+    "log": "first-party.log"
+  }
+]

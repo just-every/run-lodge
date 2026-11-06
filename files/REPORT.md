@@ -100,3 +100,9 @@ The complete explicitly selected non-secret packet is published only to evidence
 Final self-check for this bounded change: unsafe and supported paths pass on the exact candidate; no assertion was weakened; replay creates no second draft; no authority or erasure implementation changes; existing screens inspected at both widths; source lock fresh; every existing hold retained. Wider authority, custody and lifecycle duties remain expressly unproved.
 
 CI observation at 2026-11-06T11:29:31.286980+00:00: Verify run 42210023026 on workflow_dispatch is in_progress on the exact candidate. GitHub API calls used: 3 of 10. No other SHA is treated as green.
+
+Report-transfer check: the initial evidence snapshot 972b26ea780ba3ce45bd6a3e70eb43bd64c60f21 was fetched into isolated Git storage and restored with all 27 selected file hashes and manifest identities verified. evidence-transfer-receipt.json records that actual transport check; it is not a product gate or a receipt for the later updated evidence snapshot.
+
+Scheduled CI observation at 2026-11-06T11:34:31.764515+00:00: Verify run 42210023026 remains in_progress on the exact head; API calls used 4 of 10.
+
+Final CI result: Verify run 42210023026, event workflow_dispatch, completed SUCCESS on exact head 1614a92809ed8c4b3be467fa7f751baebb370ef5, observed 2026-11-06T11:39:32.342302+00:00. Five of ten API calls were used; all status observations respected the 300-second interval. No failed job, repair or rerun occurred. Product custody is READY for the maintained lander; the clause remains PARTIAL. Full-history publication scanning and resulting main Run site remain expressly unclaimed lander gates.
