@@ -86,9 +86,18 @@ raw HTTP catalogue requests then filled that agent's discovered per-minute
 capacity. The next otherwise-valid preparation call returned HTTP 429 with
 `rate_limited` and a positive `Retry-After`, without a tool result. Native records
 and revisions, draft count and the hiring state stayed unchanged; the signed-in
-human still opened the same native state. The raw client bypassed the verifier's
-automatic capacity retries, and derived its fill count from discovery rather
-than asserting a fixed threshold. This qualifies BASE-AGENT-011 acceptance 1
+human still opened the same native state. A fresh qualification also sent the
+identical refused preparation, with the same idempotency key, after advancing
+the fixture clock by the advertised wait. It succeeded once and saved only an
+unsent draft, with no applied vacancy. This positive control distinguishes a
+capacity refusal from invalid proposal input. Both policy phases used a pinned
+clock, real HTTP to the Worker socket and real D1; the refusal comparison covered
+every native record value and revision as well as the nonempty human state.
+The raw client bypassed the verifier's automatic capacity retries, and derived
+its bounded fill count from discovery rather than asserting a fixed threshold.
+The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f46/files)
+retains the one-off driver and actual receipts. This qualifies BASE-AGENT-011
+acceptance 1
 for the existing authenticated MCP door only. It does not prove byte or business
 budgets, provider spending, outside mail, queued continuations, complete usage
 or the remaining Pause and resume duties. The clause remains partial.
