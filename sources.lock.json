@@ -1167,7 +1167,7 @@
       "executable": false
     },
     "src/lodge/agent-door/context.ts": {
-      "sha256": "0a853d246acddb0781e1513231f39150a92a4ee9866d166d6548cba3b220e973",
+      "sha256": "0b4536f68caca9e00eccc8cb5958c4b7e5afe8e6e6b8e1c693d0ec72ff4eb23b",
       "executable": false
     },
     "src/lodge/agent-door/index.ts": {
@@ -1402,6 +1402,10 @@
       "sha256": "b10f58d5661eefa2f79eff22c66d24e27807cbedac46cb49d4988cb7d7e9929c",
       "executable": false
     },
+    "src/lodge/core/refusals.ts": {
+      "sha256": "8499dd003b2aa3e83af1c3dd0509e93cd0f2203318de57b2f46e737d5a139a38",
+      "executable": false
+    },
     "src/lodge/core/state.ts": {
       "sha256": "a5c55baac9032c570c1af96f190fb613ecf5ccfcb4a0ccd31bfedde1e602e704",
       "executable": false
@@ -1547,7 +1551,7 @@
       "executable": false
     },
     "src/lodge/http/api.ts": {
-      "sha256": "8d194860b817ebed1d18f8ce518cda0c7f7332b16e614eccfd61f1e51eaa1e86",
+      "sha256": "8e95239d307252a7fa0252d5ba235bd8f1ca8d47d8371896d95aeb2ba7b678cb",
       "executable": false
     },
     "src/lodge/http/application-email-pages.ts": {
@@ -4718,6 +4722,10 @@
       "sha256": "525e4aaa043992f4030d0b20a0fd5e534454c00262e6f43df403ef2c425739e5",
       "executable": false
     },
+    "tests/agent-refusal-flow.mjs": {
+      "sha256": "31b7a44720e7940706ee18f4093fcb206cd41324fd6bb91d11af21e61b3e37dd",
+      "executable": false
+    },
     "tests/agents.test.mjs": {
       "sha256": "63fdf6985ad35fd15af50eb48a6dcc33a1b01e4530c4933107f44ad11acf0efe",
       "executable": false
@@ -5251,7 +5259,7 @@
       "executable": false
     },
     "tests/security.test.mjs": {
-      "sha256": "d3dbb552f92526948cb1dae38be93b2286735e555f4702a83c4b855c918ac9f4",
+      "sha256": "536d452cb0cd1551eb0a2fa720da7a44288a69efe9366db53db6f4a1fac240d0",
       "executable": false
     },
     "tests/site/site.test.mjs": {
