@@ -96,10 +96,38 @@ every native record value and revision as well as the nonempty human state.
 The raw client bypassed the verifier's automatic capacity retries, and derived
 its bounded fill count from discovery rather than asserting a fixed threshold.
 The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f47/files)
-retains the one-off driver and actual receipts. This qualifies BASE-AGENT-011
+retains the one-off driver and actual receipts. The earlier
+[qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f46/files)
+also retains its pinned-clock recovery driver and receipts. This qualifies BASE-AGENT-011
 acceptance 1 for the existing authenticated MCP door only. It does not prove byte or business
 budgets, provider spending, outside mail, queued continuations, complete usage
 or the remaining Pause and resume duties. The clause remains partial.
+
+A fresh one-off qualification of BASE-AGENT-009 acceptance 3 and the existing
+Mark reviewed portion of acceptance 4 reused that disposable signed Business
+setup and the existing fixture modules. All five adopted tools performed real
+Worker and D1 reads or saved unsent preparations under autonomous and held
+policies, with no applied hiring changes. The test-only clock generated 232 audit
+rows across three pages: 212 within the fixture period, ten before the week and
+ten after the selected as-of time. Independent aggregation of every paginated
+row matched every displayed class and decision total on `/agents` at 1440 and
+390. Open and flagged review handles matched exactly, including eligible reviews
+outside the displayed weekly totals.
+
+At each width the signed-in human used Mark reviewed. Review state retained
+that person and the pinned time, audit readback retained the same audit identity
+and review person, and the marked handle disappeared from the open feed.
+Every native record value and revision, hiring decision, unsent preparation and
+draft content stayed unchanged. Signed-out and agent-only marks were refused
+without changing review state. The
+[qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f51/files)
+retains the one-off driver, actual receipt and both-width screens. This is bounded
+qualification, with no permanent test, runtime or approved-screen change.
+BASE-AGENT-009 remains partial: native Undo, independently named approvers,
+broader filtering, export, removal, retained-data lifecycle, undeclared events
+and subscriptions, outside providers and multiple active sponsors remain unproved.
+All live Business, communications, identity, custody, Base and specialist holds
+and the complete original acceptance remain in force.
 
 ## Oversized-body no-effect qualification
 
@@ -131,6 +159,8 @@ oversized requests create no tool audit entry.
 
 The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f59/files)
 retains the one-off raw driver, production fixture helper, actual receipt and
+screenshots. The [current-main repeat](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f60/files)
+repeats all four cases with native record and inventory hashes and fresh
 screenshots. No permanent test, runtime, manifest, copied Base or production
 screen changes accompany this qualification. Other transport, version,
 discovery, cache, Origin and header acceptance remains required. Resources and
@@ -243,3 +273,31 @@ Other class and fact duties, tool families, roles, live Business admission and
 the complete original acceptance remain open, alongside the existing identity,
 custody, lifecycle, continuation and specialist holds. BASE-AGENT-006 remains
 partial.
+
+### Predecessor sx-lodge-c-f53 qualification
+
+The sx-lodge-c-f53 one-off qualification compares all five adopted tools through
+the real MCP door under autonomous and standard-review company policies. Each
+policy uses isolated clean and authority-claiming native job and rubric sources.
+For every tool it compares successful baseline calls with caller class,
+confirmation and internal claims. Every preparation has a fresh idempotency key,
+so a cached draft cannot stand in for a new classification. The independently
+expected class is standard with a measure of one in each fixture.
+
+All 80 comparisons complete as native reads or unsent proposal and debrief
+drafts. The 84 calls, including inventory priming, have corresponding audit
+readback with the expected classes, facts and current disposition. Additional
+caller arguments are filtered and named in the audit; the review calls have
+linked review records. Native sources retain their authority claims as ordinary
+data. Hiring records and grants stay unchanged, no proposal is applied, no
+debrief is kept, and neither provider calls nor new captured mail occur.
+
+The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f53/files)
+contains the disposable driver and actual receipts. It qualifies only
+BASE-AGENT-006 acceptance 3 for the five existing standard-class tools and the
+existing owner sponsor. The shared manifest has no injection steps, so the
+shared journey supplies no additional injection comparison. No permanent test,
+manifest, copied Base, runtime or screen change is introduced. Other class and
+fact duties, tool families, roles, live Business admission and the complete
+original acceptance remain open, alongside the existing identity, custody,
+lifecycle, continuation and specialist holds. BASE-AGENT-006 remains partial.
