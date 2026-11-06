@@ -1,0 +1,9 @@
+ sources.lock.json               |  20 +++-
+ src/lodge/agent-door/context.ts |   3 +-
+ src/lodge/core/refusals.ts      |   8 ++
+ src/lodge/http/api.ts           |  15 ++-
+ tests/agent-refusal-browser.mjs |  98 ++++++++++++++++++++
+ tests/agent-refusal-flow.mjs    | 200 ++++++++++++++++++++++++++++++++++++++++
+ tests/browser.mjs               |   2 +
+ tests/security.test.mjs         |   3 +
+ 8 files changed, 341 insertions(+), 8 deletions(-)

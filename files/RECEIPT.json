@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "tag": "sx-lodge-c-f65",
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f65",
+  "head": "af2219aacebf412b59f404845537c3a932359321",
+  "recorded_at": "2026-11-06T16:15:23.451233+00:00",
+  "checks": [
+    {
+      "name": "refusal-test",
+      "command": "node --test --test-name-pattern=Native proposal and debrief refusals tests/security.test.mjs",
+      "exit": 0,
+      "log": "refusal-test.log",
+      "sha256": "0834f81fabcfa36b4fd81645e27bf4e6008f07597dc7052c57a61bdbb1b37564",
+      "candidate_committed": true,
+      "source_note": "Exact committed candidate run"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "sha256": "53cf06c1198b6c77924e8bbdcb9899448a1987eeac53192450a5cb73b9c5b53d",
+      "candidate_committed": false,
+      "source_note": "Run before commit; no relevant code or dependency changed before candidate"
+    },
+    {
+      "name": "first-party",
+      "command": "pnpm exec rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidate_committed": false,
+      "source_note": "Run before commit; no relevant code or dependency changed before candidate"
+    },
+    {
+      "name": "build",
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log",
+      "sha256": "eec8c65576fb9affea93815571a592ef1700468dc20231df1cc33bdac5a39af0",
+      "candidate_committed": false,
+      "source_note": "Run before commit; no relevant code or dependency changed before candidate"
+    },
+    {
+      "name": "browser",
+      "command": "timeout 1200 node tests/agent-refusal-browser.mjs",
+      "exit": 0,
+      "log": "browser.log",
+      "sha256": "11d62bd35692a626f4af637c1000b0cec55a6d4df076bbc390ebf9a0d0b3ba6c",
+      "candidate_committed": true,
+      "source_note": "Exact committed candidate run"
+    }
+  ],
+  "mechanical": {
+    "views": {
+      "write": "node scripts/contract-docs.mjs write BASE-AGENT-002",
+      "check": "node scripts/contract-docs.mjs check BASE-AGENT-002",
+      "exit": 0,
+      "generated_files_restored": true
+    },
+    "lock": {
+      "write": "node scripts/edition-authoring/cli.mjs lock",
+      "check": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    "ledger": {
+      "command": null,
+      "reason": "No migration changed"
+    }
+  },
+  "screens": [
+    {
+      "path": "screens/debrief-draft-1440.png",
+      "sha256": "8ab51f656fe7790780e62a36516e49e50641e083427b6e712df72c410ea5b3b5",
+      "bytes": 410897
+    },
+    {
+      "path": "screens/debrief-draft-390.png",
+      "sha256": "968e2ef7c0e9a85285cc2345ad326663ced60e3ca2c38f0a0290bc4054ef4b3d",
+      "bytes": 365484
+    },
+    {
+      "path": "screens/debrief-refused-edit-1440.png",
+      "sha256": "d655034006dedbe5d2229d75e8a9462a218779bc392f7616abba245e156c529c",
+      "bytes": 462385
+    },
+    {
+      "path": "screens/debrief-refused-edit-390.png",
+      "sha256": "8ca62402c55887fb4e2070192f0fe473a5b6c9f2f9b6d5b9abc3cb59b4b6a785",
+      "bytes": 383203
+    },
+    {
+      "path": "screens/unsent-proposal-1440.png",
+      "sha256": "75452eba0bd91d89afa5705d53e241794fc8c869b267650a534a1c9f276a9516",
+      "bytes": 192516
+    },
+    {
+      "path": "screens/unsent-proposal-390.png",
+      "sha256": "9884b56b9a3d0a96cf33177e543951eea850639c58372c83e2cc0738c129ec21",
+      "bytes": 167584
+    }
+  ],
+  "ci": {
+    "id": 42250407201,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "af2219aacebf412b59f404845537c3a932359321",
+    "url": "https://github.com/just-every/run-lodge/actions/runs/42250407201",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42250407201"
+  },
+  "scan": {
+    "commit": "af2219aacebf412b59f404845537c3a932359321",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "note": "Not run in cloud; independent lander gate"
+  },
+  "custody": {
+    "remote_branch_head": "af2219aacebf412b59f404845537c3a932359321",
+    "main_head": "4bbb699fb7af7682a09dba57f911bd23299b0418",
+    "main_equals_candidate": false,
+    "published": true
+  },
+  "github_calls": 3
+}

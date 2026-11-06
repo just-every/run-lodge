@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "blob": "e6a36c6b8b58b92722f7143fe9a8ea97e9377b3d",
+      "bytes": 2235,
+      "path": "PLAN.md",
+      "sha256": "40ade35ec2a23fe2d6bd5fb0c696ce693b432a66ba59cf5b9dd793a7b0ce152f"
+    },
+    {
+      "blob": "7b6f8d628713e15b504764c884a94b73c2df513e",
+      "bytes": 4297,
+      "path": "RECEIPT.json",
+      "sha256": "820003d325dd0bd0e9df2a84f7c38c58716349beffe5fdfdec4c4a6a9b84a5a6"
+    },
+    {
+      "blob": "fdf094f4b8b35c1fbf4e8aefd755070d7b3a7bad",
+      "bytes": 14282,
+      "path": "REPORT.md",
+      "sha256": "58154ad1ad63e9c0983676669f7fab34ebca0aadbf5df77fbda0952c7bde62b1"
+    },
+    {
+      "blob": "454267bb1dc04c35b44db80b83c00a3ff0cf85d7",
+      "bytes": 199,
+      "path": "browser.log",
+      "sha256": "11d62bd35692a626f4af637c1000b0cec55a6d4df076bbc390ebf9a0d0b3ba6c"
+    },
+    {
+      "blob": "b03fff24e3d1c30cfc2f5f09c83f277fa3f8546e",
+      "bytes": 3475,
+      "path": "build.log",
+      "sha256": "eec8c65576fb9affea93815571a592ef1700468dc20231df1cc33bdac5a39af0"
+    },
+    {
+      "blob": "3a07b96cf734e4d15ca5f0445f427b4124e543f5",
+      "bytes": 175,
+      "path": "ci-run.json",
+      "sha256": "7672b4112b2b2096243690805296ad3255e67bf88d0ce5cff8dd05218667d911"
+    },
+    {
+      "blob": "6eeea5acbc321be4539cd513b6514bfd8e4c1614",
+      "bytes": 425,
+      "path": "commit-identities.txt",
+      "sha256": "bebd14c2976af3c82732395800b1877f2bce97efc547cdf8d38d82d3d735928d"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "contract-diff.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "b6365c6c0dbfcb2eec3bb70f7338ce211ad3fcee",
+      "bytes": 130,
+      "path": "product-custody.txt",
+      "sha256": "17467aa8699e6f8740af89d65753dfcf2c57188848dec3ffde803983c1e72319"
+    },
+    {
+      "blob": "6e017581eb2491a6eeab63502a6a86e02993a8e9",
+      "bytes": 445,
+      "path": "product-diff.txt",
+      "sha256": "aeb8429f0e92dba0c31c775778a37081901bf64f6e6012f2bda08e10cccc876a"
+    },
+    {
+      "blob": "06ebd0e9507ee6bff5b268d4a49ce1ff94e43313",
+      "bytes": 359,
+      "path": "refusal-test.log",
+      "sha256": "0834f81fabcfa36b4fd81645e27bf4e6008f07597dc7052c57a61bdbb1b37564"
+    },
+    {
+      "blob": "d6c39aec54b066fca0a703e1d4a98b2314555e8d",
+      "bytes": 410897,
+      "path": "screens/debrief-draft-1440.png",
+      "sha256": "8ab51f656fe7790780e62a36516e49e50641e083427b6e712df72c410ea5b3b5"
+    },
+    {
+      "blob": "0dcae21231fa196c91d9c03bbfd9a19a25ded23f",
+      "bytes": 365484,
+      "path": "screens/debrief-draft-390.png",
+      "sha256": "968e2ef7c0e9a85285cc2345ad326663ced60e3ca2c38f0a0290bc4054ef4b3d"
+    },
+    {
+      "blob": "8fba46a1364f8836056b24229ddeb66a5ec088ba",
+      "bytes": 462385,
+      "path": "screens/debrief-refused-edit-1440.png",
+      "sha256": "d655034006dedbe5d2229d75e8a9462a218779bc392f7616abba245e156c529c"
+    },
+    {
+      "blob": "d009fe98eb0ab1f60b20c655c27e9304a3176054",
+      "bytes": 383203,
+      "path": "screens/debrief-refused-edit-390.png",
+      "sha256": "8ca62402c55887fb4e2070192f0fe473a5b6c9f2f9b6d5b9abc3cb59b4b6a785"
+    },
+    {
+      "blob": "ce6fe09b345b19827bb9b54d6499c152f796e29e",
+      "bytes": 192516,
+      "path": "screens/unsent-proposal-1440.png",
+      "sha256": "75452eba0bd91d89afa5705d53e241794fc8c869b267650a534a1c9f276a9516"
+    },
+    {
+      "blob": "e2b35904929bea30ae947de907e692d6ca4b4d57",
+      "bytes": 167584,
+      "path": "screens/unsent-proposal-390.png",
+      "sha256": "9884b56b9a3d0a96cf33177e543951eea850639c58372c83e2cc0738c129ec21"
+    },
+    {
+      "blob": "dd5e88d150cfdde88c097ce3795dfc283dc55deb",
+      "bytes": 189,
+      "path": "typecheck.log",
+      "sha256": "53cf06c1198b6c77924e8bbdcb9899448a1987eeac53192450a5cb73b9c5b53d"
+    }
+  ],
+  "product_branch": "cloud/sx-lodge-c-f65",
+  "product_head": "af2219aacebf412b59f404845537c3a932359321",
+  "ref": "refs/heads/evidence/sx-lodge-c-f65",
+  "repository": "just-every/run-lodge",
+  "schema": 1,
+  "tag": "sx-lodge-c-f65"
+}
