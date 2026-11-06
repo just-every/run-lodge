@@ -122,3 +122,32 @@ with no live Business-provider or active cross-sponsor isolation claim. Extra
 active sponsors and allow-list exclusion remain undeclared. Standalone local
 token issuance is not adopted, and the remaining shared identity obligations
 stay open in CONTRACT.md.
+
+
+## Native classifier injection qualification
+
+The sx-lodge-c-f53 one-off qualification compares all five adopted tools through
+the real MCP door under autonomous and standard-review company policies. Each
+policy uses isolated clean and authority-claiming native job and rubric sources.
+For every tool it compares successful baseline calls with caller class,
+confirmation and internal claims. Every preparation has a fresh idempotency key,
+so a cached draft cannot stand in for a new classification. The independently
+expected class is standard with a measure of one in each fixture.
+
+All 80 comparisons complete as native reads or unsent proposal and debrief
+drafts. The 84 calls, including inventory priming, have corresponding audit
+readback with the expected classes, facts and current disposition. Additional
+caller arguments are filtered and named in the audit; the review calls have
+linked review records. Native sources retain their authority claims as ordinary
+data. Hiring records and grants stay unchanged, no proposal is applied, no
+debrief is kept, and neither provider calls nor new captured mail occur.
+
+The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f53/files)
+contains the disposable driver and actual receipts. It qualifies only
+BASE-AGENT-006 acceptance 3 for the five existing standard-class tools and the
+existing owner sponsor. The shared manifest has no injection steps, so the
+shared journey supplies no additional injection comparison. No permanent test,
+manifest, copied Base, runtime or screen change is introduced. Other class and
+fact duties, tool families, roles, live Business admission and the complete
+original acceptance remain open, alongside the existing identity, custody,
+lifecycle, continuation and specialist holds. BASE-AGENT-006 remains partial.
