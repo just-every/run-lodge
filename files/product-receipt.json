@@ -1,0 +1,74 @@
+{
+  "repository": "just-every/run-lodge",
+  "branch": "cloud/sx-lodge-c-f50",
+  "head": "fa213b4924355222e7d3594b85af2c4f1b26118c",
+  "remoteRef": "refs/heads/cloud/sx-lodge-c-f50",
+  "remoteHead": "fa213b4924355222e7d3594b85af2c4f1b26118c",
+  "verifiedAt": "2026-11-06T05:56:39.134905+00:00",
+  "push": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-lodge-c-f50",
+    "attempts": 1,
+    "exit": 0,
+    "result": "PUSH_OK"
+  },
+  "candidateIdentityCheck": [
+    {
+      "sha": "fa213b4924355222e7d3594b85af2c4f1b26118c",
+      "authorAndCommitter": "fleet identity",
+      "trailers": "absent"
+    },
+    {
+      "sha": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+      "authorAndCommitter": "fleet identity",
+      "trailers": "absent"
+    }
+  ],
+  "workingTreeClean": true,
+  "mainAtIntegration": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+  "base": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+  "filesChangedAgainstMain": [
+    "CONTRACT.md",
+    "sources.lock.json"
+  ],
+  "countsBefore": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "countsAfter": {
+    "done": 70,
+    "partial": 44,
+    "missing": 31,
+    "total": 145
+  },
+  "clauseBefore": "partial",
+  "clauseAfter": "partial",
+  "productScan": "Mac lander pending",
+  "runSite": "Mac lander pending",
+  "pr": null,
+  "allParentStatusRowsRetained": [
+    {
+      "commit": "fa213b4924355222e7d3594b85af2c4f1b26118c",
+      "parent": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+      "parentStatusRows": 145,
+      "candidateStatusRows": 145,
+      "dropped": []
+    },
+    {
+      "commit": "a4b1221a01c5dd89baa793e208ba1c864709686d",
+      "parent": "a2078a31d9525a6f3381756eb1278cd13e65be85",
+      "parentStatusRows": 145,
+      "candidateStatusRows": 145,
+      "dropped": []
+    }
+  ],
+  "verify": {
+    "id": 42171261307,
+    "event": "workflow_dispatch",
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "fa213b4924355222e7d3594b85af2c4f1b26118c",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42171261307"
+  }
+}

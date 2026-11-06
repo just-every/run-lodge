@@ -1,0 +1,424 @@
+{
+  "tag": "sx-lodge-c-f50",
+  "clause": "BASE-AGENT-007",
+  "head": "fa213b4924355222e7d3594b85af2c4f1b26118c",
+  "started": "2026-11-06T05:56:38.920Z",
+  "sourceHashes": {
+    "src/routes/__root.tsx": "cf4945759a003abe1e44d58e58de044c253957ee0c029d59981868efe66371e1",
+    "public/lodge.css": "c4b9255fd218053093ade19c9cd032aa1e31308931c907ed15e8504b7f265c5c",
+    "public/lodge-shell.css": "2f8e926d18e43001dbb7855beb51b8636b18ef38e1b1f327e626b82a5501c475",
+    "public/lodge-pipeline.css": "4a69a20938916edf9fc093cba69b5cbfd0c59d2e877d305ba0b047c87a7ed54a",
+    "src/lodge/agent-door/tools.ts": "ee3dcf0128925ad2bae44c4a41eaec0986d23d3736d864d07c64cdd0586e73c6",
+    "src/lodge/agent-door/context.ts": "0a853d246acddb0781e1513231f39150a92a4ee9866d166d6548cba3b220e973",
+    "src/lodge/core/store.ts": "a9bb011ceaa43a14382a2922100da87be8415cbc5c6b2fff433ac587884dd86b",
+    "src/modules/agent-door/approvals.ts": "45757936fac519de054ca754fd45ea3e6def75f18f1e71cb6a651e6451bf767c",
+    "src/modules/agent-door/approval-execution.ts": "184b7fd7f016fb58121746873f4bf8fab621c4d09a1a00e61cf53eedad2fc3b3",
+    "src/modules/agent-door/pipeline.ts": "c1a1072f3f1fec84f33c365719c61fa4cdfdba384155385f6ad300da964e8eed",
+    "src/modules/agent-door/wire.ts": "29b000c60300a20e5feb3c90d6bd0dde7af562b43c99b4aa27260c983997163f",
+    "tests/harness.mjs": "113c0acb1a65b75703841ab0bebe0e19148438fe20fc057c08cfc6de6a763a0f",
+    "tests/initialize-agent.mjs": "8a8b79c94adb1024c4e838259cac1802ea955fbb7c8612b070dceef59367f065",
+    "tests/agent-phase-fixtures.mjs": "3000e4c0d5af78cc3f0b749370f5f93c321281e22f1b4bc5745c01480477f63e",
+    "agent-surface.json": "4866d0ffac9ce0955880e5f64a24a5e556ff52b36318e8c04b13ad8c03405a57",
+    "src/ui/app.tsx": "b8bc375185c6923150f4258d0e631426ca7e13b555d2bb31396dd7e961463cf6",
+    "src/ui/proposals.tsx": "d800cf11a2999450311121955b133c5f2a832a731d694856481d6bf3b7f188f5",
+    "src/ui/debriefs.tsx": "819e778fc76835fc8722fa9f0fda9105ba4f2f4717d933de74484f2ed7e6b080"
+  },
+  "cases": [
+    {
+      "tool": "lodge.jobs.list",
+      "disposition": "blocked",
+      "policyRevision": 2,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-blocked",
+          "do": "blocked",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "code": "policy_blocked",
+      "passed": true
+    },
+    {
+      "tool": "lodge.records.read",
+      "disposition": "blocked",
+      "policyRevision": 2,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-blocked",
+          "do": "blocked",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "code": "policy_blocked",
+      "passed": true
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "disposition": "blocked",
+      "policyRevision": 2,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-blocked",
+          "do": "blocked",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "code": "policy_blocked",
+      "passed": true
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "disposition": "blocked",
+      "policyRevision": 2,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-blocked",
+          "do": "blocked",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "code": "policy_blocked",
+      "passed": true
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "disposition": "blocked",
+      "policyRevision": 2,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-blocked",
+          "do": "blocked",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "code": "policy_blocked",
+      "passed": true
+    },
+    {
+      "tool": "lodge.jobs.list",
+      "disposition": "approval",
+      "policyRevision": 3,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-approval",
+          "do": "approval",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "pending": true,
+      "sponsorBrowserApproved": true,
+      "exactRevisionAndSummary": true,
+      "urlModeElicitation": true,
+      "oneApprovalExecution": true,
+      "originalRetryKeyOrStateRetained": true,
+      "linkedReceipt": {
+        "id": "638a9e3f-ca0f-48a6-8b93-10f17960a1c4",
+        "approval_id": "0ee17579-7f36-4b0e-878c-78a31610120f",
+        "decision_id": "83ada7e0-6af0-4ab3-9a48-0ec41076a8a9"
+      },
+      "repeatedRetryUnchanged": true,
+      "repeatedHumanApprovalUnchanged": true,
+      "passed": true
+    },
+    {
+      "tool": "lodge.records.read",
+      "disposition": "approval",
+      "policyRevision": 3,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-approval",
+          "do": "approval",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "pending": true,
+      "sponsorBrowserApproved": true,
+      "exactRevisionAndSummary": true,
+      "urlModeElicitation": true,
+      "oneApprovalExecution": true,
+      "originalRetryKeyOrStateRetained": true,
+      "linkedReceipt": {
+        "id": "95ac8a55-85d7-4f97-95a5-87af60ea25d3",
+        "approval_id": "4ff398de-38ae-4fc2-866f-5b9bf12619aa",
+        "decision_id": "7da24940-7bfc-469d-8951-e75b85e67431"
+      },
+      "repeatedRetryUnchanged": true,
+      "repeatedHumanApprovalUnchanged": true,
+      "passed": true
+    },
+    {
+      "tool": "lodge.proposals.list",
+      "disposition": "approval",
+      "policyRevision": 3,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-approval",
+          "do": "approval",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "pending": true,
+      "sponsorBrowserApproved": true,
+      "exactRevisionAndSummary": true,
+      "urlModeElicitation": true,
+      "oneApprovalExecution": true,
+      "originalRetryKeyOrStateRetained": true,
+      "linkedReceipt": {
+        "id": "2b3c5d95-4304-4a2b-aa66-1667bb1a3362",
+        "approval_id": "2f2d5d5a-8571-470d-89fe-57ba193b1a24",
+        "decision_id": "0dc47d43-2579-4599-93f8-198a3da53c98"
+      },
+      "repeatedRetryUnchanged": true,
+      "repeatedHumanApprovalUnchanged": true,
+      "passed": true
+    },
+    {
+      "tool": "lodge.proposals.prepare",
+      "disposition": "approval",
+      "policyRevision": 3,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-approval",
+          "do": "approval",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "pending": true,
+      "sponsorBrowserApproved": true,
+      "exactRevisionAndSummary": true,
+      "urlModeElicitation": true,
+      "oneApprovalExecution": true,
+      "originalRetryKeyOrStateRetained": true,
+      "linkedReceipt": {
+        "id": "ccae82b4-2d64-44e2-9e5b-d70ec181db2b",
+        "approval_id": "02d0b0a5-d29f-42e5-a8bd-ded570fd93e8",
+        "decision_id": "97914124-c1c5-416d-a19e-43a42bb1c18c"
+      },
+      "repeatedRetryUnchanged": true,
+      "repeatedHumanApprovalUnchanged": true,
+      "passed": true
+    },
+    {
+      "tool": "lodge.debriefs.prepare",
+      "disposition": "approval",
+      "policyRevision": 3,
+      "computed": [
+        {
+          "class": "standard",
+          "rule": "standard-approval",
+          "do": "approval",
+          "facts": {
+            "measure": 1
+          }
+        }
+      ],
+      "noNativeEffectBeforeAuthorization": true,
+      "nativeContentWithheld": true,
+      "pending": true,
+      "sponsorBrowserApproved": true,
+      "exactRevisionAndSummary": true,
+      "urlModeElicitation": true,
+      "oneApprovalExecution": true,
+      "originalRetryKeyOrStateRetained": true,
+      "linkedReceipt": {
+        "id": "408a51c3-66d9-49ce-92f0-85a7bf65ae5a",
+        "approval_id": "dad1bb04-90fb-482f-a2a7-a97d47172b71",
+        "decision_id": "4ffb70dc-d33e-4a93-b9f9-39100a8656c2"
+      },
+      "repeatedRetryUnchanged": true,
+      "repeatedHumanApprovalUnchanged": true,
+      "passed": true
+    }
+  ],
+  "screens": [
+    {
+      "file": "screens/jobs-pending-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/jobs-pending-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/jobs-executed-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/jobs-executed-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/source-pending-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/source-pending-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/source-executed-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/source-executed-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/drafts-pending-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/drafts-pending-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/drafts-executed-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/drafts-executed-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/proposal-pending-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/proposal-pending-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/proposal-executed-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/proposal-executed-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/debrief-pending-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/debrief-pending-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/debrief-executed-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/debrief-executed-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/native-proposal-draft-1440.png",
+      "width": 1440,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/native-proposal-draft-390.png",
+      "width": 390,
+      "iconControls": 0
+    },
+    {
+      "file": "screens/native-debrief-draft-1440.png",
+      "width": 1440,
+      "iconControls": 1
+    },
+    {
+      "file": "screens/native-debrief-draft-390.png",
+      "width": 390,
+      "iconControls": 1
+    }
+  ],
+  "nativeDecisions": [
+    {
+      "kind": "proposal",
+      "preparationSavedDraftOnly": true,
+      "separateSignedInHumanDecision": true,
+      "nativeOutcomeConfirmed": true
+    },
+    {
+      "kind": "debrief",
+      "preparationSavedDraftOnly": true,
+      "separateSignedInHumanDecision": true,
+      "nativeOutcomeConfirmed": true,
+      "applicationUnchanged": true
+    }
+  ],
+  "status": "passed",
+  "browserHost": "Unchanged complete native App compiled with esbuild; native API, authentication, approvals and D1 are the actual Worker. No projection or tool output is mocked. This is not production SSR qualification.",
+  "appBundleSha256": "90fc91a166a85a076971f48407d8ea32e38a9b3dd1d665302fa5401c5ef71444",
+  "proposalId": "b135fb70-9078-4e38-a8b1-325b1d2bdce8",
+  "debriefId": "ed27efd6-1a46-4c67-845f-70f9a6910d4e",
+  "protocolPoints": 3,
+  "finished": "2026-11-06T05:56:46.836Z",
+  "command": "cloud_run timeout 1200 node packet/qualify-standard.mjs packet",
+  "processExit": 0
+}

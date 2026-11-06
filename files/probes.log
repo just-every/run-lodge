@@ -1,0 +1,11 @@
+PROBE BASE-AGENT-007 acceptance-1 lodge.jobs.list blocked: real MCP -> policy_blocked with current facts; native state unchanged
+PROBE BASE-AGENT-007 acceptance-1 lodge.records.read blocked: real MCP -> policy_blocked with current facts; native state unchanged
+PROBE BASE-AGENT-007 acceptance-1 lodge.proposals.list blocked: real MCP -> policy_blocked with current facts; native state unchanged
+PROBE BASE-AGENT-007 acceptance-1 lodge.proposals.prepare blocked: real MCP -> policy_blocked with current facts; native state unchanged
+PROBE BASE-AGENT-007 acceptance-1 lodge.debriefs.prepare blocked: real MCP -> policy_blocked with current facts; native state unchanged
+PROBE BASE-AGENT-007 acceptance-1 lodge.jobs.list approval: real MCP -> pending without content or effect; sponsor browser approval; native result and linked receipt; one execution
+PROBE BASE-AGENT-007 acceptance-1 lodge.records.read approval: real MCP -> pending without content or effect; sponsor browser approval; native result and linked receipt; one execution
+PROBE BASE-AGENT-007 acceptance-1 lodge.proposals.list approval: real MCP -> pending without content or effect; sponsor browser approval; native result and linked receipt; one execution
+PROBE BASE-AGENT-007 acceptance-1 lodge.proposals.prepare approval: real MCP -> pending without content or effect; sponsor browser approval; native result and linked receipt; one execution
+PROBE BASE-AGENT-007 acceptance-1 lodge.debriefs.prepare approval: real MCP -> pending without content or effect; sponsor browser approval; native result and linked receipt; one execution
+QUALIFIED 10 standard policy cases; 24 browser captures; 2 separate native human decisions

@@ -1,0 +1,11 @@
+[
+  {
+    "conclusion": "success",
+    "head_sha": "fa213b4924355222e7d3594b85af2c4f1b26118c",
+    "html_url": "https://github.com/just-every/run-lodge/actions/runs/42171261307",
+    "status": "completed",
+    "id": 42171261307,
+    "name": "Verify",
+    "event": "workflow_dispatch"
+  }
+]
