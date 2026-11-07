@@ -2,7 +2,7 @@ import { Referrals } from './referrals'
 import type { PageProps } from './app'
 import { daysSince, recent, since, weekday } from './format'
 import { Icon, type IconName } from './icons'
-import { count, person } from './names'
+import { preparer, count, person } from './names'
 import { Avatar, Status, type D } from './shared'
 import { BusinessForm } from './people'
 import { columns, openProposals, proposalApplication } from './pipeline/facts'
@@ -56,7 +56,7 @@ export function Overview({ w, mutate, go, follow }: PageProps) {
         <InterviewerActivity w={w} go={go} />
         {decisions.length > 0 && <section className="card"><h2>Waiting for your decision</h2><ul className="list rich">{decisions.map(id => {
           const a = w.applications.find((x: D) => x.id === id), ps = openProposals(w).filter((p: D) => proposalApplication(p) === id)
-          return a && <li key={id}><button onClick={() => go('Applications', { app: id, job: a.vacancy })}><Avatar name={a.candidateName} size="sm" /><span><strong>{a.candidateName}</strong><small>{count(ps.length, 'option')} from {person(w, ps[0].proposedBy)} · {recent(ps[0].proposedAt)}</small></span><Status tone="alert">your decision</Status></button></li>
+          return a && <li key={id}><button onClick={() => go('Applications', { app: id, job: a.vacancy })}><Avatar name={a.candidateName} size="sm" /><span><strong>{a.candidateName}</strong><small>{count(ps.length, 'option')} from {preparer(w, ps[0])} · {recent(ps[0].proposedAt)}</small></span><Status tone="alert">your decision</Status></button></li>
         })}</ul></section>}
         {open.length > 0 && <section className="card"><h2>Open jobs</h2><ul className="list rich">{open.map((v: D) => {
           const apps = w.applications.filter((a: D) => a.vacancy === v.id && a.status !== 'spam'), split = columns(v, apps).filter(c => c.id !== 'closed').map(c => c.apps.length)
