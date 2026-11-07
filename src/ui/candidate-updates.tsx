@@ -1,3 +1,4 @@
+import { preparer } from './names'
 import { useState } from 'react'
 import type { PageProps } from './app'
 import { Field, Form, type D } from './shared'
@@ -28,7 +29,7 @@ export function CandidateUpdates({ w, mutate, follow }: Pick<PageProps, 'w' | 'm
       {report.cases.map((update: D) => <article key={update.application} aria-label={'Response window for ' + update.name} className="card"><h3>{update.name}</h3><UpdateEvidence update={update} follow={follow} /></article>)}
     </details>
     {packets.map((p: D) => <article className="card" key={p.id} aria-label={'Update proposal for ' + p.update.name}>
-      <h3>{p.summary}</h3><p>Agent-authored update · {p.status} · unsent</p>
+      <p>Prepared by {preparer(w, p)}</p><h3>{p.summary}</h3><p>Agent-authored update · {p.status} · unsent</p>
       <UpdateEvidence update={p.update} follow={follow} />
       {p.status === 'proposed' && !w.actor.agent && p.approver === w.actor.email && <Form label="Review candidate update" onSubmit={values => mutate('decide-proposal', { id: p.id, ...values })}>
         <Field label="Update decision" name="decision" options={[{ value: 'accepted', label: 'Accept into unsent draft' }, { value: 'rejected', label: 'Reject draft' }]} />

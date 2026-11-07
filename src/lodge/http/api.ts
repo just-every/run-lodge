@@ -31,6 +31,7 @@ import { isAgency, can, canSeeApplication, isAdmin, managesVacancy, onPanel, req
 import { Fault, requireThat, type Actor, type Data } from '../core/types'
 import type { State } from '../core/state'
 import { run } from '../commands'
+import { nativeRefusalCode } from '../core/refusals'
 import { invite } from '../core/invitation'
 import { workspace, workspaceRecords } from '../views/workspace'
 import { search, talentPool } from '../views/search'
@@ -190,9 +191,17 @@ api.post('/api/lodge/command/:op', async c => {
   }
   if (op === 'crm-enroll' || op === 'crm-enable') { input.origin = runtimeBindings(c.env).AUTH_ORIGIN; input.replyAddress = c.env.CRM_REPLY_ADDRESS ?? state.find('application-email-transport', 'main')?.replyTo }
   if (['careers-domain-verify', 'careers-domain-connect', 'careers-domain-disconnect'].includes(op)) return c.json(await careersDomainOperation(runtimeBindings(c.env), actor, op.slice('careers-domain-'.length) as 'verify' | 'connect' | 'disconnect', input))
-  const result = op === 'careers-domain-challenge' ? careersDomainChallenge(state, actor, input, runtimeBindings(c.env)) : await run(state, actor, op, input)
-  await save(c.env.DB, state, actor)
-  return c.json(fieldResult(state, actor, blindResult(state, actor, result)))
+  try {
+    const result = op === 'careers-domain-challenge' ? careersDomainChallenge(state, actor, input, runtimeBindings(c.env)) : await run(state, actor, op, input)
+    await save(c.env.DB, state, actor)
+    return c.json(fieldResult(state, actor, blindResult(state, actor, result)))
+  } catch (error) {
+    // Admission and request parsing above keep their own errors. Only the two
+    // adopted native preparation actions share business codes with their tools.
+    if ((op === 'propose' || op === 'debrief') && error instanceof Fault)
+      return c.json({ error: error.message, code: nativeRefusalCode(error) }, error.status as 400)
+    throw error
+  }
 })
 
 api.get('/api/lodge/referral/export', async c => {
