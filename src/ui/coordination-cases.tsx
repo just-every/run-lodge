@@ -1,5 +1,5 @@
 import type { PageProps } from './app'
-import { person } from './names'
+import { preparer, person } from './names'
 import { when } from './format'
 import { Field, Form, Status, type D } from './shared'
 
@@ -20,7 +20,7 @@ export function FeedbackCaseProposal({ p, w, mutate }: Pick<PageProps, 'w' | 'mu
     <p className="eyebrow">Agent-authored feedback action · {p.status}</p>
     <h2>{p.summary}</h2>
     <p>{row.candidateName} · {row.title} · {person(w, row.panellist)}</p>
-    <p>Proposed by {person(w, p.proposedBy)}. Human reviewer: {person(w, p.approver)}.</p>
+    <p>Proposed by {preparer(w, p)}. Human reviewer: {person(w, p.approver)}.</p>
     <p>Action: {p.input.action}{p.input.owner ? ' · recruiter: ' + person(w, p.input.owner) : ''}</p>
     {p.input.nextAction && <p>Next action: {p.input.nextAction} · deadline: {when(p.input.deadline)}</p>}
     {p.input.reason && <p>Stop reason: {p.input.reason}</p>}

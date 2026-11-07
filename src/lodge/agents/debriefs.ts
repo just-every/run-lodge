@@ -103,6 +103,24 @@ function checkStatements(s: State, a: Actor, app: Data, raw: unknown) {
   return { statements, criteria: facts.criteria }
 }
 
+/** Both quoted passages and cached criterion ratings retain their source access boundary. */
+function canReadDebriefSources(brief: Data, visibleCard: (id: string) => Data | undefined) {
+  return brief.statements.every((statement: Data) => statement.citations.every((citation: Data) => {
+    const card = visibleCard(citation.scorecard)
+    return card && (citation.field === 'takeaways' ? typeof card.takeaways === 'string' : typeof card.evidence?.[citation.criterion] === 'string')
+  })) && brief.criteria.every((criterion: Data) => criterion.ratings.every((rating: Data) => {
+    const card = visibleCard(rating.scorecard)
+    return card && typeof card.ratings?.[criterion.criterion] === 'number'
+  }))
+}
+
+/** A retained brief grants no access to any released evidence it contains. */
+export function canSeeDebrief(view: { applications: Data[]; scorecards: Data[] }, brief: Data) {
+  const app = view.applications.find(app => app.id === brief.application)
+  return app?.manages === true && app.feedbackReleased === true &&
+    canReadDebriefSources(brief, id => view.scorecards.find(card => card.id === id && card.application === app.id))
+}
+
 /** Prepare a brief (an agent for the manager, or a person who runs the job). It changes no hiring record. */
 export function debrief(s: State, a: Actor, b: Data) {
   const { app, vacancy } = released(s, a, b)
@@ -119,6 +137,10 @@ function draftBrief(s: State, a: Actor, id: unknown) {
   const brief = s.find('debrief', id)
   if (!brief) throw new Fault(404, 'Debrief brief not found')
   released(s, a, { application: brief.application })
+  requireThat(canReadDebriefSources(brief, id => {
+    const card = s.find('scorecard', id)
+    return card && card.application === brief.application && canSeeScorecard(s, a, card) ? card : undefined
+  }), 'Debrief brief not found', 404)
   requireThat(brief.status === 'draft', 'This brief was already kept; prepare a new one', 409)
   return brief
 }
