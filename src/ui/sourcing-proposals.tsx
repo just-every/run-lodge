@@ -1,3 +1,4 @@
+import { preparer } from './names'
 import { useState } from 'react'
 import type { PageProps } from './app'
 import { Check, Field, Form, type D } from './shared'
@@ -26,7 +27,7 @@ export function SourcingSettings({ w, mutate }: Pick<PageProps, 'w' | 'mutate'>)
 
 export function SourcingDraft({ p, w, mutate }: Pick<PageProps, 'w' | 'mutate'> & { p: D }) {
   return <article className="card" aria-label="Sourcing research draft"><p className="eyebrow">Agent-authored research packet · {p.status}</p>
-    <h2>{p.summary}</h2><p>{p.research.boundary}</p>
+    <p>Prepared by {preparer(w, p)}</p><h2>{p.summary}</h2><p>{p.research.boundary}</p>
     {p.stale && <p role="status">Sources changed. Request a fresh packet before keeping this draft.</p>}
     <h3>Human-selected criteria</h3><ul>{p.research.criteria.map((c: D) => <li key={c.id}>{c.name}: {c.description}</li>)}</ul>
     <h3>Recorded facts</h3><p>Exact source passages, not verified experience or a suitability assessment. People choose whom to interview.</p>
