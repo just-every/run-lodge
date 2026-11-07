@@ -1,5 +1,5 @@
 import type { PageProps } from './app'
-import { person } from './names'
+import { preparer, person } from './names'
 import { when } from './format'
 import { Field, Form, Status, type D } from './shared'
 
@@ -14,7 +14,8 @@ export function Debriefs({ app, v, w, mutate }: { app: D; v?: D; w: D; mutate: P
     <h3>Debrief brief</h3>
     <p className="hint">Prepared from released scorecards only. Every statement quotes an interviewer; it carries no combined score or recommendation and never moves the candidate.</p>
     {briefs.map((d: D) => <article key={d.id} className="card">
-      <h4>Prepared by {person(w, d.preparedBy)}{d.preparedByAgent ? ` for ${person(w, d.preparedFor)}` : ''} · {when(d.preparedAt)} <Status tone={d.status === 'kept' ? 'good' : 'neutral'}>{d.status === 'kept' ? 'kept' : 'draft'}</Status>{d.stale && <> <Status tone="warn">a quoted scorecard was corrected</Status></>}</h4>
+      <h4>Prepared by {preparer(w, d)} · {when(d.preparedAt)} <Status tone={d.status === 'kept' ? 'good' : 'neutral'}>{d.status === 'kept' ? 'kept' : 'draft'}</Status>{d.stale && <> <Status tone="warn">a quoted scorecard was corrected</Status></>}</h4>
+      {d.keptBy && <p>Kept by {person(w, d.keptBy)} · {when(d.keptAt)}</p>}
       {d.statements.map((x: D, i: number) => <div key={i} className="statement">
         <p><strong>{KINDS[x.kind]}{x.criterion ? ` · ${criterion(x.criterion)}` : ''}</strong>: {x.text}</p>
         {x.citations.map((c: D, j: number) => <blockquote key={j}>“{c.quote}” <a href={'#scorecard-' + c.scorecard}>{person(w, c.author)}, {c.field === 'takeaways' ? 'key take-aways' : `${criterion(c.criterion)} rated ${c.rating ?? 'not rated'}`}{c.version > 1 ? `, version ${c.version}` : ''}</a></blockquote>)}
