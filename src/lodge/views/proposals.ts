@@ -10,6 +10,8 @@ import { now, scope, type Actor, type Data } from '../core/types'
 import type { WorkspaceRecords } from './workspace'
 
 /** Proposal sources use the very same record and field projection as screens. */
+export const sourceKinds = ['vacancy', 'application', 'candidate', 'interview', 'interview-note', 'scorecard', 'document'] as const
+
 export function sourceRecord(view: WorkspaceRecords, kind: string, id: unknown): Data | undefined {
   const records: Record<string, Data[]> = { vacancy: view.vacancies, application: view.applications, candidate: view.candidates, interview: view.interviews, 'interview-note': view.notes, scorecard: view.scorecards, document: view.documents }
   return records[kind]?.find(row => row.id === id)
