@@ -1,13 +1,13 @@
 import { clock, dayLabel, slot, weekday } from '../format'
 import { Icon } from '../icons'
-import { count, person, people, phrase, recordName } from '../names'
+import { count, eventActor, person, people, phrase, recordName } from '../names'
 import type { D } from '../shared'
 import { openProposals, proposalApplication } from './facts'
 
 const SHOWN = 5
 
 /** One line of the job's history: what happened, the words or record behind it, and its dot. Red is only for what waits on you. */
-interface Entry { id: string; at: string; tone: 'red' | 'amber' | 'sky' | 'grey'; title: string; detail?: string; offer?: { by: string; app?: string; ps: D[] } }
+interface Entry { id: string; at: string; tone: 'red' | 'amber' | 'sky' | 'grey'; title: string; detail?: string; offer?: { by: string; label: string; app?: string; ps: D[] } }
 
 // What applying a proposal writes in the same moment; it reads as part of that one entry.
 const EFFECTS = ['message-drafted', 'interview-proposed', 'interview-scheduled', 'interview-cancelled', 'stage-moved', 'proposal-rejected']
@@ -28,8 +28,8 @@ function story(w: D, rows: D[]): Entry[] {
     if (e.action === 'proposal-created') {
       const p = proposal(e), app = p && proposalApplication(p), last = entries.at(-1)
       // Options an agent offered for one candidate within a few minutes read as one entry.
-      if (p && last?.offer && last.offer.app === app && last.offer.by === e.email && Math.abs(Date.parse(last.at) - Date.parse(e.at)) < 600000) { last.offer.ps.push(p); continue }
-      entries.push({ id: e.id, at: e.at, tone: 'grey', title: '', offer: { by: e.email, app, ps: p ? [p] : [] } })
+      if (p && last?.offer && last.offer.app === app && last.offer.by === e.email && last.offer.label === eventActor(w, e) && Math.abs(Date.parse(last.at) - Date.parse(e.at)) < 600000) { last.offer.ps.push(p); continue }
+      entries.push({ id: e.id, at: e.at, tone: 'grey', title: '', offer: { by: e.email, label: eventActor(w, e), app, ps: p ? [p] : [] } })
       continue
     }
     if (e.action === 'proposal-applied') {
@@ -44,14 +44,14 @@ function story(w: D, rows: D[]): Entry[] {
         : { id: e.id, at: e.at, tone: 'sky', title: `${person(w, e.email)} can cover ${e.freeAt ? `${iv?.title.split(':')[0] ?? 'it'}, free ${slot(e.freeAt)}` : what}`, detail: e.note && `“${e.note}”` })
       continue
     }
-    entries.push({ id: e.id, at: e.at, tone: ['stage-moved', 'interview-scheduled'].includes(e.action) ? 'sky' : 'grey', title: `${person(w, e.email) || 'Applicant'} · ${phrase(e.action)}`, detail: recordName(w, e.record) })
+    entries.push({ id: e.id, at: e.at, tone: ['stage-moved', 'interview-scheduled'].includes(e.action) ? 'sky' : 'grey', title: `${eventActor(w, e) || 'Applicant'} · ${phrase(e.action)}`, detail: recordName(w, e.record) })
   }
   // Word each agent entry once its options are gathered: what it offered, and where they stand now.
   for (const entry of entries) {
     if (!entry.offer) continue
-    const { by, app, ps } = entry.offer, open = ps.filter(p => waiting.has(p.id)), chosen = ps.find(p => p.status === 'applied')
+    const { label, app, ps } = entry.offer, open = ps.filter(p => waiting.has(p.id)), chosen = ps.find(p => p.status === 'applied')
     const name = w.applications.find((a: D) => a.id === app)?.candidateName
-    entry.title = ps.length > 1 ? `${person(w, by)} proposed ${count(ps.length, 'option')} for ${name}` : `${person(w, by)} proposed: ${ps[0]?.summary ?? 'a change'}`
+    entry.title = ps.length > 1 ? `${label} proposed ${count(ps.length, 'option')} for ${name}` : `${label} proposed: ${ps[0]?.summary ?? 'a change'}`
     entry.detail = open.length ? 'Waiting for your decision' : chosen ? `${person(w, chosen.decidedBy)} chose ${ps.length > 1 ? chosen.summary : 'it'}` : 'Declined'
     entry.tone = open.length ? 'red' : 'grey'
   }
@@ -66,7 +66,7 @@ export function Activity({ v, apps, w, open }: { v: D; apps: D[]; w: D; open: (i
     ...w.offers.filter((o: D) => ids.has(o.application)).map((o: D) => 'offer:' + o.id),
     ...w.messages.filter((m: D) => ids.has(m.application)).map((m: D) => 'message:' + m.id),
     ...w.proposals.filter((p: D) => ids.has(proposalApplication(p) ?? '')).map((p: D) => 'proposal:' + p.id)])
-  const history = story(w, w.audit.filter((e: D) => records.has(e.record))).slice(0, SHOWN)
+  const history = story(w, w.audit.filter((e: D) => records.has(e.record) && (!e.debrief || w.debriefs.some((d: D) => d.id === e.debrief)))).slice(0, SHOWN)
   const days = [...new Set(history.map(e => dayLabel(e.at)))]
   const name = (id: string) => apps.find(a => a.id === id)?.candidateName
   const missing = new Map<string, D[]>()

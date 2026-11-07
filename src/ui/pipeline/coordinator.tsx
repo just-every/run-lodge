@@ -1,6 +1,6 @@
 import type { Target } from '../app'
 import { Icon } from '../icons'
-import { count, person } from '../names'
+import { preparer, count } from '../names'
 import type { D } from '../shared'
 import { openProposals, proposalApplication } from './facts'
 
@@ -13,7 +13,7 @@ export function Coordinator({ v, apps, w, go, open }: { v: D; apps: D[]; w: D; g
   const applied = related.filter((p: D) => p.status === 'applied' && Date.parse(p.decidedAt) > week).sort((x: D, y: D) => y.decidedAt.localeCompare(x.decidedAt))
   const waiting = openProposals(w).filter(ours)
   const decisions = [...new Set(waiting.map(proposalApplication))] as string[]
-  const agents = [...new Set(related.map((p: D) => person(w, p.proposedBy)))].join(', ')
+  const agents = [...new Set(related.map((p: D) => preparer(w, p)))].join(', ')
   // How many changes, not their summaries: the strip stays one line; who they were for is in its title and the activity.
   const names = [...new Set(applied.map((p: D) => apps.find(a => a.id === proposalApplication(p))?.candidateName).filter(Boolean))] as string[]
   const said = applied.length ? `${count(applied.length, 'change')} applied this week.` : 'nothing applied this week.'

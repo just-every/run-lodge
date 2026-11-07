@@ -4,6 +4,7 @@ import type { ResourceContext, ToolContext } from '../../modules/agent-door/type
 import { preparedBy } from '../../modules/agent-door/people.ts'
 import { actorFor, load } from '../core/store.ts'
 import { Fault, type Actor } from '../core/types.ts'
+import { nativeRefusalCode } from '../core/refusals.ts'
 import type { State } from '../core/state.ts'
 
 export async function nativeContext(env: Bindings, ctx: ToolContext | ResourceContext, admissions?: Map<string, string>): Promise<{ state: State; actor: Actor }> {
@@ -30,7 +31,7 @@ export async function nativeContext(env: Bindings, ctx: ToolContext | ResourceCo
 export async function native<T>(call: () => Promise<T>): Promise<T> {
   try { return await call() }
   catch (error) {
-    if (error instanceof Fault) throw new ToolRefusal(error.status === 404 ? 'record_unavailable' : error.status === 409 ? 'native_conflict' : 'native_refused', undefined, { status: error.status })
+    if (error instanceof Fault) throw new ToolRefusal(nativeRefusalCode(error), undefined, { status: error.status })
     throw error
   }
 }
