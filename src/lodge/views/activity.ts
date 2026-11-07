@@ -1,3 +1,5 @@
+import type { WorkspaceRecords } from './workspace'
+import { proposalApplications } from './proposals'
 import type { State } from '../core/state'
 import type { Data } from '../core/types'
 
@@ -20,4 +22,22 @@ export function activity(s: State, view: { applications: Data[]; messages: Data[
   for (const o of view.offers) entries.push({ kind: 'offer', at: o.outcomeAt ?? o.createdAt, actor: o.outcomeBy ?? o.createdBy, ...on(o.application), title: o.title, status: o.status })
   for (const n of view.teamNotes) entries.push({ kind: 'note', at: n.at, actor: n.author, application: n.application, candidate: n.candidate, note: n.id, text: n.text, private: n.private, edited: !!n.editedAt })
   return entries.filter(e => e.candidate && e.at).sort((x, y) => y.at.localeCompare(x.at))
+}
+
+/** Preparation is projected after source authorization, never from raw audit rows. */
+export function preparationActivity(view: WorkspaceRecords & { proposals: Data[] }) {
+  const entries: Data[] = []
+  const add = (draft: Data, kind: 'proposal' | 'debrief', apps: Data[]) => {
+    for (const app of apps) {
+      const on = { application: app.id, candidate: app.candidate, draft: draft.id }
+      entries.push({ ...on, kind: kind + '-prepared', at: draft.proposedAt ?? draft.preparedAt,
+        actor: draft.proposedBy ?? draft.preparedBy, preparedByAgent: draft.proposedByAgent ?? draft.preparedByAgent,
+        preparation: draft.preparation ?? null })
+      const actor = draft.decidedBy ?? draft.keptBy, at = draft.decidedAt ?? draft.keptAt
+      if (actor && at) entries.push({ ...on, kind: kind + '-decided', actor, at, status: draft.status })
+    }
+  }
+  for (const proposal of view.proposals) add(proposal, 'proposal', proposalApplications(view, proposal))
+  for (const brief of view.debriefs) add(brief, 'debrief', view.applications.filter(app => app.id === brief.application))
+  return entries.filter(entry => entry.at)
 }

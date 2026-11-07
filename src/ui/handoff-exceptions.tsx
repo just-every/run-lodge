@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { PageProps } from './app'
 import { Check, Field, Form, type D } from './shared'
-import { person } from './names'
+import { person, preparer } from './names'
 import { when } from './format'
 
 function Evidence({ row, follow }: { row: D; follow: PageProps['follow'] }) {
@@ -36,7 +36,7 @@ export function HandoffExceptions({ w, mutate, follow }: Pick<PageProps, 'w' | '
     <p>Your external coding agent can propose ownership from the local preflight. A human reviews the exact sources and proposed next action. Field corrections use the existing application and job controls; legal terms, pay and start dates retain their existing approval requirements.</p>
     <details><summary>Current local preflights</summary>{view.preflights.map((row: D) => <article className="card" key={row.offer} aria-label={'Handoff preflight for ' + row.name}><h3>{row.name}</h3><Evidence row={row} follow={follow} /></article>)}</details>
     {proposals.map((p: D) => <article className="card" key={p.id} aria-label={'Handoff proposal for ' + p.handoff.name}>
-      <h3>{p.summary}</h3><p>Agent-authored proposal · {p.status}</p><Evidence row={p.handoff} follow={follow} />
+      <p>Prepared by {preparer(w, p)}</p><h3>{p.summary}</h3><p>Agent-authored proposal · {p.status}</p><Evidence row={p.handoff} follow={follow} />
       <p>Proposed owner: {person(w, p.owner)} · Deadline {when(p.deadline)}.</p><p>Next action: {p.nextAction}</p>
       {p.status === 'proposed' && !w.actor.agent && p.approver === w.actor.email && <Form label="Review handoff ownership" onSubmit={values => mutate('decide-proposal', { id: p.id, ...values })}>
         <Field label="Handoff decision" name="decision" options={[{ value: 'accepted', label: 'Approve local ownership' }, { value: 'rejected', label: 'Reject proposal' }]} />
