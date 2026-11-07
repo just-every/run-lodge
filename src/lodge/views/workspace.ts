@@ -17,7 +17,7 @@ import { employerAgencies } from '../agency/views'
 import { fieldProjection, fieldResult } from './fields'
 import { blindResult } from '../core/blind'
 import { blindProjection } from './blind-review'
-import { canSeeProposal } from './proposals'
+import { canSeeProposal, sourceRecord } from './proposals'
 import type { State } from '../core/state'
 import { isCompliance, isComplianceOnly, canSeeCompliance, isAgency, cleared, teamOf, canSeeApproval, canSeeNote, canSeeTeamNote, canSeeApplication, canSeeCandidate, canSeeContact, canSeeDocument, canSeeScorecard, isAdmin, managesVacancy, can, permissionsOn, SEEDED_LEVELS } from '../core/access'
 import { requireThat, scope, type Actor, type Data } from '../core/types'
@@ -32,10 +32,10 @@ import { disclosureHistory, signerList, SIGNING_NOTICE } from '../esign/disclosu
 import { retentionReview } from '../records/retention'
 import { missingTerms } from '../records/vacancies'
 import { coordination } from '../agents/coordination'
-import { activity } from './activity'
+import { activity, preparationActivity } from './activity'
 import { businessToday } from '../records/tasks'
 import { interviewerActivity } from './reports'
-import { staleDebrief } from '../agents/debriefs'
+import { canSeeDebrief, staleDebrief } from '../agents/debriefs'
 import { library } from '../records/questions'
 import { rulesView } from '../records/rules'
 import { rejectionsView } from '../records/rejections'
@@ -240,7 +240,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     // ATTR-005: the internal job board every person member sees, notices of a report's internal application, and the admins' policy.
     internalBoard: internalBoard(s, a), internalNotices: internalNotices(s, a), internalPolicy: admin ? s.find('internal-policy', 'main') ?? { notifyManager: false } : null,
     // COORD-006 briefs, for the people who run the job (and their agents) only.
-    debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map(d => ({ ...d, stale: staleDebrief(s, d) })),
+    debriefs: s.all('debrief').filter(d => projected.some(app => app.id === d.application && app.manages)).map((d): Data => ({ ...d, stale: staleDebrief(s, d) })),
     notifications: [
       ...tasks.filter(t => t.owner === scope(a) && t.status === 'open' && t.due <= today).map(t => ({ id: 'due:' + t.id, kind: 'task-due', task: t.id, application: t.application, candidate: t.candidate, by: t.createdBy, reason: t.note, at: t.due, overdue: t.due < today })),
       ...s.all('notification').filter(n => n.to === scope(a) && appIds.has(n.application)).sort((x, y) => y.at.localeCompare(x.at)),
@@ -295,6 +295,7 @@ export async function workspaceRecords(s: State, a: Actor, env?: Bindings) {
     view.documents = complianceDocuments
     view.restricted = s.all('monitoring').filter(m => { const app = s.find('application', m.application); return !!app && canSeeCompliance(s, a, app) })
   }
+  view.debriefs = view.debriefs.filter(d => canSeeDebrief(view, d))
   return view
 }
 
@@ -303,8 +304,18 @@ export type WorkspaceRecords = Awaited<ReturnType<typeof workspaceRecords>>
 export async function workspace(s: State, a: Actor, env?: Bindings) {
   const records = await workspaceRecords(s, a, env)
   if (isComplianceOnly(a)) return { ...records, proposals: [], interviewerActivity: null }
-  return { ...records, proposals: s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => p.workflow === 'sourcing-research' ? { ...p, stale: staleSourcing(s, p) } : fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication)))), interviewerActivity: interviewerActivity(s, a, records) }
+  const proposals = s.all('proposal').filter(p => canSeeProposal(s, a, p, records)).map(p => p.workflow === 'sourcing-research' ? { ...p, stale: staleSourcing(s, p) } : fieldResult(s, a, blindResult(s, a, p, s.find('application', p.sources.find((source: Data) => source.blindApplication)?.blindApplication))))
+  const prepared = preparationActivity({ ...records, proposals })
+  return { ...records, proposals, activity: [...records.activity, ...prepared].sort((x, y) => y.at.localeCompare(x.at)), interviewerActivity: interviewerActivity(s, a, records) }
 }
 
 export type Workspace = Awaited<ReturnType<typeof workspace>>
+
+/** Resource readers use current projected drafts, never raw retained packets. */
+export function workspaceResource(view: Workspace, kind: string, id: string): Data | undefined {
+  if (kind === 'proposal') return view.proposals.find((record: Data) => record.id === id)
+  if (kind === 'debrief') return view.debriefs.find((record: Data) => record.id === id)
+  return sourceRecord(view, kind, id)
+}
+
 export const visibleIds = (w: Workspace) => new Set<string>([...w.applications, ...w.candidates, ...w.vacancies, ...w.documents].map((r: Data) => r.id))

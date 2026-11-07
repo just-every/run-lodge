@@ -10,6 +10,8 @@ import { now, scope, type Actor, type Data } from '../core/types'
 import type { WorkspaceRecords } from './workspace'
 
 /** Proposal sources use the very same record and field projection as screens. */
+export const sourceKinds = ['vacancy', 'application', 'candidate', 'interview', 'interview-note', 'scorecard', 'document'] as const
+
 export function sourceRecord(view: WorkspaceRecords, kind: string, id: unknown): Data | undefined {
   const records: Record<string, Data[]> = { vacancy: view.vacancies, application: view.applications, candidate: view.candidates, interview: view.interviews, 'interview-note': view.notes, scorecard: view.scorecards, document: view.documents }
   return records[kind]?.find(row => row.id === id)
@@ -119,4 +121,20 @@ export function canSeeProposal(s: State, a: Actor, p: Data, view: WorkspaceRecor
     results.push({ kind, record })
   }
   return results.length > 0
+}
+
+/** Join a visible packet only to applications already present in this projection. */
+export function proposalApplications(view: WorkspaceRecords, proposal: Data) {
+  const ids = new Set<string>([proposal.application])
+  const candidates = new Set<string>([proposal.candidate])
+  for (const source of proposal.sources ?? []) {
+    if (source.kind === 'candidate') candidates.add(source.id)
+    const record = sourceRecord(view, source.kind, source.viewId ?? source.id)
+    if (source.kind === 'application' && record) ids.add(record.id)
+    else if (record?.application) ids.add(record.application)
+  }
+  for (const change of proposal.changes ?? []) {
+    if (typeof change.input?.application === 'string') ids.add(change.input.application)
+  }
+  return view.applications.filter(app => ids.has(app.id) || candidates.has(app.candidate))
 }

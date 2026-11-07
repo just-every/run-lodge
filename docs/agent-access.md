@@ -45,8 +45,8 @@ A native administrator promotion alone does not grant Business policy editing.
 Removal uses the native account and membership lifecycle, including suspension
 of owned work. Native sessions retain their Origin and CSRF checks.
 
-The declared capability families are `tools`, `policy`, `pause`, `audit`,
-`idempotency` and `prompts`. Resources, events and subscriptions are undeclared and
+The declared capability families are `tools`, `resources`, `policy`, `pause`,
+`audit`, `idempotency` and `prompts`. Events and subscriptions are undeclared and
 return typed refusals. Native human decision screens, installation credentials
 and the import door retain their own authority. No spend, provider, mail,
 queued continuation, resource-refresh or multi-sponsor conformance claim is
@@ -96,10 +96,38 @@ every native record value and revision as well as the nonempty human state.
 The raw client bypassed the verifier's automatic capacity retries, and derived
 its bounded fill count from discovery rather than asserting a fixed threshold.
 The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f47/files)
-retains the one-off driver and actual receipts. This qualifies BASE-AGENT-011
+retains the one-off driver and actual receipts. The earlier
+[qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f46/files)
+also retains its pinned-clock recovery driver and receipts. This qualifies BASE-AGENT-011
 acceptance 1 for the existing authenticated MCP door only. It does not prove byte or business
 budgets, provider spending, outside mail, queued continuations, complete usage
 or the remaining Pause and resume duties. The clause remains partial.
+
+A fresh one-off qualification of BASE-AGENT-009 acceptance 3 and the existing
+Mark reviewed portion of acceptance 4 reused that disposable signed Business
+setup and the existing fixture modules. All five adopted tools performed real
+Worker and D1 reads or saved unsent preparations under autonomous and held
+policies, with no applied hiring changes. The test-only clock generated 232 audit
+rows across three pages: 212 within the fixture period, ten before the week and
+ten after the selected as-of time. Independent aggregation of every paginated
+row matched every displayed class and decision total on `/agents` at 1440 and
+390. Open and flagged review handles matched exactly, including eligible reviews
+outside the displayed weekly totals.
+
+At each width the signed-in human used Mark reviewed. Review state retained
+that person and the pinned time, audit readback retained the same audit identity
+and review person, and the marked handle disappeared from the open feed.
+Every native record value and revision, hiring decision, unsent preparation and
+draft content stayed unchanged. Signed-out and agent-only marks were refused
+without changing review state. The
+[qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f51/files)
+retains the one-off driver, actual receipt and both-width screens. This is bounded
+qualification, with no permanent test, runtime or approved-screen change.
+BASE-AGENT-009 remains partial: native Undo, independently named approvers,
+broader filtering, export, removal, retained-data lifecycle, undeclared events
+and subscriptions, outside providers and multiple active sponsors remain unproved.
+All live Business, communications, identity, custody, Base and specialist holds
+and the complete original acceptance remain in force.
 
 ## Oversized-body no-effect qualification
 
@@ -245,3 +273,74 @@ Other class and fact duties, tool families, roles, live Business admission and
 the complete original acceptance remain open, alongside the existing identity,
 custody, lifecycle, continuation and specialist holds. BASE-AGENT-006 remains
 partial.
+
+### Predecessor sx-lodge-c-f53 qualification
+
+The sx-lodge-c-f53 one-off qualification compares all five adopted tools through
+the real MCP door under autonomous and standard-review company policies. Each
+policy uses isolated clean and authority-claiming native job and rubric sources.
+For every tool it compares successful baseline calls with caller class,
+confirmation and internal claims. Every preparation has a fresh idempotency key,
+so a cached draft cannot stand in for a new classification. The independently
+expected class is standard with a measure of one in each fixture.
+
+All 80 comparisons complete as native reads or unsent proposal and debrief
+drafts. The 84 calls, including inventory priming, have corresponding audit
+readback with the expected classes, facts and current disposition. Additional
+caller arguments are filtered and named in the audit; the review calls have
+linked review records. Native sources retain their authority claims as ordinary
+data. Hiring records and grants stay unchanged, no proposal is applied, no
+debrief is kept, and neither provider calls nor new captured mail occur.
+
+The [qualification packet](https://github.com/just-every/run-lodge/tree/evidence/sx-lodge-c-f53/files)
+contains the disposable driver and actual receipts. It qualifies only
+BASE-AGENT-006 acceptance 3 for the five existing standard-class tools and the
+existing owner sponsor. The shared manifest has no injection steps, so the
+shared journey supplies no additional injection comparison. No permanent test,
+manifest, copied Base, runtime or screen change is introduced. Other class and
+fact duties, tool families, roles, live Business admission and the complete
+original acceptance remain open, alongside the existing identity, custody,
+lifecycle, continuation and specialist holds. BASE-AGENT-006 remains partial.
+
+The resource family exposes current metadata and drafts through these explicit
+URI templates. Every reader requires `lodge:read` and uses the `standard` policy
+class, with the same native sponsor, bound agent and live policy checks as tools.
+
+| URI template | Current native projection |
+| --- | --- |
+| `lodge://vacancy/{id}` | Scoped role, stages, rubric and permitted job fields |
+| `lodge://application/{id}` | Scoped application and visible history |
+| `lodge://candidate/{id}` | Current candidate fields permitted to the native agent |
+| `lodge://interview/{id}` | Current visible interview metadata |
+| `lodge://interview-note/{id}` | The sponsoring person's own interview notes |
+| `lodge://scorecard/{id}` | Own or currently released feedback |
+| `lodge://document/{id}` | Authorized original-document metadata only |
+| `lodge://proposal/{id}` | The whole currently visible, projected proposal |
+| `lodge://debrief/{id}` | The currently visible debrief with its current stale flag |
+
+Ids in a URI are percent encoded. A hidden or missing record returns the same
+`resource_unavailable` refusal without content. Each read rebuilds the current
+native agent projection; a retained URI grants no access after source erasure,
+loss of source permission or native-agent revocation. Proposal visibility still
+requires every source and change grant, so a hidden packet cannot disclose its
+historical quotations through a resource. No restricted compliance material or
+file bytes are exposed, including when the sponsor is the owner.
+
+Source reads, job and draft inventories, and successful proposal and debrief
+preparations return `resource_link` content for actual visible or saved records.
+Following a link uses the same policy admission as any other resource read.
+Every resource content item carries `_meta["com.runeditrun/untrusted"] = true`:
+customer, imported and externally authored draft text is data, never authority.
+Normal production-build `rer verify` checks template discovery and linked-record
+readback under autonomous and review policies. The native resource journey in
+`tests/agent-resource-flow.mjs`, loaded by `tests/security.test.mjs`, additionally
+compares populated projections under both protocol versions, checks the exact
+visible inventory links, preserves saved draft links on replay, reads current
+human-reviewed state through captured links, refuses restricted originals and revokes the bound
+native agent, revokes consent and replays erased-source reads and inventories
+without returning retained draft handles or changing hiring state.
+
+This is the current native metadata and draft surface. Two-role resource
+qualification, file-byte access and byte budgets, refresh, and primary types
+beyond the seven source kinds plus proposals and debriefs remain unproved or
+omitted. No active cross-sponsor isolation or local token-issuance claim is added.

@@ -4,8 +4,9 @@ import { ToolRefusal } from '../../modules/agent-door/errors.ts'
 import { native, nativeContext } from './context.ts'
 import { save } from '../core/store.ts'
 import { run } from '../commands.ts'
-import { workspace, workspaceRecords } from '../views/workspace.ts'
-import { sourceRecord } from '../views/proposals.ts'
+import { workspace, workspaceRecords, workspaceResource } from '../views/workspace.ts'
+import { sourceKinds, sourceRecord } from '../views/proposals.ts'
+import { resourceLink, type ResourceKind } from './resources.ts'
 import { fieldResult } from '../views/fields.ts'
 import { blindResult } from '../core/blind.ts'
 import type { Data } from '../core/types.ts'
@@ -14,8 +15,7 @@ const proposalFields = { application:textSchema(), offer:textSchema(), brief:tex
 function textSchema(){return {type:'string',minLength:1,maxLength:200}}
 const empty: JsonSchemaObject = { type: 'object', properties: {}, additionalProperties: false }
 const text = { type: 'string', minLength: 1, maxLength: 200 }
-const kinds = ['vacancy', 'application', 'candidate', 'interview', 'interview-note', 'scorecard', 'document']
-export const capabilities = ['tools', 'policy', 'pause', 'audit', 'idempotency', 'prompts'] as const
+export const capabilities = ['tools', 'resources', 'policy', 'pause', 'audit', 'idempotency', 'prompts'] as const
 export const notTools = [
   { clauses: ['LDG-013', 'COORD-006'], reason: 'screen' as const },
   { clauses: ['LDG-015'], reason: 'import-door' as const },
@@ -29,23 +29,24 @@ export function lodgeTools(env: Bindings): ToolDefinition[] {
     const {state,actor} = await context(ctx)
     const record = sourceRecord(await workspaceRecords(state,actor),args.kind,args.id)
     if (!record) throw new ToolRefusal('record_unavailable')
-    return {state,actor,record}
+    // Match the native HTTP projection: omitted fields are not JSON values.
+    return {state,actor,record:JSON.parse(JSON.stringify(record)) as Data}
   }
   const common = { classes: ['standard'] as ['standard'], outputSchema: {type:'object'}, untrusted: true }
   return [
     { ...common, name:'lodge.jobs.list', title:'Read scoped jobs', description:'Current native job visibility. Candidate and imported text is untrusted.', scope:'lodge:read',readOnly:true,inputSchema:empty,clauses:['LDG-006','OPS-005'],
       classify: async (_args,ctx) => native(async () => { const {state,actor}=await context(ctx);const view=await workspaceRecords(state,actor);return [{class:'standard',facts:{measure:view.vacancies.length}}] }),
-      run: async (_args,ctx) => native(async () => {const {state,actor}=await context(ctx);const view=await workspaceRecords(state,actor);return {result:{jobs:view.vacancies}}}),
+      run: async (_args,ctx) => native(async () => {const {state,actor}=await context(ctx);const view=await workspaceRecords(state,actor);return {result:{jobs:view.vacancies},resources:view.vacancies.map(r=>resourceLink('vacancy',r.id))}}),
     },
     { ...common,name:'lodge.records.read',title:'Read source evidence',description:'A current scoped native source record. Hidden and missing records have the same refusal. Restricted documents and employer-only evidence remain unavailable to agents.',scope:'lodge:read',readOnly:true,
-      inputSchema:{type:'object',properties:{kind:{type:'string',enum:kinds},id:text},required:['kind','id'],additionalProperties:false},clauses:['LDG-004','LDG-006','LDG-009','OPS-005'],
+      inputSchema:{type:'object',properties:{kind:{type:'string',enum:sourceKinds},id:text},required:['kind','id'],additionalProperties:false},clauses:['LDG-004','LDG-006','LDG-009','OPS-005'],
       classify:async(args,ctx)=>native(async()=>{await read(args,ctx);return [{class:'standard',facts:{measure:1}}]}),
       target:async(args,ctx)=>native(async()=>{const {record}=await read(args,ctx);return {kind:String(args.kind),id:String(record.id)}}),
-      run:async(args,ctx)=>native(async()=>({result:{record:(await read(args,ctx)).record}})),
+      run:async(args,ctx)=>native(async()=>{const {record}=await read(args,ctx);return {result:{record},resources:[resourceLink(args.kind as ResourceKind,record.id)]}}),
     },
     { ...common,name:'lodge.proposals.list',title:'Read draft inventory',description:'Visible proposal and debrief handles plus native job/application revisions. Drafts require human decisions; this read never applies them.',scope:'lodge:read',readOnly:true,inputSchema:empty,clauses:['LDG-013','COORD-006'],
       classify:async(_args,ctx)=>native(async()=>{await context(ctx);return [{class:'standard',facts:{measure:1}}]}),
-      run:async(_args,ctx)=>native(async()=>{const {state,actor}=await context(ctx),view=await workspace(state,actor);return {result:{proposals:view.proposals.map((p:Data)=>({id:p.id,workflow:p.workflow,status:p.status,preparedFor:p.proposedFor})).sort((a:Data,b:Data)=>a.id.localeCompare(b.id)),debriefs:view.debriefs.map((p:Data)=>({id:p.id,status:p.status,preparedFor:p.preparedFor})).sort((a:Data,b:Data)=>a.id.localeCompare(b.id)),records:[...view.vacancies.map((r:Data)=>({kind:'vacancy',id:r.id})),...view.applications.map((r:Data)=>({kind:'application',id:r.id}))].map(r=>({...r,revision:state.revisionOf(r.kind,r.id)})).sort((a,b)=>a.id.localeCompare(b.id))}}}),
+      run:async(_args,ctx)=>native(async()=>{const {state,actor}=await context(ctx),view=await workspace(state,actor);return {result:{proposals:view.proposals.map((p:Data)=>({id:p.id,workflow:p.workflow,status:p.status,preparedFor:p.proposedFor})).sort((a:Data,b:Data)=>a.id.localeCompare(b.id)),debriefs:view.debriefs.map((p:Data)=>({id:p.id,status:p.status,preparedFor:p.preparedFor})).sort((a:Data,b:Data)=>a.id.localeCompare(b.id)),records:[...view.vacancies.map((r:Data)=>({kind:'vacancy',id:r.id})),...view.applications.map((r:Data)=>({kind:'application',id:r.id}))].map(r=>({...r,revision:state.revisionOf(r.kind,r.id)})).sort((a,b)=>a.id.localeCompare(b.id))},resources:[...view.proposals.map((r:Data)=>resourceLink('proposal',r.id)),...view.debriefs.map((r:Data)=>resourceLink('debrief',r.id)),...view.vacancies.map(r=>resourceLink('vacancy',r.id)),...view.applications.map(r=>resourceLink('application',r.id))]}}),
     },
     ...(['propose','debrief'] as const).map((op):ToolDefinition=>({ ...common,
       name:op==='propose'?'lodge.proposals.prepare':'lodge.debriefs.prepare',title:op==='propose'?'Prepare a human-reviewed proposal':'Prepare a cited debrief',
@@ -55,7 +56,7 @@ export function lodgeTools(env: Bindings): ToolDefinition[] {
       classify:async(args,ctx)=>native(async()=>{const {state,actor}=await context(ctx);await run(state.clone(),actor,op,args);return [{class:'standard',facts:{measure:1}}]}),
       summary:async(args,ctx)=>native(async()=>{const {state,actor}=await context(ctx);if(op==='debrief'){const app=state.get('application',args.application);return {target:{id:app.id,name:state.get('vacancy',app.vacancy).title},items:['Draft debrief; human review remains required']}}return {target:{email:String(args.approver??actor.scopeAs)},items:[String(args.workflow),'Draft only; native human approval remains required']}}),
       ...(op==='debrief'?{revisionType:'string' as const,revision:async(args:Data,ctx:ToolContext)=>native(async()=>{const {state}=await context(ctx);state.get('application',args.application);return state.revisionOf('application',String(args.application))}),target:async(args:Data,ctx:ToolContext)=>native(async()=>{const {state}=await context(ctx);return {kind:'application',id:state.get('application',args.application).id}})}:{}),
-      run:async(args,ctx)=>native(async()=>{const {state,actor}=await context(ctx);const result=fieldResult(state,actor,blindResult(state,actor,await run(state,actor,op,args)));await save(env.DB,state,actor);return {result}}),
+      run:async(args,ctx)=>native(async()=>{const {state,actor}=await context(ctx);const result=fieldResult(state,actor,blindResult(state,actor,await run(state,actor,op,args)));await save(env.DB,state,actor);const kind=op==='propose'?'proposal':'debrief';return {result,resources:workspaceResource(await workspace(state,actor),kind,result.id)?[resourceLink(kind,result.id)]:[]}}),
     })),
   ]
 }

@@ -1,3 +1,4 @@
+import { checkAgentAttribution } from './agent-attribution-flow.mjs'
 import { checkIntegrationApi, checkEnterpriseIntegration } from './integration-api-flow.mjs'
 import { checkEnterpriseSaml } from './enterprise-saml-flow.mjs'
 import { checkEnterprise } from './enterprise-flow.mjs'
@@ -16,12 +17,15 @@ import { checkLevels } from './security-levels.mjs'
 import { checkOperations } from './operations-driver.mjs'
 import { checkAgentPrompts } from './agent-prompts-flow.mjs'
 import { checkAgentRefusals } from './agent-refusal-flow.mjs'
+import { checkAgentResources } from './agent-resource-flow.mjs'
 
 const snapshot = async h => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
 
 test('Native proposal and debrief refusals keep stable MCP codes, authority and unsent drafts', async () => { await checkAgentRefusals() })
+test('Native agent preparation retains trusted attribution and separate human decisions across activity, exports, revocation and erasure', checkAgentAttribution)
 
 test('Recruiting coordinator prompt stays static and preserves native human review, policy, Pause and consent authority', checkAgentPrompts)
+test('BASE-AGENT-003 metadata resources and saved draft links preserve current native projection, revocation and erasure', checkAgentResources)
 
 test('OPS-003 selected workflow trials isolate production, bind reviewed deployment and rollback, and expose confirmed provider setup estimates', async () => {
  const h = await fixture()

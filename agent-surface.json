@@ -4,6 +4,7 @@
   "specialist": "Recruiting coordinator",
   "capabilities": [
     "tools",
+    "resources",
     "policy",
     "pause",
     "audit",
@@ -77,7 +78,17 @@
       ]
     }
   ],
-  "resources": [],
+  "resources": [
+    "lodge://vacancy/{id}",
+    "lodge://application/{id}",
+    "lodge://candidate/{id}",
+    "lodge://interview/{id}",
+    "lodge://interview-note/{id}",
+    "lodge://scorecard/{id}",
+    "lodge://document/{id}",
+    "lodge://proposal/{id}",
+    "lodge://debrief/{id}"
+  ],
   "notTools": [
     {
       "clauses": [
