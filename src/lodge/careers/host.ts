@@ -1,5 +1,5 @@
 import { runtimeBindings, type Bindings } from '../../auth.server'
-import { load } from '../core/store'
+import { loadKinds } from '../core/store'
 import { careersDomainProbe, careersHost } from './domain'
 
 /** A careers hostname never becomes a second origin for sign-in or private APIs. */
@@ -11,7 +11,7 @@ export async function careersHostResponse(request: Request, env: Bindings, serve
   if (!installationOrigin || url.origin === installationOrigin) return null
   const absent = () => new Response('Not found', { status: 404, headers: { 'cache-control': 'no-store' } })
   if (url.protocol !== 'https:') return absent()
-  const state = await load(env.DB)
+  const state = await loadKinds(env.DB, ['careers-domain'])
   if (!careersHost(state, url.hostname)) return absent()
   const probe = careersDomainProbe(state, request)
   if (probe) return probe

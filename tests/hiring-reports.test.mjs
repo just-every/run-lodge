@@ -309,3 +309,7 @@ test('Weekly reports recompute private recipient scopes and claim each period on
 test('Submission cohorts preserve original timing, current close reasons and live read and export scope', async t => {
   await (await import('./cohort-report-flow.mjs')).checkCohortReport(t)
 })
+
+test('A month of history leaves the hourly run, the viewer poll and the careers pages at a handful of D1 rows', async t => {
+  await (await import('./d1-reads-flow.mjs')).checkD1Reads(t)
+})

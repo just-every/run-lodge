@@ -27,9 +27,18 @@ export class State {
 
   private scans = new Map<string, number>()
 
-  constructor(private initialRows: Row[]) {
+  /**
+   * `scope` names the only kinds this state holds. Reading another kind throws, so a
+   * missed dependency fails loudly instead of answering as if the records did not exist;
+   * save() runs no cross-record syncs for a scoped state, which cannot see the records they read.
+   */
+  constructor(private initialRows: Row[], readonly scope?: ReadonlySet<string>) {
     const rows = initialRows
     for (const row of rows) this.rows.set(key(row.kind, row.id), row)
+  }
+
+  private within(kind: string) {
+    if (this.scope && !this.scope.has(kind)) throw new Error(`This request loaded only ${[...this.scope].join(', ')} records, not ${kind}`)
   }
 
   private track(kind: string, id: string) {
@@ -39,6 +48,7 @@ export class State {
   }
 
   find(kind: string, id: unknown): Data | undefined {
+    this.within(kind)
     if (typeof id !== 'string' || !id) return undefined
     return this.track(kind, id)?.value
   }
@@ -51,6 +61,7 @@ export class State {
 
   /** Untracked listing; commands that depend on a listed record read it with get(). */
   all(kind: string): Data[] {
+    this.within(kind)
     const result: Data[] = []
     for (const row of this.rows.values()) if (row.kind === kind) result.push(row.value)
     return result
@@ -59,6 +70,7 @@ export class State {
   /** A decision over a whole set also fences absence: newly inserted rows
    * must invalidate it, even when none of the previously read rows changed. */
   scan(kind: string): Data[] {
+    this.within(kind)
     if (!this.scans.has(kind)) {
       const original = this.initialRows.filter(row => row.kind === kind)
       this.scans.set(kind, original.length)
@@ -111,7 +123,7 @@ export class State {
 
   /** An independent copy for dry runs; changes to it never reach the store. */
   clone() {
-    const copy = new State([...this.rows.values()].map(r => ({ ...r, value: structuredClone(r.value) })))
+    const copy = new State([...this.rows.values()].map(r => ({ ...r, value: structuredClone(r.value) })), this.scope)
     for (const [id, value] of this.resumeTexts) copy.resumeTexts.set(id, value)
     copy.artifactReader = this.artifactReader
     return copy

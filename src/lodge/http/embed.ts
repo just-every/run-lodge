@@ -5,6 +5,7 @@ import { Hono, type Context } from 'hono'
 import { runtimeBindings, type Bindings } from '../../auth.server'
 import { vacancyFacts } from '../core/labels'
 import { load } from '../core/store'
+import { loadEmbeddedCareers } from '../careers/pages-state'
 import type { State } from '../core/state'
 import { Fault, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
@@ -84,7 +85,7 @@ new ResizeObserver(lodgeHeight).observe(document.documentElement)
 `, { headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'public, max-age=300', 'x-content-type-options': 'nosniff' } }))
 
 embedPages.get('/embed/jobs', async c => {
-  const s = await load(c.env.DB)
+  const s = await loadEmbeddedCareers(c.env.DB)
   const embed = embedding(s)
   if (!embed) return notSetUp()
   const greenhouse = c.req.queries('gh_jid'), sources = c.req.queries('legacy_source'), jobs = c.req.queries('legacy_job')
@@ -128,7 +129,7 @@ embedPages.post('/embed/receipt', async c => {
 })
 
 embedPages.get('/embed/jobs/:slug', async c => {
-  const s = await load(c.env.DB)
+  const s = await loadEmbeddedCareers(c.env.DB)
   const embed = embedding(s)
   if (!embed) return notSetUp()
   const l = listingBySlug(s, 'embed', c.req.param('slug'))

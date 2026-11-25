@@ -1,9 +1,10 @@
 import { runtimeBindings, type Bindings } from '../../auth.server'
-import { load, save } from '../core/store'
+import { load, loadRecords, save } from '../core/store'
 import type { State } from '../core/state'
 import type { Data } from '../core/types'
 import { deliver, mailReady } from '../esign/mail'
 import { eligibleJobs, referringMember } from './access'
+import { referralMailQueued } from '../notify/due'
 
 // CRM-010: referral alerts and shared progress by email, through the installation's own mail adapter (the door TEAM-003
 // alerts and sign-in invitations use). An email is claimed ('sending') before it is sent, so a retry never sends it
@@ -26,20 +27,19 @@ function message(s: State, env: Bindings, row: Data) {
 }
 
 const mark = (s: State, id: string, emailState: string, extra: Data = {}) => { const x = s.find('referral-email', id); if (x) s.put('referral-email', id, { ...x, emailState, emailAt: new Date().toISOString(), ...extra }) }
-const queued = (env: Bindings) => env.DB.prepare("SELECT 1 AS n FROM l_records WHERE kind='referral-email' AND json_extract(value,'$.emailState')='queued' LIMIT 1").first()
 
 /** Send the emails this request's own save queued; run after every successful write. */
 export async function flushReferralEmails(env: Bindings) {
   try {
-    if (!(await queued(env))) return
-    for (;;) {
+    while (await referralMailQueued(env.DB)) {
       const s = await load(env.DB), row = s.all('referral-email').find(x => x.emailState === 'queued')
       if (!row) return
       const ready = mailReady(env), text = ready ? message(s, env, row) : null
       if (!text) { mark(s, row.id, ready ? 'withheld' : 'not-sent'); await save(env.DB, s, null); continue }
       mark(s, row.id, 'sending'); await save(env.DB, s, null)
       const delivery = await deliver(env, row.to, text.subject, text.text, 'referral')
-      const after = await load(env.DB)
+      // The outcome changes only this email.
+      const after = await loadRecords(env.DB, [{ kind: 'referral-email', id: row.id }])
       mark(after, row.id, delivery.outcome === 'handed' ? 'handed' : 'failed', { provider: delivery.provider, ...(delivery.outcome === 'failed' ? { reason: delivery.reason } : {}) })
       await save(env.DB, after, null)
     }

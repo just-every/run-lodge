@@ -114,9 +114,12 @@ function nativeFence(env: Bindings, o: { id: string; email: string; role: string
 
 /** Each one-off is durably uncertain before its single provider request. No retry path exists. */
 export async function scheduledAnalysis(env: Bindings, at: number) {
-  const listed = await env.DB.prepare("SELECT id FROM l_records WHERE kind='analysis-schedule' AND json_extract(value,'$.status')='pending'").all<{ id: string }>()
-  for (const { id } of listed.results) {
+  const listed = await env.DB.prepare("SELECT id,value FROM l_records WHERE kind='analysis-schedule' AND json_extract(value,'$.status')='pending'").all<{ id: string; value: string }>()
+  for (const { id, value } of listed.results) {
     try {
+      // A schedule that is not due costs nothing more than its own row.
+      const queued = JSON.parse(value)
+      if (!Number.isFinite(Date.parse(queued.dueAt)) || Date.parse(queued.dueAt) > at) continue
       const s = await load(env.DB), row = s.find('analysis-schedule', id)
       if (!row || row.status !== 'pending' || !Number.isFinite(Date.parse(row.dueAt)) || Date.parse(row.dueAt) > at) continue
       let ready: Awaited<ReturnType<typeof prepared>>

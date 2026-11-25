@@ -1,9 +1,10 @@
 import { runtimeBindings, type Bindings } from '../../auth.server'
-import { load, save } from '../core/store'
+import { load, loadRecords, save } from '../core/store'
 import type { State } from '../core/state'
 import type { Data } from '../core/types'
 import { deliver, mailReady, type Delivery } from '../esign/mail'
 import { describe, memberActor, reach } from './describe'
+import { alertQueued, digestDue } from './due'
 
 // Email for alerts goes through the installation's own mail adapter (the door that sends sign-in invitations), as
 // OFFER-005's mail does. An alert is claimed before it is sent, so a retry never sends it twice, and what it says is
@@ -36,14 +37,13 @@ function digest(s: State, env: Bindings, to: string, alerts: Data[]) {
 const done = (s: State, ids: string[], state: string, delivery?: Delivery) => {
   for (const id of ids) { const x = s.find('alert', id); if (x) s.put('alert', id, { ...x, emailState: state, emailAt: new Date().toISOString(), ...(delivery ? { provider: delivery.provider, ...(delivery.outcome === 'failed' ? { reason: delivery.reason } : {}) } : {}) }) }
 }
-const settle = async (env: Bindings, ids: string[], state: string, delivery?: Delivery) => { const s = await load(env.DB); done(s, ids, state, delivery); await save(env.DB, s, null) }
-const queued = (env: Bindings, state: string) => env.DB.prepare("SELECT 1 AS n FROM l_records WHERE kind='alert' AND json_extract(value,'$.emailState')=? LIMIT 1").bind(state).first()
+// An outcome changes only the alerts it names.
+const settle = async (env: Bindings, ids: string[], state: string, delivery?: Delivery) => { const s = await loadRecords(env.DB, ids.map(id => ({ kind: 'alert', id }))); done(s, ids, state, delivery); await save(env.DB, s, null) }
 
 /** Send the immediate emails this request's own save queued; run after every successful write. */
 export async function flushAlerts(env: Bindings) {
   try {
-    if (!(await queued(env, 'queued'))) return
-    for (;;) {
+    while (await alertQueued(env.DB)) {
       const s = await load(env.DB), alert = s.all('alert').find(x => x.emailState === 'queued')
       if (!alert) return
       const message = mailReady(env) ? single(s, env, alert) : null
@@ -62,7 +62,7 @@ async function sendTo(env: Bindings, to: string, message: { subject: string; tex
 /** Each person's daily digest, once its 8:00 has come round (the scheduled run passes its own time). */
 export async function sendDigests(env: Bindings, at: number) {
   try {
-    if (!(await queued(env, 'digest'))) return
+    if (!(await digestDue(env.DB, at))) return
     const s = await load(env.DB)
     const due = s.all('alert').filter(x => x.emailState === 'digest' && Date.parse(x.digestAt) <= at)
     const people = [...new Set(due.map(x => x.to as string))]

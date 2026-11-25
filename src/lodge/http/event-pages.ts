@@ -4,7 +4,7 @@ import { load, save } from '../core/store'
 import { Fault, bytesToBase64, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
 import { REGISTRATIONS_PER_HOUR, eventByToken, selfRegister } from '../records/events'
-import { countAttempt } from '../records/job-board'
+import { recordAttempt } from '../records/job-board'
 import { cpraNotice, inCalifornia } from '../records/privacy'
 import { cpraSection, esc, formBody, page, sameOrigin } from './public'
 
@@ -55,9 +55,7 @@ eventPages.post('/events/:token', async c => {
   await sameOrigin(c)
   if (Number(c.req.header('content-length') ?? 0) > MAX_DOCUMENT_BYTES * 1.5) return page('Too large', '<h1>That upload is too large</h1><p>Files may be at most 1 MB. Go back and choose a smaller file.</p>', 413)
   // The attempt counts before anything else is read, and is kept even when the registration is refused.
-  const counted = await load(c.env.DB)
-  const within = await countAttempt(counted, runtimeBindings(c.env).SESSION_SECRET, c.req.header('cf-connecting-ip') ?? '', new Date(), 'event-attempts', REGISTRATIONS_PER_HOUR)
-  await save(c.env.DB, counted, null)
+  const within = await recordAttempt(c.env.DB, runtimeBindings(c.env).SESSION_SECRET, c.req.header('cf-connecting-ip') ?? '', 'event-attempts', REGISTRATIONS_PER_HOUR)
   if (!within) return page('Too many registrations', '<h1>Too many registrations from this connection</h1><p>Please try again in an hour, or ask the team at the event to add you.</p>', 429)
   const s = await load(c.env.DB)
   let e: Data

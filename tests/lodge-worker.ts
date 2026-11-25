@@ -16,6 +16,7 @@ import { candidatePages } from '../src/lodge/http/candidate-pages'
 import { staticAssetResponse } from '../src/base/static-assets'
 import { careersHostResponse } from '../src/lodge/careers/host'
 import { afterWrite, scheduledRun } from '../src/lodge/notify/run'
+import { meterBindings, meterReport } from './d1-meter'
 // The Worker under test: Lodge's real auth, applicant pages and API routes,
 // without the TanStack document renderer (the browser journeys cover that).
 import { authResponse, type Bindings } from '../src/auth.server'
@@ -53,11 +54,14 @@ function clockBindings(env: Bindings): Bindings {
   } })
   return { ...env, DB }
 }
+// A read-budget fixture asks for the D1 meter; every other suite runs on the plain binding.
+const testBindings = (env: Bindings): Bindings => { const clocked = clockBindings(env); return (env as any).TEST_D1_METER ? meterBindings(clocked) : clocked }
 export default {
-  email: (message: ForwardableEmailMessage, env: Bindings) => lodgeEmail(message, clockBindings(env)),
-  scheduled: (controller: ScheduledController, env: Bindings) => scheduledRun(controller, clockBindings(env)),
+  email: (message: ForwardableEmailMessage, env: Bindings) => lodgeEmail(message, testBindings(env)),
+  scheduled: (controller: ScheduledController, env: Bindings) => scheduledRun(controller, testBindings(env)),
   async fetch(request: Request, env: Bindings, execution: ExecutionContext) {
-    env = clockBindings(env)
+    if ((env as any).TEST_D1_METER && new URL(request.url).pathname === '/__test/d1-meter') return Response.json(meterReport(new URL(request.url).searchParams.get('reset') === '1'))
+    env = testBindings(env)
     const fixture = (env as any).TEST_CLOCK
     if (fixture && new URL(request.url).pathname === '/__test/clock') { setClock((await request.json() as any).at); return Response.json({ ok: true }) }
     return afterWrite(request, await route(request, env, execution), env) },

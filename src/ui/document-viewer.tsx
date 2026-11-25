@@ -14,15 +14,17 @@ function Highlight({ text, term }: { text: string; term: string }) {
 function Reader({ doc }: { doc: D }) {
   const [reading, setReading] = useState<Reading | null>(null), [error, setError] = useState(''), [query, setQuery] = useState('')
   useEffect(() => {
-    let ended = false, current: Reading | null = null, checking = false
+    let ended = false, current: Reading | null = null, checking = false, access = ''
     const controller = new AbortController(), base = `/api/lodge/view/document/${doc.id}`
     const clear = (message: string) => { current?.dispose(); current = null; setReading(null); setError(message) }
     async function check() {
       if (ended || checking) return
       checking = true
       try {
-        const r = await fetch(base + '?access=1', { cache: 'no-store', signal: controller.signal })
+        // The server proves access once and names it with a token; sending it back lets an unchanged workspace answer without a full check.
+        const r = await fetch(base + '?access=1', { cache: 'no-store', signal: controller.signal, headers: access ? { 'x-lodge-access': access } : {} })
         if (!r.ok) throw new Error('Access to this document has ended. Close the viewer and refresh the workspace.')
+        access = r.headers.get('x-lodge-access') ?? ''
       } catch (e) { if (!ended) clear((e as Error).message); throw e } finally { checking = false }
     }
     async function load() {

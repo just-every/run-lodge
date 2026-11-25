@@ -94,6 +94,9 @@
       "optional": true
     }
   ],
+  "crons": [
+    "0 * * * *"
+  ],
   "platforms": [
     "workers",
     "container"

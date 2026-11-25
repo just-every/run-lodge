@@ -6,7 +6,7 @@ import type { State } from '../core/state'
 import { Fault, requireThat, sha256, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
 import { submit } from '../records/intake'
-import { BOARD_SOURCE, boardDepartments, boardJob, boardOffices, boardSettings, campaign, countAttempt, earlierReceipt, idempotencyId, keyFor, listed, rememberReceipt, resumeFile } from '../records/job-board'
+import { BOARD_SOURCE, boardDepartments, boardJob, boardOffices, boardSettings, campaign, earlierReceipt, idempotencyId, keyFor, listed, recordAttempt, rememberReceipt, resumeFile } from '../records/job-board'
 
 // ATTR-009: the public job-board API (API.md, "Public job board"). Reads are
 // unauthenticated, any origin, cached briefly with ETags. Submitting needs a
@@ -107,9 +107,7 @@ boardApi.post('/v1/:token/jobs/:id/applications', async c => {
   // The attempt counts before anything else is read, and is kept even when the submission is refused.
   const secret = runtimeBindings(c.env).SESSION_SECRET
   const ip = c.req.header('cf-connecting-ip') ?? ''
-  const counted = await load(c.env.DB)
-  const within = await countAttempt(counted, secret, ip)
-  await save(c.env.DB, counted, null)
+  const within = await recordAttempt(c.env.DB, secret, ip)
   if (!within) throw Object.assign(new Fault(429, 'Too many applications from this connection; try again in an hour'), { field: 'rate' })
   const fresh = await load(c.env.DB)
   const l = publicJob(fresh, c.req.param('id'))

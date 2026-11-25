@@ -7,11 +7,12 @@ import { memberActor } from '../notify/describe'
 import { canSeeContact, can, isAdmin, managesVacancy } from '../core/access'
 import { operatorMail } from '../../mail.server.mjs'
 import type { Bindings } from '../../auth.server'
-import { load, save } from '../core/store'
+import { load, loadRecords, save } from '../core/store'
 import type { State } from '../core/state'
 import { now, type Data } from '../core/types'
 import { activeApplicationTransport, currentTransport } from './transport'
 import { contactDigest } from '../records/capture'
+import { applicationMailDue } from '../notify/due'
 
 function authorized(s: State, email: string, job: Data, person: Data) {
   const member = s.find('member', email)
@@ -40,8 +41,8 @@ async function prepared(s: State, mail: Data): Promise<Data> {
 /** A durable uncertain claim precedes each physical request; a restart never resends it. */
 export async function flushApplicationEmails(env: Bindings) {
   try {
-    if (!(await env.DB.prepare("SELECT 1 FROM l_records WHERE kind='application-email' AND json_extract(value,'$.status')='pending' LIMIT 1").first())) return
-    for (;;) {
+    // Each round asks the index first: a delayed email that is not due yet costs no load of the store.
+    while (await applicationMailDue(env.DB)) {
       const s = await load(env.DB), found = s.all('application-email').find(x => x.status === 'pending' && (!x.dueAt || Date.parse(x.dueAt) <= Date.now()))
       if (!found) return
       const mail = s.get('application-email', found.id), ready = await prepared(s, mail)
@@ -65,7 +66,8 @@ export async function flushApplicationEmails(env: Bindings) {
         const id = typeof result.providerMessageId === 'string' && (!env.MAIL_API_KEY || !result.providerMessageId.includes(env.MAIL_API_KEY)) ? result.providerMessageId : undefined, accepted = result.status === 'accepted' && !!id
         outcome = { status: accepted ? 'handed' : result.status === 'uncertain' || result.status === 'accepted' ? 'uncertain' : 'failed', provider: result.provider, ...(typeof id === 'string' && (!env.MAIL_API_KEY || !id.includes(env.MAIL_API_KEY)) ? { providerMessageId: id } : {}), ...(accepted ? {} : { reason: result.code ?? 'Provider outcome could not be confirmed' }) }
       } catch (error) { outcome = { status: 'uncertain', provider: env.MAIL_PROVIDER, reason: error instanceof Error && error.name === 'MailValidationError' ? 'Message validation refused; human review required' : 'Provider outcome could not be confirmed' } }
-      const after = await load(env.DB), current = after.find('application-email', mail.id)
+      // The outcome touches the mail and its candidate only.
+      const after = await loadRecords(env.DB, [{ kind: 'application-email', id: mail.id }, { kind: 'candidate', id: mail.candidate }]), current = after.find('application-email', mail.id)
       if (!current || !after.find('candidate', mail.candidate) || after.find('candidate', mail.candidate)?.deleted) continue
       const updated: Data = { ...current, ...outcome, finishedAt: now() }
       if (outcome.status === 'handed') delete updated.reason

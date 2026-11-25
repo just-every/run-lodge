@@ -26,6 +26,8 @@ function toRow(destination: string, r: { kind: string; id: string; revision: str
   return row
 }
 
+// Any record this adapter writes moves the write counter that retires the document viewer's access tokens.
+const moved = () => sql('INSERT INTO l_generation(id,n) VALUES(1,1) ON CONFLICT(id) DO UPDATE SET n=n+1')
 const blobJson = (row: TargetRow) => JSON.stringify({ base64: row.attachment!.base64, mediaType: row.attachment!.mediaType })
 
 export const lodgeTargets: D1TargetAdapter = {
@@ -52,10 +54,11 @@ export const lodgeTargets: D1TargetAdapter = {
   write(row) {
     const statements = [sql('INSERT INTO l_records(kind,id,revision,value) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET revision=excluded.revision,value=excluded.value', row.targetKind, row.targetId, row.revision, JSON.stringify(row.value))]
     if (row.attachment) statements.push(sql("INSERT INTO l_records(kind,id,revision,value) VALUES('blob',?,?,?) ON CONFLICT(kind,id) DO UPDATE SET revision=excluded.revision,value=excluded.value", row.targetId, row.revision, blobJson(row)))
+    statements.push(moved())
     return statements
   },
   remove(_destination, kind, id) {
-    return [sql('DELETE FROM l_records WHERE kind=? AND id=?', kind, id), sql("DELETE FROM l_records WHERE kind='blob' AND id=? AND ?='document'", id, kind)]
+    return [sql('DELETE FROM l_records WHERE kind=? AND id=?', kind, id), sql("DELETE FROM l_records WHERE kind='blob' AND id=? AND ?='document'", id, kind), moved()]
   },
   async list(db, destination) {
     const { results } = await db.prepare("SELECT kind,id,revision,value FROM l_records WHERE kind <> 'blob' ORDER BY kind,id").all<{ kind: string; id: string; revision: string; value: string }>()

@@ -2,7 +2,7 @@ import { translatedInvitation, translatedCode, translatedNotice } from '../langu
 import { operatorMail } from '../../mail.server.mjs'
 import { runtimeBindings, type Bindings } from '../../auth.server'
 import type { MailMessage } from '../../modules/operator-auth/index.mjs'
-import { load, save } from '../core/store'
+import { load, loadKinds, loadRecords, save } from '../core/store'
 import type { Data } from '../core/types'
 import { event } from './envelope'
 
@@ -55,13 +55,14 @@ export async function flushNotices(env: Bindings) {
   try {
     if (!(await env.DB.prepare("SELECT 1 AS n FROM l_records WHERE kind='esign-notice' LIMIT 1").first()) || !mailReady(env)) return
     for (;;) {
-      const s = await load(env.DB)
+      // A notice is claimed, sent and removed on its own row; the envelope's event is recorded after, in record().
+      const s = await loadKinds(env.DB, ['esign-notice'])
       const n = s.all('esign-notice').find(x => x.status === 'pending')
       if (!n) return
       s.put('esign-notice', n.id, { ...n, status: 'sending', copyToken: undefined })
       await save(env.DB, s, null)
       const message = noticeMail(env, n), delivery = await deliver(env, n.to, message.subject, message.text)
-      const after = await load(env.DB)
+      const after = await loadRecords(env.DB, [{ kind: 'esign-notice', id: n.id }])
       after.remove('esign-notice', n.id)
       await save(env.DB, after, null)
       await record(env, n.envelope, n.kind === 'void' ? 'void-notice' : 'completion-copy', delivery)

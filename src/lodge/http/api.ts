@@ -26,6 +26,7 @@ import { blindFor, blindResult } from '../core/blind'
 import { Hono, type Context } from 'hono'
 import type { Bindings } from '../../auth.server'
 import { runtimeBindings } from '../../auth.server'
+import { accessGate } from './access-poll'
 import { actorFor, load, readBlob, save, signedIn } from '../core/store'
 import { isAgency, can, canSeeApplication, isAdmin, managesVacancy, onPanel, requireApplication, requireDocument } from '../core/access'
 import { Fault, requireThat, type Actor, type Data } from '../core/types'
@@ -396,12 +397,25 @@ async function recorded(c: C, state: State, actor: Actor, response: Response) {
   return response
 }
 
+/** The viewer's access poll: the same decision as opening the document, proved once and then answered from a token until a record changes. */
+async function documentAccess(c: C) {
+  const id = c.req.param('id') ?? ''
+  const gate = await accessGate(c.env, await signedIn(c.req.raw, c.env), id, c.req.header('x-lodge-access'))
+  if (!gate.current) {
+    const { state, actor } = await context(c)
+    const doc = (await workspace(state, actor)).documents.find(d => d.id === id)
+    requireThat(doc, 'Document not found', 404)
+    requireDocument(state, actor, doc.id)
+  }
+  return c.body(null, 204, { 'x-lodge-access': gate.issued })
+}
+
 async function documentResponse(c: C, viewing: boolean) {
+  if (viewing && c.req.query('access') === '1') return documentAccess(c)
   const { state, actor } = await context(c)
   const doc = (await workspace(state, actor)).documents.find(d => d.id === c.req.param('id'))
   requireThat(doc, 'Document not found', 404)
   requireDocument(state, actor, doc.id)
-  if (viewing && c.req.query('access') === '1') return c.body(null, 204)
   const bytes = await readBlob(c.env.DB, doc.id)
   requireThat(bytes, 'The file bytes are missing', 404)
   state.audit(actor, viewing ? 'document-viewed' : 'document-downloaded', 'document:' + doc.id, viewing ? { restricted: doc.restricted } : {})

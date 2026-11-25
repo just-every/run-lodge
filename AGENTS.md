@@ -46,7 +46,13 @@ must keep working and [ACCEPTANCE.md](ACCEPTANCE.md) for what is proven.
   and erasure schemas (0008–0015), owner sign-in and sealed dependency keys
   (0017–0018), application-mail activation and enterprise SAML transactions
   (0019–0020). Business settings, stable Business people and the shared agent
-  door add schemas 0022–0024. Never edit an applied migration; add the next one.
+  door add schemas 0022–0024; the read-budget indexes and write counter are 0025. Never edit an applied
+  migration; add the next one.
+- D1 read budget: Workers Free allows 5,000,000 rows read a day for the whole account. A scheduled run or
+  a routine poll never calls `load()` (every record) to find out whether it has work: it asks an indexed
+  probe in `src/lodge/notify/due.ts`, then loads only what it needs (`loadKinds`, `loadRecords`, which
+  refuse a read of any other kind). `tests/d1-reads-flow.mjs` holds the hourly run, the document viewer
+  poll and the careers pages to a handful of rows on a month of history.
 - `src/modules/*`, `src/base`: byte copies of Base at the revision in
   `base-copies.json` (see SOURCE.md). Refresh them with Base's `refresh-base`;
   do not edit them in place. The agent-door, Business-settings and operator-auth

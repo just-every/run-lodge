@@ -21,14 +21,22 @@ export function authority(actor: Actor, owner = false) {
   }
 }
 
-export async function load(db: D1Database): Promise<State> {
-  const { results } = await db.prepare("SELECT kind,id,revision,value FROM l_records WHERE kind <> 'blob'").all<{ kind: string; id: string; revision: string; value: string }>()
-  const state = new State(results.map(r => ({ kind: r.kind, id: r.id, revision: r.revision, value: JSON.parse(r.value) }) as Row))
+type StoredRow = { kind: string; id: string; revision: string; value: string }
+const toRows = (results: StoredRow[]) => results.map(r => ({ kind: r.kind, id: r.id, revision: r.revision, value: JSON.parse(r.value) }) as Row)
+
+function withArtifacts(db: D1Database, state: State) {
   state.artifactReader = async id => {
     const row = await db.prepare("SELECT revision,value FROM l_records WHERE kind='blob' AND id=?").bind(id).first<{ revision: string; value: string }>()
     if (!row) return null
     return { revision: row.revision, sha256: await sha256(base64ToBytes(JSON.parse(row.value).base64)) }
   }
+  return state
+}
+
+/** Every record: for a request that decides across the whole store. Scheduled runs and routine polls use the narrower loads below. */
+export async function load(db: D1Database): Promise<State> {
+  const { results } = await db.prepare("SELECT kind,id,revision,value FROM l_records WHERE kind <> 'blob'").all<StoredRow>()
+  const state = withArtifacts(db, new State(toRows(results)))
   state.applicationMailEpoch = (await db.prepare('SELECT epoch FROM l_application_email_activation WHERE id=1').first<{ epoch: string }>())?.epoch
   // Read only UTF-8 resume bytes for the sanitized REVIEW-002 text projection.
   const texts = await db.prepare("SELECT b.id,b.value FROM l_records b JOIN l_records d ON d.id=b.id AND d.kind='document' WHERE b.kind='blob' AND json_extract(d.value,'$.kind')='resume' AND (json_extract(d.value,'$.mediaType') LIKE 'text/%' OR json_extract(d.value,'$.name') LIKE '%.txt')").all<{ id: string; value: string }>()
@@ -37,6 +45,38 @@ export async function load(db: D1Database): Promise<State> {
   }
   return state
 }
+
+/**
+ * Only these kinds, for a page or job that reads nothing else. The cost follows the
+ * size of those kinds, never of the applicants, mail and audit history beside them.
+ * The state refuses a read of any other kind (see State), so what it needs is checked, not assumed.
+ */
+export async function loadKinds(db: D1Database, kinds: readonly string[]): Promise<State> {
+  const { results } = await db.prepare(`SELECT kind,id,revision,value FROM l_records WHERE kind IN (${kinds.map(() => '?').join(',')})`).bind(...kinds).all<StoredRow>()
+  return withArtifacts(db, new State(toRows(results), new Set(kinds)))
+}
+
+/** Exactly these records, for a follow-up that touches only what it just read (a mail's outcome, an alert's state). A missing id loads nothing, as a lookup of it would find nothing. */
+export async function loadRecords(db: D1Database, records: readonly { kind: string; id?: string }[]): Promise<State> {
+  const byKind = new Map<string, string[]>()
+  for (const r of records) if (r.id) byKind.set(r.kind, [...(byKind.get(r.kind) ?? []), r.id])
+  // D1 allows 100 bound values in a statement.
+  const queries = [...byKind].flatMap(([kind, ids]) => Array.from({ length: Math.ceil(ids.length / 90) }, (_, i) => {
+    const chunk = ids.slice(i * 90, i * 90 + 90)
+    return db.prepare(`SELECT kind,id,revision,value FROM l_records WHERE kind=? AND id IN (${chunk.map(() => '?').join(',')})`).bind(kind, ...chunk)
+  }))
+  const results = queries.length ? (await db.batch<StoredRow>(queries)).flatMap(r => r.results) : []
+  return withArtifacts(db, new State(toRows(results), new Set(records.map(r => r.kind))))
+}
+
+/** The write counter: it moves with every committed change to the records, so equal values mean nothing changed in between. */
+export async function generation(db: D1Database): Promise<{ n: number; swept: number | null }> {
+  const row = await db.prepare('SELECT n,swept FROM l_generation WHERE id=1').first<{ n: number; swept: number | null }>()
+  return { n: row?.n ?? 0, swept: row?.swept ?? null }
+}
+export const bumpGeneration = (db: D1Database) => db.prepare('INSERT INTO l_generation(id,n) VALUES(1,1) ON CONFLICT(id) DO UPDATE SET n=n+1')
+/** The hourly run has looked over the store as it stood at generation `n`. */
+export const markSwept = (db: D1Database, n: number) => db.prepare('INSERT INTO l_generation(id,n,swept) VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET swept=excluded.swept').bind(n, n).run()
 
 export async function readBlob(db: D1Database, id: string): Promise<{ base64: string; mediaType: string } | null> {
   const row = await db.prepare("SELECT value FROM l_records WHERE kind='blob' AND id=?").bind(id).first<{ value: string }>()
@@ -49,16 +89,18 @@ export async function readBlob(db: D1Database, id: string): Promise<{ base64: st
  * both ends, so concurrent or revoked work fails with 409 and changes nothing.
  */
 export async function save(db: D1Database, state: State, actor: Actor | null, extra: D1PreparedStatement[] = []) {
-  for (const app of state.all('application')) {
-    const before = state.original('application', app.id)
-    if (app.status === 'active' && (!before || before.stage !== app.stage || before.status !== app.status)) requireStageFields(state, state.get('vacancy', app.vacancy), app, app.stage)
+  if (!state.scope) {
+    for (const app of state.all('application')) {
+      const before = state.original('application', app.id)
+      if (app.status === 'active' && (!before || before.stage !== app.stage || before.status !== app.status)) requireStageFields(state, state.get('vacancy', app.vacancy), app, app.stage)
+    }
+    await queueApplicationStageEmails(state)
+    syncReferralAlerts(state)
+    recordBlindReveals(state, actor)
+    // OFFER-005: an edit, email change, closure or outcome voids the offer's signing envelope in this same batch.
+    await settleEnvelopes(state)
+    syncCoordinationCases(state)
   }
-  await queueApplicationStageEmails(state)
-  syncReferralAlerts(state)
-  recordBlindReveals(state, actor)
-  // OFFER-005: an edit, email change, closure or outcome voids the offer's signing envelope in this same batch.
-  await settleEnvelopes(state)
-  syncCoordinationCases(state)
   const { writes, fences, scans } = state.pending()
   if (!writes.length && !extra.length) return
   const guard = (sql: string, params: unknown[]) => db.prepare(`INSERT INTO l_guard SELECT CASE WHEN ${sql} THEN 1 ELSE 0 END`).bind(...params)
@@ -71,7 +113,7 @@ export async function save(db: D1Database, state: State, actor: Actor | null, ex
     if (write.value) statements.push(db.prepare('INSERT INTO l_records(kind,id,revision,value) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET revision=excluded.revision,value=excluded.value').bind(write.kind, write.id, uid(), JSON.stringify(write.value)))
     else statements.push(db.prepare('DELETE FROM l_records WHERE kind=? AND id=?').bind(write.kind, write.id))
   }
-  statements.push(...extra)
+  statements.push(...extra, bumpGeneration(db))
   if (actor) { const live = authority({ ...actor, memberships: [] }); statements.push(guard(`(${live.sql})`, live.params)) }
   statements.push(db.prepare('DELETE FROM l_guard'))
   try {

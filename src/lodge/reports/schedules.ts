@@ -103,9 +103,10 @@ function scanScope(s: State) {
   for (const kind of ['business', 'member', 'department', 'vacancy', 'permission-level', 'candidate', 'application', 'stage-event', 'interview', 'offer', 'source']) s.scan(kind)
 }
 export async function runWeeklyReports(env: Bindings, at: number) {
-  const listed = await env.DB.prepare("SELECT id FROM l_records WHERE kind='weekly-report' AND json_extract(value,'$.enabled')=1").all<{ id: string }>()
-  for (const { id } of listed.results) {
-    const initial = await load(env.DB), listedRow = initial.find('weekly-report', id)
+  const listed = await env.DB.prepare("SELECT id,value FROM l_records WHERE kind='weekly-report' AND json_extract(value,'$.enabled')=1").all<{ id: string; value: string }>()
+  for (const { id, value } of listed.results) {
+    // A report that is not due costs nothing more than its own row.
+    const listedRow = JSON.parse(value)
     if (!listedRow?.enabled || Date.parse(occurrence(listedRow.nextDate, listedRow.clock, listedRow.zone)) > at) continue
     const date = listedRow.nextDate
     for (const recipient of listedRow.recipients) {

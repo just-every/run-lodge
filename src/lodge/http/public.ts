@@ -14,13 +14,14 @@ import { themeFrame } from '../../base/theme-frame'
 import branding from '../../branding.json'
 import { pay as payRange, vacancyFacts } from '../core/labels'
 import { businessZone, isZone, times } from '../core/time'
-import { load, save } from '../core/store'
+import { load, loadKinds, save } from '../core/store'
+import { loadCareers, loadCareersBrand } from '../careers/pages-state'
 import type { State } from '../core/state'
 import { Fault, bytesToBase64, requireThat, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from '../records/documents'
 import { APPLICATIONS_PER_HOUR, APPLICATION_PAGE, MONITORING_OPTIONS, interviewByToken, submit, type Door } from '../records/intake'
 import { listingBySlug, listings, shownJob } from '../records/posts'
-import { RESUME_TYPES, countAttempt } from '../records/job-board'
+import { RESUME_TYPES, recordAttempt } from '../records/job-board'
 import { candidateAvailability } from '../records/interviews'
 import { jobForm } from '../records/questions'
 import { departmentPath, subtree } from '../records/org'
@@ -37,7 +38,7 @@ publicPages.onError(async error => error instanceof Fault ? page('Not accepted',
 export async function careersDocument(c: C, next: () => Promise<void>) {
   await next()
   if (!c.res.headers.get('content-type')?.includes('text/html') || !/^\/(jobs|embed)(\/|$)/.test(new URL(c.req.url).pathname)) return
-  const s = await load(c.env.DB), brand = employerBrand(s)
+  const s = await loadCareersBrand(c.env.DB), brand = employerBrand(s)
   if (!brand) return
   let html = await c.res.text()
   html = html.replace('class="rer-themed"', 'class="rer-themed employer-careers"').replace('class="lodge-public', 'class="employer-careers lodge-public')
@@ -72,7 +73,7 @@ export async function formBody(c: C) {
 export async function sameOrigin(c: C) {
   const origin = runtimeBindings(c.env).AUTH_ORIGIN
   const url = new URL(c.req.url)
-  const allowed = url.origin === origin || url.protocol === 'https:' && careersHost(await load(c.env.DB), url.hostname)
+  const allowed = url.origin === origin || url.protocol === 'https:' && careersHost(await loadKinds(c.env.DB, ['careers-domain']), url.hostname)
   if (!allowed || c.req.header('origin') !== url.origin) throw new Fault(403, 'Submit this form from its own page')
 }
 
@@ -84,7 +85,7 @@ publicPages.get('/jobs/legacy/:source/:id', async c => {
 })
 
 publicPages.get('/jobs', async c => {
-  const s = await load(c.env.DB)
+  const s = await loadCareers(c.env.DB)
   const business = s.all('business')[0]
   // ATTR-012: each live post on the careers page is its own role; a confidential job shows no department.
   const all: Data[] = listings(s, 'careers').map(l => ({ ...shownJob(s, l), slug: l.slug, offices: l.offices, ...(l.v.confidential ? { departmentId: undefined } : {}) }))
@@ -160,10 +161,10 @@ ${cpra ? cpraSection(cpra) : ''}
 }
 
 publicPages.get('/careers/logo', async c => {
-  const logo = employerBrand(await load(c.env.DB))?.logo
+  const logo = employerBrand(await loadKinds(c.env.DB, ['careers-brand']))?.logo
   return logo ? new Response(Uint8Array.from(atob(logo.base64), x => x.charCodeAt(0)), { headers: { 'content-type': logo.mediaType, 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' } }) : new Response('Not found', { status: 404 })
 })
-publicPages.get('/careers/brand.css', async c => new Response(brandCss(employerBrand(await load(c.env.DB))), { headers: { 'content-type': 'text/css', 'cache-control': 'no-store' } }))
+publicPages.get('/careers/brand.css', async c => new Response(brandCss(employerBrand(await loadKinds(c.env.DB, ['careers-brand']))), { headers: { 'content-type': 'text/css', 'cache-control': 'no-store' } }))
 
 export async function receiptPage(receipt: Data, contact: string, zone: string, copy: Data, embed?: { ancestors: string[] }, code?: string) {
   const body = translatedReceipt(receipt, contact, zone, receipt.language ?? 'en', copy)
@@ -194,7 +195,7 @@ export async function recoverPage(c: C, s: State, embed?: { ancestors: string[] 
 publicPages.post('/jobs/receipt', async c => recoverPage(c, await load(c.env.DB)))
 
 publicPages.get('/jobs/:slug', async c => {
-  const s = await load(c.env.DB)
+  const s = await loadCareers(c.env.DB)
   const l = listingBySlug(s, 'careers', c.req.param('slug'))
   if (!l) return notFound()
   const shown = shownJob(s, l)
@@ -217,9 +218,7 @@ export async function apply(c: C, door: Door, embed?: { ancestors: string[]; act
   await sameOrigin(c)
   if (Number(c.req.header('content-length') ?? 0) > MAX_DOCUMENT_BYTES * 1.5) return page('Too large', '<h1>That upload is too large</h1><p>Files may be at most 1 MB. Go back and choose a smaller file.</p>', 413, embed)
   // The attempt counts before the form is read, and is kept even when the application is refused.
-  const counted = await load(c.env.DB)
-  const within = await countAttempt(counted, runtimeBindings(c.env).SESSION_SECRET, c.req.header('cf-connecting-ip') ?? '', new Date(), 'application-attempts', APPLICATIONS_PER_HOUR)
-  await save(c.env.DB, counted, null)
+  const within = await recordAttempt(c.env.DB, runtimeBindings(c.env).SESSION_SECRET, c.req.header('cf-connecting-ip') ?? '', 'application-attempts', APPLICATIONS_PER_HOUR)
   if (!within) return page('Too many applications', '<h1>Too many applications from this connection</h1><p>Please try again in an hour.</p>', 429, embed)
   const s = await load(c.env.DB)
   // ATTR-012: the slug names the job's own page or one of its live posts on this destination.

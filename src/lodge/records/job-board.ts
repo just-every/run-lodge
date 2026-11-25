@@ -1,6 +1,7 @@
 import { publicPay } from './pay-transparency'
 import { uiCopy } from '../languages/copy'
 import type { State } from '../core/state'
+import { loadKinds, save } from '../core/store'
 import { requireAdmin } from '../core/access'
 import { Fault, about, bytesToBase64, list, now, optionalText, requireThat, sha256, text, uid, type Actor, type Data } from '../core/types'
 import { MAX_DOCUMENT_BYTES } from './documents'
@@ -209,6 +210,14 @@ export async function countAttempt(s: State, secret: string, ip: string, at = ne
   const count = (row?.count ?? 0) + 1
   s.put(kind, digest, { hour, count })
   return count <= limit
+}
+
+/** The hour's attempt for this connection, counted and saved on the attempt records alone: refused submissions cost the same as accepted ones, and neither reads the store. */
+export async function recordAttempt(db: D1Database, secret: string, ip: string, kind = 'board-attempts', limit = SUBMITS_PER_HOUR) {
+  const counted = await loadKinds(db, [kind])
+  const within = await countAttempt(counted, secret, ip, new Date(), kind, limit)
+  await save(db, counted, null)
+  return within
 }
 
 /** A submission repeated with the same idempotency key from the same caller within 24 hours gets the same receipt. */

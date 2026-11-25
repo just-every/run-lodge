@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { runtimeBindings, type Bindings } from '../../auth.server'
 import { load, save } from '../core/store'
 import { Fault, type Data } from '../core/types'
-import { countAttempt } from '../records/job-board'
+import { recordAttempt } from '../records/job-board'
 import { DUE_DAYS, PUBLIC_TYPES, REQUESTS_PER_HOUR, VERIFICATION, requestByToken, submitPrivacyRequest } from '../records/privacy'
 import { esc, formBody, page, sameOrigin } from './public'
 
@@ -60,9 +60,7 @@ privacyPages.get('/privacy-requests', () => page('Privacy requests', privacyRequ
 privacyPages.post('/privacy-requests', async c => {
   await sameOrigin(c)
   // The attempt counts before anything else is read, and is kept even when the request is refused.
-  const counted = await load(c.env.DB)
-  const within = await countAttempt(counted, runtimeBindings(c.env).SESSION_SECRET, c.req.header('cf-connecting-ip') ?? '', new Date(), 'privacy-request-attempts', REQUESTS_PER_HOUR)
-  await save(c.env.DB, counted, null)
+  const within = await recordAttempt(c.env.DB, runtimeBindings(c.env).SESSION_SECRET, c.req.header('cf-connecting-ip') ?? '', 'privacy-request-attempts', REQUESTS_PER_HOUR)
   if (!within) return page('Too many requests', '<h1>Too many requests from this connection</h1><p>Please try again in an hour.</p>', 429)
   const data = await formBody(c)
   const values: Data = Object.fromEntries([...data.entries()].filter(([, x]) => typeof x === 'string'))
