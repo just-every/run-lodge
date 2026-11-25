@@ -1,16 +1,15 @@
-import { fileURLToPath as __rerTestEntryPath } from 'node:url';
-const __rerTestEntry = __rerTestEntryPath(import.meta.resolve('@runeditrun/rer/internal/global/rer.mjs'));
-const __rerTestEntryArgs = args => args[1] === 'dev' && !args.some(arg => ['--foreground', '--detach', '--stop', '--help'].includes(arg)) ? [...args, '--foreground'] : args;
 // Fresh checkouts and the public rer commands, as an owner would run them.
 import { promisify } from 'node:util'
 import { execFile, spawn } from 'node:child_process'
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 
 const source = resolve(new URL('..', import.meta.url).pathname)
 const run = promisify(execFile)
+const rer = join(source, 'node_modules', '.bin', 'rer')
+const cliEnv = { ...process.env, PATH: dirname(process.execPath) + ':' + process.env.PATH, WRANGLER_SEND_METRICS: 'false', RER_SERVER_JOURNEY: '1' }
 
 /** A plain local clone of the committed HEAD: no inherited dependencies, settings or data. */
 export async function fresh() {
@@ -32,7 +31,7 @@ export async function freePort() {
 const clean = text => text.replace(/^RER_OPEN .*$/gm, 'RER_OPEN [private sign-in URL omitted]').replace(/([?&#]token=)[^\s&]+/g, '$1[redacted]').replace(/(rer-dev=)[^\s&]+/g, '$1[redacted]')
 
 export async function command(root, args, { expected = 0 } = {}) {
-  const child = spawn(process.execPath, __rerTestEntryArgs([__rerTestEntry, ...args]), { cwd: root, env: { ...process.env, WRANGLER_SEND_METRICS: 'false', RER_SERVER_JOURNEY: '1' }, stdio: ['ignore', 'pipe', 'pipe'] })
+  const child = spawn(rer, args, { cwd: root, env: cliEnv, stdio: ['ignore', 'pipe', 'pipe'] })
   let log = ''
   for (const stream of [child.stdout, child.stderr]) stream.on('data', c => { log += c })
   const code = await new Promise((ok, fail) => { child.once('error', fail); child.once('close', ok) })
@@ -42,7 +41,9 @@ export async function command(root, args, { expected = 0 } = {}) {
 }
 
 export async function start(root, port, mode = 'dev') {
-  const child = spawn(process.execPath, __rerTestEntryArgs([__rerTestEntry, mode, '--port', String(port)]), { cwd: root, env: { ...process.env, WRANGLER_SEND_METRICS: 'false', RER_SERVER_JOURNEY: '1' }, stdio: ['ignore', 'pipe', 'pipe'] })
+  const args = [mode, '--port', String(port)]
+  if (mode === 'dev') args.push('--foreground')
+  const child = spawn(rer, args, { cwd: root, env: cliEnv, stdio: ['ignore', 'pipe', 'pipe'] })
   let output = ''
   for (const stream of [child.stdout, child.stderr]) stream.on('data', c => { output += c })
   const deadline = Date.now() + 15 * 60 * 1000

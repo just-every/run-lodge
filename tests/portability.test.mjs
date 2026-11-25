@@ -7,12 +7,8 @@ import { createHash } from 'node:crypto'
 import { BUSINESS, harness } from './harness.mjs'
 import { createPortability, readArchive, makePart } from '@runeditrun/rer/modules/portability'
 import { ArchiveVerifier, ContentVerifier } from '@runeditrun/rer/modules/portability/format'
-import { loadPolicy } from '@runeditrun/rer/internal/cli/portability-policy.mjs'
+import policy from '../scripts/installer/portability-policy.mjs'
 import { checkCliPolicy } from './portability-cli.mjs'
-import { portabilityOptions } from '../scripts/installer/local.mjs'
-
-// Resolve the actual installer declaration through the actual child-worker loader.
-const policy = await loadPolicy(process.cwd(), undefined, portabilityOptions.policyModule)
 
 test('LDG-015 actual seed restore policy rejects broken records and lineage before publication', async () => {
  const src = await harness()

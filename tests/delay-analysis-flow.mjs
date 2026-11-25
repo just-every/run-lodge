@@ -364,9 +364,8 @@ async function checkNativeDelayTrial(h, read) {
 
 async function checkDelayTrialRestore(h, proposal) {
   const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
-  const { loadPolicy } = await import('@runeditrun/rer/internal/cli/portability-policy.mjs')
+  const { default: policy } = await import('../scripts/installer/portability-policy.mjs')
   const { harness } = await import('./harness.mjs')
-  const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs')
   const service = await createPortability({ db: h.db, policy }), id = await service.exports.create()
   const records = []
   try {

@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import { createPortability, readArchive } from '@runeditrun/rer/modules/portability'
-import { loadPolicy } from '@runeditrun/rer/internal/cli/portability-policy.mjs'
+import policy from '../scripts/installer/portability-policy.mjs'
 import { harness } from './harness.mjs'
 import { scheduleFixture, scheduleClock, scheduleApi } from './analysis-schedule-flow.mjs'
 
 export async function checkAnalysisScheduleRestore(t) {
  const src = await scheduleFixture(); t.after(() => src.close())
  const enabled = await src.enable('2026-10-26T15:00:00.000Z')
- const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs'), service = await createPortability({ db: src.db, policy })
+ const service = await createPortability({ db: src.db, policy })
  const id = await service.exports.create(); let records
  try {
   while ((await service.exports.advance(id, { maxParts: 16 })).phase === 'building') {}

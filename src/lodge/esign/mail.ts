@@ -10,7 +10,7 @@ import { event } from './envelope'
 // installation's own mail adapter (the door that sends sign-in invitations), not recruiter mail. A message is only ever
 // "handed to the mail provider" or "failed"; an uncertain send is never resent blindly.
 
-export const mailReady = (env: Bindings) => !!env.MAIL_PROVIDER && !!env.MAIL_FROM && !!operatorMail(env)
+export const mailReady = (env: Bindings) => env.MAIL_PROVIDER !== 'none' && !!env.MAIL_PROVIDER && !!env.MAIL_FROM && !!operatorMail(env)
 const origin = (env: Bindings) => runtimeBindings(env).AUTH_ORIGIN
 
 export type Delivery = { outcome: 'handed'; provider: string } | { outcome: 'failed'; provider: string; reason: string }
@@ -19,7 +19,7 @@ export async function deliver(env: Bindings, to: string, subject: string, text: 
   const provider = env.MAIL_PROVIDER ?? 'not configured'
   try {
     const result = await operatorMail(env)!.send({ from: env.MAIL_FROM, to: [to], subject, text, deliveryId: kind + '-' + crypto.randomUUID() } as unknown as MailMessage)
-    return result.status === 'accepted' || result.status === 'development' ? { outcome: 'handed', provider } : { outcome: 'failed', provider, reason: String(result.status) }
+    return result.status === 'accepted' || result.status === 'development' ? { outcome: 'handed', provider } : { outcome: 'failed', provider, reason: result.code === 'mail_off' ? 'mail_off' : result.status }
   } catch { return { outcome: 'failed', provider, reason: 'mail provider error' } }
 }
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { createPortability, readArchive } from '@runeditrun/rer/modules/portability'
-import { loadPolicy } from '@runeditrun/rer/internal/cli/portability-policy.mjs'
+import policy from '../scripts/installer/portability-policy.mjs'
 import { harness } from './harness.mjs'
 import { weeklyFixture, weeklyApi } from './weekly-report-flow.mjs'
 
@@ -10,7 +10,7 @@ export async function checkWeeklyRestore(t) {
   await src.tick('2026-11-02T14:00:00.000Z')
   const attempts = (await src.rows()).find(r => r.id === schedule.id).attempts
   assert.equal(attempts.length, 1); assert.equal(attempts[0].status, 'handed')
-  const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs'), service = await createPortability({ db: src.db, policy })
+  const service = await createPortability({ db: src.db, policy })
   const id = await service.exports.create(); let records
   try {
     while ((await service.exports.advance(id, { maxParts: 16 })).phase === 'building') {}
