@@ -17,6 +17,7 @@ export function lodgePeople(env: Bindings): PeopleAdapter {
   }
   return {
     person,
+    businessStopped: base.businessStopped,
     async sponsor(claims) { const native = await base.sponsor(claims); return native ? person(native.id) : null },
     businessMember: base.businessMember,
     async session(request) {

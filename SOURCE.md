@@ -79,3 +79,7 @@ pin is in package.json. Applied schemas retain their original bytes.
 Lodge's adapters keep native membership, source visibility and human-only
 hiring decisions authoritative; the declared capability families are tools,
 policy, pause, audit and idempotency. See [Agent access](docs/agent-access.md).
+
+**Agent door refresh (26 November 2026).** The agent-door and Business settings
+source copies move to Base `c2efb501cbc148c2aee4d5e1107ebdba81469006`.
+Migrations 0025–0026 advance the existing agent-door and Business settings tables.

@@ -46,12 +46,14 @@ must keep working and [ACCEPTANCE.md](ACCEPTANCE.md) for what is proven.
   and erasure schemas (0008–0015), owner sign-in and sealed dependency keys
   (0017–0018), application-mail activation and enterprise SAML transactions
   (0019–0020). Business settings, stable Business people and the shared agent
-  door add schemas 0022–0024. Never edit an applied migration; add the next one.
+  door add schemas 0022–0024. 0025 adds agent replay custody, the decision relay
+  and policy retirement markers. 0026 adds Business roster retirement.
+  Never edit an applied migration. Add the next one.
 - `src/modules/*`, `src/base`: byte copies of Base at the revision in
   `base-copies.json` (see SOURCE.md). Refresh them with Base's `refresh-base`;
-  do not edit them in place. The agent-door, Business-settings and operator-auth
-  runtime at Base `2135c394939f4a737adabdc8003b0e667b31ac5a` is recorded
-  independently of the `@runeditrun/rer` CLI pin in package.json. Lodge's native adapters
+  do not edit them in place. The agent-door and Business-settings copies use
+  Base `c2efb501cbc148c2aee4d5e1107ebdba81469006`. Operator-auth and the
+  `@runeditrun/rer` CLI have separate pins. Lodge's native adapters
   in `src/lodge/agent-door` expose the five tools and nine metadata and draft
   resource templates in `agent-surface.json` with the tools, resources, policy,
   pause, audit, idempotency and prompts families. Run normal
