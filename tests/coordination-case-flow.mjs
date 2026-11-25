@@ -183,11 +183,10 @@ export async function checkCoordinationCases() {
 
 async function checkCaseRestore(h, caseId) {
   const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
-  const { loadPolicy } = await import('@runeditrun/rer/internal/cli/portability-policy.mjs')
+  const { default: policy } = await import('../scripts/installer/portability-policy.mjs')
   const { harness } = await import('./harness.mjs')
   const row = (await h.state()).coordination.cases.find(c => c.id === caseId)
   const pending = await h.command('propose', caseProposal(row, h.managerEmail, h.recruiterEmail), h.agent)
-  const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs')
   const source = await createPortability({ db: h.db, policy }), exportId = await source.exports.create(), records = []
   try {
     while ((await source.exports.advance(exportId, { maxParts: 16 })).phase === 'building') {}

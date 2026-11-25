@@ -218,11 +218,12 @@ try {
   const deployEnv = '.cache/browser-deploy.env'
   await mkdir(join(root, '.cache'), { recursive: true })
   const noCredentials = 'CLOUDFLARE_ACCOUNT_ID=\nCLOUDFLARE_API_TOKEN=\n'
-  await writeFile(join(root, deployEnv), noCredentials + 'MAIL_API_KEY=\n', { mode: 0o600 })
-  const missing = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
-  assert.match(missing, /production sign-in mail:[^\n]*MAIL_API_KEY/, 'the dry run names the sign-in method a real deploy still needs')
-  for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN']) assert.ok(missing.includes(name), missing)
-  await writeFile(join(root, deployEnv), noCredentials + 'MAIL_API_KEY=test-only-offline-plan\n', { mode: 0o600 })
+  await writeFile(join(root, deployEnv), noCredentials + 'MAIL_PROVIDER=none\nMAIL_FROM=\nMAIL_API_KEY=\n', { mode: 0o600 })
+  const mailOff = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
+  assert.match(mailOff, /MAIL_PROVIDER=none[^\n]*rer signin/)
+  assert.doesNotMatch(mailOff, /production sign-in mail:/)
+  for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN']) assert.ok(mailOff.includes(name), mailOff)
+  await writeFile(join(root, deployEnv), noCredentials + 'MAIL_PROVIDER=resend\nMAIL_FROM=auth@example.test\nMAIL_API_KEY=test-only-offline-plan\n', { mode: 0o600 })
   const configured = await command(root, ['deploy', '--dry-run', '--env-file', deployEnv])
   for (const name of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLARE_API_TOKEN']) assert.ok(configured.includes(name), configured)
   assert.doesNotMatch(configured, /production sign-in mail:[^\n]*MAIL_API_KEY/, 'the configured mail input satisfies the sign-in prerequisite')
