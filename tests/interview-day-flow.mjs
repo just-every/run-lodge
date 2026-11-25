@@ -133,8 +133,7 @@ export async function checkInterviewDay(t) {
   const unchanged = await production()
   assert.deepEqual(unchanged.filter(r => r.kind !== 'application'), before.filter(r => r.kind !== 'application'), 'all draft alternatives and substitute review preserve production interviews and independent cards')
   const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
-  const { loadPolicy } = await import('@runeditrun/rer/internal/cli/portability-policy.mjs')
-  const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs')
+  const { default: policy } = await import('../scripts/installer/portability-policy.mjs')
   const service = await createPortability({ db: h.db, policy }), exportId = await service.exports.create(), records = []
   try {
     while ((await service.exports.advance(exportId, { maxParts: 16 })).phase === 'building') {}

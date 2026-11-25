@@ -1,7 +1,6 @@
 import { identityFetch } from './audit'
 import { createOperatorAuth, type IdentityProviderConfig } from '../../modules/operator-auth/index.mjs'
-import { authConfig, runtimeBindings, type Bindings } from '../../auth.server'
-import { operatorMail } from '../../mail.server.mjs'
+import { authConfig, runtimeBindings, signInMail, type Bindings } from '../../auth.server'
 import { load } from '../core/store'
 
 export const providerId = 'lodge-okta'
@@ -21,7 +20,7 @@ export async function enterpriseAuth(original: Bindings) {
   const issuer = env.ENTERPRISE_OKTA_ISSUER!, subjectEmails: Record<string, string> = {}
   for (const member of s.all('member')) if (member.active && member.enterprise?.issuer === issuer) subjectEmails[member.enterprise.subject] = member.email
   const provider: IdentityProviderConfig = { id: providerId, preset: 'okta', label: 'Employer Okta', issuer, clientId: env.ENTERPRISE_OKTA_CLIENT_ID!, tokenAuthMethod: 'client_secret_basic', clientSecret: env.ENTERPRISE_OKTA_CLIENT_SECRET!, subjectEmails }
-  return createOperatorAuth({ db: env.DB, fetch: identityFetch(env), config: { ...authConfig(env), providers: [provider], OIDC_TRANSACTION_SECRET: env.ENTERPRISE_OIDC_SECRET }, mailSender: operatorMail(env), clientIp: request => request.headers.get('CF-Connecting-IP') ?? '', hooks: {
+  return createOperatorAuth({ db: env.DB, fetch: identityFetch(env), config: { ...authConfig(env), providers: [provider], OIDC_TRANSACTION_SECRET: env.ENTERPRISE_OIDC_SECRET }, mailSender: signInMail(env), clientIp: request => request.headers.get('CF-Connecting-IP') ?? '', hooks: {
     async afterConfirm({ operator }) {
       const current = await load(env.DB), member = current.find('member', operator.email)
       if (!member?.active || member.enterprise?.issuer !== issuer) throw new Error('Enterprise membership required')
@@ -37,5 +36,5 @@ export async function enterpriseControl(original: Bindings) {
   // transport. This private control instance declares that actual issuer;
   // its legacy external-token HTTP routes are never mounted.
   if (!samlConfigured(env)) throw new Error('Employer identity is not configured')
-  return createOperatorAuth({ db: env.DB, config: { ...authConfig(env), externalIssuers: [env.ENTERPRISE_OKTA_ISSUER!] }, mailSender: operatorMail(env), clientIp: request => request.headers.get('CF-Connecting-IP') ?? '' })
+  return createOperatorAuth({ db: env.DB, config: { ...authConfig(env), externalIssuers: [env.ENTERPRISE_OKTA_ISSUER!] }, mailSender: signInMail(env), clientIp: request => request.headers.get('CF-Connecting-IP') ?? '' })
 }

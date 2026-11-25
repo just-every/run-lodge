@@ -18,8 +18,31 @@ import { checkOperations } from './operations-driver.mjs'
 import { checkAgentPrompts } from './agent-prompts-flow.mjs'
 import { checkAgentRefusals } from './agent-refusal-flow.mjs'
 import { checkAgentResources } from './agent-resource-flow.mjs'
+import { randomBytes, randomUUID } from 'node:crypto'
+import { businessHarness } from './harness.mjs'
+import { ownerSigninDigest } from '../src/modules/operator-auth/owner-signin-grant.mjs'
 
 const snapshot = async h => (await h.db.prepare('SELECT kind,id,revision,value FROM l_records ORDER BY kind,id').all()).results
+
+test('The owner opens Lodge with a one-time link while outbound mail is off', async t => {
+ const h = await businessHarness({ liveMail: true, bindings: { MAIL_PROVIDER: 'none', MAIL_FROM: '' } })
+ t.after(() => h.close())
+
+ const email = await h.send('/auth/magic-link', { email: 'owner@example.test' })
+ assert.equal(email.status, 503)
+ assert.equal(email.value.error, 'mail_unavailable')
+
+ // Stand in for the Cloudflare D1 write at the provider edge of `rer signin`.
+ const token = randomBytes(32).toString('base64url'), at = Date.now()
+ await h.db.prepare(`INSERT INTO oa_owner_signins(id,token_hash,operator_id,operator_version,created_at,expires_at)
+  SELECT ?,?,id,version,?,? FROM oa_operators WHERE role='owner' AND status='active'`)
+  .bind(randomUUID(), await ownerSigninDigest(token), at, at + 60_000).run()
+ const entry = await h.send('/auth/owner-signin', { token })
+ assert.equal(entry.status, 303)
+ assert.ok(entry.cookie)
+ assert.equal((await h.state(entry.cookie)).actor.email, 'owner@example.test')
+ assert.equal((await h.send('/auth/owner-signin', { token })).status, 400)
+})
 
 test('Native proposal and debrief refusals keep stable MCP codes, authority and unsent drafts', async () => { await checkAgentRefusals() })
 test('Native agent preparation retains trusted attribution and separate human decisions across activity, exports, revocation and erasure', checkAgentAttribution)

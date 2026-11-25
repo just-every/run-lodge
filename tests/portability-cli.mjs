@@ -1,6 +1,3 @@
-import { fileURLToPath as __rerTestEntryPath } from 'node:url';
-const __rerTestEntry = __rerTestEntryPath(import.meta.resolve('@runeditrun/rer/internal/global/rer.mjs'));
-const __rerTestEntryArgs = args => args[1] === 'dev' && !args.some(arg => ['--foreground', '--detach', '--stop', '--help'].includes(arg)) ? [...args, '--foreground'] : args;
 import assert from 'node:assert/strict'
 import { mkdtemp, writeFile, copyFile, cp, symlink, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -15,7 +12,7 @@ export async function checkCliPolicy(valid, invalid, documentId) {
   const env = {...process.env,PATH:dirname(process.execPath)+':'+process.env.PATH,WRANGLER_SEND_METRICS:'false'}
   // This checkout owns its operation; retain the parent's shared job admission.
   delete env.RER_LOCAL_OPERATION
-  const child = spawn(process.execPath, __rerTestEntryArgs([__rerTestEntry,'import','--input',input,'--yes','--non-interactive','--json']), {
+  const child = spawn(resolve('node_modules/.bin/rer'), ['import','--input',input,'--yes','--non-interactive','--json'], {
    cwd:root, env, stdio:['ignore','pipe','pipe'],
   })
   children.add(child)

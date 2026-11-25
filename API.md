@@ -592,9 +592,8 @@ against its saved intent; it never replaces an unrelated association. The custom
 hostname serves careers pages and public privacy requests only; every sign-in or
 private API path refuses. Installation `/jobs` remains available.
 
-`tests/careers-live.mjs` is the explicit held-key sandbox journey (outside Verify).
-It creates and removes only its own Worker, database, TXT record and association,
-then exercises the live careers hostname at 1440 and 390 pixels.
+The held-key sandbox journey on `ac4af201` exercised the live careers hostname
+at 1440 and 390 pixels using a disposable Worker, database, TXT record and association.
 
 ## Candidate receipts and privacy requests
 

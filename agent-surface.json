@@ -159,6 +159,13 @@
     {
       "id": "proposal",
       "tool": "lodge.proposals.prepare",
+      "resource": {
+        "uriTemplate": "lodge://proposal/{id}",
+        "state": {
+          "workflow": "prepare-vacancy",
+          "status": "proposed"
+        }
+      },
       "args": {
         "workflow": "prepare-vacancy",
         "summary": "Prepare an estimator vacancy for human review",
