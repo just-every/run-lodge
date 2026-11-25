@@ -145,8 +145,7 @@ export async function checkCutover() {
 
   // An unmodified archive after undo must still restore, including the retained application and planning work.
   const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
-  const { loadPolicy } = await import('@runeditrun/rer/internal/cli/portability-policy.mjs')
-  const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs')
+  const { default: policy } = await import('../scripts/installer/portability-policy.mjs')
   const service = await createPortability({ db: h.db, policy }), exportId = await service.exports.create(), archive = []
   try {
    while ((await service.exports.advance(exportId, { maxParts: 16 })).phase === 'building') {}

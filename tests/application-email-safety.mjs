@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { applicationEmailFixture, form } from './application-email-flow.mjs'
 import { harness } from './harness.mjs'
 import { createPortability, readArchive } from '@runeditrun/rer/modules/portability'
-import { loadPolicy } from '@runeditrun/rer/internal/cli/portability-policy.mjs'
+import policy from '../scripts/installer/portability-policy.mjs'
 
 export async function checkApplicationEmailSender(t) {
  const h = await applicationEmailFixture({ activate: false }); t.after(() => h.close())
@@ -64,7 +64,6 @@ export async function checkApplicationEmailRestore(t) {
  src.edge.beforeCheck = async request => { if (new URL(request.url).pathname.endsWith('/7')) { entered(); await resume } }
  const submission = src.submit()
  await paused
- const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs')
  const service = await createPortability({ db: src.db, policy })
  let records, received
  try {

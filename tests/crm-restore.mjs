@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { createPortability, readArchive } from '@runeditrun/rer/modules/portability'
-import { loadPolicy } from '@runeditrun/rer/internal/cli/portability-policy.mjs'
+import policy from '../scripts/installer/portability-policy.mjs'
 import { harness } from './harness.mjs'
 import { crmFixture, crmClock } from './crm-flow.mjs'
 
@@ -14,7 +14,7 @@ export async function checkNurtureRestore(t) {
  src.edge.beforeCheck = async request => { if (new URL(request.url).pathname.endsWith('/7')) { entered(); await resume } }
  const sending = src.tick('2026-10-26T14:01:00.000Z')
  await paused
- const policy = await loadPolicy(process.cwd(), undefined, 'scripts/installer/portability-policy.mjs'), service = await createPortability({ db: src.db, policy })
+ const service = await createPortability({ db: src.db, policy })
  let records
  try {
   const id = await service.exports.create()
