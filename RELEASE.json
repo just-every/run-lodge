@@ -1,10 +1,18 @@
 {
   "version": "0.1.1",
-  "publicReleaseNotes": "Lodge prepares hosted installation with an explicit delivery descriptor, digest-bound setup, Managed mail relay support and a deployment specification. Existing hiring records, archive identity and brand marks are preserved.",
+  "publicReleaseNotes": "Lodge 0.1.1 brings the hiring work since 0.1.0: owner sign-in, sealed dependency keys, application email activation, enterprise SAML transactions, app credentials, Business settings and people, the agent door with auth-first MCP on rer 0.2.134, and deployments with outbound mail off. Adds migrations 0017 to 0026; no shipped migration changes.",
   "previousVersion": "0.1.0",
   "migrations": [
     "migrations/core/0017_owner_signin.sql",
-    "migrations/core/0018_dependency_keys_sealed.sql"
+    "migrations/core/0018_dependency_keys_sealed.sql",
+    "migrations/core/0019_application_email_activation.sql",
+    "migrations/core/0020_enterprise_saml_transactions.sql",
+    "migrations/core/0021_app_credentials.sql",
+    "migrations/core/0022_business_settings.sql",
+    "migrations/core/0023_business_people.sql",
+    "migrations/core/0024_agent_door.sql",
+    "migrations/core/0025_agent_door_relay_upgrade.sql",
+    "migrations/core/0026_business_retired.sql"
   ],
   "breaking": false,
   "agentUpdateInstructions": "Use the declared setup, build, verification and artifact commands. Existing archives keep their existing project identity; preserve applied migration bytes."
